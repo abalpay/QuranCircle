@@ -113,8 +113,6 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     }
   });
   
-  // We've removed the multiple Juz claiming functionality
-  
   // Mutation for unclaiming a Juz
   const unclaimJuzMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
@@ -166,7 +164,6 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
   const onClaimSubmit = (claimerName: string, juzNumbers: number[]) => {
     if (!selectedJuz || juzNumbers.length === 0) return;
     
-    // Always use the single Juz claim API
     claimJuzMutation.mutate({
       khatmId: selectedJuz.khatmId,
       juzNumber: juzNumbers[0],
