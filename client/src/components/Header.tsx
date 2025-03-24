@@ -26,7 +26,7 @@ export default function Header() {
   };
   
   return (
-    <header className="bg-primary text-white shadow-md sticky top-0 z-50">
+    <header className="bg-gradient-to-r from-primary to-primary/90 text-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <BookOpen className="mr-2" />
