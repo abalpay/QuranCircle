@@ -142,18 +142,27 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
   });
   
   const handleClaimJuz = (juzNumber: number) => {
-    setSelectedJuz({ khatmId: khatm.id, juzNumber });
-    setIsClaimDialogOpen(true);
+    setDialogState({
+      ...dialogState,
+      selectedJuz: { khatmId: khatm.id, juzNumber },
+      isClaimDialogOpen: true
+    });
   };
   
   const handleMarkAsRead = (juzNumber: number) => {
-    setSelectedJuz({ khatmId: khatm.id, juzNumber });
-    setIsReadDialogOpen(true);
+    setDialogState({
+      ...dialogState,
+      selectedJuz: { khatmId: khatm.id, juzNumber },
+      isReadDialogOpen: true
+    });
   };
   
   const handleUnclaim = (juzNumber: number) => {
-    setSelectedJuz({ khatmId: khatm.id, juzNumber });
-    setIsUnclaimDialogOpen(true);
+    setDialogState({
+      ...dialogState,
+      selectedJuz: { khatmId: khatm.id, juzNumber },
+      isUnclaimDialogOpen: true
+    });
   };
   
   const onClaimSubmit = (claimerName: string, juzNumbers: number[]) => {
@@ -187,7 +196,11 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         khatmId: selectedJuz.khatmId,
         juzNumber: selectedJuz.juzNumber
       });
-      setIsReadDialogOpen(false);
+      // Wait a moment before closing to avoid state update conflicts
+      setTimeout(() => {
+        setIsReadDialogOpen(false);
+        setSelectedJuz(null);
+      }, 100);
     }
   };
   
@@ -197,7 +210,11 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         khatmId: selectedJuz.khatmId,
         juzNumber: selectedJuz.juzNumber
       });
-      setIsUnclaimDialogOpen(false);
+      // Wait a moment before closing to avoid state update conflicts
+      setTimeout(() => {
+        setIsUnclaimDialogOpen(false);
+        setSelectedJuz(null);
+      }, 100);
     }
   };
   
@@ -266,7 +283,10 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         <>
           <ClaimJuzDialog 
             isOpen={isClaimDialogOpen}
-            onClose={() => setIsClaimDialogOpen(false)}
+            onClose={() => {
+              setIsClaimDialogOpen(false);
+              // Don't clear selectedJuz here as it's needed for the dialog to know what juzNumber to display
+            }}
             juzNumber={selectedJuz.juzNumber}
             onSubmit={onClaimSubmit}
             defaultName={user?.username || ''}
@@ -277,14 +297,20 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
           
           <MarkAsReadDialog
             isOpen={isReadDialogOpen}
-            onClose={() => setIsReadDialogOpen(false)}
+            onClose={() => {
+              setIsReadDialogOpen(false);
+              // Don't clear selectedJuz here as it's needed for the dialog to know what juzNumber to display
+            }}
             juzNumber={selectedJuz.juzNumber}
             onConfirm={onMarkAsReadSubmit}
           />
           
           <UnclaimDialog
             isOpen={isUnclaimDialogOpen}
-            onClose={() => setIsUnclaimDialogOpen(false)}
+            onClose={() => {
+              setIsUnclaimDialogOpen(false);
+              // Don't clear selectedJuz here as it's needed for the dialog to know what juzNumber to display
+            }}
             juzNumber={selectedJuz.juzNumber}
             claimedByName={selectedJuzDetails?.claimedByName || ''}
             onConfirm={onUnclaimSubmit}

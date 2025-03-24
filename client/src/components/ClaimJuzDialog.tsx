@@ -38,9 +38,23 @@ export default function ClaimJuzDialog({
   // Reset selected juzs when the dialog opens
   useEffect(() => {
     if (isOpen) {
-      setSelectedJuzs([juzNumber]);
-      setName(defaultName);
+      // Store values in local variables to check if we need to update
+      const newSelectedJuzs = [juzNumber];
+      
+      // Only update state if the values have changed, to prevent unnecessary rerenders
+      const hasJuzChanged = 
+        selectedJuzs.length !== 1 || 
+        selectedJuzs[0] !== juzNumber;
+        
+      if (hasJuzChanged) {
+        setSelectedJuzs(newSelectedJuzs);
+      }
+      
+      if (name !== defaultName) {
+        setName(defaultName);
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, juzNumber, defaultName]);
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -65,7 +79,9 @@ export default function ClaimJuzDialog({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) onClose();
+      if (!open) {
+        onClose();
+      }
     }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>

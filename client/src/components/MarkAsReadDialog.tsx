@@ -16,7 +16,9 @@ export default function MarkAsReadDialog({
 }: MarkAsReadDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) onClose();
+      if (!open) {
+        onClose();
+      }
     }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
