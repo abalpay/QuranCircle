@@ -113,54 +113,7 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     }
   });
   
-  // Mutation for claiming multiple Juz at once
-  const claimMultipleJuzMutation = useMutation({
-    mutationFn: async ({ khatmId, juzNumbers, claimerName }: { khatmId: number; juzNumbers: number[]; claimerName: string }) => {
-      const res = await apiRequest("POST", "/api/juz/claim-multiple", {
-        khatmId,
-        juzNumbers,
-        claimerName
-      });
-      return await res.json();
-    },
-    onSuccess: (data) => {
-      // Handle scenarios where only some Juzs were successfully claimed
-      if (data.failedJuzs && data.failedJuzs.length > 0) {
-        const successCount = data.claimedCount || 0;
-        const failCount = data.failedJuzs.length;
-        
-        toast({ 
-          title: `${successCount} out of ${successCount + failCount} Juz portions claimed`,
-          description: "Some portions were already claimed by others. The available ones have been assigned to you.",
-          variant: "warning"
-        });
-      } else {
-        toast({ 
-          title: `${data.claimedCount} Juz portions claimed successfully`,
-          description: "You have claimed these portions for reading"
-        });
-      }
-      
-      // Refresh the data
-      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
-      
-      // Check if a new khatm was created
-      if (data.newKhatmCreated && onNewKhatmCreated) {
-        onNewKhatmCreated();
-      }
-      
-      // Close the dialog and reset state
-      setIsClaimDialogOpen(false);
-      setSelectedJuz(null);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to claim Juz portions",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
+  // We've removed the multiple Juz claiming functionality
   
   // Mutation for unclaiming a Juz
   const unclaimJuzMutation = useMutation({
@@ -211,23 +164,14 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
   
   // Dialog submission handlers
   const onClaimSubmit = (claimerName: string, juzNumbers: number[]) => {
-    if (!selectedJuz) return;
+    if (!selectedJuz || juzNumbers.length === 0) return;
     
-    if (juzNumbers.length === 1) {
-      // Use the single Juz claim API for one selection
-      claimJuzMutation.mutate({
-        khatmId: selectedJuz.khatmId,
-        juzNumber: juzNumbers[0],
-        claimerName
-      });
-    } else {
-      // Use the multiple Juz claim API for multiple selections
-      claimMultipleJuzMutation.mutate({
-        khatmId: selectedJuz.khatmId,
-        juzNumbers,
-        claimerName
-      });
-    }
+    // Always use the single Juz claim API
+    claimJuzMutation.mutate({
+      khatmId: selectedJuz.khatmId,
+      juzNumber: juzNumbers[0],
+      claimerName
+    });
     // Note: Dialog closing is handled in mutation success callback
   };
   
