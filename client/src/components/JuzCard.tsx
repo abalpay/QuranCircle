@@ -2,6 +2,7 @@ import { Juz } from "@shared/schema";
 import { CheckCircle, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 type JuzCardProps = {
   juz: Juz;
@@ -12,6 +13,7 @@ type JuzCardProps = {
 };
 
 export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProps) {
+  const { user } = useAuth();
   const isUnclaimed = juz.status === 'unclaimed';
   const isClaimed = juz.status === 'claimed';
   const isRead = juz.status === 'read';
@@ -24,7 +26,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
         isClaimed ? "bg-[#fdfbf5]" : 
         "bg-[#f7fcfb]"
       )}
-      onClick={isUnclaimed ? onClaim : undefined}
+      onClick={isUnclaimed ? (user ? onClaim : () => window.location.href = "/auth") : undefined}
     >
       <div className="text-xs text-gray-500 absolute left-2 top-2">
         {juz.juzNumber}

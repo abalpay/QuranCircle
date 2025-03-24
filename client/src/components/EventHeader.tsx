@@ -85,7 +85,7 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
           
           <div className="flex items-center gap-1">
             <Eye className="h-4 w-4 text-neutral-700" />
-            <span>{event.isPublic ? 'Public Event' : 'Private Event'}</span>
+            <span>{event.isPublic ? 'Public Event' : 'Private Circle'}</span>
           </div>
         </div>
       </div>

@@ -44,8 +44,8 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
     },
     onSuccess: (event) => {
       toast({
-        title: "Event created",
-        description: "Your Quran reading event has been created successfully.",
+        title: "Circle created",
+        description: "Your Quran reading circle has been created successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       resetForm();
@@ -54,7 +54,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
     },
     onError: (error) => {
       toast({
-        title: "Failed to create event",
+        title: "Failed to create circle",
         description: error.message,
         variant: "destructive",
       });
@@ -74,7 +74,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to create an event",
+        description: "Please sign in to create a circle",
         variant: "destructive",
       });
       onClose();
@@ -85,7 +85,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
     if (!name.trim()) {
       toast({
         title: "Event name required",
-        description: "Please provide a name for your event",
+        description: "Please provide a name for your circle",
         variant: "destructive",
       });
       return;
@@ -105,14 +105,14 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
         <DialogHeader>
           <DialogTitle className="text-xl font-heading font-bold text-primary-dark">Create New Event</DialogTitle>
           <DialogDescription>
-            Start a new Quran reading event and invite others to join
+            Start a new Quran reading circle and invite others to join
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="eventName">Event Name</Label>
+              <Label htmlFor="eventName">Circle Name</Label>
               <Input
                 id="eventName"
                 placeholder="e.g., Ramadan Nights"
@@ -126,7 +126,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
               <Label htmlFor="eventDescription">Description (Optional)</Label>
               <Textarea
                 id="eventDescription"
-                placeholder="Briefly describe the purpose of this event"
+                placeholder="Briefly describe the purpose of this circle"
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -194,7 +194,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
                   Creating...
                 </>
               ) : (
-                "Create Event"
+                "Create Circle"
               )}
             </Button>
           </DialogFooter>
