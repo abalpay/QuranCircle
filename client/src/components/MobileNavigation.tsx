@@ -18,13 +18,13 @@ export default function MobileNavigation() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-40">
         <div className="flex justify-around">
           <Link href="/">
-            <a className={cn(
-              "flex flex-col items-center py-3 px-5",
+            <div className={cn(
+              "flex flex-col items-center py-3 px-5 cursor-pointer",
               location === "/" ? "text-primary" : "text-neutral-700"
             )}>
               <BookOpen size={20} />
               <span className="text-xs mt-1">Events</span>
-            </a>
+            </div>
           </Link>
           
           <button
@@ -37,13 +37,13 @@ export default function MobileNavigation() {
           </button>
           
           <Link href="/auth">
-            <a className={cn(
-              "flex flex-col items-center py-3 px-5",
+            <div className={cn(
+              "flex flex-col items-center py-3 px-5 cursor-pointer",
               location === "/auth" ? "text-primary" : "text-neutral-700"
             )}>
               <UserCircle size={20} />
               <span className="text-xs mt-1">Account</span>
-            </a>
+            </div>
           </Link>
         </div>
       </nav>

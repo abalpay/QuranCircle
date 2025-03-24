@@ -55,7 +55,7 @@ export class MemStorage implements IStorage {
   private khatmIdCounter: number;
   private juzIdCounter: number;
   
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any for session store type
   
   constructor() {
     this.usersData = new Map();
