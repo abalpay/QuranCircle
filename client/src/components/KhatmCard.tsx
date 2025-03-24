@@ -254,7 +254,7 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
             {khatm.juzs.map(juz => (
               <JuzCard 
                 key={juz.id} 
