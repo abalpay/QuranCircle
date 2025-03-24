@@ -22,6 +22,7 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
   const { toast } = useToast();
   const { user } = useAuth();
   
+  // Dialog state
   const [selectedJuz, setSelectedJuz] = useState<{ khatmId: number; juzNumber: number } | null>(null);
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const [isReadDialogOpen, setIsReadDialogOpen] = useState(false);
@@ -32,6 +33,7 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
   // If this is an empty khatm (auto-generated next)
   const isEmpty = khatm.claimedCount === 0;
   
+  // Mutation for claiming a single Juz
   const claimJuzMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber, claimerName }: { khatmId: number; juzNumber: number; claimerName: string }) => {
       const res = await apiRequest("POST", "/api/juz/claim", {
@@ -46,22 +48,41 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         title: "Juz claimed successfully",
         description: "You have claimed this Juz for reading"
       });
+      
+      // Refresh the data
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
       
       // Check if a new khatm was created
       if (data.newKhatmCreated && onNewKhatmCreated) {
         onNewKhatmCreated();
       }
+      
+      // Close the dialog and reset state
+      setIsClaimDialogOpen(false);
+      setSelectedJuz(null);
     },
-    onError: (error) => {
-      toast({
-        title: "Failed to claim Juz",
-        description: error.message,
-        variant: "destructive"
-      });
+    onError: (error: Error) => {
+      // Handle the case where another user claimed this Juz first
+      if (error.message.includes("already claimed")) {
+        toast({
+          title: "This Juz has already been claimed",
+          description: "Someone else just claimed this Juz. Please select another one.",
+          variant: "destructive"
+        });
+        
+        // Refresh to get the latest data
+        queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
+      } else {
+        toast({
+          title: "Failed to claim Juz",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
     }
   });
   
+  // Mutation for marking a Juz as read
   const markAsReadMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
       const res = await apiRequest("POST", "/api/juz/read", {
@@ -75,9 +96,15 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         title: "Juz marked as read",
         description: "Thank you for completing this portion"
       });
+      
+      // Refresh the data
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
+      
+      // Close the dialog and reset state
+      setIsReadDialogOpen(false);
+      setSelectedJuz(null);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Failed to mark as read",
         description: error.message,
@@ -97,18 +124,36 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
       return await res.json();
     },
     onSuccess: (data) => {
-      toast({ 
-        title: `${data.claimedCount} Juz portions claimed successfully`,
-        description: "You have claimed these portions for reading"
-      });
+      // Handle scenarios where only some Juzs were successfully claimed
+      if (data.failedJuzs && data.failedJuzs.length > 0) {
+        const successCount = data.claimedCount || 0;
+        const failCount = data.failedJuzs.length;
+        
+        toast({ 
+          title: `${successCount} out of ${successCount + failCount} Juz portions claimed`,
+          description: "Some portions were already claimed by others. The available ones have been assigned to you.",
+          variant: "warning"
+        });
+      } else {
+        toast({ 
+          title: `${data.claimedCount} Juz portions claimed successfully`,
+          description: "You have claimed these portions for reading"
+        });
+      }
+      
+      // Refresh the data
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
       
       // Check if a new khatm was created
       if (data.newKhatmCreated && onNewKhatmCreated) {
         onNewKhatmCreated();
       }
+      
+      // Close the dialog and reset state
+      setIsClaimDialogOpen(false);
+      setSelectedJuz(null);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Failed to claim Juz portions",
         description: error.message,
@@ -117,6 +162,7 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     }
   });
   
+  // Mutation for unclaiming a Juz
   const unclaimJuzMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
       const res = await apiRequest("POST", "/api/juz/unclaim", {
@@ -130,9 +176,15 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         title: "Juz unclaimed",
         description: "The Juz is now available for others to claim"
       });
+      
+      // Refresh the data
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
+      
+      // Close the dialog and reset state
+      setIsUnclaimDialogOpen(false);
+      setSelectedJuz(null);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Failed to unclaim Juz",
         description: error.message,
@@ -141,87 +193,73 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     }
   });
   
+  // Handlers for opening dialogs
   const handleClaimJuz = (juzNumber: number) => {
-    setDialogState({
-      ...dialogState,
-      selectedJuz: { khatmId: khatm.id, juzNumber },
-      isClaimDialogOpen: true
-    });
+    setSelectedJuz({ khatmId: khatm.id, juzNumber });
+    setIsClaimDialogOpen(true);
   };
   
   const handleMarkAsRead = (juzNumber: number) => {
-    setDialogState({
-      ...dialogState,
-      selectedJuz: { khatmId: khatm.id, juzNumber },
-      isReadDialogOpen: true
-    });
+    setSelectedJuz({ khatmId: khatm.id, juzNumber });
+    setIsReadDialogOpen(true);
   };
   
   const handleUnclaim = (juzNumber: number) => {
-    setDialogState({
-      ...dialogState,
-      selectedJuz: { khatmId: khatm.id, juzNumber },
-      isUnclaimDialogOpen: true
-    });
+    setSelectedJuz({ khatmId: khatm.id, juzNumber });
+    setIsUnclaimDialogOpen(true);
   };
   
+  // Dialog submission handlers
   const onClaimSubmit = (claimerName: string, juzNumbers: number[]) => {
-    if (selectedJuz) {
-      if (juzNumbers.length === 1) {
-        // Use the single Juz claim API for one selection
-        claimJuzMutation.mutate({
-          khatmId: selectedJuz.khatmId,
-          juzNumber: juzNumbers[0],
-          claimerName
-        });
-      } else {
-        // Use the multiple Juz claim API for multiple selections
-        claimMultipleJuzMutation.mutate({
-          khatmId: selectedJuz.khatmId,
-          juzNumbers,
-          claimerName
-        });
-      }
-      // Wait a moment before closing to avoid state update conflicts
-      setTimeout(() => {
-        setIsClaimDialogOpen(false);
-        setSelectedJuz(null);
-      }, 100);
+    if (!selectedJuz) return;
+    
+    if (juzNumbers.length === 1) {
+      // Use the single Juz claim API for one selection
+      claimJuzMutation.mutate({
+        khatmId: selectedJuz.khatmId,
+        juzNumber: juzNumbers[0],
+        claimerName
+      });
+    } else {
+      // Use the multiple Juz claim API for multiple selections
+      claimMultipleJuzMutation.mutate({
+        khatmId: selectedJuz.khatmId,
+        juzNumbers,
+        claimerName
+      });
     }
+    // Note: Dialog closing is handled in mutation success callback
   };
   
   const onMarkAsReadSubmit = () => {
-    if (selectedJuz) {
-      markAsReadMutation.mutate({
-        khatmId: selectedJuz.khatmId,
-        juzNumber: selectedJuz.juzNumber
-      });
-      // Wait a moment before closing to avoid state update conflicts
-      setTimeout(() => {
-        setIsReadDialogOpen(false);
-        setSelectedJuz(null);
-      }, 100);
-    }
+    if (!selectedJuz) return;
+    
+    markAsReadMutation.mutate({
+      khatmId: selectedJuz.khatmId,
+      juzNumber: selectedJuz.juzNumber
+    });
+    // Note: Dialog closing is handled in mutation success callback
   };
   
   const onUnclaimSubmit = () => {
-    if (selectedJuz) {
-      unclaimJuzMutation.mutate({
-        khatmId: selectedJuz.khatmId,
-        juzNumber: selectedJuz.juzNumber
-      });
-      // Wait a moment before closing to avoid state update conflicts
-      setTimeout(() => {
-        setIsUnclaimDialogOpen(false);
-        setSelectedJuz(null);
-      }, 100);
-    }
+    if (!selectedJuz) return;
+    
+    unclaimJuzMutation.mutate({
+      khatmId: selectedJuz.khatmId,
+      juzNumber: selectedJuz.juzNumber
+    });
+    // Note: Dialog closing is handled in mutation success callback
   };
   
   // Find the selected juz details for the dialog
   const selectedJuzDetails = selectedJuz 
     ? khatm.juzs.find(juz => juz.juzNumber === selectedJuz.juzNumber)
     : null;
+  
+  // Calculate available Juzs for claim dialog
+  const availableJuzs = khatm.juzs
+    .filter(juz => juz.status === 'unclaimed')
+    .map(juz => juz.juzNumber);
   
   return (
     <>
@@ -279,44 +317,30 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         )}
       </div>
       
-      {selectedJuz && (
-        <>
-          <ClaimJuzDialog 
-            isOpen={isClaimDialogOpen}
-            onClose={() => {
-              setIsClaimDialogOpen(false);
-              // Don't clear selectedJuz here as it's needed for the dialog to know what juzNumber to display
-            }}
-            juzNumber={selectedJuz.juzNumber}
-            onSubmit={onClaimSubmit}
-            defaultName={user?.username || ''}
-            availableJuzs={khatm.juzs
-              .filter(juz => juz.status === 'unclaimed')
-              .map(juz => juz.juzNumber)
-            }/>
-          
-          <MarkAsReadDialog
-            isOpen={isReadDialogOpen}
-            onClose={() => {
-              setIsReadDialogOpen(false);
-              // Don't clear selectedJuz here as it's needed for the dialog to know what juzNumber to display
-            }}
-            juzNumber={selectedJuz.juzNumber}
-            onConfirm={onMarkAsReadSubmit}
-          />
-          
-          <UnclaimDialog
-            isOpen={isUnclaimDialogOpen}
-            onClose={() => {
-              setIsUnclaimDialogOpen(false);
-              // Don't clear selectedJuz here as it's needed for the dialog to know what juzNumber to display
-            }}
-            juzNumber={selectedJuz.juzNumber}
-            claimedByName={selectedJuzDetails?.claimedByName || ''}
-            onConfirm={onUnclaimSubmit}
-          />
-        </>
-      )}
+      {/* Dialogs */}
+      <ClaimJuzDialog 
+        isOpen={isClaimDialogOpen} 
+        onClose={() => setIsClaimDialogOpen(false)}
+        juzNumber={selectedJuz?.juzNumber || 1}
+        onSubmit={onClaimSubmit}
+        defaultName={user?.username || ''}
+        availableJuzs={availableJuzs}
+      />
+      
+      <MarkAsReadDialog
+        isOpen={isReadDialogOpen && selectedJuz !== null}
+        onClose={() => setIsReadDialogOpen(false)}
+        juzNumber={selectedJuz?.juzNumber || 1}
+        onConfirm={onMarkAsReadSubmit}
+      />
+      
+      <UnclaimDialog
+        isOpen={isUnclaimDialogOpen && selectedJuz !== null}
+        onClose={() => setIsUnclaimDialogOpen(false)}
+        juzNumber={selectedJuz?.juzNumber || 1}
+        claimedByName={selectedJuzDetails?.claimedByName || ''}
+        onConfirm={onUnclaimSubmit}
+      />
     </>
   );
 }
