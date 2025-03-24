@@ -31,7 +31,7 @@ export default function Header() {
         <div className="flex items-center">
           <BookOpen className="mr-2" />
           <Link href="/">
-            <a className="text-xl font-heading font-bold">Quran Circle</a>
+            <span className="text-xl font-heading font-bold cursor-pointer">Quran Circle</span>
           </Link>
         </div>
         
@@ -64,7 +64,7 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/">
-                    <a className="w-full cursor-pointer">My Events</a>
+                    <span className="w-full cursor-pointer">My Events</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
@@ -76,10 +76,10 @@ export default function Header() {
           ) : (
             <Button asChild variant="ghost" className="text-white hidden md:flex">
               <Link href="/auth">
-                <a>
+                <div className="flex items-center">
                   <UserCircle className="mr-2 h-5 w-5" />
                   <span>Sign In</span>
-                </a>
+                </div>
               </Link>
             </Button>
           )}
@@ -97,7 +97,7 @@ export default function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/">
-                      <a className="w-full cursor-pointer">My Events</a>
+                      <span className="w-full cursor-pointer">My Events</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600">
@@ -108,10 +108,10 @@ export default function Header() {
               ) : (
                 <DropdownMenuItem asChild>
                   <Link href="/auth">
-                    <a className="w-full cursor-pointer">
+                    <span className="w-full cursor-pointer flex items-center">
                       <UserCircle className="mr-2 h-4 w-4" />
                       <span>Sign In</span>
-                    </a>
+                    </span>
                   </Link>
                 </DropdownMenuItem>
               )}
