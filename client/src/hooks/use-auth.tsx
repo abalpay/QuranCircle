@@ -14,7 +14,7 @@ type AuthContextType = {
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
 };
 
-type LoginData = Pick<InsertUser, "username" | "password">;
+type LoginData = Pick<InsertUser, "username" | "password"> & { returnTo?: string };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -36,9 +36,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (user: SelectUser, variables) => {
       queryClient.setQueryData(["/api/user"], user);
-      setLocation("/");
+      setLocation(variables.returnTo || "/");
       toast({
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
@@ -54,13 +54,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (credentials: InsertUser) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
+    mutationFn: async (credentials: InsertUser & { returnTo?: string }) => {
+      // Extract returnTo from credentials before sending to server
+      const { returnTo, ...userData } = credentials;
+      const res = await apiRequest("POST", "/api/register", userData);
       return await res.json();
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (user: SelectUser, variables) => {
       queryClient.setQueryData(["/api/user"], user);
-      setLocation("/");
+      setLocation(variables.returnTo || "/");
       toast({
         title: "Registration successful",
         description: `Welcome to Quran Circle, ${user.username}!`,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,11 +32,21 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const { user, loginMutation, registerMutation } = useAuth();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
+  const [returnTo, setReturnTo] = useState<string>("/");
   
+  // Extract returnTo from URL params on component mount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const returnPath = searchParams.get("returnTo");
+    if (returnPath) {
+      setReturnTo(returnPath);
+    }
+  }, []);
+
   // Redirect if already logged in
   if (user) {
-    navigate("/");
+    navigate(returnTo);
     return null;
   }
   
@@ -58,12 +68,12 @@ export default function AuthPage() {
   });
   
   const onLoginSubmit = (data: LoginFormValues) => {
-    loginMutation.mutate(data);
+    loginMutation.mutate({ ...data, returnTo });
   };
   
   const onRegisterSubmit = (data: RegisterFormValues) => {
     const { username, password } = data;
-    registerMutation.mutate({ username, password });
+    registerMutation.mutate({ username, password, returnTo });
   };
   
   return (
