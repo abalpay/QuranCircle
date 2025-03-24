@@ -251,7 +251,7 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
                 onClaim={() => handleClaimJuz(juz.juzNumber)}
                 onMarkAsRead={() => handleMarkAsRead(juz.juzNumber)}
                 onUnclaim={() => handleUnclaim(juz.juzNumber)}
-                isOwner={user && user.id === juz.claimedByUserId}
+                isOwner={user && juz.claimedByUserId ? user.id === juz.claimedByUserId : false}
               />
             ))}
           </div>
@@ -266,7 +266,10 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
             juzNumber={selectedJuz.juzNumber}
             onSubmit={onClaimSubmit}
             defaultName={user?.username || ''}
-          />
+            availableJuzs={khatm.juzs
+              .filter(juz => juz.status === 'unclaimed')
+              .map(juz => juz.juzNumber)
+            }/>
           
           <MarkAsReadDialog
             isOpen={isReadDialogOpen}
