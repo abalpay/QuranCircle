@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -27,13 +27,21 @@ export default function ClaimJuzDialog({
   const { user } = useAuth();
   const [name, setName] = useState(defaultName);
   
-  // Start with the initially selected juzNumber
-  const [selectedJuzs, setSelectedJuzs] = useState<number[]>([juzNumber]);
+  // Use state for selected juzs
+  const [selectedJuzs, setSelectedJuzs] = useState<number[]>([]);
   
   // Generate a list of all available juzs if not provided
   const allAvailableJuzs = availableJuzs.length > 0 
     ? availableJuzs 
     : Array.from({ length: 30 }, (_, i) => i + 1);
+    
+  // Reset selected juzs when the dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedJuzs([juzNumber]);
+      setName(defaultName);
+    }
+  }, [isOpen, juzNumber, defaultName]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +64,9 @@ export default function ClaimJuzDialog({
   };
   
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-heading font-bold text-primary-dark">

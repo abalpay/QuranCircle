@@ -15,7 +15,9 @@ export default function MarkAsReadDialog({
   onConfirm 
 }: MarkAsReadDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-heading font-bold text-primary-dark">

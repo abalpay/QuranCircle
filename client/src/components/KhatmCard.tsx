@@ -173,7 +173,11 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
           claimerName
         });
       }
-      setIsClaimDialogOpen(false);
+      // Wait a moment before closing to avoid state update conflicts
+      setTimeout(() => {
+        setIsClaimDialogOpen(false);
+        setSelectedJuz(null);
+      }, 100);
     }
   };
   
