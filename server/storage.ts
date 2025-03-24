@@ -22,6 +22,7 @@ export interface IStorage {
   getEvent(id: number): Promise<Event | undefined>;
   getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined>;
   getEventsByUser(userId: number): Promise<Event[]>;
+  getAllEvents(): Promise<Event[]>;
   updateEvent(id: number, event: Partial<Event>): Promise<Event | undefined>;
   
   // Khatm Methods
@@ -141,6 +142,10 @@ export class MemStorage implements IStorage {
     return Array.from(this.eventsData.values()).filter(
       event => event.createdBy === userId
     );
+  }
+  
+  async getAllEvents(): Promise<Event[]> {
+    return Array.from(this.eventsData.values());
   }
   
   async updateEvent(id: number, updates: Partial<Event>): Promise<Event | undefined> {

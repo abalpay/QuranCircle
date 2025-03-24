@@ -61,13 +61,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/events", async (req: Request, res: Response) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
     try {
-      const events = await storage.getEventsByUser(req.user!.id);
-      res.json(events);
+      if (req.isAuthenticated()) {
+        // Return user's events if authenticated
+        const events = await storage.getEventsByUser(req.user!.id);
+        return res.json(events);
+      } else {
+        // Return only public events for non-authenticated users
+        const allEvents = await storage.getAllEvents();
+        const publicEvents = allEvents.filter(event => event.isPublic);
+        return res.json(publicEvents);
+      }
     } catch (error) {
       console.error("Error getting events:", error);
       res.status(500).json({ message: "Server error" });

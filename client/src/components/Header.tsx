@@ -44,7 +44,7 @@ export default function Header() {
           </div>
           <Input 
             type="search" 
-            placeholder="Search for events" 
+            placeholder="Search for circles" 
             className="pl-10 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
           />
         </div>
