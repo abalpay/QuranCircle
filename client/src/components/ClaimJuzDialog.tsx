@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,9 @@ export default function ClaimJuzDialog({
           <DialogTitle className="text-xl font-heading font-bold text-primary-dark">
             Claim Juz {juzNumber}
           </DialogTitle>
+          <DialogDescription>
+            Enter your name to claim this portion of the Quran
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit}>

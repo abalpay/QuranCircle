@@ -109,7 +109,7 @@ export default function HomePage() {
             <div className="grid gap-4">
               {userEvents.map(event => (
                 <Link key={event.id} href={`/event/${event.id}`}>
-                  <a className="block">
+                  <div className="cursor-pointer block">
                     <Card className="hover:shadow-md transition-shadow">
                       <CardContent className="flex justify-between items-center p-4">
                         <div>
@@ -121,7 +121,7 @@ export default function HomePage() {
                         <ExternalLink className="h-5 w-5 text-neutral-500" />
                       </CardContent>
                     </Card>
-                  </a>
+                  </div>
                 </Link>
               ))}
             </div>
