@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, ExternalLink, Search, Users } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
 export default function CirclesPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [, navigate] = useLocation();
+  const { user, isLoading: authLoading } = useAuth();
+  
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
   
   const {
     data: publicCircles,
-    isLoading,
+    isLoading: circlesLoading,
   } = useQuery<Event[]>({
     queryKey: ["/api/events"],
+    enabled: !!user, // Only fetch if user is logged in
   });
   
   const filteredCircles = publicCircles?.filter(circle => 
@@ -24,6 +35,9 @@ export default function CirclesPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
   };
+  
+  // Show loading indicator while checking authentication
+  const isLoading = authLoading || circlesLoading;
   
   return (
     <div className="max-w-3xl mx-auto">

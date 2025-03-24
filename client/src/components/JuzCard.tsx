@@ -78,9 +78,16 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
             <Button 
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
               size="sm"
-              onClick={onClaim}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (user) {
+                  onClaim();
+                } else {
+                  window.location.href = "/auth";
+                }
+              }}
             >
-              Claim
+              {user ? "Claim" : "Login to Claim"}
             </Button>
           ) : isClaimed && isOwner ? (
             <div className="flex flex-col gap-2">
