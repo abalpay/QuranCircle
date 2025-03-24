@@ -79,7 +79,12 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/">
-                    <span className="w-full cursor-pointer">My Events</span>
+                    <span className="w-full cursor-pointer">My Circles</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/circles">
+                    <span className="w-full cursor-pointer">Browse Circles</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
@@ -111,7 +116,12 @@ export default function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/">
-                      <span className="w-full cursor-pointer">My Events</span>
+                      <span className="w-full cursor-pointer">My Circles</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/circles">
+                      <span className="w-full cursor-pointer">Browse Circles</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600">

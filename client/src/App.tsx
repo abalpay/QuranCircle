@@ -4,6 +4,7 @@ import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import EventPage from "@/pages/event-page";
 import AuthPage from "@/pages/auth-page";
+import CirclesPage from "@/pages/circles-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import Header from "./components/Header";
 import MobileNavigation from "./components/MobileNavigation";
@@ -23,6 +24,7 @@ function AppContent() {
           <Route path="/" component={HomePage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/event/:id" component={EventPage} />
+          <Route path="/circles" component={CirclesPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
