@@ -39,11 +39,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
       </div>
       
       <div className="text-center mb-1">
-        <h4 className="arabic-text text-base mt-1 mb-2 font-bold">
-          جزء {juz.juzNumber}
-        </h4>
-        
-        <span className="text-sm block font-medium">
+        <span className="text-lg block font-medium">
           Juz {juz.juzNumber}
         </span>
       </div>

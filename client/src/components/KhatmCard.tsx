@@ -204,27 +204,27 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
   
   return (
     <>
-      <div className={`bg-white rounded-lg shadow-md p-5 mb-6 ${isEmpty ? 'border-2 border-dashed border-primary-light' : ''}`}>
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h3 className="text-xl font-heading font-bold text-primary-dark">
+      <div className={`quran-card p-5 mb-8 ${isEmpty ? 'border-2 border-dashed border-[hsl(var(--quran-light-green))]' : ''}`}>
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-5">
+          <h3 className="text-xl font-medium text-[hsl(var(--quran-text))]">
             Khatm #{khatm.khatmNumber}
           </h3>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="inline-flex items-center bg-neutral-100 px-3 py-1 rounded-full">
-              <UserCheck className="text-accent-dark mr-1 h-4 w-4" />
-              <span>{khatm.claimedCount}</span>
-              <span className="mx-1">/</span>
-              <span>30</span>
-              <span className="ml-1">Juz Claimed</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center text-xs bg-[hsl(var(--quran-gray))] px-2.5 py-1 rounded-md">
+              <UserCheck className="text-[hsl(var(--quran-green))] mr-1 h-3.5 w-3.5" />
+              <span className="font-medium">{khatm.claimedCount}</span>
+              <span className="mx-1 text-gray-500">/</span>
+              <span className="text-gray-500">30</span>
+              <span className="ml-1 text-gray-600">Claimed</span>
             </div>
             
             {khatm.readCount > 0 && (
-              <div className="inline-flex items-center bg-neutral-100 px-3 py-1 rounded-full">
-                <CheckCircle className="text-accent-dark mr-1 h-4 w-4" />
-                <span>{khatm.readCount}</span>
-                <span className="mx-1">/</span>
-                <span>30</span>
-                <span className="ml-1">Juz Read</span>
+              <div className="inline-flex items-center text-xs bg-[hsl(var(--quran-gray))] px-2.5 py-1 rounded-md">
+                <CheckCircle className="text-[hsl(var(--quran-green))] mr-1 h-3.5 w-3.5" />
+                <span className="font-medium">{khatm.readCount}</span>
+                <span className="mx-1 text-gray-500">/</span>
+                <span className="text-gray-500">30</span>
+                <span className="ml-1 text-gray-600">Read</span>
               </div>
             )}
           </div>
@@ -232,13 +232,24 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
 
         {/* Progress bar */}
         <div className="mb-6">
-          <Progress value={progressPercentage} />
+          <div className="h-1.5 w-full bg-[hsl(var(--quran-gray))] rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-[hsl(var(--quran-green))] rounded-full" 
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          </div>
+          <div className="mt-1 text-xs text-right text-gray-500">
+            {progressPercentage}% completed
+          </div>
         </div>
 
         {isEmpty ? (
-          <div className="text-center py-8">
-            <p className="text-lg font-medium text-neutral-700 mb-4">Ready for new participants!</p>
-            <Button className="bg-primary hover:bg-primary-dark" onClick={() => handleClaimJuz(1)}>
+          <div className="text-center py-10 bg-[hsl(var(--quran-gray))/30] rounded-md">
+            <p className="text-base font-medium text-gray-600 mb-4">Ready for new participants!</p>
+            <Button 
+              className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
+              onClick={() => handleClaimJuz(1)}
+            >
               Claim a Juz
             </Button>
           </div>
