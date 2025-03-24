@@ -4,36 +4,40 @@ import { Link, useLocation } from "wouter";
 import { Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Plus, Users, ExternalLink } from "lucide-react";
+import { BookOpen, Plus, Users, ExternalLink, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import CreateEventDialog from "@/components/CreateEventDialog";
+import CreateCircleDialog from "@/components/CreateCircleDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
 export default function HomePage() {
   const [location, navigate] = useLocation();
-  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
-  const [eventCode, setEventCode] = useState("");
+  const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
+  const [circleCode, setCircleCode] = useState("");
   const { user } = useAuth();
   
   const {
-    data: userEvents,
+    data: userCircles,
     isLoading,
   } = useQuery<Event[]>({
     queryKey: ["/api/events"],
     enabled: !!user, // Only fetch if user is logged in
   });
   
-  const handleJoinEvent = (e: React.FormEvent) => {
+  const handleJoinCircle = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (eventCode) {
-      // Simple validation - assuming eventCode is just the numeric ID
-      const eventId = parseInt(eventCode.trim());
-      if (!isNaN(eventId)) {
-        navigate(`/event/${eventId}`);
+    if (circleCode) {
+      // Simple validation - assuming circleCode is just the numeric ID
+      const circleId = parseInt(circleCode.trim());
+      if (!isNaN(circleId)) {
+        navigate(`/event/${circleId}`);
       }
     }
+  };
+  
+  const handleBrowseCircles = () => {
+    navigate("/circles");
   };
   
   return (
@@ -43,7 +47,7 @@ export default function HomePage() {
           Welcome to <span className="text-[hsl(var(--quran-green))]">Quran</span><span className="text-black">.circle</span>
         </h1>
         <p className="text-lg text-gray-600 max-w-xl mx-auto">
-          Join or create a group Quran reading event with your community
+          Join or create a group Quran reading circle with your community
         </p>
       </div>
       
@@ -54,16 +58,16 @@ export default function HomePage() {
               <Plus className="h-6 w-6 text-[hsl(var(--quran-green))]" />
             </div>
             <h2 className="text-xl font-medium text-gray-800 mb-2">
-              Create an Event
+              Create a Circle
             </h2>
             <p className="text-gray-600 mb-6">
-              Start a new Quran reading event and invite others to join
+              Start a new Quran reading circle and invite others to join
             </p>
             <Button 
-              onClick={() => setIsCreateEventOpen(true)}
+              onClick={() => setIsCreateCircleOpen(true)}
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
             >
-              Create Event
+              Create Circle
             </Button>
           </div>
         </div>
@@ -71,29 +75,20 @@ export default function HomePage() {
         <div className="bg-white rounded-lg border border-[hsl(var(--quran-border))] p-6 hover:shadow-md transition-shadow">
           <div className="text-center">
             <div className="mx-auto w-12 h-12 bg-[hsl(var(--quran-gray))] rounded-full flex items-center justify-center mb-4">
-              <Users className="h-6 w-6 text-[hsl(var(--quran-green))]" />
+              <Search className="h-6 w-6 text-[hsl(var(--quran-green))]" />
             </div>
             <h2 className="text-xl font-medium text-gray-800 mb-2">
-              Join an Event
+              Browse Circles
             </h2>
             <p className="text-gray-600 mb-6">
-              Enter an event code or use a shared link to participate
+              Find and join public Quran reading circles
             </p>
-            <form onSubmit={handleJoinEvent} className="flex max-w-sm mx-auto">
-              <Input
-                type="text"
-                placeholder="Enter event code"
-                value={eventCode}
-                onChange={(e) => setEventCode(e.target.value)}
-                className="rounded-r-none bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
-              />
-              <Button 
-                type="submit" 
-                className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white rounded-l-none"
-              >
-                Join
-              </Button>
-            </form>
+            <Button 
+              onClick={handleBrowseCircles}
+              className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white w-full md:w-auto"
+            >
+              Browse Circles
+            </Button>
           </div>
         </div>
       </div>
@@ -101,23 +96,23 @@ export default function HomePage() {
       {user && (
         <div className="mb-10">
           <h2 className="text-xl font-medium text-gray-800 mb-4">
-            Your Events
+            Your Circles
           </h2>
           
           {isLoading ? (
             <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
-              <p className="text-gray-600">Loading your events...</p>
+              <p className="text-gray-600">Loading your circles...</p>
             </div>
-          ) : userEvents && userEvents.length > 0 ? (
+          ) : userCircles && userCircles.length > 0 ? (
             <div className="grid gap-3">
-              {userEvents.map(event => (
-                <Link key={event.id} href={`/event/${event.id}`}>
+              {userCircles.map((circle) => (
+                <Link key={circle.id} href={`/event/${circle.id}`}>
                   <div className="cursor-pointer block bg-white rounded-lg border border-[hsl(var(--quran-border))] hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-center p-4">
                       <div>
-                        <h3 className="font-medium text-gray-800">{event.name}</h3>
+                        <h3 className="font-medium text-gray-800">{circle.name}</h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          Created on {format(new Date(event.createdAt), 'MMM d, yyyy')}
+                          Created on {format(new Date(circle.createdAt), 'MMM d, yyyy')}
                         </p>
                       </div>
                       <div className="bg-[hsl(var(--quran-gray))] p-2 rounded-full">
@@ -130,7 +125,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
-              <p className="text-gray-600">You haven't created any events yet</p>
+              <p className="text-gray-600">You haven't created any circles yet</p>
             </div>
           )}
         </div>
@@ -150,8 +145,8 @@ export default function HomePage() {
               </svg>
             </div>
             <div>
-              <h3 className="font-medium text-gray-800">Create or Join an Event</h3>
-              <p className="text-gray-600">Start a new event or join an existing one using a link</p>
+              <h3 className="font-medium text-gray-800">Create or Join a Circle</h3>
+              <p className="text-gray-600">Start a new circle or join an existing one using a link</p>
             </div>
           </div>
           
@@ -196,9 +191,9 @@ export default function HomePage() {
         </div>
       </div>
       
-      <CreateEventDialog 
-        isOpen={isCreateEventOpen} 
-        onClose={() => setIsCreateEventOpen(false)}
+      <CreateCircleDialog 
+        isOpen={isCreateCircleOpen} 
+        onClose={() => setIsCreateCircleOpen(false)}
       />
     </div>
   );
