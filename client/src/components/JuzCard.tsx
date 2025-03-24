@@ -1,5 +1,5 @@
 import { Juz } from "@shared/schema";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -19,48 +19,65 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
   return (
     <div 
       className={cn(
-        "group relative border rounded-lg p-3 text-center",
-        isUnclaimed && "border-neutral-200 hover:border-primary cursor-pointer transition-colors",
-        isClaimed && "border-amber-200 bg-amber-50 hover:bg-amber-100 cursor-pointer transition-colors",
-        isRead && "border-green-200 bg-green-50"
+        "group relative border rounded-md p-2.5 quran-card flex flex-col justify-between",
+        isUnclaimed && "hover:border-[hsl(var(--quran-green))] cursor-pointer transition-colors",
+        isClaimed && "border-[#f8f5ea] bg-[#fdfbf5] hover:shadow-md cursor-pointer transition-all",
+        isRead && "border-[#ebf7f5] bg-[#f7fcfb]"
       )}
       onClick={isUnclaimed ? onClaim : undefined}
     >
-      {isRead && (
-        <span className="absolute top-2 right-2 text-green-500">
-          <CheckCircle className="h-5 w-5" />
+      <div className="flex justify-between items-start mb-1.5">
+        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+          {juz.juzNumber}
         </span>
-      )}
+        
+        {isRead && (
+          <span className="text-[hsl(var(--quran-green))]">
+            <CheckCircle className="h-4 w-4" />
+          </span>
+        )}
+      </div>
       
-      <h4 className="text-lg font-arabic font-bold mb-1">
-        Juz {juz.juzNumber}
-      </h4>
+      <div className="text-center mb-1">
+        <h4 className="arabic-text text-base mt-1 mb-2 font-bold">
+          جزء {juz.juzNumber}
+        </h4>
+        
+        <span className="text-sm block font-medium">
+          Juz {juz.juzNumber}
+        </span>
+      </div>
       
-      {isUnclaimed ? (
-        <p className="text-neutral-700 text-sm">Unclaimed</p>
-      ) : (
-        <>
-          <p className={cn(
-            "text-sm",
-            isClaimed ? "text-amber-700" : "text-green-700"
-          )}>
-            {isClaimed ? "Claimed by" : "Read by"}
-          </p>
-          <p className={cn(
-            "font-medium",
-            isClaimed ? "text-amber-700" : "text-green-700"
-          )}>
-            {juz.claimedByName}
-          </p>
-        </>
+      {!isUnclaimed && (
+        <div className="border-t border-[hsl(var(--quran-border))] pt-1.5 mt-1">
+          <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
+            {isClaimed ? (
+              <>
+                <Clock className="h-3 w-3" />
+                <span>In progress</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-3 w-3 text-[hsl(var(--quran-green))]" />
+                <span>Completed</span>
+              </>
+            )}
+          </div>
+          
+          <div className="flex items-center justify-center gap-1 mt-1 text-xs text-gray-600">
+            <User className="h-3 w-3" />
+            <span className="font-medium truncate max-w-[80px]">{juz.claimedByName}</span>
+          </div>
+        </div>
       )}
       
       {/* Hover overlay for actions */}
       {(isUnclaimed || (isClaimed && isOwner)) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
           {isUnclaimed ? (
             <Button 
-              className="bg-primary hover:bg-primary-dark"
+              className="bg-[hsl(var(--quran-green))] hover:bg-[hsl(var(--quran-green))]"
+              size="sm"
               onClick={onClaim}
             >
               Claim
@@ -68,7 +85,8 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
           ) : isClaimed && isOwner ? (
             <div className="flex flex-col gap-2">
               <Button 
-                className="bg-green-500 hover:bg-green-600 text-white"
+                className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
+                size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   onMarkAsRead();
@@ -78,6 +96,8 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
               </Button>
               <Button 
                 variant="outline"
+                size="sm"
+                className="border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
                 onClick={(e) => {
                   e.stopPropagation();
                   onUnclaim();
