@@ -4,7 +4,7 @@ import { Link, useLocation } from "wouter";
 import { Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Plus, Users, ExternalLink, Search } from "lucide-react";
+import { BookOpen, Plus, Users, ExternalLink, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import CreateCircleDialog from "@/components/CreateCircleDialog";
 import { useAuth } from "@/hooks/use-auth";
@@ -14,7 +14,7 @@ export default function HomePage() {
   const [location, navigate] = useLocation();
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
   const [circleCode, setCircleCode] = useState("");
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   
   const {
     data: userCircles,
@@ -40,6 +40,18 @@ export default function HomePage() {
     navigate("/circles");
   };
   
+  // Show loading indicator while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--quran-green))] mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-10">
@@ -64,10 +76,10 @@ export default function HomePage() {
               Start a new Quran reading circle and invite others to join
             </p>
             <Button 
-              onClick={() => setIsCreateCircleOpen(true)}
+              onClick={() => user ? setIsCreateCircleOpen(true) : navigate("/auth")}
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
             >
-              Create Circle
+              {user ? "Create Circle" : "Sign In to Create"}
             </Button>
           </div>
         </div>
@@ -84,10 +96,10 @@ export default function HomePage() {
               Find and join public Quran reading circles
             </p>
             <Button 
-              onClick={handleBrowseCircles}
+              onClick={() => user ? handleBrowseCircles() : navigate("/auth")}
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white w-full md:w-auto"
             >
-              Browse Circles
+              {user ? "Browse Circles" : "Sign In to Browse"}
             </Button>
           </div>
         </div>

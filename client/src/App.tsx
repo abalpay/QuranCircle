@@ -23,8 +23,8 @@ function AppContent() {
         <Switch>
           <Route path="/" component={HomePage} />
           <Route path="/auth" component={AuthPage} />
-          <Route path="/event/:id" component={EventPage} />
-          <Route path="/circles" component={CirclesPage} />
+          <ProtectedRoute path="/event/:id" component={EventPage} />
+          <ProtectedRoute path="/circles" component={CirclesPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
