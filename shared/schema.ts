@@ -28,12 +28,22 @@ export const events = pgTable("events", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertEventSchema = createInsertSchema(events).pick({
+// Create the basic schema from Drizzle ORM
+const baseInsertEventSchema = createInsertSchema(events).pick({
   name: true,
   description: true,
   isPublic: true,
   deadline: true,
   createdBy: true,
+});
+
+// Extend the schema with custom transformations for the deadline field
+export const insertEventSchema = baseInsertEventSchema.extend({
+  deadline: z.union([
+    z.date(),
+    z.string().transform((str) => str ? new Date(str) : null),
+    z.null()
+  ]).optional(),
 });
 
 export type InsertEvent = z.infer<typeof insertEventSchema>;

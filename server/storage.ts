@@ -41,7 +41,7 @@ export interface IStorage {
   checkAndCreateNewKhatm(eventId: number): Promise<Khatm | undefined>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any for sessionStore to avoid type issues
 }
 
 export class MemStorage implements IStorage {
@@ -95,9 +95,13 @@ export class MemStorage implements IStorage {
   async createEvent(insertEvent: InsertEvent): Promise<Event> {
     const id = this.eventIdCounter++;
     const event: Event = { 
-      ...insertEvent, 
-      id, 
-      createdAt: new Date() 
+      id,
+      name: insertEvent.name,
+      createdBy: insertEvent.createdBy,
+      createdAt: new Date(),
+      description: insertEvent.description || null,
+      isPublic: insertEvent.isPublic || false,
+      deadline: insertEvent.deadline || null
     };
     this.eventsData.set(id, event);
     return event;
@@ -191,8 +195,12 @@ export class MemStorage implements IStorage {
   async createJuz(insertJuz: InsertJuz): Promise<Juz> {
     const id = this.juzIdCounter++;
     const juz: Juz = { 
-      ...insertJuz, 
       id,
+      khatmId: insertJuz.khatmId,
+      juzNumber: insertJuz.juzNumber,
+      status: insertJuz.status || 'unclaimed',
+      claimedByName: insertJuz.claimedByName || null,
+      claimedByUserId: insertJuz.claimedByUserId || null,
       claimedAt: null,
       readAt: null
     };
