@@ -86,6 +86,37 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     }
   });
   
+  // Mutation for claiming multiple Juz at once
+  const claimMultipleJuzMutation = useMutation({
+    mutationFn: async ({ khatmId, juzNumbers, claimerName }: { khatmId: number; juzNumbers: number[]; claimerName: string }) => {
+      const res = await apiRequest("POST", "/api/juz/claim-multiple", {
+        khatmId,
+        juzNumbers,
+        claimerName
+      });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({ 
+        title: `${data.claimedCount} Juz portions claimed successfully`,
+        description: "You have claimed these portions for reading"
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
+      
+      // Check if a new khatm was created
+      if (data.newKhatmCreated && onNewKhatmCreated) {
+        onNewKhatmCreated();
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to claim Juz portions",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
   const unclaimJuzMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
       const res = await apiRequest("POST", "/api/juz/unclaim", {
@@ -125,13 +156,23 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     setIsUnclaimDialogOpen(true);
   };
   
-  const onClaimSubmit = (claimerName: string) => {
+  const onClaimSubmit = (claimerName: string, juzNumbers: number[]) => {
     if (selectedJuz) {
-      claimJuzMutation.mutate({
-        khatmId: selectedJuz.khatmId,
-        juzNumber: selectedJuz.juzNumber,
-        claimerName
-      });
+      if (juzNumbers.length === 1) {
+        // Use the single Juz claim API for one selection
+        claimJuzMutation.mutate({
+          khatmId: selectedJuz.khatmId,
+          juzNumber: juzNumbers[0],
+          claimerName
+        });
+      } else {
+        // Use the multiple Juz claim API for multiple selections
+        claimMultipleJuzMutation.mutate({
+          khatmId: selectedJuz.khatmId,
+          juzNumbers,
+          claimerName
+        });
+      }
       setIsClaimDialogOpen(false);
     }
   };

@@ -4,7 +4,8 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { 
   insertEventSchema, 
-  claimJuzSchema, 
+  claimJuzSchema,
+  claimMultipleJuzSchema,
   markJuzAsReadSchema,
   unclaimJuzSchema
 } from "@shared/schema";
@@ -165,6 +166,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error marking juz as read:", error);
       res.status(400).json({ message: "Invalid data" });
+    }
+  });
+
+  // Endpoint for claiming multiple Juz at once
+  app.post("/api/juz/claim-multiple", async (req: Request, res: Response) => {
+    try {
+      const { khatmId, juzNumbers, claimerName } = claimMultipleJuzSchema.parse(req.body);
+      
+      // Track successfully claimed Juz
+      const claimedJuzs = [];
+      let newKhatmCreated = false;
+      let newKhatmId = null;
+      
+      // Check and claim each Juz in the array
+      for (const juzNumber of juzNumbers) {
+        // Check if this juz exists and is not claimed
+        const juz = await storage.getJuz(khatmId, juzNumber);
+        
+        if (!juz || juz.status !== 'unclaimed') {
+          // Skip this juz and continue with others
+          continue;
+        }
+        
+        // Claim the juz
+        const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
+          claimedByName: claimerName,
+          claimedByUserId: req.isAuthenticated() ? req.user!.id : null,
+          status: 'claimed',
+          claimedAt: new Date()
+        });
+        
+        if (updatedJuz) {
+          claimedJuzs.push(updatedJuz);
+        }
+      }
+      
+      // If we didn't claim any juz, return an error
+      if (claimedJuzs.length === 0) {
+        return res.status(400).json({ message: "Failed to claim any Juz. All selected portions may already be claimed." });
+      }
+      
+      // Check if all juzs are claimed in this khatm
+      const khatm = await storage.getKhatm(khatmId);
+      if (khatm) {
+        const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
+        newKhatmCreated = !!newKhatm;
+        newKhatmId = newKhatm?.id;
+      }
+      
+      res.status(200).json({
+        juzs: claimedJuzs,
+        claimedCount: claimedJuzs.length,
+        newKhatmCreated,
+        newKhatmId
+      });
+    } catch (error) {
+      console.error("Error claiming multiple juzs:", error);
+      res.status(400).json({ message: "Invalid claim data" });
     }
   });
 

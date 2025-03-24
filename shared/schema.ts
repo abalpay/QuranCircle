@@ -92,6 +92,13 @@ export const claimJuzSchema = z.object({
   claimerName: z.string().min(2, "Name must be at least 2 characters"),
 });
 
+// For claiming multiple Juz at once
+export const claimMultipleJuzSchema = z.object({
+  khatmId: z.number(),
+  juzNumbers: z.array(z.number()),
+  claimerName: z.string().min(2, "Name must be at least 2 characters"),
+});
+
 export const markJuzAsReadSchema = z.object({
   khatmId: z.number(),
   juzNumber: z.number(),
@@ -105,6 +112,7 @@ export const unclaimJuzSchema = z.object({
 export type InsertJuz = z.infer<typeof insertJuzSchema>;
 export type Juz = typeof juzs.$inferSelect;
 export type ClaimJuzInput = z.infer<typeof claimJuzSchema>;
+export type ClaimMultipleJuzInput = z.infer<typeof claimMultipleJuzSchema>;
 export type MarkJuzAsReadInput = z.infer<typeof markJuzAsReadSchema>;
 export type UnclaimJuzInput = z.infer<typeof unclaimJuzSchema>;
 
