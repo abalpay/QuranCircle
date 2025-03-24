@@ -5,16 +5,18 @@ import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 
+export type RegisterData = InsertUser & { returnTo?: string };
+
 type AuthContextType = {
   user: SelectUser | null;
   isLoading: boolean;
   error: Error | null;
   loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
-  registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
+  registerMutation: UseMutationResult<SelectUser, Error, RegisterData>;
 };
 
-type LoginData = Pick<InsertUser, "username" | "password"> & { returnTo?: string };
+export type LoginData = Pick<InsertUser, "username" | "password"> & { returnTo?: string };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -33,7 +35,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
+      // Extract returnTo from credentials before sending to server
+      const { returnTo, ...loginData } = credentials;
+      const res = await apiRequest("POST", "/api/login", loginData);
       return await res.json();
     },
     onSuccess: (user: SelectUser, variables) => {
@@ -54,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (credentials: InsertUser & { returnTo?: string }) => {
+    mutationFn: async (credentials: RegisterData) => {
       // Extract returnTo from credentials before sending to server
       const { returnTo, ...userData } = credentials;
       const res = await apiRequest("POST", "/api/register", userData);
