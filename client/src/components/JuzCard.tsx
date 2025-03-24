@@ -26,7 +26,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
         isClaimed ? "bg-[#fdfbf5]" : 
         "bg-[#f7fcfb]"
       )}
-      onClick={isUnclaimed ? (user ? onClaim : () => window.location.href = "/auth") : undefined}
+      onClick={isUnclaimed ? (user ? onClaim : () => window.location.href = `/auth?returnTo=${encodeURIComponent(window.location.pathname)}`) : undefined}
     >
       <div className="text-xs text-gray-500 absolute left-2 top-2">
         {juz.juzNumber}
@@ -83,7 +83,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
                 if (user) {
                   onClaim();
                 } else {
-                  window.location.href = "/auth";
+                  window.location.href = `/auth?returnTo=${encodeURIComponent(window.location.pathname)}`;
                 }
               }}
             >

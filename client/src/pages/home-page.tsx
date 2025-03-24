@@ -76,7 +76,7 @@ export default function HomePage() {
               Start a new Quran reading circle and invite others to join
             </p>
             <Button 
-              onClick={() => user ? setIsCreateCircleOpen(true) : navigate("/auth")}
+              onClick={() => user ? setIsCreateCircleOpen(true) : navigate("/auth?returnTo=/")}
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
             >
               {user ? "Create Circle" : "Sign In to Create"}
@@ -96,7 +96,7 @@ export default function HomePage() {
               Find and join public Quran reading circles
             </p>
             <Button 
-              onClick={() => user ? handleBrowseCircles() : navigate("/auth")}
+              onClick={() => user ? handleBrowseCircles() : navigate("/auth?returnTo=/circles")}
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white w-full md:w-auto"
             >
               {user ? "Browse Circles" : "Sign In to Browse"}
