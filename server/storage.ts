@@ -1,0 +1,270 @@
+import { 
+  users, type User, type InsertUser,
+  events, type Event, type InsertEvent,
+  khatms, type Khatm, type InsertKhatm,
+  juzs, type Juz, type InsertJuz,
+  type KhatmWithJuzs, type EventWithKhatms
+} from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
+
+// Storage interface
+export interface IStorage {
+  // User Methods
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // Event Methods
+  createEvent(event: InsertEvent): Promise<Event>;
+  getEvent(id: number): Promise<Event | undefined>;
+  getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined>;
+  getEventsByUser(userId: number): Promise<Event[]>;
+  updateEvent(id: number, event: Partial<Event>): Promise<Event | undefined>;
+  
+  // Khatm Methods
+  createKhatm(khatm: InsertKhatm): Promise<Khatm>;
+  getKhatm(id: number): Promise<Khatm | undefined>;
+  getKhatmWithJuzs(id: number): Promise<KhatmWithJuzs | undefined>;
+  getKhatmsByEventId(eventId: number): Promise<Khatm[]>;
+  
+  // Juz Methods
+  createJuz(juz: InsertJuz): Promise<Juz>;
+  getJuz(khatmId: number, juzNumber: number): Promise<Juz | undefined>;
+  getJuzsByKhatmId(khatmId: number): Promise<Juz[]>;
+  updateJuz(khatmId: number, juzNumber: number, updates: Partial<Juz>): Promise<Juz | undefined>;
+  
+  // Batch operations
+  createAllJuzForKhatm(khatmId: number): Promise<void>;
+  checkAndCreateNewKhatm(eventId: number): Promise<Khatm | undefined>;
+  
+  // Session store
+  sessionStore: session.SessionStore;
+}
+
+export class MemStorage implements IStorage {
+  private usersData: Map<number, User>;
+  private eventsData: Map<number, Event>;
+  private khatmsData: Map<number, Khatm>;
+  private juzsData: Map<string, Juz>; // Composite key: khatmId-juzNumber
+  
+  private userIdCounter: number;
+  private eventIdCounter: number;
+  private khatmIdCounter: number;
+  private juzIdCounter: number;
+  
+  sessionStore: session.SessionStore;
+  
+  constructor() {
+    this.usersData = new Map();
+    this.eventsData = new Map();
+    this.khatmsData = new Map();
+    this.juzsData = new Map();
+    
+    this.userIdCounter = 1;
+    this.eventIdCounter = 1;
+    this.khatmIdCounter = 1;
+    this.juzIdCounter = 1;
+    
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // 24 hours
+    });
+  }
+  
+  // User Methods
+  async getUser(id: number): Promise<User | undefined> {
+    return this.usersData.get(id);
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.usersData.values()).find(
+      (user) => user.username === username
+    );
+  }
+  
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.userIdCounter++;
+    const user: User = { ...insertUser, id };
+    this.usersData.set(id, user);
+    return user;
+  }
+  
+  // Event Methods
+  async createEvent(insertEvent: InsertEvent): Promise<Event> {
+    const id = this.eventIdCounter++;
+    const event: Event = { 
+      ...insertEvent, 
+      id, 
+      createdAt: new Date() 
+    };
+    this.eventsData.set(id, event);
+    return event;
+  }
+  
+  async getEvent(id: number): Promise<Event | undefined> {
+    return this.eventsData.get(id);
+  }
+  
+  async getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined> {
+    const event = this.eventsData.get(id);
+    if (!event) return undefined;
+    
+    const creator = await this.getUser(event.createdBy);
+    
+    // Get all khatms for this event
+    const eventKhatms = Array.from(this.khatmsData.values()).filter(
+      khatm => khatm.eventId === id
+    ).sort((a, b) => a.khatmNumber - b.khatmNumber);
+    
+    // Get all juzs for each khatm
+    const khatmsWithJuzs: KhatmWithJuzs[] = await Promise.all(
+      eventKhatms.map(async khatm => {
+        const khatmWithJuzs = await this.getKhatmWithJuzs(khatm.id);
+        return khatmWithJuzs!;
+      })
+    );
+    
+    return {
+      ...event,
+      khatms: khatmsWithJuzs,
+      creatorName: creator?.username || 'Unknown'
+    };
+  }
+  
+  async getEventsByUser(userId: number): Promise<Event[]> {
+    return Array.from(this.eventsData.values()).filter(
+      event => event.createdBy === userId
+    );
+  }
+  
+  async updateEvent(id: number, updates: Partial<Event>): Promise<Event | undefined> {
+    const event = this.eventsData.get(id);
+    if (!event) return undefined;
+    
+    const updatedEvent = { ...event, ...updates };
+    this.eventsData.set(id, updatedEvent);
+    return updatedEvent;
+  }
+  
+  // Khatm Methods
+  async createKhatm(insertKhatm: InsertKhatm): Promise<Khatm> {
+    const id = this.khatmIdCounter++;
+    const khatm: Khatm = { 
+      ...insertKhatm, 
+      id, 
+      createdAt: new Date() 
+    };
+    this.khatmsData.set(id, khatm);
+    return khatm;
+  }
+  
+  async getKhatm(id: number): Promise<Khatm | undefined> {
+    return this.khatmsData.get(id);
+  }
+  
+  async getKhatmWithJuzs(id: number): Promise<KhatmWithJuzs | undefined> {
+    const khatm = this.khatmsData.get(id);
+    if (!khatm) return undefined;
+    
+    const juzsList = await this.getJuzsByKhatmId(id);
+    
+    const claimedCount = juzsList.filter(juz => juz.status === 'claimed' || juz.status === 'read').length;
+    const readCount = juzsList.filter(juz => juz.status === 'read').length;
+    
+    return {
+      ...khatm,
+      juzs: juzsList,
+      claimedCount,
+      readCount
+    };
+  }
+  
+  async getKhatmsByEventId(eventId: number): Promise<Khatm[]> {
+    return Array.from(this.khatmsData.values()).filter(
+      khatm => khatm.eventId === eventId
+    ).sort((a, b) => a.khatmNumber - b.khatmNumber);
+  }
+  
+  // Juz Methods
+  async createJuz(insertJuz: InsertJuz): Promise<Juz> {
+    const id = this.juzIdCounter++;
+    const juz: Juz = { 
+      ...insertJuz, 
+      id,
+      claimedAt: null,
+      readAt: null
+    };
+    
+    const key = `${juz.khatmId}-${juz.juzNumber}`;
+    this.juzsData.set(key, juz);
+    return juz;
+  }
+  
+  async getJuz(khatmId: number, juzNumber: number): Promise<Juz | undefined> {
+    const key = `${khatmId}-${juzNumber}`;
+    return this.juzsData.get(key);
+  }
+  
+  async getJuzsByKhatmId(khatmId: number): Promise<Juz[]> {
+    return Array.from(this.juzsData.values()).filter(
+      juz => juz.khatmId === khatmId
+    ).sort((a, b) => a.juzNumber - b.juzNumber);
+  }
+  
+  async updateJuz(khatmId: number, juzNumber: number, updates: Partial<Juz>): Promise<Juz | undefined> {
+    const key = `${khatmId}-${juzNumber}`;
+    const juz = this.juzsData.get(key);
+    if (!juz) return undefined;
+    
+    const updatedJuz = { ...juz, ...updates };
+    this.juzsData.set(key, updatedJuz);
+    return updatedJuz;
+  }
+  
+  // Batch operations
+  async createAllJuzForKhatm(khatmId: number): Promise<void> {
+    // Create all 30 juzs for a khatm
+    for (let i = 1; i <= 30; i++) {
+      await this.createJuz({
+        khatmId,
+        juzNumber: i,
+        status: 'unclaimed',
+        claimedByName: null,
+        claimedByUserId: null
+      });
+    }
+  }
+  
+  async checkAndCreateNewKhatm(eventId: number): Promise<Khatm | undefined> {
+    const khatms = await this.getKhatmsByEventId(eventId);
+    
+    // Check if all juzs in the latest khatm are claimed
+    if (khatms.length > 0) {
+      const latestKhatm = khatms.reduce((latest, current) => 
+        current.khatmNumber > latest.khatmNumber ? current : latest
+      , khatms[0]);
+      
+      const juzs = await this.getJuzsByKhatmId(latestKhatm.id);
+      const allClaimed = juzs.every(juz => juz.status !== 'unclaimed');
+      
+      if (allClaimed) {
+        // Create a new khatm
+        const newKhatm = await this.createKhatm({
+          eventId,
+          khatmNumber: latestKhatm.khatmNumber + 1
+        });
+        
+        // Create all 30 juzs for the new khatm
+        await this.createAllJuzForKhatm(newKhatm.id);
+        
+        return newKhatm;
+      }
+    }
+    
+    return undefined;
+  }
+}
+
+export const storage = new MemStorage();
