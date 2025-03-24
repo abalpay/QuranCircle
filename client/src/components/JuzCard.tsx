@@ -21,13 +21,13 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
       className={cn(
         "group relative border rounded-lg p-3 text-center",
         isUnclaimed && "border-neutral-200 hover:border-primary cursor-pointer transition-colors",
-        isClaimed && "border-primary bg-primary bg-opacity-5 hover:bg-opacity-10 cursor-pointer transition-colors",
-        isRead && "border-accent bg-accent bg-opacity-5"
+        isClaimed && "border-amber-200 bg-amber-50 hover:bg-amber-100 cursor-pointer transition-colors",
+        isRead && "border-green-200 bg-green-50"
       )}
       onClick={isUnclaimed ? onClaim : undefined}
     >
       {isRead && (
-        <span className="absolute top-2 right-2 text-accent">
+        <span className="absolute top-2 right-2 text-green-500">
           <CheckCircle className="h-5 w-5" />
         </span>
       )}
@@ -42,13 +42,13 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
         <>
           <p className={cn(
             "text-sm",
-            isClaimed ? "text-primary-dark" : "text-accent-dark"
+            isClaimed ? "text-amber-700" : "text-green-700"
           )}>
             {isClaimed ? "Claimed by" : "Read by"}
           </p>
           <p className={cn(
             "font-medium",
-            isClaimed ? "text-primary-dark" : "text-accent-dark"
+            isClaimed ? "text-amber-700" : "text-green-700"
           )}>
             {juz.claimedByName}
           </p>
@@ -68,7 +68,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
           ) : isClaimed && isOwner ? (
             <div className="flex flex-col gap-2">
               <Button 
-                className="bg-accent hover:bg-accent-dark"
+                className="bg-green-500 hover:bg-green-600 text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                   onMarkAsRead();
