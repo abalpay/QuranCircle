@@ -41,51 +41,54 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
   
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md p-5 mb-6">
-        <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
-          <div>
-            <h2 className="text-2xl font-heading font-bold text-primary-dark">
+      <div className="bg-white rounded-lg shadow-md p-5 mb-6 flex-1 max-w-full">
+        <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-2xl font-heading font-bold text-[hsl(var(--quran-green))] truncate">
               {event.name}
             </h2>
             {event.description && (
-              <p className="text-neutral-700">{event.description}</p>
+              <p className="text-neutral-700 text-sm line-clamp-2">{event.description}</p>
             )}
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button variant="default" className="bg-primary hover:bg-primary-dark" onClick={handleShare}>
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-[hsl(var(--quran-green))]" 
+              onClick={handleShare}
+            >
+              <Share2 className="h-4 w-4" />
             </Button>
             
             {isEventCreator && (
               <Button 
-                variant="secondary" 
-                className="bg-secondary hover:bg-secondary-dark text-white"
+                variant="ghost" 
+                size="sm"
                 onClick={onManage}
               >
-                <Settings className="mr-2 h-4 w-4" />
-                Manage
+                <Settings className="h-4 w-4" />
               </Button>
             )}
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm">
+        <div className="flex flex-wrap gap-3 text-xs text-neutral-500">
           <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4 text-neutral-700" />
-            <span>Created on {format(new Date(event.createdAt), 'MMMM d, yyyy')}</span>
+            <Calendar className="h-3 w-3" />
+            <span>{format(new Date(event.createdAt), 'MMM d, yyyy')}</span>
           </div>
           
           {event.deadline && (
             <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4 text-neutral-700" />
-              <span>Deadline: {format(new Date(event.deadline), 'MMMM d, yyyy')}</span>
+              <Clock className="h-3 w-3" />
+              <span>Due: {format(new Date(event.deadline), 'MMM d, yyyy')}</span>
             </div>
           )}
           
           <div className="flex items-center gap-1">
-            <Eye className="h-4 w-4 text-neutral-700" />
-            <span>{event.isPublic ? 'Public Event' : 'Private Circle'}</span>
+            <Eye className="h-3 w-3" />
+            <span>{event.isPublic ? 'Public' : 'Private'}</span>
           </div>
         </div>
       </div>

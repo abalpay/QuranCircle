@@ -4,11 +4,18 @@ import { Loader2 } from "lucide-react";
 import { EventWithKhatms } from "@shared/schema";
 import EventHeader from "@/components/EventHeader";
 import KhatmCard from "@/components/KhatmCard";
-import { useEffect } from "react";
+import { useCallback, memo, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+
+// Memoized KhatmCard component to prevent unnecessary re-renders
+const MemoizedKhatmCard = memo(KhatmCard);
 
 export default function EventPage() {
-  const { id } = useParams();
-  const eventId = parseInt(id);
+  const params = useParams<{ id: string }>();
+  const eventId = parseInt(params.id ?? '0');
+  const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+  const [refreshing, setRefreshing] = useState(false);
   
   const { 
     data: event, 
@@ -17,27 +24,44 @@ export default function EventPage() {
     error,
     refetch
   } = useQuery<EventWithKhatms>({
-    queryKey: [`/api/events/${eventId}`]
+    queryKey: [`/api/events/${eventId}`],
+    refetchOnMount: true
   });
   
   // Force a refetch when a new khatm is created
-  const handleNewKhatmCreated = () => {
-    refetch();
-  };
+  const handleNewKhatmCreated = useCallback(() => {
+    refetch().then(() => {
+      setLastRefreshed(new Date());
+    });
+  }, [refetch]);
   
-  // Refresh the data periodically to show updates by other users
+  // Handle manual refresh with button animation
+  const handleManualRefresh = useCallback(() => {
+    setRefreshing(true);
+    refetch().then(() => {
+      setLastRefreshed(new Date());
+      setTimeout(() => setRefreshing(false), 500); // Keep animation for at least 500ms
+    });
+  }, [refetch]);
+  
+  // Refresh the data periodically to show updates by other users (less frequent)
   useEffect(() => {
     const interval = setInterval(() => {
-      refetch();
-    }, 30000); // every 30 seconds
+      // Only auto-refresh if the user hasn't interacted with page for 1 minute
+      if (new Date().getTime() - lastRefreshed.getTime() > 60000) {
+        refetch().then(() => {
+          setLastRefreshed(new Date());
+        });
+      }
+    }, 60000); // every 60 seconds instead of 30
     
     return () => clearInterval(interval);
-  }, [refetch]);
+  }, [refetch, lastRefreshed]);
   
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <Loader2 className="h-10 w-10 animate-spin text-[hsl(var(--quran-green))]" />
       </div>
     );
   }
@@ -47,6 +71,9 @@ export default function EventPage() {
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Event</h2>
         <p className="text-neutral-700 mb-4">{error?.message || "Failed to load the event"}</p>
+        <Button onClick={() => refetch()} variant="outline">
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -62,10 +89,23 @@ export default function EventPage() {
   
   return (
     <div>
-      <EventHeader event={event} />
+      <div className="flex justify-between items-center mb-4">
+        <EventHeader event={event} />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleManualRefresh} 
+          className="flex items-center gap-1"
+          disabled={refreshing}
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <span className="text-sm">Refresh</span>
+        </Button>
+      </div>
       
+      {/* Use React.memo to prevent unnecessary re-renders */}
       {event.khatms.map(khatm => (
-        <KhatmCard 
+        <MemoizedKhatmCard 
           key={khatm.id} 
           khatm={khatm} 
           onNewKhatmCreated={handleNewKhatmCreated}
