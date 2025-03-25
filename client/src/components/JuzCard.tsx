@@ -3,6 +3,7 @@ import { CheckCircle, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useLocation } from "wouter";
 
 type JuzCardProps = {
@@ -15,6 +16,7 @@ type JuzCardProps = {
 
 export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProps) {
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [location, navigate] = useLocation();
   const isUnclaimed = juz.status === 'unclaimed';
   const isClaimed = juz.status === 'claimed';
@@ -28,7 +30,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
         isClaimed ? "bg-[#fdfbf5]" : 
         "bg-[#f7fcfb]"
       )}
-      onClick={isUnclaimed ? (user ? onClaim : () => navigate(`/auth?returnTo=${encodeURIComponent(location)}`)) : undefined}
+      onClick={isUnclaimed ? (user ? onClaim : () => openAuthModal('login')) : undefined}
     >
       <div className="text-xs text-gray-500 absolute left-2 top-2">
         {juz.juzNumber}
@@ -85,7 +87,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
                 if (user) {
                   onClaim();
                 } else {
-                  navigate(`/auth?returnTo=${encodeURIComponent(location)}`);
+                  openAuthModal('login');
                 }
               }}
             >

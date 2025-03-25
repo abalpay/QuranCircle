@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import CreateEventDialog from "./CreateEventDialog";
 import { useAuth } from "@/hooks/use-auth";
+import { useAuthModal } from "@/hooks/use-auth-modal";
 
 export default function MobileNavigation() {
   const [location] = useLocation();

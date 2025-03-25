@@ -96,12 +96,15 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild variant="outline" size="sm" className="text-[hsl(var(--quran-green))] border-[hsl(var(--quran-green))] hidden md:flex">
-              <Link href="/auth">
-                <div className="flex items-center">
-                  <span className="text-sm">Sign In</span>
-                </div>
-              </Link>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-[hsl(var(--quran-green))] border-[hsl(var(--quran-green))] hidden md:flex"
+              onClick={() => openAuthModal('login')}
+            >
+              <div className="flex items-center">
+                <span className="text-sm">Sign In</span>
+              </div>
             </Button>
           )}
           
@@ -132,13 +135,11 @@ export default function Header() {
                   </DropdownMenuItem>
                 </>
               ) : (
-                <DropdownMenuItem asChild>
-                  <Link href="/auth">
-                    <span className="w-full cursor-pointer flex items-center">
-                      <UserCircle className="mr-2 h-4 w-4" />
-                      <span>Sign In</span>
-                    </span>
-                  </Link>
+                <DropdownMenuItem onClick={() => openAuthModal('login')}>
+                  <span className="w-full cursor-pointer flex items-center">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Sign In</span>
+                  </span>
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
