@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { useAuthModal } from "@/hooks/use-auth-modal";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import {
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 
 export default function Header() {
   const { user, logoutMutation } = useAuth();
+  const { openAuthModal } = useAuthModal();
   
   const handleLogout = () => {
     logoutMutation.mutate();
