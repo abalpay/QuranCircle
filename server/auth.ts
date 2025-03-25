@@ -51,12 +51,12 @@ export function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
-    name: '__Host-sid', // More secure cookie name
+    name: 'sid',
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      secure: true, // Always require HTTPS
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/'
     },
     rolling: true // Extend session with activity
