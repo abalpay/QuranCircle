@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
+import path from "path";
 import { storage as memStorage } from "./storage";
 import { pgStorage } from "./pg-storage";
 import { setupAuth } from "./auth";
@@ -20,21 +21,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
 
-  // Short URL redirect
+  // We'll keep the short URL redirect for server-side processing
+  // but make it work with the SPA architecture
   app.get("/s/:shortCode", async (req: Request, res: Response) => {
     try {
+      // Instead of a server redirect, we'll send the index.html
+      // and let the client-side router handle it
+      // This is crucial for SPA routing to work properly
       const { shortCode } = req.params;
-      const event = await storage.getEventByShortCode(shortCode);
       
-      if (!event) {
-        return res.status(404).redirect('/not-found');
-      }
+      // Log that we're handling a short URL redirect
+      console.log(`Handling short URL with code: ${shortCode}`);
       
-      // Redirect to the event page with full URL to ensure proper routing
-      return res.redirect(`/event/${event.id}`);
+      // We don't redirect here - we just serve the app
+      // and let client-side routing handle the redirect
+      res.sendFile(path.resolve(__dirname, "../client/index.html"));
     } catch (error) {
-      console.error("Error redirecting from short URL:", error);
-      res.status(500).redirect('/not-found');
+      console.error("Error handling short URL:", error);
+      res.status(500).send("Server error");
     }
   });
 
