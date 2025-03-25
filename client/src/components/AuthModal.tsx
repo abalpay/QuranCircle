@@ -110,10 +110,7 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
     try {
       setForgotPasswordSubmitting(true);
       
-      await apiRequest("/api/forgot-password", {
-        method: "POST",
-        body: data
-      });
+      await apiRequest("POST", "/api/forgot-password", data);
       
       setForgotPasswordSuccess(true);
       toast({

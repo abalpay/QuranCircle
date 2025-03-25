@@ -12,24 +12,26 @@ type ExtendedRequestInit = Omit<RequestInit, 'body'> & {
 };
 
 export async function apiRequest<T = any>(
+  method: string,
   url: string,
-  options?: ExtendedRequestInit,
-): Promise<T> {
+  body?: any,
+  options?: Omit<ExtendedRequestInit, 'body' | 'method'>
+): Promise<Response> {
   const res = await fetch(url, {
     ...options,
+    method,
     headers: {
       ...(options?.headers || {}),
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: options?.body && typeof options.body !== 'string' 
-      ? JSON.stringify(options.body) 
-      : options?.body,
+    body: body && typeof body !== 'string' 
+      ? JSON.stringify(body) 
+      : body,
   });
 
   await throwIfResNotOk(res);
-  const data = await res.json();
-  return data as T;
+  return res;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
