@@ -1,9 +1,6 @@
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
-import NotFound from "@/pages/not-found";
-import HomePage from "@/pages/home-page";
-import EventPage from "@/pages/event-page";
-import CirclesPage from "@/pages/circles-page";
+import { Suspense, lazy } from "react";
 import { ProtectedRoute } from "./lib/protected-route";
 import Header from "./components/Header";
 import MobileNavigation from "./components/MobileNavigation";
@@ -13,6 +10,13 @@ import { useAuthModal, AuthModalProvider } from "./hooks/use-auth-modal";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./hooks/use-auth";
+import { Loader2 } from "lucide-react";
+
+// Lazy load pages for code splitting
+const HomePage = lazy(() => import("@/pages/home-page"));
+const EventPage = lazy(() => import("@/pages/event-page"));
+const CirclesPage = lazy(() => import("@/pages/circles-page"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 function AppContent() {
   const { user } = useAuth();
@@ -22,12 +26,24 @@ function AppContent() {
     <div className="min-h-screen flex flex-col bg-neutral-100">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <Switch>
-          <Route path="/" component={HomePage} />
-          <Route path="/event/:id" component={EventPage} />
-          <ProtectedRoute path="/circles" component={CirclesPage} />
-          <Route component={NotFound} />
-        </Switch>
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <Loader2 className="h-10 w-10 animate-spin text-[hsl(var(--quran-green))]" />
+          </div>
+        }>
+          <Switch>
+            <Route path="/">
+              {() => <HomePage />}
+            </Route>
+            <Route path="/event/:id">
+              {() => <EventPage />}
+            </Route>
+            <ProtectedRoute path="/circles" component={() => <CirclesPage />} />
+            <Route>
+              {() => <NotFound />}
+            </Route>
+          </Switch>
+        </Suspense>
       </main>
       <MobileNavigation />
       
