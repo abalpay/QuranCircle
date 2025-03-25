@@ -150,8 +150,9 @@ export function setupAuth(app: Express) {
       // Send email
       try {
         await emailService.sendPasswordResetEmail(user, resetToken, resetUrl);
+        console.log('Password reset email sent successfully or handled by fallback system');
       } catch (error) {
-        console.error('Failed to send password reset email:', error);
+        console.error('Failed to send password reset email (both primary and fallback failed):', error);
         return res.status(500).json({ 
           error: "Failed to send password reset email", 
           message: "We're experiencing issues with our email service. Please try again later or contact support." 

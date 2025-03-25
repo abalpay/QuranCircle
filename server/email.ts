@@ -138,12 +138,21 @@ export class MailjetService implements EmailService {
 
 /**
  * Mock email service for testing or when Mailjet is not set up
+ * This service simulates sending an email but actually just logs the details
  */
 export class MockEmailService implements EmailService {
   async sendPasswordResetEmail(user: User, token: string, resetUrl: string): Promise<void> {
-    console.log(`[MOCK EMAIL] Password reset email for ${user.email}`);
+    console.log('==============================================================');
+    console.log(`[MOCK EMAIL SERVICE] Password reset email would have been sent`);
+    console.log(`[MOCK EMAIL] Recipient: ${user.email} (${user.username || 'no username'})`);
+    console.log(`[MOCK EMAIL] Subject: Reset Your Quran Circle Password`);
     console.log(`[MOCK EMAIL] Reset URL: ${resetUrl}`);
     console.log(`[MOCK EMAIL] Token: ${token}`);
+    console.log('[MOCK EMAIL] This message appears because the primary email service is unavailable');
+    console.log('[MOCK EMAIL] In production, the user would receive an actual email');
+    console.log('==============================================================');
+    
+    // Simulate a successful email send
     return Promise.resolve();
   }
 }
@@ -154,6 +163,7 @@ export class FallbackEmailService implements EmailService {
   private primaryService: EmailService;
   private backupService: EmailService;
   private usingFallback: boolean = false;
+  private lastError: any = null;
 
   constructor(primary: EmailService, backup: EmailService) {
     this.primaryService = primary;
@@ -161,20 +171,45 @@ export class FallbackEmailService implements EmailService {
   }
 
   async sendPasswordResetEmail(user: User, token: string, resetUrl: string): Promise<void> {
-    try {
-      // If we've already had a failure, go straight to the backup
-      if (this.usingFallback) {
-        return this.backupService.sendPasswordResetEmail(user, token, resetUrl);
+    // If we've already had a failure, go straight to the backup
+    if (this.usingFallback) {
+      console.log('Using fallback email service based on previous failure');
+      try {
+        return await this.backupService.sendPasswordResetEmail(user, token, resetUrl);
+      } catch (backupError) {
+        console.error('Backup email service failed:', backupError);
+        this.lastError = backupError;
+        throw new Error('Both primary and backup email services failed');
       }
-      
-      // Try the primary service first
-      return await this.primaryService.sendPasswordResetEmail(user, token, resetUrl);
-    } catch (error) {
-      console.warn('Primary email service failed, falling back to backup service');
-      this.usingFallback = true;
-      // Fall back to the backup service
-      return this.backupService.sendPasswordResetEmail(user, token, resetUrl);
     }
+    
+    try {
+      // Try the primary service first
+      console.log('Attempting to send email using primary service...');
+      await this.primaryService.sendPasswordResetEmail(user, token, resetUrl);
+      console.log('Primary email service succeeded');
+      return;
+    } catch (primaryError) {
+      console.warn('Primary email service failed, falling back to backup service', primaryError);
+      this.lastError = primaryError;
+      this.usingFallback = true;
+      
+      // Fall back to the backup service
+      try {
+        console.log('Attempting to send email using backup service...');
+        await this.backupService.sendPasswordResetEmail(user, token, resetUrl);
+        console.log('Backup email service succeeded');
+        return;
+      } catch (backupError) {
+        console.error('Backup email service also failed:', backupError);
+        throw new Error('Both primary and backup email services failed');
+      }
+    }
+  }
+  
+  // Method to get the last error that occurred
+  getLastError(): any {
+    return this.lastError;
   }
 }
 
