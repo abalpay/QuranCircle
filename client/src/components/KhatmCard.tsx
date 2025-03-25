@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { UserCheck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import JuzCard from "./JuzCard";
-import { useState } from "react";
+import { useState, useCallback, memo, useMemo } from "react";
 import ClaimJuzDialog from "./ClaimJuzDialog";
 import MarkAsReadDialog from "./MarkAsReadDialog";
 import UnclaimDialog from "./UnclaimDialog";
@@ -19,7 +19,8 @@ type KhatmCardProps = {
   eventId: number;
 };
 
-export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCardProps) {
+// Define the component separately so we can wrap it with memo
+function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
@@ -30,10 +31,17 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
   const [isReadDialogOpen, setIsReadDialogOpen] = useState(false);
   const [isUnclaimDialogOpen, setIsUnclaimDialogOpen] = useState(false);
   
-  const progressPercentage = Math.round((khatm.readCount / 30) * 100);
+  // Memoize calculated values to prevent recalculation on every render
+  const progressPercentage = useMemo(() => 
+    Math.round((khatm.readCount / 30) * 100), 
+    [khatm.readCount]
+  );
   
   // If this is an empty khatm (auto-generated next)
-  const isEmpty = khatm.claimedCount === 0;
+  const isEmpty = useMemo(() => 
+    khatm.claimedCount === 0,
+    [khatm.claimedCount]
+  );
   
   // Mutation for claiming a single Juz
   const claimJuzMutation = useMutation({
@@ -146,24 +154,24 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     }
   });
   
-  // Handlers for opening dialogs
-  const handleClaimJuz = (juzNumber: number) => {
+  // Memoized handlers for opening dialogs
+  const handleClaimJuz = useCallback((juzNumber: number) => {
     setSelectedJuz({ khatmId: khatm.id, juzNumber });
     setIsClaimDialogOpen(true);
-  };
+  }, [khatm.id]);
   
-  const handleMarkAsRead = (juzNumber: number) => {
+  const handleMarkAsRead = useCallback((juzNumber: number) => {
     setSelectedJuz({ khatmId: khatm.id, juzNumber });
     setIsReadDialogOpen(true);
-  };
+  }, [khatm.id]);
   
-  const handleUnclaim = (juzNumber: number) => {
+  const handleUnclaim = useCallback((juzNumber: number) => {
     setSelectedJuz({ khatmId: khatm.id, juzNumber });
     setIsUnclaimDialogOpen(true);
-  };
+  }, [khatm.id]);
   
-  // Dialog submission handlers
-  const onClaimSubmit = (claimerName: string, juzNumbers: number[]) => {
+  // Memoized dialog submission handlers
+  const onClaimSubmit = useCallback((claimerName: string, juzNumbers: number[]) => {
     if (!selectedJuz || juzNumbers.length === 0) return;
     
     claimJuzMutation.mutate({
@@ -172,9 +180,9 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
       claimerName
     });
     // Note: Dialog closing is handled in mutation success callback
-  };
+  }, [selectedJuz, claimJuzMutation]);
   
-  const onMarkAsReadSubmit = () => {
+  const onMarkAsReadSubmit = useCallback(() => {
     if (!selectedJuz) return;
     
     markAsReadMutation.mutate({
@@ -182,9 +190,9 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
       juzNumber: selectedJuz.juzNumber
     });
     // Note: Dialog closing is handled in mutation success callback
-  };
+  }, [selectedJuz, markAsReadMutation]);
   
-  const onUnclaimSubmit = () => {
+  const onUnclaimSubmit = useCallback(() => {
     if (!selectedJuz) return;
     
     unclaimJuzMutation.mutate({
@@ -192,17 +200,23 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
       juzNumber: selectedJuz.juzNumber
     });
     // Note: Dialog closing is handled in mutation success callback
-  };
+  }, [selectedJuz, unclaimJuzMutation]);
   
-  // Find the selected juz details for the dialog
-  const selectedJuzDetails = selectedJuz 
-    ? khatm.juzs.find(juz => juz.juzNumber === selectedJuz.juzNumber)
-    : null;
+  // Memoize selected juz details for the dialog
+  const selectedJuzDetails = useMemo(() => 
+    selectedJuz 
+      ? khatm.juzs.find(juz => juz.juzNumber === selectedJuz.juzNumber)
+      : null,
+    [selectedJuz, khatm.juzs]
+  );
   
-  // Calculate available Juzs for claim dialog
-  const availableJuzs = khatm.juzs
-    .filter(juz => juz.status === 'unclaimed')
-    .map(juz => juz.juzNumber);
+  // Memoize available Juzs for claim dialog
+  const availableJuzs = useMemo(() => 
+    khatm.juzs
+      .filter(juz => juz.status === 'unclaimed')
+      .map(juz => juz.juzNumber),
+    [khatm.juzs]
+  );
   
   return (
     <>
@@ -280,10 +294,10 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
         )}
       </div>
       
-      {/* Dialogs */}
+      {/* Dialogs - with memoized close handlers */}
       <ClaimJuzDialog 
         isOpen={isClaimDialogOpen} 
-        onClose={() => setIsClaimDialogOpen(false)}
+        onClose={useCallback(() => setIsClaimDialogOpen(false), [setIsClaimDialogOpen])}
         juzNumber={selectedJuz?.juzNumber || 1}
         onSubmit={onClaimSubmit}
         defaultName={user?.username || ''}
@@ -292,14 +306,14 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
       
       <MarkAsReadDialog
         isOpen={isReadDialogOpen && selectedJuz !== null}
-        onClose={() => setIsReadDialogOpen(false)}
+        onClose={useCallback(() => setIsReadDialogOpen(false), [setIsReadDialogOpen])}
         juzNumber={selectedJuz?.juzNumber || 1}
         onConfirm={onMarkAsReadSubmit}
       />
       
       <UnclaimDialog
         isOpen={isUnclaimDialogOpen && selectedJuz !== null}
-        onClose={() => setIsUnclaimDialogOpen(false)}
+        onClose={useCallback(() => setIsUnclaimDialogOpen(false), [setIsUnclaimDialogOpen])}
         juzNumber={selectedJuz?.juzNumber || 1}
         claimedByName={selectedJuzDetails?.claimedByName || ''}
         onConfirm={onUnclaimSubmit}
@@ -307,3 +321,6 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
     </>
   );
 }
+
+// Export a memoized version of the component to prevent unnecessary rerenders
+export default memo(KhatmCardComponent);
