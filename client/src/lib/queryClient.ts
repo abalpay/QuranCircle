@@ -7,9 +7,13 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+type ExtendedRequestInit = Omit<RequestInit, 'body'> & {
+  body?: any
+};
+
 export async function apiRequest<T = any>(
   url: string,
-  options?: RequestInit,
+  options?: ExtendedRequestInit,
 ): Promise<T> {
   const res = await fetch(url, {
     ...options,
