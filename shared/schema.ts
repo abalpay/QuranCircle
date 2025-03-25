@@ -75,11 +75,17 @@ export const khatms = pgTable("khatms", {
   eventId: integer("event_id").notNull(),
   khatmNumber: integer("khatm_number").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  isArchived: boolean("is_archived").notNull().default(false),
+  isDeleted: boolean("is_deleted").notNull().default(false),
+  archivedAt: timestamp("archived_at"),
+  deletedAt: timestamp("deleted_at"),
 }, (table) => {
   return {
     eventIdIdx: index("khatms_event_id_idx").on(table.eventId),
     eventKhatmNumberIdx: index("khatms_event_khatm_number_idx").on(table.eventId, table.khatmNumber),
-    createdAtIdx: index("khatms_created_at_idx").on(table.createdAt)
+    createdAtIdx: index("khatms_created_at_idx").on(table.createdAt),
+    isArchivedIdx: index("khatms_is_archived_idx").on(table.isArchived),
+    isDeletedIdx: index("khatms_is_deleted_idx").on(table.isDeleted)
   };
 });
 
@@ -147,6 +153,19 @@ export const unmarkJuzAsReadSchema = z.object({
   juzNumber: z.number(),
 });
 
+// For archiving and deleting khatms
+export const archiveKhatmSchema = z.object({
+  khatmId: z.number(),
+});
+
+export const unarchiveKhatmSchema = z.object({
+  khatmId: z.number(),
+});
+
+export const deleteKhatmSchema = z.object({
+  khatmId: z.number(),
+});
+
 export type InsertJuz = z.infer<typeof insertJuzSchema>;
 export type Juz = typeof juzs.$inferSelect;
 export type ClaimJuzInput = z.infer<typeof claimJuzSchema>;
@@ -154,6 +173,9 @@ export type ClaimMultipleJuzInput = z.infer<typeof claimMultipleJuzSchema>;
 export type MarkJuzAsReadInput = z.infer<typeof markJuzAsReadSchema>;
 export type UnclaimJuzInput = z.infer<typeof unclaimJuzSchema>;
 export type UnmarkJuzAsReadInput = z.infer<typeof unmarkJuzAsReadSchema>;
+export type ArchiveKhatmInput = z.infer<typeof archiveKhatmSchema>;
+export type UnarchiveKhatmInput = z.infer<typeof unarchiveKhatmSchema>;
+export type DeleteKhatmInput = z.infer<typeof deleteKhatmSchema>;
 
 // Extended types for API responses
 export type KhatmWithJuzs = Khatm & {

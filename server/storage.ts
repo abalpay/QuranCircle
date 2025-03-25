@@ -36,6 +36,9 @@ export interface IStorage {
   getKhatm(id: number): Promise<Khatm | undefined>;
   getKhatmWithJuzs(id: number): Promise<KhatmWithJuzs | undefined>;
   getKhatmsByEventId(eventId: number): Promise<Khatm[]>;
+  archiveKhatm(id: number): Promise<Khatm | undefined>;
+  unarchiveKhatm(id: number): Promise<Khatm | undefined>;
+  deleteKhatm(id: number): Promise<Khatm | undefined>;
   
   // Juz Methods
   createJuz(juz: InsertJuz): Promise<Juz>;
@@ -225,7 +228,11 @@ export class MemStorage implements IStorage {
     const khatm: Khatm = { 
       ...insertKhatm, 
       id, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      isArchived: false,
+      isDeleted: false,
+      archivedAt: null,
+      deletedAt: null
     };
     this.khatmsData.set(id, khatm);
     return khatm;
@@ -254,8 +261,47 @@ export class MemStorage implements IStorage {
   
   async getKhatmsByEventId(eventId: number): Promise<Khatm[]> {
     return Array.from(this.khatmsData.values()).filter(
-      khatm => khatm.eventId === eventId
+      khatm => khatm.eventId === eventId && !khatm.isDeleted
     ).sort((a, b) => a.khatmNumber - b.khatmNumber);
+  }
+  
+  async archiveKhatm(id: number): Promise<Khatm | undefined> {
+    const khatm = this.khatmsData.get(id);
+    if (!khatm) return undefined;
+    
+    const updatedKhatm = { 
+      ...khatm, 
+      isArchived: true,
+      archivedAt: new Date()
+    };
+    this.khatmsData.set(id, updatedKhatm);
+    return updatedKhatm;
+  }
+  
+  async unarchiveKhatm(id: number): Promise<Khatm | undefined> {
+    const khatm = this.khatmsData.get(id);
+    if (!khatm) return undefined;
+    
+    const updatedKhatm = { 
+      ...khatm, 
+      isArchived: false,
+      archivedAt: null
+    };
+    this.khatmsData.set(id, updatedKhatm);
+    return updatedKhatm;
+  }
+  
+  async deleteKhatm(id: number): Promise<Khatm | undefined> {
+    const khatm = this.khatmsData.get(id);
+    if (!khatm) return undefined;
+    
+    const updatedKhatm = { 
+      ...khatm, 
+      isDeleted: true,
+      deletedAt: new Date()
+    };
+    this.khatmsData.set(id, updatedKhatm);
+    return updatedKhatm;
   }
   
   // Juz Methods
