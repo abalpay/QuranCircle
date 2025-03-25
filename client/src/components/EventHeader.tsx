@@ -70,13 +70,13 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
     
     navigator.clipboard.writeText(productionUrl).then(() => {
       toast({
-        title: "🔗 Production link copied!",
-        description: "Production URL has been copied to clipboard ✅",
+        title: "🔗 Website link copied!",
+        description: "Official website URL has been copied to clipboard ✅",
       });
     }).catch(() => {
       toast({
         title: "❌ Failed to copy",
-        description: "Please copy the production link manually",
+        description: "Please copy the website URL manually",
         variant: "destructive",
       });
     });
@@ -183,7 +183,7 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
                       <span className="text-sm text-neutral-700 font-medium truncate">{productionUrl}</span>
                     </div>
                     <p className="text-xs text-neutral-500 mt-1">
-                      🌐 Production URL (will work after deployment)
+                      🌐 Official website URL (qurancircle.io)
                     </p>
                   </div>
                 )}
@@ -207,12 +207,12 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
                   variant="outline"
                   disabled={shortUrlMutation.isPending}
                 >
-                  <span>🌐</span> Copy Production URL
+                  <span>🌐</span> Copy Website URL
                 </Button>
               )}
               
               <a 
-                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🌙 Join our blessed Quran reading circle! Let's read together ✨\n\n${shareUrl}`)}`}
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🌙 Join our blessed Quran reading circle! Let's read together ✨\n\n${productionUrl || shareUrl}`)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-full"

@@ -28,12 +28,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`[Server] Handling short URL with code: ${shortCode}`);
       
-      // Instead of relying on client-side routing, we'll use a dedicated redirect page
-      // This page handles the API call and redirect entirely on its own
-      const redirectPath = path.resolve(__dirname, "../client/redirect.html");
-      console.log(`[Server] Serving redirect.html from: ${redirectPath}`);
+      // In ESM modules, __dirname is not available directly
+      // Instead of using __dirname, use the import.meta approach to get the file URL
+      // But since we use Vite for serving the frontend, we'll use an api-based approach
+      // and redirect to the event page
       
-      res.sendFile(redirectPath);
+      // First check if the event exists
+      const event = await storage.getEventByShortCode(shortCode);
+      
+      if (event) {
+        // If found, redirect to the event page
+        return res.redirect(`/event/${event.id}`);
+      } else {
+        // If not found, redirect to home page
+        return res.redirect('/');
+      }
     } catch (error) {
       console.error("[Server] Error handling short URL:", error);
       res.status(500).send("Server error");
@@ -55,13 +64,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // First create a relative URL that will work in any environment
         const shortUrl = createShortUrl(null, event.shortCode);
         
-        // For display purposes, we'll also include the production URL
-        const prodUrl = createShortUrl("https://qurancircle.io", event.shortCode);
+        // For display purposes, we'll also include the website URL
+        const websiteUrl = createShortUrl("https://qurancircle.io", event.shortCode);
         
         return res.json({ 
           shortCode: event.shortCode, 
           shortUrl,
-          productionUrl: prodUrl
+          productionUrl: websiteUrl // keeping property name for backwards compatibility
         });
       }
       
@@ -78,13 +87,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create the relative short URL that works in any environment
       const shortUrl = createShortUrl(null, shortCode);
       
-      // For display purposes, also include the production URL
-      const prodUrl = createShortUrl("https://qurancircle.io", shortCode);
+      // For display purposes, also include the website URL
+      const websiteUrl = createShortUrl("https://qurancircle.io", shortCode);
       
       res.json({ 
         shortCode, 
         shortUrl,
-        productionUrl: prodUrl 
+        productionUrl: websiteUrl // keeping property name for backwards compatibility
       });
     } catch (error) {
       console.error("Error creating short URL:", error);
