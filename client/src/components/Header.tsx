@@ -31,35 +31,8 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-[hsl(var(--quran-border))] sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center md:py-2">
-        {/* Left section - Menu on mobile, logo on desktop */}
+        {/* Left section - Logo */}
         <div className="flex items-center md:w-1/3">
-          <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-gray-700 -ml-2">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem asChild>
-                  <Link href="/">
-                    <span className="w-full cursor-pointer">Home</span>
-                  </Link>
-                </DropdownMenuItem>
-                {user && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Hello, {user.username}</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          
           {/* Logo - visible on all devices (mobile and desktop) */}
           <Link href="/">
             <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">

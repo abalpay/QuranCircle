@@ -24,7 +24,6 @@ type CircleSettingsDialogProps = {
 export default function CircleSettingsDialog({ isOpen, onClose, event }: CircleSettingsDialogProps) {
   const [name, setName] = useState(event.name);
   const [description, setDescription] = useState(event.description || '');
-  const [isPublic, setIsPublic] = useState(event.isPublic);
   const [deadline, setDeadline] = useState<Date | undefined>(
     event.deadline ? new Date(event.deadline) : undefined
   );
@@ -36,7 +35,7 @@ export default function CircleSettingsDialog({ isOpen, onClose, event }: CircleS
     mutationFn: async (eventData: {
       name: string;
       description: string;
-      isPublic: boolean;
+      isPublic: boolean; // Kept for API compatibility
       deadline?: Date;
     }) => {
       return apiRequest(
@@ -68,7 +67,7 @@ export default function CircleSettingsDialog({ isOpen, onClose, event }: CircleS
     updateMutation.mutate({
       name,
       description,
-      isPublic,
+      isPublic: true, // All circles are public by default
       deadline
     });
   };
@@ -141,14 +140,7 @@ export default function CircleSettingsDialog({ isOpen, onClose, event }: CircleS
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="public"
-              checked={isPublic}
-              onCheckedChange={setIsPublic}
-            />
-            <Label htmlFor="public">Make this circle public</Label>
-          </div>
+          {/* Public option removed as all circles are now public by default */}
           
           <DialogFooter>
             <Button
