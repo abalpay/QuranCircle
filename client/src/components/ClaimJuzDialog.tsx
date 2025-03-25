@@ -23,26 +23,31 @@ export default function ClaimJuzDialog({
   defaultName = ""
 }: ClaimJuzDialogProps) {
   const { user } = useAuth();
-  // Use user's username as default if logged in, otherwise use provided defaultName
-  const [name, setName] = useState(user ? user.username : (defaultName || ""));
+  // Try to get the saved name from localStorage first, then fallback to defaults
+  const getSavedName = () => {
+    if (user) return user.username;
+    const savedName = localStorage.getItem('quranCircleClaimerName');
+    return savedName || defaultName || "";
+  };
+  
+  const [name, setName] = useState(getSavedName());
   
   // Reset name when the dialog opens with new defaultName or user changes
   useEffect(() => {
     if (isOpen) {
-      if (user) {
-        // If user is logged in, use their username
-        setName(user.username);
-      } else if (defaultName !== name) {
-        // Otherwise use the provided defaultName
-        setName(defaultName || "");
-      }
+      setName(getSavedName());
     }
-  }, [isOpen, defaultName, name, user]);
+  }, [isOpen, user]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (name.trim()) {
+      // Save the name to localStorage for future claims (if not logged in)
+      if (!user) {
+        localStorage.setItem('quranCircleClaimerName', name.trim());
+      }
+      
       // Always submit with single juzNumber in array
       onSubmit(name.trim(), [juzNumber]);
     }

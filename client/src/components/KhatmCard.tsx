@@ -277,7 +277,7 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
         onClose={useCallback(() => setIsClaimDialogOpen(false), [setIsClaimDialogOpen])}
         juzNumber={selectedJuz?.juzNumber || 1}
         onSubmit={onClaimSubmit}
-        defaultName={user?.username || ''}
+        defaultName={user?.username || localStorage.getItem('quranCircleClaimerName') || ''}
         availableJuzs={availableJuzs}
       />
       
