@@ -21,8 +21,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
 
-  // We'll keep the short URL redirect for server-side processing
-  // but make it work with the SPA architecture
+  // Short URL handling for SPA architecture
   app.get("/s/:shortCode", async (req: Request, res: Response) => {
     try {
       // Instead of a server redirect, we'll send the index.html
@@ -31,13 +30,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { shortCode } = req.params;
       
       // Log that we're handling a short URL redirect
-      console.log(`Handling short URL with code: ${shortCode}`);
+      console.log(`[Server] Handling short URL with code: ${shortCode}`);
+      
+      // Look up the event to confirm it exists before serving the app
+      // This is just for logging - we won't actually redirect here
+      const event = await storage.getEventByShortCode(shortCode);
+      if (event) {
+        console.log(`[Server] Found event ID ${event.id} for short code ${shortCode}`);
+      } else {
+        console.log(`[Server] No event found for short code ${shortCode}, but still serving app to let client handle it`);
+      }
       
       // We don't redirect here - we just serve the app
       // and let client-side routing handle the redirect
-      res.sendFile(path.resolve(__dirname, "../client/index.html"));
+      const indexPath = path.resolve(__dirname, "../client/index.html");
+      console.log(`[Server] Serving index.html from: ${indexPath}`);
+      
+      res.sendFile(indexPath);
     } catch (error) {
-      console.error("Error handling short URL:", error);
+      console.error("[Server] Error handling short URL:", error);
       res.status(500).send("Server error");
     }
   });
@@ -85,15 +96,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/events/shortcode/:shortCode", async (req: Request, res: Response) => {
     try {
       const { shortCode } = req.params;
+      console.log(`[API] Looking up event by short code: ${shortCode}`);
+      
       const event = await storage.getEventByShortCode(shortCode);
       
       if (!event) {
+        console.log(`[API] No event found for short code: ${shortCode}`);
         return res.status(404).json({ message: "Event not found" });
       }
       
+      console.log(`[API] Found event for short code ${shortCode}: Event ID = ${event.id}`);
       res.json(event);
     } catch (error) {
-      console.error("Error getting event by short code:", error);
+      console.error(`[API] Error getting event by short code ${req.params.shortCode}:`, error);
       res.status(500).json({ message: "Server error" });
     }
   });

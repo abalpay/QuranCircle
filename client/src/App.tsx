@@ -57,21 +57,27 @@ function AppContent() {
                   // Fetch the event ID based on the short code
                   const fetchEventId = async () => {
                     try {
+                      console.log("[Short URL] Fetching event for short code:", shortCode);
                       const response = await fetch(`/api/events/shortcode/${shortCode}`);
+                      
                       if (response.ok) {
                         const event = await response.json();
+                        console.log("[Short URL] Found event, redirecting to event ID:", event.id);
+                        
                         // Redirect to the event page
                         navigate(`/event/${event.id}`, { replace: true });
                       } else {
+                        console.error("[Short URL] Event not found for short code:", shortCode, "Status:", response.status);
                         // If not found, redirect to not found page
                         navigate("/not-found", { replace: true });
                       }
                     } catch (error) {
-                      console.error("Error fetching event by short code:", error);
+                      console.error("[Short URL] Error fetching event:", error);
                       navigate("/not-found", { replace: true });
                     }
                   };
                   
+                  console.log("[Short URL] Processing short URL with code:", shortCode);
                   fetchEventId();
                 }, [shortCode]);
                 
@@ -80,6 +86,9 @@ function AppContent() {
                   <span className="ml-3">Redirecting...</span>
                 </div>;
               }}
+            </Route>
+            <Route path="/not-found">
+              {() => <NotFound />}
             </Route>
             <Route>
               {() => <NotFound />}
