@@ -153,15 +153,15 @@ export default function EventPage() {
         </Button>
       </div>
 
-      <Alert className="mb-6 bg-[hsl(var(--quran-green))]/10 border-[hsl(var(--quran-green))]/20">
-        <Info className="h-4 w-4 text-[hsl(var(--quran-green))]" />
-        <AlertDescription className="text-sm text-gray-700">
-          You can participate without signing in! Anyone can claim, unclaim, and
-          mark portions as read.
-          <span className="block mt-1 text-xs">
-            Creating new khatms requires an account.
-          </span>
-          {!user && (
+      {!user && (
+        <Alert className="mb-6 bg-[hsl(var(--quran-green))]/10 border-[hsl(var(--quran-green))]/20">
+          <Info className="h-4 w-4 text-[hsl(var(--quran-green))]" />
+          <AlertDescription className="text-sm text-gray-700">
+            You can participate without signing in! Anyone can claim, unclaim, and
+            mark portions as read.
+            <span className="block mt-1 text-xs">
+              Creating new khatms requires an account.
+            </span>
             <span className="block mt-2 flex items-center justify-between">
               <span className="text-xs text-gray-600">Want to save this circle to your account?</span>
               <Button 
@@ -173,9 +173,9 @@ export default function EventPage() {
                 Sign in
               </Button>
             </span>
-          )}
-        </AlertDescription>
-      </Alert>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Only show non-deleted khatms in the UI */}
       {event.khatms
