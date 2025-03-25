@@ -8,6 +8,8 @@ import { useCallback, memo, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import CircleSettingsDialog from "@/components/CircleSettingsDialog";
+import { useAuth } from "@/hooks/use-auth";
 
 // Memoized KhatmCard component to prevent unnecessary re-renders
 const MemoizedKhatmCard = memo(KhatmCard);
@@ -17,6 +19,8 @@ export default function EventPage() {
   const eventId = parseInt(params.id ?? '0');
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [refreshing, setRefreshing] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { user } = useAuth();
   
   const { 
     data: event, 
@@ -44,6 +48,16 @@ export default function EventPage() {
       setTimeout(() => setRefreshing(false), 500); // Keep animation for at least 500ms
     });
   }, [refetch]);
+  
+  // Open settings dialog
+  const handleOpenSettings = useCallback(() => {
+    setSettingsOpen(true);
+  }, []);
+  
+  // Close settings dialog
+  const handleCloseSettings = useCallback(() => {
+    setSettingsOpen(false);
+  }, []);
   
   // Refresh the data periodically to show updates by other users (less frequent)
   useEffect(() => {
@@ -88,10 +102,15 @@ export default function EventPage() {
     );
   }
   
+  const isEventCreator = user && user.id === event.createdBy;
+  
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <EventHeader event={event} />
+        <EventHeader 
+          event={event} 
+          onManage={isEventCreator ? handleOpenSettings : undefined}
+        />
         <Button 
           variant="ghost" 
           size="sm" 
@@ -121,6 +140,14 @@ export default function EventPage() {
           eventId={eventId}
         />
       ))}
+      
+      {isEventCreator && event && (
+        <CircleSettingsDialog
+          isOpen={settingsOpen}
+          onClose={handleCloseSettings}
+          event={event}
+        />
+      )}
     </div>
   );
 }

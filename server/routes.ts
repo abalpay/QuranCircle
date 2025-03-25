@@ -78,6 +78,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Server error" });
     }
   });
+  
+  // Update an existing event
+  app.put("/api/events/:id", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const eventId = parseInt(req.params.id);
+      const event = await storage.getEvent(eventId);
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      // Only the creator can update the event
+      if (event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "You don't have permission to update this event" });
+      }
+      
+      // Validate update data (partial updates are allowed)
+      const updateData: {
+        name?: string;
+        description?: string;
+        isPublic?: boolean;
+        deadline?: Date;
+      } = {};
+      
+      // Only add defined values
+      if (req.body.name !== undefined) updateData.name = req.body.name;
+      if (req.body.description !== undefined) updateData.description = req.body.description;
+      if (req.body.isPublic !== undefined) updateData.isPublic = req.body.isPublic;
+      if (req.body.deadline) updateData.deadline = new Date(req.body.deadline);
+      
+      const updatedEvent = await storage.updateEvent(eventId, updateData);
+      
+      if (!updatedEvent) {
+        return res.status(500).json({ message: "Failed to update event" });
+      }
+      
+      res.json(updatedEvent);
+    } catch (error) {
+      console.error("Error updating event:", error);
+      res.status(400).json({ message: "Invalid event data" });
+    }
+  });
 
   // Juz Claims API
   app.post("/api/juz/claim", async (req: Request, res: Response) => {
