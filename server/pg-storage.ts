@@ -194,7 +194,50 @@ export class PgStorage implements IStorage {
   }
 
   async getKhatmsByEventId(eventId: number): Promise<Khatm[]> {
-    return await db.select().from(khatms).where(eq(khatms.eventId, eventId));
+    return await db.select()
+      .from(khatms)
+      .where(
+        and(
+          eq(khatms.eventId, eventId),
+          eq(khatms.isDeleted, false)
+        )
+      )
+      .orderBy(khatms.khatmNumber);
+  }
+  
+  async archiveKhatm(id: number): Promise<Khatm | undefined> {
+    const now = new Date();
+    const result = await db.update(khatms)
+      .set({
+        isArchived: true,
+        archivedAt: now
+      })
+      .where(eq(khatms.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  async unarchiveKhatm(id: number): Promise<Khatm | undefined> {
+    const result = await db.update(khatms)
+      .set({
+        isArchived: false,
+        archivedAt: null
+      })
+      .where(eq(khatms.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  async deleteKhatm(id: number): Promise<Khatm | undefined> {
+    const now = new Date();
+    const result = await db.update(khatms)
+      .set({
+        isDeleted: true,
+        deletedAt: now
+      })
+      .where(eq(khatms.id, id))
+      .returning();
+    return result[0];
   }
 
   // Juz Methods
