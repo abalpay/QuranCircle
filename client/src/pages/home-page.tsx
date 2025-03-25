@@ -277,7 +277,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="bg-gradient-to-br from-white to-emerald-50 rounded-xl border border-emerald-100 p-8 shadow-sm mb-16">
+      <div className="bg-gradient-to-br from-white to-emerald-50 rounded-xl border border-emerald-100 p-4 md:p-8 shadow-sm mb-8 md:mb-16">
         <h2 className="text-2xl font-bold text-emerald-800 mb-8 text-center">How It Works</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

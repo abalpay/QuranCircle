@@ -14,8 +14,8 @@ export default function MobileNavigation() {
   
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-40">
-        <div className="flex justify-around">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-40 border-t border-emerald-100">
+        <div className="flex justify-around safe-area-inset-bottom">
           <Link href="/">
             <div className={cn(
               "flex flex-col items-center py-3 px-3 cursor-pointer",
