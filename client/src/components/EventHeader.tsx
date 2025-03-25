@@ -1,4 +1,4 @@
-import { Calendar, Clock, Share2, Settings } from "lucide-react";
+import { Calendar, Clock, Link, Share2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventWithKhatms } from "@shared/schema";
 import { useState } from "react";
@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 type EventHeaderProps = {
   event: EventWithKhatms;
@@ -15,14 +17,49 @@ type EventHeaderProps = {
 export default function EventHeader({ event, onManage }: EventHeaderProps) {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const { user } = useAuth();
+  const [shareUrl, setShareUrl] = useState<string>(window.location.href);
+  const [hasShortUrl, setHasShortUrl] = useState(false);
+  
+  // Define the response type
+  type ShortUrlResponse = {
+    shortCode: string;
+    shortUrl: string;
+  };
+
+  // Query for generating a short URL
+  const shortUrlMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest<ShortUrlResponse>(`/api/events/${event.id}/short-url`, {
+        method: 'POST'
+      });
+    },
+    onSuccess: (data) => {
+      setShareUrl(data.shortUrl);
+      setHasShortUrl(true);
+      toast({
+        title: "✅ Short URL generated",
+        description: "A shorter URL has been created for easier sharing"
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "❌ Error creating short URL",
+        description: "Using regular URL instead",
+        variant: "destructive"
+      });
+    }
+  });
   
   const handleShare = () => {
     setShareDialogOpen(true);
+    // If we don't have a short URL yet and it's not loading, generate one
+    if (!hasShortUrl && !shortUrlMutation.isPending) {
+      shortUrlMutation.mutate();
+    }
   };
   
   const copyToClipboard = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
       toast({
         title: "🔗 Link copied!",
         description: "Quran circle link has been copied to clipboard ✅",
@@ -96,17 +133,38 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
           </DialogHeader>
           <div className="py-4">
             <p className="mb-4 text-center">Invite others to join this blessed Quran reading circle 🌙✨</p>
+            
+            {shortUrlMutation.isPending ? (
+              <div className="flex items-center justify-center mb-4">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                <span className="ml-2 text-sm text-neutral-500">Creating shorter link...</span>
+              </div>
+            ) : (
+              <div className="mb-4 bg-neutral-50 p-3 rounded-md border border-neutral-200">
+                <div className="flex items-center">
+                  <Link className="h-4 w-4 text-neutral-500 mr-2" />
+                  <span className="text-sm text-neutral-700 font-medium truncate">{shareUrl}</span>
+                </div>
+                {hasShortUrl && (
+                  <p className="text-xs text-neutral-500 mt-1">
+                    ✨ Using a shorter, easier-to-share URL
+                  </p>
+                )}
+              </div>
+            )}
+            
             <div className="flex flex-col gap-4">
               <Button 
                 onClick={copyToClipboard} 
                 className="w-full flex items-center justify-center gap-2"
                 variant="outline"
+                disabled={shortUrlMutation.isPending}
               >
                 <span>📋</span> Copy Link to Clipboard
               </Button>
               
               <a 
-                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🌙 Join our blessed Quran reading circle! Let's read together ✨\n\n${window.location.href}`)}`}
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🌙 Join our blessed Quran reading circle! Let's read together ✨\n\n${shareUrl}`)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-full"
@@ -114,6 +172,7 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
                 <Button 
                   className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white flex items-center justify-center gap-2"
                   type="button"
+                  disabled={shortUrlMutation.isPending}
                 >
                   <span>💬</span> Share via WhatsApp
                 </Button>

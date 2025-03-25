@@ -20,6 +20,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
 
+  // Short URL redirect
+  app.get("/s/:shortCode", async (req: Request, res: Response) => {
+    try {
+      const { shortCode } = req.params;
+      const event = await storage.getEventByShortCode(shortCode);
+      
+      if (!event) {
+        return res.status(404).redirect('/not-found');
+      }
+      
+      // Redirect to the event page
+      return res.redirect(`/event/${event.id}`);
+    } catch (error) {
+      console.error("Error redirecting from short URL:", error);
+      res.status(500).redirect('/not-found');
+    }
+  });
+
+  // API endpoint to generate a short URL for an event
+  app.post("/api/events/:id/short-url", async (req: Request, res: Response) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      const event = await storage.getEvent(eventId);
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      // Check if the event already has a short code
+      if (event.shortCode) {
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const shortUrl = createShortUrl(baseUrl, event.shortCode);
+        return res.json({ shortCode: event.shortCode, shortUrl });
+      }
+      
+      // Generate a new short code
+      const shortCode = generateShortCode();
+      
+      // Save the short code
+      const updatedEvent = await storage.setEventShortCode(eventId, shortCode);
+      
+      if (!updatedEvent) {
+        return res.status(500).json({ message: "Failed to create short URL" });
+      }
+      
+      // Create the full short URL
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const shortUrl = createShortUrl(baseUrl, shortCode);
+      
+      res.json({ shortCode, shortUrl });
+    } catch (error) {
+      console.error("Error creating short URL:", error);
+      res.status(500).json({ message: "Error creating short URL" });
+    }
+  });
+
   // Events API
   app.post("/api/events", async (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
