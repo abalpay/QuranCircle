@@ -54,11 +54,6 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
       return await res.json();
     },
     onSuccess: (data) => {
-      toast({ 
-        title: "Juz claimed successfully",
-        description: "You have claimed this Juz for reading"
-      });
-      
       // Refresh the data
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
       
@@ -102,11 +97,6 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
       return await res.json();
     },
     onSuccess: () => {
-      toast({ 
-        title: "Juz marked as read",
-        description: "Thank you for completing this portion"
-      });
-      
       // Refresh the data
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
       
@@ -133,11 +123,6 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
       return await res.json();
     },
     onSuccess: () => {
-      toast({ 
-        title: "Juz unclaimed",
-        description: "The Juz is now available for others to claim"
-      });
-      
       // Refresh the data
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
       

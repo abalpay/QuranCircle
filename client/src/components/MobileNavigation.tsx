@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, PlusCircle, UserCircle, LogOut, Home, CircleUserRound } from "lucide-react";
+import { PlusCircle, LogOut, Home, CircleUserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import CreateEventDialog from "./CreateEventDialog";
@@ -26,24 +26,16 @@ export default function MobileNavigation() {
             </div>
           </Link>
           
-          <Link href="/circles">
-            <div className={cn(
-              "flex flex-col items-center py-3 px-3 cursor-pointer",
-              location === "/circles" ? "text-[hsl(var(--quran-green))]" : "text-neutral-700"
-            )}>
-              <BookOpen size={20} />
-              <span className="text-xs mt-1">Circles</span>
-            </div>
-          </Link>
-          
-          <button
-            type="button"
-            onClick={() => setIsCreateEventOpen(true)}
-            className="flex flex-col items-center py-3 px-3 text-neutral-700"
-          >
-            <PlusCircle size={20} />
-            <span className="text-xs mt-1">Create</span>
-          </button>
+          {user && (
+            <button
+              type="button"
+              onClick={() => setIsCreateEventOpen(true)}
+              className="flex flex-col items-center py-3 px-3 text-neutral-700"
+            >
+              <PlusCircle size={20} />
+              <span className="text-xs mt-1">Create</span>
+            </button>
+          )}
           
           {user ? (
             <button

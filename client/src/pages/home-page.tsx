@@ -4,16 +4,14 @@ import { Link, useLocation } from "wouter";
 import { Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Plus, Users, ExternalLink, Search, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { BookOpen, ExternalLink, Loader2 } from "lucide-react";
 import CreateCircleDialog from "@/components/CreateCircleDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
 export default function HomePage() {
-  const [location, navigate] = useLocation();
+  const [, navigate] = useLocation();
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
-  const [circleCode, setCircleCode] = useState("");
   const { user, isLoading: authLoading } = useAuth();
   
   const {
@@ -24,21 +22,7 @@ export default function HomePage() {
     enabled: !!user, // Only fetch if user is logged in
   });
   
-  const handleJoinCircle = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (circleCode) {
-      // Simple validation - assuming circleCode is just the numeric ID
-      const circleId = parseInt(circleCode.trim());
-      if (!isNaN(circleId)) {
-        navigate(`/event/${circleId}`);
-      }
-    }
-  };
-  
-  const handleBrowseCircles = () => {
-    navigate("/circles");
-  };
+  // Remove unused functions
   
   // Show loading indicator while checking authentication
   if (authLoading) {
@@ -59,56 +43,24 @@ export default function HomePage() {
           Welcome to <span className="text-[hsl(var(--quran-green))]">Quran</span><span className="text-black">.circle</span>
         </h1>
         <p className="text-lg text-gray-600 max-w-xl mx-auto">
-          Join or create a group Quran reading circle with your community
+          Collaborative Quran reading made simple
         </p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6 mb-10">
-        <div className="bg-white rounded-lg border border-[hsl(var(--quran-border))] p-6 hover:shadow-md transition-shadow">
-          <div className="text-center">
-            <div className="mx-auto w-12 h-12 bg-[hsl(var(--quran-gray))] rounded-full flex items-center justify-center mb-4">
-              <Plus className="h-6 w-6 text-[hsl(var(--quran-green))]" />
-            </div>
-            <h2 className="text-xl font-medium text-gray-800 mb-2">
-              Create a Circle
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Start a new Quran reading circle and invite others to join
-            </p>
-            <Button 
-              onClick={() => user ? setIsCreateCircleOpen(true) : navigate("/auth?returnTo=/")}
-              className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
-            >
-              {user ? "Create Circle" : "Sign In to Create"}
-            </Button>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg border border-[hsl(var(--quran-border))] p-6 hover:shadow-md transition-shadow">
-          <div className="text-center">
-            <div className="mx-auto w-12 h-12 bg-[hsl(var(--quran-gray))] rounded-full flex items-center justify-center mb-4">
-              <Search className="h-6 w-6 text-[hsl(var(--quran-green))]" />
-            </div>
-            <h2 className="text-xl font-medium text-gray-800 mb-2">
-              Browse Circles
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Find and join public Quran reading circles
-            </p>
-            <Button 
-              onClick={() => user ? handleBrowseCircles() : navigate("/auth?returnTo=/circles")}
-              className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white w-full md:w-auto"
-            >
-              {user ? "Browse Circles" : "Sign In to Browse"}
-            </Button>
-          </div>
-        </div>
+      <div className="flex justify-center mb-10">
+        <Button 
+          onClick={() => user ? setIsCreateCircleOpen(true) : navigate("/auth?returnTo=/")}
+          className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white py-6 px-8 text-lg"
+          size="lg"
+        >
+          {user ? "Create New Reading Circle" : "Sign In to Create Circle"}
+        </Button>
       </div>
       
       {user && (
         <div className="mb-10">
           <h2 className="text-xl font-medium text-gray-800 mb-4">
-            Your Circles
+            Your Reading Circles
           </h2>
           
           {isLoading ? (

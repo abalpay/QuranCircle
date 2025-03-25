@@ -45,10 +45,6 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
       return await res.json();
     },
     onSuccess: (event) => {
-      toast({
-        title: "Circle created",
-        description: "Your Quran reading circle has been created successfully.",
-      });
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       resetForm();
       onClose();
