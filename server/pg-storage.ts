@@ -152,10 +152,26 @@ export class PgStorage implements IStorage {
   }
 
   async getEventsByUser(userId: number): Promise<Event[]> {
-    // First get all events created by this user
-    const userEvents = await db.select().from(events).where(eq(events.createdBy, userId));
-    
-    return userEvents;
+    try {
+      // Get all events created by this user
+      const userEvents = await db.select().from(events)
+        .where(eq(events.createdBy, userId))
+        .orderBy(desc(events.createdAt));
+      
+      // Create a Map to deduplicate events
+      const eventsMap = new Map<number, Event>();
+      
+      // Add user-created events to the map
+      userEvents.forEach(event => {
+        eventsMap.set(event.id, event);
+      });
+      
+      // Return the combined, deduplicated list of events
+      return Array.from(eventsMap.values());
+    } catch (error) {
+      console.error("Error in getEventsByUser:", error);
+      return [];
+    }
   }
 
   async getAllEvents(): Promise<Event[]> {

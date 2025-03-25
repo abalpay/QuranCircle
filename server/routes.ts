@@ -209,6 +209,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (eventWithKhatms) {
         cache.set(`event:${event.id}`, eventWithKhatms, EVENT_CACHE_TTL);
         
+        // If a user created this event, invalidate the events cache for that user
+        if (req.isAuthenticated() && req.user!.id) {
+          // Delete the user's events cache so it will be refreshed on the next request
+          cache.delete(`events:user:${req.user!.id}`);
+        }
+        
         // Broadcast event created via WebSockets to update all connected clients
         try {
           const wsManager = getWebSocketManager();
@@ -279,8 +285,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // If authenticated, get user's events
       if (req.isAuthenticated()) {
-        const events = await storage.getEventsByUser(req.user!.id);
-        return res.status(200).json(events);
+        const userId = req.user!.id;
+        const cacheKey = `events:user:${userId}`;
+        
+        // Check cache first
+        const cachedEvents = cache.get<EventWithKhatms[]>(cacheKey);
+        if (cachedEvents) {
+          console.log(`Returning cached events for user ${userId}`);
+          return res.status(200).json(cachedEvents);
+        }
+        
+        // Get events from storage with their khatms
+        const userEvents = await storage.getEventsByUser(userId);
+        
+        // For each event, get its khatms and enrich the response
+        const enrichedEvents: EventWithKhatms[] = [];
+        
+        for (const event of userEvents) {
+          const khatms = await storage.getKhatmsByEventId(event.id);
+          
+          // For each khatm, get its juz information
+          const khatmsWithJuzs: KhatmWithJuzs[] = [];
+          
+          for (const khatm of khatms) {
+            const juzs = await storage.getJuzsByKhatmId(khatm.id);
+            const claimedCount = juzs.filter(juz => juz.status !== 'unclaimed').length;
+            const readCount = juzs.filter(juz => juz.status === 'read').length;
+            
+            khatmsWithJuzs.push({
+              ...khatm,
+              juzs,
+              claimedCount,
+              readCount
+            });
+          }
+          
+          // Add creator name
+          let creatorName = "Anonymous";
+          if (event.createdBy) {
+            const creator = await storage.getUser(event.createdBy);
+            if (creator) {
+              creatorName = creator.name || creator.username;
+            }
+          }
+          
+          enrichedEvents.push({
+            ...event,
+            khatms: khatmsWithJuzs,
+            creatorName
+          });
+        }
+        
+        // Cache the enriched events
+        cache.set(cacheKey, enrichedEvents, CACHE_TTL.MINUTES_5);
+        
+        return res.status(200).json(enrichedEvents);
       }
       
       // Otherwise, return an empty array (anonymous users don't see any events)
