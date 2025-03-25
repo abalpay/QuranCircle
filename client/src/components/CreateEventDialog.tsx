@@ -26,6 +26,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
   const { user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const { openAuthModal } = useAuthModal();
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -79,7 +80,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
         variant: "destructive",
       });
       onClose();
-      navigate("/auth");
+      openAuthModal('login');
       return;
     }
     

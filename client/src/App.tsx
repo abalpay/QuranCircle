@@ -3,7 +3,6 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import EventPage from "@/pages/event-page";
-import AuthPage from "@/pages/auth-page";
 import CirclesPage from "@/pages/circles-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import Header from "./components/Header";
@@ -25,7 +24,6 @@ function AppContent() {
       <main className="flex-grow container mx-auto px-4 py-6">
         <Switch>
           <Route path="/" component={HomePage} />
-          <Route path="/auth" component={AuthPage} />
           <Route path="/event/:id" component={EventPage} />
           <ProtectedRoute path="/circles" component={CirclesPage} />
           <Route component={NotFound} />
