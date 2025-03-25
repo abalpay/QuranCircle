@@ -35,13 +35,27 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Use a more secure session secret strategy
+  // In production without env var, generate a random secret (will change on restart, forcing re-login)
+  // In development without env var, use a consistent dev secret
+  const sessionSecret = process.env.SESSION_SECRET || 
+    (process.env.NODE_ENV === 'production' 
+      ? randomBytes(32).toString('hex')
+      : 'quran-circle-dev-secret');
+      
+  console.log(`Session security: Using ${process.env.SESSION_SECRET ? 'environment' : 
+    (process.env.NODE_ENV === 'production' ? 'random' : 'development')} secret`);
+  
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || 'quran-circle-secret',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+      httpOnly: true, // Prevent client-side JS from reading the cookie
+      sameSite: 'lax' // Protect against CSRF attacks
     }
   };
 
