@@ -141,6 +141,32 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
     }
   });
   
+  // Mutation for unmarking a Juz as read (changing from 'read' back to 'claimed')
+  const unmarkAsReadMutation = useMutation({
+    mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
+      const res = await apiRequest("POST", "/api/juz/unmark-read", {
+        khatmId,
+        juzNumber
+      });
+      return await res.json();
+    },
+    onSuccess: () => {
+      // Refresh the data
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
+      
+      // Close the dialog and reset state
+      setIsUnmarkReadDialogOpen(false);
+      setSelectedJuz(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to unmark Juz as read",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
   // Memoized handlers for opening dialogs
   const handleClaimJuz = useCallback((juzNumber: number) => {
     setSelectedJuz({ khatmId: khatm.id, juzNumber });
@@ -155,6 +181,11 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
   const handleUnclaim = useCallback((juzNumber: number) => {
     setSelectedJuz({ khatmId: khatm.id, juzNumber });
     setIsUnclaimDialogOpen(true);
+  }, [khatm.id]);
+  
+  const handleUnmarkAsRead = useCallback((juzNumber: number) => {
+    setSelectedJuz({ khatmId: khatm.id, juzNumber });
+    setIsUnmarkReadDialogOpen(true);
   }, [khatm.id]);
   
   // Memoized dialog submission handlers
@@ -188,6 +219,16 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
     });
     // Note: Dialog closing is handled in mutation success callback
   }, [selectedJuz, unclaimJuzMutation]);
+  
+  const onUnmarkAsReadSubmit = useCallback(() => {
+    if (!selectedJuz) return;
+    
+    unmarkAsReadMutation.mutate({
+      khatmId: selectedJuz.khatmId,
+      juzNumber: selectedJuz.juzNumber
+    });
+    // Note: Dialog closing is handled in mutation success callback
+  }, [selectedJuz, unmarkAsReadMutation]);
   
   // Memoize selected juz details for the dialog
   const selectedJuzDetails = useMemo(() => 
@@ -265,6 +306,7 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
                 juz={juz}
                 onClaim={() => handleClaimJuz(juz.juzNumber)}
                 onMarkAsRead={() => handleMarkAsRead(juz.juzNumber)}
+                onUnmarkAsRead={() => handleUnmarkAsRead(juz.juzNumber)}
                 onUnclaim={() => handleUnclaim(juz.juzNumber)}
                 isOwner={user && juz.claimedByUserId ? user.id === juz.claimedByUserId : false}
               />
@@ -296,6 +338,14 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
         juzNumber={selectedJuz?.juzNumber || 1}
         claimedByName={selectedJuzDetails?.claimedByName || ''}
         onConfirm={onUnclaimSubmit}
+      />
+      
+      <UnmarkReadDialog
+        isOpen={isUnmarkReadDialogOpen && selectedJuz !== null}
+        onClose={useCallback(() => setIsUnmarkReadDialogOpen(false), [setIsUnmarkReadDialogOpen])}
+        juzNumber={selectedJuz?.juzNumber || 1}
+        claimedByName={selectedJuzDetails?.claimedByName || ''}
+        onConfirm={onUnmarkAsReadSubmit}
       />
     </>
   );

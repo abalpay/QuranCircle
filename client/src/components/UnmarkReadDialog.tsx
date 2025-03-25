@@ -1,13 +1,14 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Book, AlertTriangle } from "lucide-react";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { BookX } from "lucide-react";
 
 type UnmarkReadDialogProps = {
   isOpen: boolean;
@@ -25,44 +26,32 @@ export default function UnmarkReadDialog({
   onConfirm 
 }: UnmarkReadDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Book className="h-5 w-5 text-[hsl(var(--quran-green))]" />
-            <span>Mark Juz {juzNumber} as Not Completed?</span>
-          </DialogTitle>
-          <DialogDescription>
-            This will change the status of Juz {juzNumber} from "completed" back to "in progress".
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200 flex gap-2">
-          <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-yellow-700">
-            <p>This Juz will remain claimed by <span className="font-medium">{claimedByName}</span> but will be marked as not yet completed.</p>
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="max-w-md">
+        <AlertDialogHeader>
+          <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 mb-4">
+            <BookX className="h-6 w-6 text-yellow-600" aria-hidden="true" />
           </div>
-        </div>
-        
-        <DialogFooter className="sm:justify-between">
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            className="mt-4 sm:mt-0"
+          <AlertDialogTitle>Unmark Juz {juzNumber} as read?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will change the status of Juz {juzNumber} from <span className="font-medium">completed</span> back to <span className="font-medium">in progress</span>.
+            {claimedByName && (
+              <p className="mt-2">
+                This Juz is claimed by <span className="font-medium">{claimedByName}</span>.
+              </p>
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="border-gray-300">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            onClick={onConfirm}
           >
-            Cancel
-          </Button>
-          <Button
-            variant="default"
-            className="bg-[hsl(var(--quran-green))] hover:bg-[hsl(var(--quran-green))] hover:opacity-90"
-            onClick={() => {
-              onConfirm();
-            }}
-          >
-            Unmark as Completed
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            Unmark as Read
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
