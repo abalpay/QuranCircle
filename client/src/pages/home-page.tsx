@@ -316,7 +316,7 @@ export default function HomePage() {
                   {userCircles
                     .filter(circle => {
                       // Filter circles with at least one archived khatm
-                      return circle.khatms?.some(khatm => khatm.isArchived && !khatm.isDeleted);
+                      return circle.khatms?.some(khatm => khatm.isArchived === true && !khatm.isDeleted);
                     })
                     .map((circle) => (
                       <Link key={circle.id} href={`/event/${circle.id}`}>
@@ -342,7 +342,7 @@ export default function HomePage() {
                       </Link>
                     ))}
                   {userCircles.filter(circle => 
-                    circle.khatms?.some(khatm => khatm.isArchived && !khatm.isDeleted)
+                    circle.khatms?.some(khatm => khatm.isArchived === true && !khatm.isDeleted)
                   ).length === 0 && (
                     <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
                       <p className="text-gray-600">
