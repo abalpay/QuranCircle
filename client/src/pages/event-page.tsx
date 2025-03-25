@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info } from "lucide-react";
 import { EventWithKhatms } from "@shared/schema";
 import EventHeader from "@/components/EventHeader";
 import KhatmCard from "@/components/KhatmCard";
 import { useCallback, memo, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Memoized KhatmCard component to prevent unnecessary re-renders
 const MemoizedKhatmCard = memo(KhatmCard);
@@ -102,6 +103,14 @@ export default function EventPage() {
           <span className="text-sm">Refresh</span>
         </Button>
       </div>
+      
+      <Alert className="mb-6 bg-[hsl(var(--quran-green))]/10 border-[hsl(var(--quran-green))]/20">
+        <Info className="h-4 w-4 text-[hsl(var(--quran-green))]" />
+        <AlertDescription className="text-sm text-gray-700">
+          You can participate without signing in! Anyone can claim, unclaim, and mark portions as read.
+          <span className="block mt-1 text-xs">Creating new events requires an account.</span>
+        </AlertDescription>
+      </Alert>
       
       {/* Use React.memo to prevent unnecessary re-renders */}
       {event.khatms.map(khatm => (

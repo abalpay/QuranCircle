@@ -101,7 +101,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProp
       </div>
       
       {/* Hover overlay for actions */}
-      {(isUnclaimed || (isClaimed && isOwner)) && (
+      {(isUnclaimed || isClaimed) && (
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
           {isUnclaimed ? (
             <Button 
@@ -111,7 +111,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProp
             >
               Claim
             </Button>
-          ) : isClaimed && isOwner ? (
+          ) : isClaimed ? (
             <div className="flex flex-col gap-2">
               <Button 
                 className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"

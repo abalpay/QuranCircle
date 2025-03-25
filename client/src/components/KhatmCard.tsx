@@ -262,21 +262,13 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
         {isEmpty ? (
           <div className="text-center py-10 bg-[hsl(var(--quran-gray))/30] rounded-md">
             <p className="text-base font-medium text-gray-600 mb-4">Ready for new participants!</p>
-            {user ? (
-              <Button 
-                className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
-                onClick={() => handleClaimJuz(1)}
-              >
-                Claim a Juz
-              </Button>
-            ) : (
-              <Button 
-                className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
-                onClick={() => openAuthModal('login')}
-              >
-                Sign In to Claim
-              </Button>
-            )}
+            {/* Allow any user (including anonymous) to claim a Juz */}
+            <Button 
+              className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
+              onClick={() => handleClaimJuz(1)}
+            >
+              Claim a Juz
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
