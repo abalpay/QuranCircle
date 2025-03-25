@@ -64,6 +64,7 @@ export const insertEventSchema = baseInsertEventSchema.extend({
     z.string().transform((str) => str ? new Date(str) : null),
     z.null()
   ]).optional(),
+  createdBy: z.number().optional(), // Make createdBy optional since it's set by the server
 });
 
 export type InsertEvent = z.infer<typeof insertEventSchema>;
