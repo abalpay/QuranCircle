@@ -4,10 +4,14 @@ import { Express, Request, Response } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { storage as memStorage } from "./storage";
+import { pgStorage } from "./pg-storage";
 import { User as SelectUser } from "@shared/schema";
 import { z } from "zod";
 import { emailService } from "./email";
+
+// Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
+const storage = process.env.DATABASE_URL ? pgStorage : memStorage;
 
 declare global {
   namespace Express {
