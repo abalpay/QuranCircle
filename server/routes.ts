@@ -175,8 +175,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       if (req.isAuthenticated()) {
         // Return user's events if authenticated
-        const events = await storage.getEventsByUser(req.user!.id);
-        return res.json(events);
+        // Get user's events
+        const userEvents = await storage.getEventsByUser(req.user!.id);
+
+        // For each event, get its khatms
+        const eventsWithKhatms = await Promise.all(
+          userEvents.map(async (event) => {
+            const eventWithKhatms = await storage.getEventWithKhatms(event.id);
+            return eventWithKhatms;
+          })
+        );
+
+        const filteredEvents = eventsWithKhatms.filter(event => event !== undefined);
+        
+        return res.json(filteredEvents);
       } else {
         // Return only public events for non-authenticated users
         const allEvents = await storage.getAllEvents();

@@ -177,7 +177,11 @@ export class PgStorage implements IStorage {
   }
 
   async getKhatm(id: number): Promise<Khatm | undefined> {
-    const result = await db.select().from(khatms).where(eq(khatms.id, id));
+    const result = await db.select().from(khatms)
+      .where(and(
+        eq(khatms.id, id),
+        eq(khatms.isDeleted, false)
+      ));
     return result[0];
   }
 
