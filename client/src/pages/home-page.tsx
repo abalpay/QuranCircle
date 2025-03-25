@@ -46,6 +46,21 @@ export default function HomePage() {
         <p className="text-lg text-gray-600 max-w-xl mx-auto">
           Collaborative Quran reading made simple
         </p>
+        
+        <div className="mt-10 mx-auto max-w-xl relative">
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-16 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path>
+              <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path>
+            </svg>
+          </div>
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-8 pt-10 rounded-lg border border-emerald-100 shadow-sm">
+            <blockquote className="italic text-gray-700 text-lg text-center">
+              "Recite the Qur'an, for it will come as an intercessor for its reciters on the Day of Resurrection."
+            </blockquote>
+            <div className="mt-4 text-sm text-gray-500 font-medium text-center">— Sahih Muslim</div>
+          </div>
+        </div>
       </div>
       
       <div className="flex justify-center mb-10">
