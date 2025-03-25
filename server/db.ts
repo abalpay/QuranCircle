@@ -11,7 +11,10 @@ const { Pool } = pg;
 // Create a PostgreSQL connection pool
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : false,
+  ssl: { rejectUnauthorized: true },
+  max: 20, // Max number of clients in pool
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 // Create a Drizzle ORM instance with our schema

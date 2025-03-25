@@ -35,12 +35,24 @@ app.use(compression());
 
 // Apply global rate limiting - 100 requests per 15 minutes per IP
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Too many requests, please try again later."
+  message: "Too many requests, please try again later.",
+  skipSuccessfulRequests: false,
+  trustProxy: true
 });
+
+// Registration rate limit
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 registration attempts per hour
+  message: "Too many registration attempts, please try again later.",
+  skipSuccessfulRequests: true
+});
+
+app.use("/api/register", registerLimiter);
 
 // Apply stricter rate limiting to authentication routes - 5 attempts per hour
 const authLimiter = rateLimit({

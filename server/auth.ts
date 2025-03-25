@@ -51,12 +51,15 @@ export function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
+    name: '__Host-sid', // More secure cookie name
     cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-      httpOnly: true, // Prevent client-side JS from reading the cookie
-      sameSite: 'lax' // Protect against CSRF attacks
-    }
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: true, // Always require HTTPS
+      httpOnly: true,
+      sameSite: 'strict',
+      path: '/'
+    },
+    rolling: true // Extend session with activity
   };
 
   app.set("trust proxy", 1);
