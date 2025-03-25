@@ -50,6 +50,16 @@ function AppContent() {
             <Route path="/reset-password">
               {() => <ResetPasswordPage />}
             </Route>
+            <Route path="/s/:shortCode">
+              {({ shortCode }) => {
+                // This is just for client-side display - the actual redirection happens on the server
+                // This component is needed to handle direct navigation to /#/s/CODE (hash routing)
+                return <div className="flex items-center justify-center min-h-[50vh]">
+                  <Loader2 className="h-10 w-10 animate-spin text-[hsl(var(--quran-green))]" />
+                  <span className="ml-3">Redirecting...</span>
+                </div>;
+              }}
+            </Route>
             <Route>
               {() => <NotFound />}
             </Route>

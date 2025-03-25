@@ -48,12 +48,14 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
   // Mutation for claiming a single Juz
   const claimJuzMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber, claimerName }: { khatmId: number; juzNumber: number; claimerName: string }) => {
-      const res = await apiRequest("POST", "/api/juz/claim", {
-        khatmId,
-        juzNumber,
-        claimerName
+      return apiRequest("/api/juz/claim", {
+        method: "POST",
+        body: {
+          khatmId,
+          juzNumber,
+          claimerName
+        }
       });
-      return await res.json();
     },
     onSuccess: (data) => {
       // Refresh the data
@@ -92,11 +94,13 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
   // Mutation for marking a Juz as read
   const markAsReadMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
-      const res = await apiRequest("POST", "/api/juz/read", {
-        khatmId,
-        juzNumber
+      return apiRequest("/api/juz/read", {
+        method: "POST",
+        body: {
+          khatmId,
+          juzNumber
+        }
       });
-      return await res.json();
     },
     onSuccess: () => {
       // Refresh the data
@@ -118,11 +122,13 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
   // Mutation for unclaiming a Juz
   const unclaimJuzMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
-      const res = await apiRequest("POST", "/api/juz/unclaim", {
-        khatmId,
-        juzNumber
+      return apiRequest("/api/juz/unclaim", {
+        method: "POST",
+        body: {
+          khatmId,
+          juzNumber
+        }
       });
-      return await res.json();
     },
     onSuccess: () => {
       // Refresh the data
@@ -144,11 +150,13 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
   // Mutation for unmarking a Juz as read (changing from 'read' back to 'claimed')
   const unmarkAsReadMutation = useMutation({
     mutationFn: async ({ khatmId, juzNumber }: { khatmId: number; juzNumber: number }) => {
-      const res = await apiRequest("POST", "/api/juz/unmark-read", {
-        khatmId,
-        juzNumber
+      return apiRequest("/api/juz/unmark-read", {
+        method: "POST",
+        body: {
+          khatmId,
+          juzNumber
+        }
       });
-      return await res.json();
     },
     onSuccess: () => {
       // Refresh the data
