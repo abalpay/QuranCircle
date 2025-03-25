@@ -11,6 +11,9 @@ export const users = pgTable("users", {
   // Columns for SSO
   providerType: text("provider_type"), // 'google', 'github', etc
   providerId: text("provider_id"),     // User ID from the provider
+  // Password reset fields
+  resetToken: text("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
