@@ -75,6 +75,12 @@ export const khatms = pgTable("khatms", {
   eventId: integer("event_id").notNull(),
   khatmNumber: integer("khatm_number").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => {
+  return {
+    eventIdIdx: index("khatms_event_id_idx").on(table.eventId),
+    eventKhatmNumberIdx: index("khatms_event_khatm_number_idx").on(table.eventId, table.khatmNumber),
+    createdAtIdx: index("khatms_created_at_idx").on(table.createdAt)
+  };
 });
 
 export const insertKhatmSchema = createInsertSchema(khatms).pick({
@@ -95,6 +101,13 @@ export const juzs = pgTable("juzs", {
   status: text("status").notNull().default("unclaimed"),
   claimedAt: timestamp("claimed_at"),
   readAt: timestamp("read_at"),
+}, (table) => {
+  return {
+    khatmIdIdx: index("juzs_khatm_id_idx").on(table.khatmId),
+    khatmJuzNumberIdx: index("juzs_khatm_juz_number_idx").on(table.khatmId, table.juzNumber),
+    statusIdx: index("juzs_status_idx").on(table.status),
+    claimedByUserIdIdx: index("juzs_claimed_by_user_id_idx").on(table.claimedByUserId)
+  };
 });
 
 export const insertJuzSchema = createInsertSchema(juzs).pick({
