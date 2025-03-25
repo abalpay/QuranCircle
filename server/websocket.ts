@@ -15,6 +15,7 @@ export enum WebSocketMessageType {
   KHATM_UNARCHIVED = 'KHATM_UNARCHIVED',
   KHATM_DELETED = 'KHATM_DELETED',
   EVENT_UPDATED = 'EVENT_UPDATED',
+  EVENT_CREATED = 'EVENT_CREATED',
   SUBSCRIBE_EVENT = 'SUBSCRIBE_EVENT',
   PING = 'PING',
   PONG = 'PONG',
@@ -256,6 +257,30 @@ export class WebSocketManager {
   public broadcastEventUpdated(eventId: number, event: Event) {
     this.broadcastToEvent(eventId, {
       type: WebSocketMessageType.EVENT_UPDATED,
+      payload: { event }
+    });
+  }
+  
+  /**
+   * Broadcast a global message to all connected clients (regardless of subscription)
+   * Used for events that affect all users (like new event creation)
+   */
+  public broadcastToAll(message: WebSocketMessage) {
+    const messageString = JSON.stringify(message);
+    
+    this.wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(messageString);
+      }
+    });
+  }
+  
+  /**
+   * Broadcast event created message to all connected clients
+   */
+  public broadcastEventCreated(event: Event) {
+    this.broadcastToAll({
+      type: WebSocketMessageType.EVENT_CREATED,
       payload: { event }
     });
   }

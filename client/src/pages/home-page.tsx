@@ -22,6 +22,7 @@ enum WebSocketMessageType {
   KHATM_UNARCHIVED = 'KHATM_UNARCHIVED',
   KHATM_DELETED = 'KHATM_DELETED',
   EVENT_UPDATED = 'EVENT_UPDATED',
+  EVENT_CREATED = 'EVENT_CREATED',
   SUBSCRIBE_EVENT = 'SUBSCRIBE_EVENT',
   PING = 'PING',
   PONG = 'PONG',
@@ -66,6 +67,12 @@ export default function HomePage() {
         
         // Handle different WebSocket message types
         switch (message.type) {
+          case WebSocketMessageType.EVENT_CREATED:
+            console.log("New event created:", message.payload.event);
+            // Force immediate refetch when a new event is created
+            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            break;
+            
           case WebSocketMessageType.KHATM_CREATED:
           case WebSocketMessageType.KHATM_ARCHIVED:
           case WebSocketMessageType.KHATM_UNARCHIVED:

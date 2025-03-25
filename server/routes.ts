@@ -212,6 +212,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Broadcast event created via WebSockets to update all connected clients
         try {
           const wsManager = getWebSocketManager();
+          
+          // Broadcast to all clients that a new event was created
+          // This will update the home page for all connected users
+          wsManager.broadcastEventCreated(event);
+          
+          // Also broadcast the event update to clients subscribed to this specific event
           wsManager.broadcastEventUpdated(event.id, event);
           
           // Also broadcast the new khatm creation
