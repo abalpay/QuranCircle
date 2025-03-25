@@ -19,8 +19,8 @@ export class MailjetService implements EmailService {
       console.warn('Mailjet API credentials are not set. Email functionality will not work.');
     }
     
-    // Use the sender's email from environment variable if available
-    this.senderEmail = process.env.MAILJET_SENDER_EMAIL || senderEmail;
+    // Explicitly use info@qurancircle.io as the sender email
+    this.senderEmail = 'info@qurancircle.io';
     this.senderName = senderName;
     
     console.log(`Mailjet initialized with sender: ${this.senderEmail}`);
@@ -128,10 +128,32 @@ export class MailjetService implements EmailService {
       
     } catch (error: any) {
       console.error('Error sending password reset email:', error);
-      if (error && error.response) {
+      
+      let errorMessage = 'Failed to send password reset email';
+      
+      // Check for specific Mailjet errors
+      if (error && error.response && error.response.data) {
         console.error('Mailjet API error response:', JSON.stringify(error.response.data));
+        
+        const errorData = error.response.data;
+        
+        // Check for account suspension
+        if (errorData.ErrorMessage && 
+            (errorData.ErrorMessage.includes('suspended') || 
+             errorData.ErrorMessage.includes('blocked'))) {
+          errorMessage = 'Email service account is currently suspended or blocked';
+          console.error('MAILJET ACCOUNT SUSPENDED/BLOCKED - FALLING BACK TO MOCK SERVICE');
+        }
+        
+        // Check for sender not authorized
+        if (errorData.ErrorMessage && 
+            errorData.ErrorMessage.includes('not authorized')) {
+          errorMessage = 'Sender email is not authorized';
+          console.error('SENDER EMAIL NOT AUTHORIZED - FALLING BACK TO MOCK SERVICE');
+        }
       }
-      throw new Error('Failed to send password reset email');
+      
+      throw new Error(errorMessage);
     }
   }
 }
