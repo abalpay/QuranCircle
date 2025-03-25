@@ -1,21 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Event } from "@shared/schema";
+import { Event, EventWithKhatms } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, ExternalLink, Loader2 } from "lucide-react";
+import { BookOpen, ExternalLink, Loader2, Archive } from "lucide-react";
 import CreateCircleDialog from "@/components/CreateCircleDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { format } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HomePage() {
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
   const { openAuthModal } = useAuthModal();
 
-  const { data: userCircles, isLoading } = useQuery<Event[]>({
+  const { data: userCircles, isLoading } = useQuery<EventWithKhatms[]>({
     queryKey: ["/api/events"],
     enabled: !!user, // Only fetch if user is logged in
   });
@@ -97,28 +98,93 @@ export default function HomePage() {
               <p className="text-gray-600">Loading your circles...</p>
             </div>
           ) : userCircles && userCircles.length > 0 ? (
-            <div className="grid gap-3">
-              {userCircles.map((circle) => (
-                <Link key={circle.id} href={`/event/${circle.id}`}>
-                  <div className="cursor-pointer block bg-white rounded-lg border border-[hsl(var(--quran-border))] hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-center p-4">
-                      <div>
-                        <h3 className="font-medium text-gray-800">
-                          {circle.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Created on{" "}
-                          {format(new Date(circle.createdAt), "MMM d, yyyy")}
-                        </p>
-                      </div>
-                      <div className="bg-[hsl(var(--quran-gray))] p-2 rounded-full">
-                        <ExternalLink className="h-4 w-4 text-gray-500" />
-                      </div>
+            <Tabs defaultValue="active" className="w-full">
+              <TabsList className="mb-4 grid w-full grid-cols-2">
+                <TabsTrigger value="active">Active</TabsTrigger>
+                <TabsTrigger value="archived">Archived</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="active">
+                <div className="grid gap-3">
+                  {userCircles
+                    .filter(circle => {
+                      // Filter circles with at least one non-archived khatm
+                      return circle.khatms?.some(khatm => !khatm.isArchived && !khatm.isDeleted);
+                    })
+                    .map((circle) => (
+                      <Link key={circle.id} href={`/event/${circle.id}`}>
+                        <div className="cursor-pointer block bg-white rounded-lg border border-[hsl(var(--quran-border))] hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-center p-4">
+                            <div>
+                              <h3 className="font-medium text-gray-800">
+                                {circle.name}
+                              </h3>
+                              <p className="text-sm text-gray-500 mt-1">
+                                Created on{" "}
+                                {format(new Date(circle.createdAt), "MMM d, yyyy")}
+                              </p>
+                            </div>
+                            <div className="bg-[hsl(var(--quran-gray))] p-2 rounded-full">
+                              <ExternalLink className="h-4 w-4 text-gray-500" />
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  {userCircles.filter(circle => 
+                    circle.khatms?.some(khatm => !khatm.isArchived && !khatm.isDeleted)
+                  ).length === 0 && (
+                    <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
+                      <p className="text-gray-600">
+                        You don't have any active circles
+                      </p>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="archived">
+                <div className="grid gap-3">
+                  {userCircles
+                    .filter(circle => {
+                      // Filter circles with at least one archived khatm
+                      return circle.khatms?.some(khatm => khatm.isArchived && !khatm.isDeleted);
+                    })
+                    .map((circle) => (
+                      <Link key={circle.id} href={`/event/${circle.id}`}>
+                        <div className="cursor-pointer block bg-white rounded-lg border border-amber-200 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-center p-4">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-medium text-gray-800">
+                                  {circle.name}
+                                </h3>
+                                <Archive className="h-4 w-4 text-amber-500" />
+                              </div>
+                              <p className="text-sm text-gray-500 mt-1">
+                                Created on{" "}
+                                {format(new Date(circle.createdAt), "MMM d, yyyy")}
+                              </p>
+                            </div>
+                            <div className="bg-[hsl(var(--quran-gray))] p-2 rounded-full">
+                              <ExternalLink className="h-4 w-4 text-gray-500" />
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  {userCircles.filter(circle => 
+                    circle.khatms?.some(khatm => khatm.isArchived && !khatm.isDeleted)
+                  ).length === 0 && (
+                    <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
+                      <p className="text-gray-600">
+                        You don't have any archived circles
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           ) : (
             <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
               <p className="text-gray-600">

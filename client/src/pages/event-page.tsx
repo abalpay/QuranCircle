@@ -10,6 +10,7 @@ import { RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CircleSettingsDialog from "@/components/CircleSettingsDialog";
 import { useAuth } from "@/hooks/use-auth";
+import { useAuthModal } from "@/hooks/use-auth-modal";
 
 // Memoized KhatmCard component to prevent unnecessary re-renders
 const MemoizedKhatmCard = memo(KhatmCard);
@@ -72,6 +73,25 @@ export default function EventPage() {
 
     return () => clearInterval(interval);
   }, [refetch, lastRefreshed]);
+  
+  // Store visited circles in localStorage for easier access later
+  useEffect(() => {
+    if (event) {
+      // Get existing visited events
+      const visitedEvents = JSON.parse(localStorage.getItem('quranCircleVisitedEvents') || '[]');
+      
+      // Check if this event is already in the list
+      if (!visitedEvents.some((e: {id: number}) => e.id === event.id)) {
+        // Add it and save back to localStorage
+        visitedEvents.push({
+          id: event.id,
+          name: event.name,
+          visitedAt: new Date().toISOString()
+        });
+        localStorage.setItem('quranCircleVisitedEvents', JSON.stringify(visitedEvents));
+      }
+    }
+  }, [event]);
 
   if (isLoading) {
     return (
@@ -141,19 +161,34 @@ export default function EventPage() {
           <span className="block mt-1 text-xs">
             Creating new khatms requires an account.
           </span>
+          {!user && (
+            <span className="block mt-2 flex items-center justify-between">
+              <span className="text-xs text-gray-600">Want to save this circle to your account?</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-7 border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
+                onClick={() => useAuthModal().openAuthModal('login')}
+              >
+                Sign in
+              </Button>
+            </span>
+          )}
         </AlertDescription>
       </Alert>
 
-      {/* Use React.memo to prevent unnecessary re-renders */}
-      {event.khatms.map((khatm) => (
-        <MemoizedKhatmCard
-          key={khatm.id}
-          khatm={khatm}
-          onNewKhatmCreated={handleNewKhatmCreated}
-          eventId={eventId}
-          isCreator={isEventCreator}
-        />
-      ))}
+      {/* Only show non-deleted khatms in the UI */}
+      {event.khatms
+        .filter((khatm) => !khatm.isDeleted)
+        .map((khatm) => (
+          <MemoizedKhatmCard
+            key={khatm.id}
+            khatm={khatm}
+            onNewKhatmCreated={handleNewKhatmCreated}
+            eventId={eventId}
+            isCreator={isEventCreator}
+          />
+        ))}
 
       {isEventCreator && event && (
         <CircleSettingsDialog
