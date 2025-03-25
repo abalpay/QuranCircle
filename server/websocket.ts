@@ -225,9 +225,16 @@ export class WebSocketManager {
    * Broadcast a khatm archived message to the event
    */
   public broadcastKhatmArchived(eventId: number, khatmId: number) {
+    // Broadcast to event subscribers first
     this.broadcastToEvent(eventId, {
       type: WebSocketMessageType.KHATM_ARCHIVED,
-      payload: { khatmId }
+      payload: { khatmId, eventId }
+    });
+    
+    // Also broadcast to all clients for home page updates
+    this.broadcastToAll({
+      type: WebSocketMessageType.KHATM_ARCHIVED,
+      payload: { khatmId, eventId }
     });
   }
   
@@ -235,9 +242,16 @@ export class WebSocketManager {
    * Broadcast a khatm unarchived message to the event
    */
   public broadcastKhatmUnarchived(eventId: number, khatmId: number) {
+    // Broadcast to event subscribers first
     this.broadcastToEvent(eventId, {
       type: WebSocketMessageType.KHATM_UNARCHIVED,
-      payload: { khatmId }
+      payload: { khatmId, eventId }
+    });
+    
+    // Also broadcast to all clients for home page updates
+    this.broadcastToAll({
+      type: WebSocketMessageType.KHATM_UNARCHIVED,
+      payload: { khatmId, eventId }
     });
   }
   

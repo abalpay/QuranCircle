@@ -74,11 +74,24 @@ export default function HomePage() {
             break;
             
           case WebSocketMessageType.KHATM_CREATED:
+            console.log("Khatm created, refreshing events");
+            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            break;
           case WebSocketMessageType.KHATM_ARCHIVED:
+            console.log("Khatm archived, refreshing events");
+            // Force a complete refetch of events when a khatm is archived
+            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            break;
           case WebSocketMessageType.KHATM_UNARCHIVED:
+            console.log("Khatm unarchived, refreshing events");
+            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            break;
           case WebSocketMessageType.KHATM_DELETED:
+            console.log("Khatm deleted, refreshing events");
+            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            break;
           case WebSocketMessageType.EVENT_UPDATED:
-            // Invalidate the circles cache to refresh the list
+            console.log("Event updated, refreshing events");
             queryClient.invalidateQueries({ queryKey: ["/api/events"] });
             break;
             
