@@ -314,7 +314,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // to ensure the khatm changes are reflected on next event fetch
         cache.delete(`event:${khatm.eventId}`);
         
+        // Broadcast the juz claimed event via WebSockets
+        try {
+          const wsManager = getWebSocketManager();
+          wsManager.broadcastJuzClaimed(khatm.eventId, updatedJuz);
+        } catch (wsError) {
+          console.error("Failed to broadcast WebSocket message:", wsError);
+          // Continue with response - WebSocket failure shouldn't block the API response
+        }
+        
         const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
+        
+        // If a new khatm was created, broadcast that too
+        if (newKhatm) {
+          try {
+            const wsManager = getWebSocketManager();
+            const khatmWithJuzs = await storage.getKhatmWithJuzs(newKhatm.id);
+            if (khatmWithJuzs) {
+              wsManager.broadcastKhatmCreated(khatm.eventId, khatmWithJuzs);
+            }
+          } catch (wsError) {
+            console.error("Failed to broadcast new khatm WebSocket message:", wsError);
+          }
+        }
         
         // Return the updated juz and info about new khatm if created
         return res.status(200).json({
