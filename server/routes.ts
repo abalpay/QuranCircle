@@ -21,32 +21,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
 
-  // Short URL handling for SPA architecture
+  // Short URL handling with a dedicated redirect page
   app.get("/s/:shortCode", async (req: Request, res: Response) => {
     try {
-      // Instead of a server redirect, we'll send the index.html
-      // and let the client-side router handle it
-      // This is crucial for SPA routing to work properly
       const { shortCode } = req.params;
       
-      // Log that we're handling a short URL redirect
       console.log(`[Server] Handling short URL with code: ${shortCode}`);
       
-      // Look up the event to confirm it exists before serving the app
-      // This is just for logging - we won't actually redirect here
-      const event = await storage.getEventByShortCode(shortCode);
-      if (event) {
-        console.log(`[Server] Found event ID ${event.id} for short code ${shortCode}`);
-      } else {
-        console.log(`[Server] No event found for short code ${shortCode}, but still serving app to let client handle it`);
-      }
+      // Instead of relying on client-side routing, we'll use a dedicated redirect page
+      // This page handles the API call and redirect entirely on its own
+      const redirectPath = path.resolve(__dirname, "../client/redirect.html");
+      console.log(`[Server] Serving redirect.html from: ${redirectPath}`);
       
-      // We don't redirect here - we just serve the app
-      // and let client-side routing handle the redirect
-      const indexPath = path.resolve(__dirname, "../client/index.html");
-      console.log(`[Server] Serving index.html from: ${indexPath}`);
-      
-      res.sendFile(indexPath);
+      res.sendFile(redirectPath);
     } catch (error) {
       console.error("[Server] Error handling short URL:", error);
       res.status(500).send("Server error");
