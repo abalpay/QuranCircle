@@ -56,19 +56,26 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwne
   return (
     <div 
       className={cn(
-        "group relative border rounded-md h-28 p-3 flex flex-col justify-between cursor-pointer transition-colors",
-        isUnclaimed ? "bg-white hover:border-[hsl(var(--quran-green))]" : 
-        isClaimed ? "bg-[#fdfbf5]" : 
-        "bg-[#f7fcfb]"
+        "group relative border rounded-lg h-32 p-4 flex flex-col justify-between cursor-pointer transition-all shadow-sm hover:shadow-md",
+        isUnclaimed 
+          ? "bg-white hover:border-[hsl(var(--quran-green))]" 
+          : isClaimed 
+            ? "bg-gradient-to-br from-amber-50 to-white border-amber-200" 
+            : "bg-gradient-to-br from-emerald-50 to-white border-emerald-200"
       )}
       onClick={handleCardClick}
     >
-      <div className="text-xs text-gray-500 absolute left-2 top-2">
-        {juz.juzNumber}
+      <div className="absolute -top-1 -left-1 w-8 h-8 rounded-full bg-white shadow-sm border flex items-center justify-center">
+        <span className="text-sm font-bold">{juz.juzNumber}</span>
       </div>
       
-      <div className="text-center mt-4">
-        <span className="text-base font-medium">
+      <div className="text-center mt-5">
+        <span className={cn(
+          "text-lg font-bold",
+          isUnclaimed && "text-gray-700",
+          isClaimed && "text-amber-700",
+          isRead && "text-emerald-700"
+        )}>
           Juz {juz.juzNumber}
         </span>
       </div>
@@ -76,31 +83,31 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwne
       <div className={cn(
         "text-center text-xs",
         isUnclaimed && "text-gray-400",
-        isClaimed && "text-gray-600",
-        isRead && "text-[hsl(var(--quran-green))]"
+        isClaimed && "text-amber-600",
+        isRead && "text-emerald-600"
       )}>
         {isUnclaimed ? (
-          <span>&nbsp;</span>
+          <span className="bg-gray-100 px-2 py-1 rounded inline-block">Available</span>
         ) : isClaimed ? (
           <div className="flex flex-col items-center">
-            <div className="flex items-center gap-1 justify-center">
-              <Clock className="h-3 w-3" />
-              <span>In progress</span>
+            <div className="flex items-center gap-1 justify-center bg-amber-100 px-2 py-1 rounded-md">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="font-medium">In progress</span>
             </div>
-            <div className="flex items-center gap-1 mt-1 justify-center">
-              <User className="h-3 w-3" />
-              <span className="font-medium truncate max-w-[80px]">{juz.claimedByName}</span>
+            <div className="flex items-center gap-1 mt-2 justify-center">
+              <User className="h-3.5 w-3.5" />
+              <span className="font-medium truncate max-w-[90px]">{juz.claimedByName}</span>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <div className="flex items-center gap-1 justify-center">
-              <CheckCircle className="h-3 w-3" />
-              <span>Completed</span>
+            <div className="flex items-center gap-1 justify-center bg-emerald-100 px-2 py-1 rounded-md">
+              <CheckCircle className="h-3.5 w-3.5" />
+              <span className="font-medium">Completed</span>
             </div>
-            <div className="flex items-center gap-1 mt-1 justify-center">
-              <User className="h-3 w-3" />
-              <span className="font-medium truncate max-w-[80px]">{juz.claimedByName}</span>
+            <div className="flex items-center gap-1 mt-2 justify-center">
+              <User className="h-3.5 w-3.5" />
+              <span className="font-medium truncate max-w-[90px]">{juz.claimedByName}</span>
             </div>
           </div>
         )}
@@ -108,10 +115,10 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwne
       
       {/* Hover overlay for actions */}
       {(isUnclaimed || isClaimed || isRead) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
           {isUnclaimed ? (
             <Button 
-              className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
+              className="bg-gradient-to-b from-emerald-500 to-emerald-600 hover:opacity-90 text-white shadow-sm"
               size="sm"
               onClick={handleClaimClick}
             >
@@ -120,7 +127,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwne
           ) : isClaimed ? (
             <div className="flex flex-col gap-2">
               <Button 
-                className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
+                className="bg-gradient-to-b from-emerald-500 to-emerald-600 hover:opacity-90 text-white shadow-sm"
                 size="sm"
                 onClick={handleMarkAsReadClick}
               >
@@ -129,7 +136,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwne
               <Button 
                 variant="outline"
                 size="sm"
-                className="border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
+                className="border-amber-500 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                 onClick={handleUnclaimClick}
               >
                 Unclaim
@@ -140,7 +147,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwne
               <Button 
                 variant="outline"
                 size="sm"
-                className="border-yellow-500 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
+                className="border-amber-500 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                 onClick={handleUnmarkAsReadClick}
               >
                 Unmark as Read
@@ -148,7 +155,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwne
               <Button 
                 variant="outline"
                 size="sm"
-                className="border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
+                className="border-red-400 text-red-500 hover:text-red-600 hover:bg-red-50"
                 onClick={handleUnclaimClick}
               >
                 Unclaim
