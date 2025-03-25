@@ -1,9 +1,11 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
+type AuthAction = 'login' | 'register' | 'forgot-password';
+
 type AuthModalContextType = {
   isOpen: boolean;
-  initialAction: 'login' | 'register';
-  openAuthModal: (action?: 'login' | 'register') => void;
+  initialAction: AuthAction;
+  openAuthModal: (action?: AuthAction) => void;
   closeAuthModal: () => void;
 };
 
@@ -11,9 +13,9 @@ const AuthModalContext = createContext<AuthModalContextType | null>(null);
 
 export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [initialAction, setInitialAction] = useState<'login' | 'register'>('login');
+  const [initialAction, setInitialAction] = useState<AuthAction>('login');
 
-  const openAuthModal = (action: 'login' | 'register' = 'login') => {
+  const openAuthModal = (action: AuthAction = 'login') => {
     setInitialAction(action);
     setIsOpen(true);
   };

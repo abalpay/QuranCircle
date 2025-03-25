@@ -1,6 +1,6 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { ProtectedRoute } from "./lib/protected-route";
 import Header from "./components/Header";
 import MobileNavigation from "./components/MobileNavigation";
@@ -16,13 +16,21 @@ import { Loader2 } from "lucide-react";
 const HomePage = lazy(() => import("@/pages/home-page"));
 const EventPage = lazy(() => import("@/pages/event-page"));
 const CirclesPage = lazy(() => import("@/pages/circles-page"));
-const ForgotPasswordPage = lazy(() => import("@/pages/forgot-password"));
 const ResetPasswordPage = lazy(() => import("@/pages/reset-password"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function AppContent() {
   const { user } = useAuth();
-  const { isOpen, initialAction, closeAuthModal } = useAuthModal();
+  const { isOpen, initialAction, closeAuthModal, openAuthModal } = useAuthModal();
+  const [location, navigate] = useLocation();
+  
+  // Redirect from /forgot-password to the modal
+  useEffect(() => {
+    if (location === "/forgot-password") {
+      openAuthModal("forgot-password");
+      navigate("/", { replace: true });
+    }
+  }, [location, navigate, openAuthModal]);
   
   return (
     <div className="min-h-screen flex flex-col bg-neutral-100">
@@ -39,9 +47,6 @@ function AppContent() {
             </Route>
             <Route path="/event/:id">
               {() => <EventPage />}
-            </Route>
-            <Route path="/forgot-password">
-              {() => <ForgotPasswordPage />}
             </Route>
             <Route path="/reset-password">
               {() => <ResetPasswordPage />}

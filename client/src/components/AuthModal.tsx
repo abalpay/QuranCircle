@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth, LoginData, RegisterData } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
 
+// Modified to accept either username or email
 const loginSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
+  username: z.string().min(3, "Username or email must be at least 3 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -22,19 +23,26 @@ const registerSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 type AuthModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  action?: "login" | "register";
+  action?: "login" | "register" | "forgot-password";
 };
 
 export default function AuthModal({ isOpen, onClose, action = "login" }: AuthModalProps) {
-  const [activeTab, setActiveTab] = useState<"login" | "register">(action);
+  const [activeTab, setActiveTab] = useState<"login" | "register" | "forgot-password">(action);
   const { loginMutation, registerMutation } = useAuth();
   const { toast } = useToast();
+  const [forgotPasswordSubmitting, setForgotPasswordSubmitting] = useState(false);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -50,6 +58,13 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
       username: "",
       email: "",
       password: "",
+    },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
     },
   });
 
@@ -91,147 +106,254 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
     });
   };
 
+  const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {
+    try {
+      setForgotPasswordSubmitting(true);
+      
+      await apiRequest("POST", "/api/forgot-password", data);
+      
+      setForgotPasswordSuccess(true);
+      toast({
+        title: "Password reset email sent",
+        description: "If an account with that email exists, we've sent a password reset link.",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to send reset email",
+        description: error instanceof Error ? error.message : "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setForgotPasswordSubmitting(false);
+    }
+  };
+
+  const getDialogTitle = () => {
+    switch (activeTab) {
+      case "login": return "Login";
+      case "register": return "Create Account";
+      case "forgot-password": return "Reset Password";
+      default: return "Authentication";
+    }
+  };
+
+  const getDialogDescription = () => {
+    switch (activeTab) {
+      case "login": 
+        return "Log in to your account to participate in Quran reading events.";
+      case "register": 
+        return "Create an account to join our Quran reading community.";
+      case "forgot-password": 
+        return "Enter your email address to receive a password reset link.";
+      default: 
+        return "";
+    }
+  };
+
+  const renderForgotPasswordTab = () => {
+    if (forgotPasswordSuccess) {
+      return (
+        <div className="space-y-4 py-4">
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-medium">Check your email</h3>
+            <p className="text-sm text-muted-foreground">
+              We've sent a password reset link to your email address.
+            </p>
+          </div>
+          <Button 
+            type="button" 
+            className="w-full" 
+            onClick={() => setActiveTab("login")}
+          >
+            Back to Login
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <Form {...forgotPasswordForm}>
+        <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} className="space-y-4">
+          <FormField
+            control={forgotPasswordForm.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Your email address" 
+                    {...field} 
+                    autoComplete="email"
+                    type="email"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={forgotPasswordSubmitting}
+          >
+            {forgotPasswordSubmitting ? "Sending..." : "Send Reset Link"}
+          </Button>
+          <div className="text-sm text-center mt-4">
+            <span 
+              className="text-sm text-primary hover:underline cursor-pointer"
+              onClick={() => setActiveTab("login")}
+            >
+              Back to Login
+            </span>
+          </div>
+        </form>
+      </Form>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Authentication</DialogTitle>
-          <DialogDescription>
-            {activeTab === "login" 
-              ? "Log in to your account to participate in Quran reading events." 
-              : "Create an account to join our Quran reading community."}
-          </DialogDescription>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
+          <DialogDescription>{getDialogDescription()}</DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register")}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="register">Register</TabsTrigger>
-          </TabsList>
+        {activeTab === "forgot-password" ? (
+          renderForgotPasswordTab()
+        ) : (
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register")}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="register">Register</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="login">
-            <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                <FormField
-                  control={loginForm.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter your username" 
-                          {...field} 
-                          autoComplete="username"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Enter your password" 
-                          {...field} 
-                          autoComplete="current-password"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loginMutation.isPending}
-                >
-                  {loginMutation.isPending ? "Logging in..." : "Login"}
-                </Button>
-                <div className="text-sm text-center mt-4">
-                  <Link href="/forgot-password" onClick={onClose}>
-                    <span className="text-sm text-primary hover:underline cursor-pointer">
+            <TabsContent value="login">
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username or Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter your username or email" 
+                            {...field} 
+                            autoComplete="username"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="password" 
+                            placeholder="Enter your password" 
+                            {...field} 
+                            autoComplete="current-password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={loginMutation.isPending}
+                  >
+                    {loginMutation.isPending ? "Logging in..." : "Login"}
+                  </Button>
+                  <div className="text-sm text-center mt-4">
+                    <span 
+                      className="text-sm text-primary hover:underline cursor-pointer"
+                      onClick={() => setActiveTab("forgot-password")}
+                    >
                       Forgot your password?
                     </span>
-                  </Link>
-                </div>
-              </form>
-            </Form>
-          </TabsContent>
+                  </div>
+                </form>
+              </Form>
+            </TabsContent>
 
-          <TabsContent value="register">
-            <Form {...registerForm}>
-              <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                <FormField
-                  control={registerForm.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Choose a username" 
-                          {...field} 
-                          autoComplete="username"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={registerForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Your email address" 
-                          {...field} 
-                          autoComplete="email"
-                          type="email"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={registerForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Create a password" 
-                          {...field} 
-                          autoComplete="new-password"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={registerMutation.isPending}
-                >
-                  {registerMutation.isPending ? "Creating account..." : "Register"}
-                </Button>
-              </form>
-            </Form>
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="register">
+              <Form {...registerForm}>
+                <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                  <FormField
+                    control={registerForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Choose a username" 
+                            {...field} 
+                            autoComplete="username"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Your email address" 
+                            {...field} 
+                            autoComplete="email"
+                            type="email"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="password" 
+                            placeholder="Create a password" 
+                            {...field} 
+                            autoComplete="new-password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={registerMutation.isPending}
+                  >
+                    {registerMutation.isPending ? "Creating account..." : "Register"}
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+          </Tabs>
+        )}
       </DialogContent>
     </Dialog>
   );
