@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import quranIcon from "/quran-icon.png";
 
 export default function Header() {
   const { user, logoutMutation } = useAuth();
@@ -35,9 +36,12 @@ export default function Header() {
         <div className="flex items-center md:w-1/3">
           {/* Logo - visible on all devices (mobile and desktop) */}
           <Link href="/">
-            <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
-              Quran<span className="text-black">Circle</span>
-            </span>
+            <div className="flex items-center">
+              <img src={quranIcon} alt="Quran Icon" className="w-6 h-6 mr-2" />
+              <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
+                Quran<span className="text-black">Circle</span>
+              </span>
+            </div>
           </Link>
         </div>
         
@@ -77,7 +81,7 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-gray-700 hidden md:flex">
                   <UserCircle className="mr-2 h-4 w-4" />
-                  <span className="text-sm">{user.username}</span>
+                  <span className="text-sm">Salam, {user.username}</span>
                   <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
