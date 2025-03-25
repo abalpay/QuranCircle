@@ -208,10 +208,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Cache the event for future requests
       if (eventWithKhatms) {
         cache.set(`event:${event.id}`, eventWithKhatms, EVENT_CACHE_TTL);
+        
+        // Broadcast event created via WebSockets to update all connected clients
+        try {
+          const wsManager = getWebSocketManager();
+          wsManager.broadcastEventUpdated(event.id, event);
+          
+          // Also broadcast the new khatm creation
+          if (eventWithKhatms.khatms && eventWithKhatms.khatms.length > 0) {
+            const newKhatm = eventWithKhatms.khatms[0];
+            wsManager.broadcastKhatmCreated(event.id, newKhatm);
+          }
+        } catch (wsError) {
+          console.error("WebSocket broadcast error:", wsError);
+          // Non-critical error, continue with response
+        }
       }
       
       return res.status(201).json(eventWithKhatms);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating event:", error);
       if (error.name === "ZodError") {
         return res.status(400).json({ message: "Invalid event data", errors: error.errors });
