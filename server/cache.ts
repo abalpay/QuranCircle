@@ -2,6 +2,14 @@
  * Simple in-memory cache with TTL for frequently accessed data
  */
 
+// Cache TTL constants (in milliseconds)
+export const CACHE_TTL = {
+  SECOND: 1000,
+  MINUTE: 60 * 1000,
+  HOUR: 60 * 60 * 1000,
+  DAY: 24 * 60 * 60 * 1000
+};
+
 interface CacheItem<T> {
   data: T;
   expiresAt: number;

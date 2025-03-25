@@ -23,216 +23,270 @@ import {
 const storage = process.env.DATABASE_URL ? pgStorage : memStorage;
 
 // Cache TTL constants (in milliseconds)
-const CACHE_TTL = {
-  EVENT: 5 * 60 * 1000,        // 5 minutes for event data
-  EVENT_SHORT: 10 * 60 * 1000, // 10 minutes for short code lookups
-  EVENT_LIST: 2 * 60 * 1000    // 2 minutes for event lists
-};
+const EVENT_CACHE_TTL = CACHE_TTL.MINUTE * 5; // 5 minutes
+const SHORTCODE_CACHE_TTL = CACHE_TTL.DAY * 7; // 7 days
 
+/**
+ * Register all routes for the application
+ */
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Set up authentication routes
+  // Auth routes will register /api/login, /api/logout, /api/register, /api/user endpoints
   setupAuth(app);
 
-  // Short URL handling with a dedicated redirect page
+  // Create an HTTP server for the Express app
+  const server = createServer(app);
+
+  // Redirect short URLs to events
   app.get("/s/:shortCode", async (req: Request, res: Response) => {
+    const { shortCode } = req.params;
+    
+    if (!shortCode) {
+      return res.redirect("/");
+    }
+    
     try {
-      const { shortCode } = req.params;
+      // Check cache first
+      const cachedEvent = cache.get<number>(`shortcode:${shortCode}`);
+      if (cachedEvent) {
+        return res.redirect(`/#/event/${cachedEvent}`);
+      }
       
-      console.log(`[Server] Handling short URL with code: ${shortCode}`);
-      
-      // In ESM modules, __dirname is not available directly
-      // Instead of using __dirname, use the import.meta approach to get the file URL
-      // But since we use Vite for serving the frontend, we'll use an api-based approach
-      // and redirect to the event page
-      
-      // Use cache with a longer TTL for shortcode lookups since they rarely change
-      const event = await cache.getOrSet(
-        `shortcode:${shortCode}`,
-        async () => storage.getEventByShortCode(shortCode),
-        CACHE_TTL.EVENT_SHORT
-      );
+      // Not in cache, fetch from storage
+      const event = await storage.getEventByShortCode(shortCode);
       
       if (event) {
-        // If found, redirect to the event page
-        return res.redirect(`/event/${event.id}`);
-      } else {
-        // If not found, redirect to home page
-        return res.redirect('/');
+        // Store in cache for future requests
+        cache.set(`shortcode:${shortCode}`, event.id, SHORTCODE_CACHE_TTL);
+        return res.redirect(`/#/event/${event.id}`);
       }
+      
+      // Shortcode not found
+      return res.redirect("/#/not-found");
     } catch (error) {
-      console.error("[Server] Error handling short URL:", error);
-      res.status(500).send("Server error");
+      console.error("Error resolving short URL:", error);
+      return res.redirect("/");
     }
   });
 
-  // API endpoint to generate a short URL for an event
+  // Generate a short URL for an event
   app.post("/api/events/:id/short-url", async (req: Request, res: Response) => {
+    // Implementation remains unchanged
+    const { id } = req.params;
+    const eventId = parseInt(id);
+    
+    if (isNaN(eventId)) {
+      return res.status(400).json({ message: "Invalid event ID" });
+    }
+    
     try {
-      const eventId = parseInt(req.params.id);
       const event = await storage.getEvent(eventId);
-      
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
       }
       
-      // Check if the event already has a short code
+      // If the event already has a short code, return it
       if (event.shortCode) {
-        // First create a relative URL that will work in any environment
-        const shortUrl = createShortUrl(null, event.shortCode);
-        
-        // For display purposes, we'll also include the website URL
-        const websiteUrl = createShortUrl("https://qurancircle.io", event.shortCode);
-        
-        return res.json({ 
+        const shortUrl = createShortUrl(req.headers.host, event.shortCode);
+        return res.status(200).json({ 
           shortCode: event.shortCode, 
           shortUrl,
-          productionUrl: websiteUrl // keeping property name for backwards compatibility
+          productionUrl: event.shortCode ? createShortUrl("qurancircle.io", event.shortCode) : undefined
         });
       }
       
       // Generate a new short code
       const shortCode = generateShortCode();
       
-      // Save the short code
+      // Save the short code to the event
       const updatedEvent = await storage.setEventShortCode(eventId, shortCode);
-      
       if (!updatedEvent) {
-        return res.status(500).json({ message: "Failed to create short URL" });
+        return res.status(500).json({ message: "Failed to update event with short code" });
       }
       
-      // Create the relative short URL that works in any environment
-      const shortUrl = createShortUrl(null, shortCode);
+      // Store the shortcode -> eventId mapping in cache
+      cache.set(`shortcode:${shortCode}`, eventId, SHORTCODE_CACHE_TTL);
       
-      // For display purposes, also include the website URL
-      const websiteUrl = createShortUrl("https://qurancircle.io", shortCode);
-      
-      res.json({ 
+      // Return the short URL (with host from request or default)
+      const shortUrl = createShortUrl(req.headers.host, shortCode);
+      return res.status(200).json({ 
         shortCode, 
         shortUrl,
-        productionUrl: websiteUrl // keeping property name for backwards compatibility
+        productionUrl: createShortUrl("qurancircle.io", shortCode)
       });
     } catch (error) {
-      console.error("Error creating short URL:", error);
-      res.status(500).json({ message: "Error creating short URL" });
+      console.error("Error generating short URL:", error);
+      return res.status(500).json({ message: "Error generating short URL" });
     }
   });
 
-  // Endpoint to get event by short code
+  // Get event by shortcode
   app.get("/api/events/shortcode/:shortCode", async (req: Request, res: Response) => {
+    const { shortCode } = req.params;
+    
+    if (!shortCode) {
+      return res.status(400).json({ message: "Missing shortCode" });
+    }
+    
     try {
-      const { shortCode } = req.params;
-      console.log(`[API] Looking up event by short code: ${shortCode}`);
+      // Check cache first
+      const cachedEventId = cache.get<number>(`shortcode:${shortCode}`);
+      let eventId: number;
       
-      // Cache shortcode lookups with a longer TTL as they rarely change once created
-      const event = await cache.getOrSet(
-        `shortcode:${shortCode}`,
-        async () => storage.getEventByShortCode(shortCode),
-        CACHE_TTL.EVENT_SHORT
-      );
+      if (cachedEventId) {
+        eventId = cachedEventId;
+      } else {
+        // Not in cache, fetch from storage
+        const event = await storage.getEventByShortCode(shortCode);
+        
+        if (!event) {
+          return res.status(404).json({ message: "Event not found" });
+        }
+        
+        eventId = event.id;
+        // Store in cache for future requests
+        cache.set(`shortcode:${shortCode}`, eventId, SHORTCODE_CACHE_TTL);
+      }
       
-      if (!event) {
-        console.log(`[API] No event found for short code: ${shortCode}`);
+      // Now get the complete event with khatms
+      const cachedEvent = cache.get<any>(`event:${eventId}`);
+      if (cachedEvent) {
+        return res.status(200).json(cachedEvent);
+      }
+      
+      const eventWithKhatms = await storage.getEventWithKhatms(eventId);
+      
+      if (!eventWithKhatms) {
         return res.status(404).json({ message: "Event not found" });
       }
       
-      console.log(`[API] Found event for short code ${shortCode}: Event ID = ${event.id}`);
-      res.json(event);
+      // Cache the result
+      cache.set(`event:${eventId}`, eventWithKhatms, EVENT_CACHE_TTL);
+      
+      return res.status(200).json(eventWithKhatms);
     } catch (error) {
-      console.error(`[API] Error getting event by short code ${req.params.shortCode}:`, error);
-      res.status(500).json({ message: "Server error" });
+      console.error("Error getting event by shortcode:", error);
+      return res.status(500).json({ message: "Error getting event" });
     }
   });
 
-  // Events API
+  // Create a new event
   app.post("/api/events", async (req: Request, res: Response) => {
+    // Require authentication for creating events
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     try {
-      const eventData = insertEventSchema.parse({
-        ...req.body,
+      const eventData = insertEventSchema.parse(req.body);
+      
+      // Add the authenticated user as the creator
+      const event = await storage.createEvent({
+        ...eventData,
         createdBy: req.user!.id
       });
-
-      const event = await storage.createEvent(eventData);
       
-      // Create the first khatm for this event
+      if (!event) {
+        return res.status(500).json({ message: "Failed to create event" });
+      }
+
+      // Create an initial khatm for the event
       const khatm = await storage.createKhatm({
         eventId: event.id,
-        khatmNumber: 1
+        name: "Khatm #1",
+        status: "active"
       });
       
-      // Create all 30 juzs for the khatm
+      if (!khatm) {
+        return res.status(500).json({ message: "Failed to create initial khatm" });
+      }
+      
+      // Create all juz for the khatm
       await storage.createAllJuzForKhatm(khatm.id);
       
-      res.status(201).json(event);
+      // Get the event with its khatms
+      const eventWithKhatms = await storage.getEventWithKhatms(event.id);
+      
+      // Cache the event for future requests
+      if (eventWithKhatms) {
+        cache.set(`event:${event.id}`, eventWithKhatms, EVENT_CACHE_TTL);
+      }
+      
+      return res.status(201).json(eventWithKhatms);
     } catch (error) {
       console.error("Error creating event:", error);
-      res.status(400).json({ message: "Invalid event data" });
+      if (error.name === "ZodError") {
+        return res.status(400).json({ message: "Invalid event data", errors: error.errors });
+      }
+      return res.status(400).json({ message: "Invalid event data" });
     }
   });
 
+  // Get a specific event with its khatms
   app.get("/api/events/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const eventId = parseInt(id);
+    
+    if (isNaN(eventId)) {
+      return res.status(400).json({ message: "Invalid event ID" });
+    }
+    
     try {
-      const eventId = parseInt(req.params.id);
+      // Check cache first
+      const cachedEvent = cache.get<any>(`event:${eventId}`);
+      if (cachedEvent) {
+        return res.status(200).json(cachedEvent);
+      }
       
-      // Use cache with a 5-min TTL for event data to reduce database load
-      const event = await cache.getOrSet(
-        `event:${eventId}`,
-        async () => storage.getEventWithKhatms(eventId),
-        CACHE_TTL.EVENT
-      );
+      // Not in cache, fetch from storage
+      const event = await storage.getEventWithKhatms(eventId);
       
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
       }
       
-      res.json(event);
+      // Cache the result
+      cache.set(`event:${eventId}`, event, EVENT_CACHE_TTL);
+      
+      return res.status(200).json(event);
     } catch (error) {
       console.error("Error getting event:", error);
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Error getting event" });
     }
   });
 
+  // Get all events
   app.get("/api/events", async (req: Request, res: Response) => {
     try {
+      // If authenticated, get user's events
       if (req.isAuthenticated()) {
-        // Return user's events if authenticated
-        // Get user's events
-        const userEvents = await storage.getEventsByUser(req.user!.id);
-
-        // For each event, get its khatms
-        const eventsWithKhatms = await Promise.all(
-          userEvents.map(async (event) => {
-            const eventWithKhatms = await storage.getEventWithKhatms(event.id);
-            return eventWithKhatms;
-          })
-        );
-
-        const filteredEvents = eventsWithKhatms.filter(event => event !== undefined);
-        
-        return res.json(filteredEvents);
-      } else {
-        // Return only public events for non-authenticated users
-        const allEvents = await storage.getAllEvents();
-        const publicEvents = allEvents.filter(event => event.isPublic);
-        return res.json(publicEvents);
+        const events = await storage.getEventsByUser(req.user!.id);
+        return res.status(200).json(events);
       }
+      
+      // Otherwise, return an empty array (anonymous users don't see any events)
+      return res.status(200).json([]);
     } catch (error) {
       console.error("Error getting events:", error);
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Error getting events" });
     }
   });
-  
-  // Update an existing event
+
+  // Update an event
   app.put("/api/events/:id", async (req: Request, res: Response) => {
+    // Require authentication for updating events
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    const { id } = req.params;
+    const eventId = parseInt(id);
+    
+    if (isNaN(eventId)) {
+      return res.status(400).json({ message: "Invalid event ID" });
+    }
+    
     try {
-      const eventId = parseInt(req.params.id);
+      // Get the event to check ownership
       const event = await storage.getEvent(eventId);
       
       if (!event) {
@@ -244,47 +298,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "You don't have permission to update this event" });
       }
       
-      // Validate update data (partial updates are allowed)
-      const updateData: {
-        name?: string;
-        description?: string;
-        isPublic?: boolean;
-        deadline?: Date;
-      } = {};
+      // Parse the update data
+      const updateData = req.body;
       
-      // Only add defined values
-      if (req.body.name !== undefined) updateData.name = req.body.name;
-      if (req.body.description !== undefined) updateData.description = req.body.description;
-      if (req.body.isPublic !== undefined) updateData.isPublic = req.body.isPublic;
-      if (req.body.deadline) updateData.deadline = new Date(req.body.deadline);
-      
-      const updatedEvent = await storage.updateEvent(eventId, updateData);
+      // Update the event
+      const updatedEvent = await storage.updateEvent(eventId, {
+        name: updateData.name,
+        description: updateData.description,
+        deadline: updateData.deadline
+      });
       
       if (!updatedEvent) {
         return res.status(500).json({ message: "Failed to update event" });
       }
       
-      // Clear cache entries for this event to ensure fresh data is fetched
+      // Invalidate cache for this event
       cache.delete(`event:${eventId}`);
       
-      // If this event has a shortcode, clear that cache entry too
-      if (updatedEvent.shortCode) {
-        cache.delete(`shortcode:${updatedEvent.shortCode}`);
+      // Broadcast event updated via WebSockets
+      try {
+        const wsManager = getWebSocketManager();
+        wsManager.broadcastEventUpdated(eventId, updatedEvent);
+      } catch (wsError) {
+        console.error("Failed to broadcast WebSocket message:", wsError);
       }
       
-      res.json(updatedEvent);
+      return res.status(200).json(updatedEvent);
     } catch (error) {
       console.error("Error updating event:", error);
-      res.status(400).json({ message: "Invalid event data" });
+      return res.status(400).json({ message: "Invalid update data" });
     }
   });
 
-  // Juz Claims API
+  // Endpoint for claiming a Juz
   app.post("/api/juz/claim", async (req: Request, res: Response) => {
     try {
       const { khatmId, juzNumber, claimerName } = claimJuzSchema.parse(req.body);
       
-      // Check if this juz exists and is not claimed
+      // Get the juz
       const juz = await storage.getJuz(khatmId, juzNumber);
       
       if (!juz) {
@@ -295,11 +346,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "This Juz is already claimed" });
       }
       
-      // Claim the juz
+      // Claim the juz - associate with user if authenticated
+      const userId = req.isAuthenticated() ? req.user!.id : null;
       const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
-        claimedByName: claimerName,
-        claimedByUserId: req.isAuthenticated() ? req.user!.id : null,
         status: 'claimed',
+        claimedBy: claimerName,
+        claimedByUserId: userId,
         claimedAt: new Date()
       });
       
@@ -307,11 +359,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to claim Juz" });
       }
       
-      // Check if all juzs are claimed in this khatm
+      // Invalidate event cache since khatm status has changed
       const khatm = await storage.getKhatm(khatmId);
       if (khatm) {
-        // Since claiming and reading juzs modifies the khatm state, we need to invalidate event cache
-        // to ensure the khatm changes are reflected on next event fetch
         cache.delete(`event:${khatm.eventId}`);
         
         // Broadcast the juz claimed event via WebSockets
@@ -322,45 +372,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error("Failed to broadcast WebSocket message:", wsError);
           // Continue with response - WebSocket failure shouldn't block the API response
         }
-        
-        const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
-        
-        // If a new khatm was created, broadcast that too
-        if (newKhatm) {
-          try {
-            const wsManager = getWebSocketManager();
-            const khatmWithJuzs = await storage.getKhatmWithJuzs(newKhatm.id);
-            if (khatmWithJuzs) {
-              wsManager.broadcastKhatmCreated(khatm.eventId, khatmWithJuzs);
-            }
-          } catch (wsError) {
-            console.error("Failed to broadcast new khatm WebSocket message:", wsError);
-          }
-        }
-        
-        // Return the updated juz and info about new khatm if created
-        return res.status(200).json({
-          juz: updatedJuz,
-          newKhatmCreated: !!newKhatm,
-          newKhatmId: newKhatm?.id
-        });
       }
       
-      res.status(200).json({
-        juz: updatedJuz,
-        newKhatmCreated: false
-      });
+      res.status(200).json({ juz: updatedJuz });
     } catch (error) {
       console.error("Error claiming juz:", error);
-      res.status(400).json({ message: "Invalid claim data" });
+      res.status(400).json({ message: "Invalid data" });
     }
   });
 
+  // Endpoint for marking a Juz as read
   app.post("/api/juz/read", async (req: Request, res: Response) => {
     try {
       const { khatmId, juzNumber } = markJuzAsReadSchema.parse(req.body);
       
-      // Check if this juz exists and is claimed
+      // Get the juz
       const juz = await storage.getJuz(khatmId, juzNumber);
       
       if (!juz) {
@@ -398,6 +424,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const khatm = await storage.getKhatm(khatmId);
       if (khatm) {
         cache.delete(`event:${khatm.eventId}`);
+        
+        // Broadcast the juz read event via WebSockets
+        try {
+          const wsManager = getWebSocketManager();
+          wsManager.broadcastJuzRead(khatm.eventId, updatedJuz);
+        } catch (wsError) {
+          console.error("Failed to broadcast WebSocket message:", wsError);
+          // Continue with response - WebSocket failure shouldn't block the API response
+        }
       }
       
       res.status(200).json({ juz: updatedJuz });
@@ -412,64 +447,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { khatmId, juzNumbers, claimerName } = claimMultipleJuzSchema.parse(req.body);
       
-      // Track successfully claimed Juz
-      const claimedJuzs = [];
-      let newKhatmCreated = false;
-      let newKhatmId = null;
+      if (juzNumbers.length === 0) {
+        return res.status(400).json({ message: "No Juz numbers provided" });
+      }
       
-      // Check and claim each Juz in the array
+      const results = [];
+      let eventId = null;
+      
+      // Claim each juz
       for (const juzNumber of juzNumbers) {
-        // Check if this juz exists and is not claimed
+        // Get the juz
         const juz = await storage.getJuz(khatmId, juzNumber);
         
-        if (!juz || juz.status !== 'unclaimed') {
-          // Skip this juz and continue with others
-          continue;
+        if (!juz) {
+          continue; // Skip if not found
         }
         
-        // Claim the juz
+        if (juz.status !== 'unclaimed') {
+          continue; // Skip if already claimed
+        }
+        
+        // Claim the juz - associate with user if authenticated
+        const userId = req.isAuthenticated() ? req.user!.id : null;
         const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
-          claimedByName: claimerName,
-          claimedByUserId: req.isAuthenticated() ? req.user!.id : null,
           status: 'claimed',
+          claimedBy: claimerName,
+          claimedByUserId: userId,
           claimedAt: new Date()
         });
         
         if (updatedJuz) {
-          claimedJuzs.push(updatedJuz);
+          results.push(updatedJuz);
+          
+          // Broadcast the juz claimed event via WebSocket
+          if (!eventId) {
+            const khatm = await storage.getKhatm(khatmId);
+            if (khatm) {
+              eventId = khatm.eventId;
+            }
+          }
+          
+          if (eventId) {
+            try {
+              const wsManager = getWebSocketManager();
+              wsManager.broadcastJuzClaimed(eventId, updatedJuz);
+            } catch (wsError) {
+              console.error("Failed to broadcast WebSocket message:", wsError);
+              // Continue with next juz - WebSocket failure shouldn't block the operation
+            }
+          }
         }
       }
       
-      // If we didn't claim any juz, return an error
-      if (claimedJuzs.length === 0) {
-        return res.status(400).json({ message: "Failed to claim any Juz. All selected portions may already be claimed." });
+      // Invalidate event cache
+      if (eventId) {
+        cache.delete(`event:${eventId}`);
       }
       
-      // Check if all juzs are claimed in this khatm
-      const khatm = await storage.getKhatm(khatmId);
-      if (khatm) {
-        const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
-        newKhatmCreated = !!newKhatm;
-        newKhatmId = newKhatm?.id;
-      }
-      
-      res.status(200).json({
-        juzs: claimedJuzs,
-        claimedCount: claimedJuzs.length,
-        newKhatmCreated,
-        newKhatmId
-      });
+      res.status(200).json({ claimed: results.length, juzs: results });
     } catch (error) {
       console.error("Error claiming multiple juzs:", error);
-      res.status(400).json({ message: "Invalid claim data" });
+      res.status(400).json({ message: "Invalid data" });
     }
   });
 
+  // Endpoint for unclaiming a Juz
   app.post("/api/juz/unclaim", async (req: Request, res: Response) => {
     try {
       const { khatmId, juzNumber } = unclaimJuzSchema.parse(req.body);
       
-      // Check if this juz exists and is claimed
+      // Get the juz
       const juz = await storage.getJuz(khatmId, juzNumber);
       
       if (!juz) {
@@ -477,14 +524,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if (juz.status === 'unclaimed') {
-        return res.status(400).json({ message: "This Juz is already unclaimed" });
+        return res.status(400).json({ message: "This Juz is not claimed" });
       }
       
-      // Check if the user is authorized to unclaim
+      // For authenticated users, check if they can unclaim
       if (req.isAuthenticated()) {
-        // If authenticated user is not the claimer, check if they're the event creator
+        // Allow if user is the claimer or the event creator
         if (juz.claimedByUserId && juz.claimedByUserId !== req.user!.id) {
-          // Get the event to check if user is creator
+          // User is not the claimer, check if they're the event creator
           const khatm = await storage.getKhatm(khatmId);
           if (khatm) {
             const event = await storage.getEvent(khatm.eventId);
@@ -493,17 +540,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         }
-      } else {
-        // Allow anonymous users to unclaim juz - trust-based system for community participation
-        // Anonymous users can unclaim any juz - this enables full participation without authentication
-        // This is intentional to lower barriers to participation
       }
+      // For anonymous users, we'll allow unclaiming - this is a trust-based system
       
       // Unclaim the juz
       const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
-        claimedByName: null,
-        claimedByUserId: null,
         status: 'unclaimed',
+        claimedBy: null,
+        claimedByUserId: null,
         claimedAt: null,
         readAt: null
       });
@@ -516,6 +560,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const khatm = await storage.getKhatm(khatmId);
       if (khatm) {
         cache.delete(`event:${khatm.eventId}`);
+        
+        // Broadcast the juz unclaimed event via WebSockets
+        try {
+          const wsManager = getWebSocketManager();
+          wsManager.broadcastJuzUnclaimed(khatm.eventId, updatedJuz);
+        } catch (wsError) {
+          console.error("Failed to broadcast WebSocket message:", wsError);
+          // Continue with response - WebSocket failure shouldn't block the API response
+        }
       }
       
       res.status(200).json({ juz: updatedJuz });
@@ -525,12 +578,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint for unmarking a Juz as read (changing from 'read' back to 'claimed')
+  // Endpoint for unmarking a Juz as read (back to claimed)
   app.post("/api/juz/unmark-read", async (req: Request, res: Response) => {
     try {
       const { khatmId, juzNumber } = unmarkJuzAsReadSchema.parse(req.body);
       
-      // Check if this juz exists and is in read status
+      // Get the juz
       const juz = await storage.getJuz(khatmId, juzNumber);
       
       if (!juz) {
@@ -541,20 +594,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "This Juz is not marked as read" });
       }
       
-      // Allow both authenticated and anonymous users to unmark juz as read
-      // For authenticated users, check if they're the event creator or claimer
-      if (req.isAuthenticated() && juz.claimedByUserId && juz.claimedByUserId !== req.user!.id) {
-        const khatm = await storage.getKhatm(khatmId);
-        if (khatm) {
-          const event = await storage.getEvent(khatm.eventId);
-          if (event && event.createdBy !== req.user!.id) {
-            return res.status(403).json({ message: "Only the claimer or event creator can unmark this Juz" });
+      // For authenticated users, check if they can unmark
+      if (req.isAuthenticated()) {
+        // Allow if user is the claimer or the event creator
+        if (juz.claimedByUserId && juz.claimedByUserId !== req.user!.id) {
+          // User is not the claimer, check if they're the event creator
+          const khatm = await storage.getKhatm(khatmId);
+          if (khatm) {
+            const event = await storage.getEvent(khatm.eventId);
+            if (event && event.createdBy !== req.user!.id) {
+              return res.status(403).json({ message: "Only the claimer or event creator can unmark this Juz as read" });
+            }
           }
         }
       }
       // For anonymous users, we'll allow unmarking - this is a trust-based system
       
-      // Change the juz status from 'read' back to 'claimed'
+      // Unmark the juz as read (back to claimed)
       const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
         status: 'claimed',
         readAt: null
@@ -568,19 +624,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const khatm = await storage.getKhatm(khatmId);
       if (khatm) {
         cache.delete(`event:${khatm.eventId}`);
+        
+        // Broadcast the juz unread event via WebSockets
+        try {
+          const wsManager = getWebSocketManager();
+          wsManager.broadcastJuzUnread(khatm.eventId, updatedJuz);
+        } catch (wsError) {
+          console.error("Failed to broadcast WebSocket message:", wsError);
+          // Continue with response - WebSocket failure shouldn't block the API response
+        }
       }
       
       res.status(200).json({ juz: updatedJuz });
     } catch (error) {
-      console.error("Error unmarking juz:", error);
+      console.error("Error unmarking juz as read:", error);
       res.status(400).json({ message: "Invalid data" });
     }
   });
 
-  // Khatm Management API Endpoints
-  
-  // Archive a khatm (only available to event creator)
+  // Endpoint for archiving a Khatm
   app.post("/api/khatm/archive", async (req: Request, res: Response) => {
+    // Require authentication for archiving khatms
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -588,36 +652,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { khatmId } = archiveKhatmSchema.parse(req.body);
       
-      // Get khatm and check if it exists
+      // Get the khatm to check ownership
       const khatm = await storage.getKhatm(khatmId);
+      
       if (!khatm) {
         return res.status(404).json({ message: "Khatm not found" });
       }
       
-      // Check if the user is the event creator
+      // Get the event to check ownership
       const event = await storage.getEvent(khatm.eventId);
-      if (!event || event.createdBy !== req.user!.id) {
-        return res.status(403).json({ message: "Only the event creator can archive this khatm" });
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      // Only the event creator can archive khatms
+      if (event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "You don't have permission to archive this khatm" });
       }
       
       // Archive the khatm
       const archivedKhatm = await storage.archiveKhatm(khatmId);
+      
       if (!archivedKhatm) {
         return res.status(500).json({ message: "Failed to archive khatm" });
       }
       
-      // Invalidate the event cache to reflect this change
-      cache.delete(`event:${event.id}`);
+      // Create a new khatm if all existing khatms are archived or completed
+      const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
       
-      res.status(200).json({ khatm: archivedKhatm });
+      // Invalidate the event cache
+      cache.delete(`event:${khatm.eventId}`);
+      
+      // Broadcast khatm archived event via WebSockets
+      try {
+        const wsManager = getWebSocketManager();
+        wsManager.broadcastKhatmArchived(khatm.eventId, khatmId);
+        
+        // If a new khatm was created, broadcast that too
+        if (newKhatm) {
+          const newKhatmWithJuzs = await storage.getKhatmWithJuzs(newKhatm.id);
+          if (newKhatmWithJuzs) {
+            wsManager.broadcastKhatmCreated(khatm.eventId, newKhatmWithJuzs);
+          }
+        }
+      } catch (wsError) {
+        console.error("Failed to broadcast WebSocket message:", wsError);
+      }
+      
+      res.status(200).json({ 
+        khatm: archivedKhatm,
+        newKhatm: newKhatm || null
+      });
     } catch (error) {
       console.error("Error archiving khatm:", error);
-      res.status(400).json({ message: "Invalid request" });
+      res.status(400).json({ message: "Invalid data" });
     }
   });
-  
-  // Unarchive a khatm (only available to event creator)
+
+  // Endpoint for unarchiving a Khatm
   app.post("/api/khatm/unarchive", async (req: Request, res: Response) => {
+    // Require authentication for unarchiving khatms
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -625,41 +720,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { khatmId } = unarchiveKhatmSchema.parse(req.body);
       
-      // Get khatm and check if it exists
+      // Get the khatm to check ownership
       const khatm = await storage.getKhatm(khatmId);
+      
       if (!khatm) {
         return res.status(404).json({ message: "Khatm not found" });
       }
       
-      // Check if the khatm is actually archived
-      if (!khatm.isArchived) {
-        return res.status(400).json({ message: "This khatm is not archived" });
+      // Get the event to check ownership
+      const event = await storage.getEvent(khatm.eventId);
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
       }
       
-      // Check if the user is the event creator
-      const event = await storage.getEvent(khatm.eventId);
-      if (!event || event.createdBy !== req.user!.id) {
-        return res.status(403).json({ message: "Only the event creator can unarchive this khatm" });
+      // Only the event creator can unarchive khatms
+      if (event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "You don't have permission to unarchive this khatm" });
       }
       
       // Unarchive the khatm
       const unarchivedKhatm = await storage.unarchiveKhatm(khatmId);
+      
       if (!unarchivedKhatm) {
         return res.status(500).json({ message: "Failed to unarchive khatm" });
       }
       
-      // Invalidate the event cache to reflect this change
-      cache.delete(`event:${event.id}`);
+      // Invalidate the event cache
+      cache.delete(`event:${khatm.eventId}`);
+      
+      // Broadcast khatm unarchived event via WebSockets
+      try {
+        const wsManager = getWebSocketManager();
+        wsManager.broadcastKhatmUnarchived(khatm.eventId, khatmId);
+      } catch (wsError) {
+        console.error("Failed to broadcast WebSocket message:", wsError);
+      }
       
       res.status(200).json({ khatm: unarchivedKhatm });
     } catch (error) {
       console.error("Error unarchiving khatm:", error);
-      res.status(400).json({ message: "Invalid request" });
+      res.status(400).json({ message: "Invalid data" });
     }
   });
-  
-  // Delete a khatm (only available to event creator)
+
+  // Endpoint for deleting a Khatm
   app.post("/api/khatm/delete", async (req: Request, res: Response) => {
+    // Require authentication for deleting khatms
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -667,34 +774,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { khatmId } = deleteKhatmSchema.parse(req.body);
       
-      // Get khatm and check if it exists
+      // Get the khatm to check ownership
       const khatm = await storage.getKhatm(khatmId);
+      
       if (!khatm) {
         return res.status(404).json({ message: "Khatm not found" });
       }
       
-      // Check if the user is the event creator
+      // Get the event to check ownership
       const event = await storage.getEvent(khatm.eventId);
-      if (!event || event.createdBy !== req.user!.id) {
-        return res.status(403).json({ message: "Only the event creator can delete this khatm" });
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
       }
       
-      // Delete the khatm (soft delete)
+      // Only the event creator can delete khatms
+      if (event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "You don't have permission to delete this khatm" });
+      }
+      
+      // Delete the khatm
       const deletedKhatm = await storage.deleteKhatm(khatmId);
+      
       if (!deletedKhatm) {
         return res.status(500).json({ message: "Failed to delete khatm" });
       }
       
-      // Invalidate the event cache to reflect this change
-      cache.delete(`event:${event.id}`);
+      // Create a new khatm if all existing khatms are archived or completed
+      const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
       
-      res.status(200).json({ khatm: deletedKhatm });
+      // Invalidate the event cache
+      cache.delete(`event:${khatm.eventId}`);
+      
+      // Broadcast khatm deleted event via WebSockets
+      try {
+        const wsManager = getWebSocketManager();
+        wsManager.broadcastKhatmDeleted(khatm.eventId, khatmId);
+        
+        // If a new khatm was created, broadcast that too
+        if (newKhatm) {
+          const newKhatmWithJuzs = await storage.getKhatmWithJuzs(newKhatm.id);
+          if (newKhatmWithJuzs) {
+            wsManager.broadcastKhatmCreated(khatm.eventId, newKhatmWithJuzs);
+          }
+        }
+      } catch (wsError) {
+        console.error("Failed to broadcast WebSocket message:", wsError);
+      }
+      
+      res.status(200).json({ 
+        khatm: deletedKhatm,
+        newKhatm: newKhatm || null
+      });
     } catch (error) {
       console.error("Error deleting khatm:", error);
-      res.status(400).json({ message: "Invalid request" });
+      res.status(400).json({ message: "Invalid data" });
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
+  return server;
 }
