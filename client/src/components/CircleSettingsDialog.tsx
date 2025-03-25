@@ -38,11 +38,12 @@ export default function CircleSettingsDialog({ isOpen, onClose, event }: CircleS
       isPublic: boolean; // Kept for API compatibility
       deadline?: Date;
     }) => {
-      return apiRequest(
+      const response = await apiRequest(
         'PUT',
         `/api/events/${event.id}`,
         eventData
       );
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/events/${event.id}`] });
