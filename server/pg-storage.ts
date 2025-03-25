@@ -90,6 +90,19 @@ export class PgStorage implements IStorage {
     const result = await db.select().from(events).where(eq(events.id, id));
     return result[0];
   }
+  
+  async getEventByShortCode(shortCode: string): Promise<Event | undefined> {
+    const result = await db.select().from(events).where(eq(events.shortCode, shortCode));
+    return result[0];
+  }
+  
+  async setEventShortCode(id: number, shortCode: string): Promise<Event | undefined> {
+    const result = await db.update(events)
+      .set({ shortCode })
+      .where(eq(events.id, id))
+      .returning();
+    return result[0];
+  }
 
   async getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined> {
     // Get the event

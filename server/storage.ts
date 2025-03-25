@@ -24,10 +24,12 @@ export interface IStorage {
   // Event Methods
   createEvent(event: InsertEvent): Promise<Event>;
   getEvent(id: number): Promise<Event | undefined>;
+  getEventByShortCode(shortCode: string): Promise<Event | undefined>;
   getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined>;
   getEventsByUser(userId: number): Promise<Event[]>;
   getAllEvents(): Promise<Event[]>;
   updateEvent(id: number, event: Partial<Event>): Promise<Event | undefined>;
+  setEventShortCode(id: number, shortCode: string): Promise<Event | undefined>;
   
   // Khatm Methods
   createKhatm(khatm: InsertKhatm): Promise<Khatm>;
@@ -146,7 +148,8 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
       description: insertEvent.description || null,
       isPublic: insertEvent.isPublic || false,
-      deadline: insertEvent.deadline || null
+      deadline: insertEvent.deadline || null,
+      shortCode: null
     };
     this.eventsData.set(id, event);
     return event;
@@ -154,6 +157,21 @@ export class MemStorage implements IStorage {
   
   async getEvent(id: number): Promise<Event | undefined> {
     return this.eventsData.get(id);
+  }
+  
+  async getEventByShortCode(shortCode: string): Promise<Event | undefined> {
+    return Array.from(this.eventsData.values()).find(
+      (event) => event.shortCode === shortCode
+    );
+  }
+  
+  async setEventShortCode(id: number, shortCode: string): Promise<Event | undefined> {
+    const event = this.eventsData.get(id);
+    if (!event) return undefined;
+    
+    const updatedEvent = { ...event, shortCode };
+    this.eventsData.set(id, updatedEvent);
+    return updatedEvent;
   }
   
   async getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined> {

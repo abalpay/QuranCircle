@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage as memStorage } from "./storage";
 import { pgStorage } from "./pg-storage";
 import { setupAuth } from "./auth";
+import { generateShortCode, createShortUrl } from "./utils";
 import { 
   insertEventSchema, 
   claimJuzSchema,
