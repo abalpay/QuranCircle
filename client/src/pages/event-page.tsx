@@ -16,30 +16,30 @@ const MemoizedKhatmCard = memo(KhatmCard);
 
 export default function EventPage() {
   const params = useParams<{ id: string }>();
-  const eventId = parseInt(params.id ?? '0');
+  const eventId = parseInt(params.id ?? "0");
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [refreshing, setRefreshing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { user } = useAuth();
-  
-  const { 
-    data: event, 
-    isLoading, 
-    isError, 
+
+  const {
+    data: event,
+    isLoading,
+    isError,
     error,
-    refetch
+    refetch,
   } = useQuery<EventWithKhatms>({
     queryKey: [`/api/events/${eventId}`],
-    refetchOnMount: true
+    refetchOnMount: true,
   });
-  
+
   // Force a refetch when a new khatm is created
   const handleNewKhatmCreated = useCallback(() => {
     refetch().then(() => {
       setLastRefreshed(new Date());
     });
   }, [refetch]);
-  
+
   // Handle manual refresh with button animation
   const handleManualRefresh = useCallback(() => {
     setRefreshing(true);
@@ -48,17 +48,17 @@ export default function EventPage() {
       setTimeout(() => setRefreshing(false), 500); // Keep animation for at least 500ms
     });
   }, [refetch]);
-  
+
   // Open settings dialog
   const handleOpenSettings = useCallback(() => {
     setSettingsOpen(true);
   }, []);
-  
+
   // Close settings dialog
   const handleCloseSettings = useCallback(() => {
     setSettingsOpen(false);
   }, []);
-  
+
   // Refresh the data periodically to show updates by other users (less frequent)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -69,10 +69,10 @@ export default function EventPage() {
         });
       }
     }, 60000); // every 60 seconds instead of 30
-    
+
     return () => clearInterval(interval);
   }, [refetch, lastRefreshed]);
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -80,67 +80,80 @@ export default function EventPage() {
       </div>
     );
   }
-  
+
   if (isError) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Event</h2>
-        <p className="text-neutral-700 mb-4">{error?.message || "Failed to load the event"}</p>
+        <h2 className="text-2xl font-bold text-red-600 mb-2">
+          Error Loading Event
+        </h2>
+        <p className="text-neutral-700 mb-4">
+          {error?.message || "Failed to load the event"}
+        </p>
         <Button onClick={() => refetch()} variant="outline">
           Try Again
         </Button>
       </div>
     );
   }
-  
+
   if (!event) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-neutral-900 mb-2">Event Not Found</h2>
-        <p className="text-neutral-700">The event you're looking for doesn't exist or has been removed.</p>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+          Event Not Found
+        </h2>
+        <p className="text-neutral-700">
+          The event you're looking for doesn't exist or has been removed.
+        </p>
       </div>
     );
   }
-  
+
   const isEventCreator = user && user.id === event.createdBy;
-  
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <EventHeader 
-          event={event} 
+        <EventHeader
+          event={event}
           onManage={isEventCreator ? handleOpenSettings : undefined}
         />
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleManualRefresh} 
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleManualRefresh}
           className="flex items-center gap-1"
           disabled={refreshing}
         >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+          />
           <span className="text-sm">Refresh</span>
         </Button>
       </div>
-      
+
       <Alert className="mb-6 bg-[hsl(var(--quran-green))]/10 border-[hsl(var(--quran-green))]/20">
         <Info className="h-4 w-4 text-[hsl(var(--quran-green))]" />
         <AlertDescription className="text-sm text-gray-700">
-          You can participate without signing in! Anyone can claim, unclaim, and mark portions as read.
-          <span className="block mt-1 text-xs">Creating new events requires an account.</span>
+          You can participate without signing in! Anyone can claim, unclaim, and
+          mark portions as read.
+          <span className="block mt-1 text-xs">
+            Creating new khatms requires an account.
+          </span>
         </AlertDescription>
       </Alert>
-      
+
       {/* Use React.memo to prevent unnecessary re-renders */}
-      {event.khatms.map(khatm => (
-        <MemoizedKhatmCard 
-          key={khatm.id} 
-          khatm={khatm} 
+      {event.khatms.map((khatm) => (
+        <MemoizedKhatmCard
+          key={khatm.id}
+          khatm={khatm}
           onNewKhatmCreated={handleNewKhatmCreated}
           eventId={eventId}
         />
       ))}
-      
+
       {isEventCreator && event && (
         <CircleSettingsDialog
           isOpen={settingsOpen}

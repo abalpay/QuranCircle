@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -13,7 +20,11 @@ import { useLocation } from "wouter";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 type CreateCircleDialogProps = {
@@ -21,18 +32,21 @@ type CreateCircleDialogProps = {
   onClose: () => void;
 };
 
-export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDialogProps) {
+export default function CreateCircleDialog({
+  isOpen,
+  onClose,
+}: CreateCircleDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   // Privacy setting is deprecated, all circles are private (link only)
   const [isPublic, setIsPublic] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  
+
   const createCircleMutation = useMutation({
     mutationFn: async (circleData: {
       name: string;
@@ -61,17 +75,17 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
       });
     },
   });
-  
+
   const resetForm = () => {
     setName("");
     setDescription("");
     setIsPublic(false);
     setDate(undefined);
   };
-  
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast({
         title: "Authentication required",
@@ -82,7 +96,7 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
       navigate("/auth");
       return;
     }
-    
+
     if (!name.trim()) {
       toast({
         title: "Circle name required",
@@ -91,7 +105,7 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
       });
       return;
     }
-    
+
     createCircleMutation.mutate({
       name: name.trim(),
       description: description.trim() || undefined,
@@ -99,17 +113,19 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
       deadline: date,
     });
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-gray-800">Create New Circle</DialogTitle>
+          <DialogTitle className="text-xl font-medium text-gray-800">
+            Create New Khatm Circle
+          </DialogTitle>
           <DialogDescription>
             Start a new Quran reading circle and invite others to join
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
@@ -123,7 +139,7 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
                 className="bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="circleDescription">Description (Optional)</Label>
               <Textarea
@@ -135,7 +151,7 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
                 className="bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="circleDeadline">Deadline (Optional)</Label>
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
@@ -144,7 +160,7 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal bg-[hsl(var(--quran-gray))] border-0",
-                      !date && "text-muted-foreground"
+                      !date && "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -165,21 +181,28 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             {/* Privacy note - all circles are link-only */}
             <div className="space-y-2 bg-[hsl(var(--quran-gray))] p-3 rounded-md">
               <p className="text-sm text-gray-600">
-                <span className="font-semibold">Note:</span> All circles are private and accessible only by direct link. Share the link with those you want to invite.
+                <span className="font-semibold">Note:</span> All circles are
+                private and accessible only by direct link. Share the link with
+                those you want to invite.
               </p>
             </div>
           </div>
-          
+
           <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="border-[hsl(var(--quran-border))]">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="border-[hsl(var(--quran-border))]"
+            >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={createCircleMutation.isPending}
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
             >

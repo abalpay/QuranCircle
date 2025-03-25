@@ -42,17 +42,11 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
         setProductionUrl(data.productionUrl);
       }
       setHasShortUrl(true);
-      toast({
-        title: "✅ Short URL generated",
-        description: "A shorter URL has been created for easier sharing"
-      });
+      // Removed toast notification
     },
     onError: (error) => {
-      toast({
-        title: "❌ Error creating short URL",
-        description: "Using regular URL instead",
-        variant: "destructive"
-      });
+      // Removed toast notification
+      console.error("Error creating short URL:", error);
     }
   });
   
@@ -69,19 +63,15 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
   // Copy URL to clipboard
   const copyToClipboard = () => {
     const urlToCopy = productionUrl || shareUrl;
-    navigator.clipboard.writeText(urlToCopy).then(() => {
-      toast({
-        title: "🔗 Link copied!",
-        description: "Quran circle link has been copied to clipboard ✅",
+    navigator.clipboard.writeText(urlToCopy)
+      .then(() => {
+        // Close dialog without showing toast
+        setShareDialogOpen(false);
+      })
+      .catch((error) => {
+        console.error("Failed to copy to clipboard:", error);
+        // Don't show toast for errors
       });
-      setShareDialogOpen(false);
-    }).catch(() => {
-      toast({
-        title: "❌ Failed to copy",
-        description: "Please copy the link manually",
-        variant: "destructive",
-      });
-    });
   };
   
   const isEventCreator = user && user.id === event.createdBy;

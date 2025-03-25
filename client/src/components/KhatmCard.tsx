@@ -69,23 +69,14 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
       setSelectedJuz(null);
     },
     onError: (error: Error) => {
-      // Handle the case where another user claimed this Juz first
-      if (error.message.includes("already claimed")) {
-        toast({
-          title: "This Juz has already been claimed",
-          description: "Someone else just claimed this Juz. Please select another one.",
-          variant: "destructive"
-        });
-        
-        // Refresh to get the latest data
-        queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
-      } else {
-        toast({
-          title: "Failed to claim Juz",
-          description: error.message,
-          variant: "destructive"
-        });
-      }
+      console.error("Failed to claim Juz:", error);
+      
+      // Refresh to get the latest data
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
+      
+      // Close dialog and reset state
+      setIsClaimDialogOpen(false);
+      setSelectedJuz(null);
     }
   });
   
@@ -107,11 +98,14 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
       setSelectedJuz(null);
     },
     onError: (error: Error) => {
-      toast({
-        title: "Failed to mark as read",
-        description: error.message,
-        variant: "destructive"
-      });
+      console.error("Failed to mark as read:", error);
+      
+      // Close dialog and reset state
+      setIsReadDialogOpen(false);
+      setSelectedJuz(null);
+      
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
     }
   });
   
@@ -133,11 +127,14 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
       setSelectedJuz(null);
     },
     onError: (error: Error) => {
-      toast({
-        title: "Failed to unclaim Juz",
-        description: error.message,
-        variant: "destructive"
-      });
+      console.error("Failed to unclaim Juz:", error);
+      
+      // Close dialog and reset state
+      setIsUnclaimDialogOpen(false);
+      setSelectedJuz(null);
+      
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
     }
   });
   
@@ -159,11 +156,14 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
       setSelectedJuz(null);
     },
     onError: (error: Error) => {
-      toast({
-        title: "Failed to unmark Juz as read",
-        description: error.message,
-        variant: "destructive"
-      });
+      console.error("Failed to unmark Juz as read:", error);
+      
+      // Close dialog and reset state
+      setIsUnmarkReadDialogOpen(false);
+      setSelectedJuz(null);
+      
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
     }
   });
   
