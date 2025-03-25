@@ -41,9 +41,11 @@ export default function HomePage() {
   const wsRef = useRef<WebSocket | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: userCircles, isLoading } = useQuery<EventWithKhatms[]>({
+  const { data: userCircles, isLoading, refetch } = useQuery<EventWithKhatms[]>({
     queryKey: ["/api/events"],
     enabled: !!user, // Only fetch if user is logged in
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always treat data as stale to force refetch
   });
   
   // Set up WebSocket connection for real-time updates if user is logged in
@@ -80,7 +82,8 @@ export default function HomePage() {
           case WebSocketMessageType.KHATM_ARCHIVED:
             console.log("Khatm archived, refreshing events");
             // Force a complete refetch of events when a khatm is archived
-            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            queryClient.removeQueries({ queryKey: ["/api/events"] });
+            refetch(); // Explicitly call refetch to get fresh data
             break;
           case WebSocketMessageType.KHATM_UNARCHIVED:
             console.log("Khatm unarchived, refreshing events");
