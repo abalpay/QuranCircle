@@ -6,11 +6,16 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  // Columns for SSO
+  providerType: text("provider_type"), // 'google', 'github', etc
+  providerId: text("provider_id"),     // User ID from the provider
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
+  email: true,
   password: true,
 });
 

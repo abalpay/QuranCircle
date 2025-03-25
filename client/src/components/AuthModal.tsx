@@ -17,8 +17,8 @@ const loginSchema = z.object({
 
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  displayName: z.string().min(2, "Display name must be at least 2 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -47,8 +47,8 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
+      email: "",
       password: "",
-      displayName: "",
     },
   });
 
@@ -179,15 +179,16 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                 />
                 <FormField
                   control={registerForm.control}
-                  name="displayName"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Display Name</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="Your name in the community" 
+                          placeholder="Your email address" 
                           {...field} 
-                          autoComplete="name"
+                          autoComplete="email"
+                          type="email"
                         />
                       </FormControl>
                       <FormMessage />
