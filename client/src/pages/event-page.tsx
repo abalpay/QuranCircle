@@ -1,16 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
-import { Loader2, Info } from "lucide-react";
-import { EventWithKhatms } from "@shared/schema";
+import { Loader2, Info, WifiOff } from "lucide-react";
+import { EventWithKhatms, Juz, KhatmWithJuzs } from "@shared/schema";
 import EventHeader from "@/components/EventHeader";
 import KhatmCard from "@/components/KhatmCard";
-import { useCallback, memo, useEffect, useState } from "react";
+import { useCallback, memo, useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CircleSettingsDialog from "@/components/CircleSettingsDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
+import { useToast } from "@/hooks/use-toast";
+
+// WebSocket message types
+enum WebSocketMessageType {
+  JUZ_CLAIMED = 'JUZ_CLAIMED',
+  JUZ_UNCLAIMED = 'JUZ_UNCLAIMED',
+  JUZ_READ = 'JUZ_READ',
+  JUZ_UNREAD = 'JUZ_UNREAD',
+  KHATM_CREATED = 'KHATM_CREATED',
+  KHATM_ARCHIVED = 'KHATM_ARCHIVED',
+  KHATM_UNARCHIVED = 'KHATM_UNARCHIVED',
+  KHATM_DELETED = 'KHATM_DELETED',
+  EVENT_UPDATED = 'EVENT_UPDATED',
+  SUBSCRIBE_EVENT = 'SUBSCRIBE_EVENT',
+  PING = 'PING',
+  PONG = 'PONG',
+}
+
+// WebSocket message interface
+interface WebSocketMessage {
+  type: WebSocketMessageType;
+  payload: any;
+}
 
 // Memoized KhatmCard component to prevent unnecessary re-renders
 const MemoizedKhatmCard = memo(KhatmCard);
@@ -21,7 +44,11 @@ export default function EventPage() {
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [refreshing, setRefreshing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [webSocketConnected, setWebSocketConnected] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
+  const { openAuthModal } = useAuthModal();
+  const wsRef = useRef<WebSocket | null>(null);
 
   const {
     data: event,
@@ -92,6 +119,93 @@ export default function EventPage() {
       }
     }
   }, [event]);
+  
+  // Set up WebSocket connection for real-time updates
+  useEffect(() => {
+    if (!eventId || eventId <= 0) return;
+    
+    // Create the WebSocket connection 
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/events`;
+    
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+    
+    // Set up event handlers
+    ws.onopen = () => {
+      setWebSocketConnected(true);
+      console.log('WebSocket connection established');
+      
+      // Subscribe to the event
+      const subscribeMessage: WebSocketMessage = {
+        type: WebSocketMessageType.SUBSCRIBE_EVENT,
+        payload: { eventId }
+      };
+      ws.send(JSON.stringify(subscribeMessage));
+      
+      toast({
+        title: "Real-time updates activated",
+        description: "You'll see changes by others automatically.",
+        duration: 3000
+      });
+    };
+    
+    ws.onclose = () => {
+      setWebSocketConnected(false);
+      console.log('WebSocket connection closed');
+    };
+    
+    ws.onerror = (error) => {
+      setWebSocketConnected(false);
+      console.error('WebSocket error:', error);
+      
+      toast({
+        title: "Connection error",
+        description: "Real-time updates are unavailable. Changes will refresh when you reload.",
+        variant: "destructive",
+        duration: 5000
+      });
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const message: WebSocketMessage = JSON.parse(event.data);
+        
+        // Handle different message types
+        switch (message.type) {
+          case WebSocketMessageType.JUZ_CLAIMED:
+          case WebSocketMessageType.JUZ_UNCLAIMED:
+          case WebSocketMessageType.JUZ_READ:
+          case WebSocketMessageType.JUZ_UNREAD:
+          case WebSocketMessageType.KHATM_CREATED:
+          case WebSocketMessageType.KHATM_ARCHIVED:
+          case WebSocketMessageType.KHATM_UNARCHIVED:
+          case WebSocketMessageType.KHATM_DELETED:
+          case WebSocketMessageType.EVENT_UPDATED:
+            // For any event updates, refetch the data
+            refetch();
+            break;
+          
+          case WebSocketMessageType.PING:
+            // Respond to PING with PONG
+            ws.send(JSON.stringify({ type: WebSocketMessageType.PONG, payload: {} }));
+            break;
+            
+          default:
+            break;
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+    
+    // Clean up function to close the WebSocket when component unmounts
+    return () => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, [eventId, refetch, toast]);
 
   if (isLoading) {
     return (
@@ -139,18 +253,31 @@ export default function EventPage() {
           event={event}
           onManage={isEventCreator ? handleOpenSettings : undefined}
         />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleManualRefresh}
-          className="flex items-center gap-1"
-          disabled={refreshing}
-        >
-          <RefreshCw
-            className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-          />
-          <span className="text-sm">Refresh</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          {webSocketConnected ? (
+            <div className="flex items-center text-xs text-green-600 gap-1">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span>Live</span>
+            </div>
+          ) : (
+            <div className="flex items-center text-xs text-gray-500 gap-1">
+              <WifiOff className="h-3 w-3" />
+              <span>Offline</span>
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleManualRefresh}
+            className="flex items-center gap-1"
+            disabled={refreshing}
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            <span className="text-sm">Refresh</span>
+          </Button>
+        </div>
       </div>
 
       {!user && (
@@ -173,8 +300,7 @@ export default function EventPage() {
                   if (event) {
                     localStorage.setItem('quranCircleReturnToEvent', event.id.toString());
                   }
-                  const authModal = useAuthModal();
-                  authModal.openAuthModal('login');
+                  openAuthModal('login');
                 }}
               >
                 Sign in
