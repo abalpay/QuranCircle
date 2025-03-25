@@ -14,8 +14,23 @@ if (process.env.MAILJET_API_KEY) {
 }
 
 const app = express();
+// Security enhancement: disable X-Powered-By header
+app.disable('x-powered-by');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Add basic security headers
+app.use((req, res, next) => {
+  // Helps prevent XSS attacks
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Prevents MIME-sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Prevents clickjacking
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  // Content Security Policy to prevent XSS and other injection attacks
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;");
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
