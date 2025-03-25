@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { KhatmWithJuzs } from "@shared/schema";
-import { useMutation } from "@tanstack/react-query";
+import { KhatmWithJuzs, EventWithKhatms } from "@shared/schema";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   Dialog,
   DialogContent,
@@ -19,13 +20,26 @@ import { Archive, Trash2, RotateCcw, AlertCircle } from "lucide-react";
 type KhatmActionsDialogProps = {
   khatm: KhatmWithJuzs;
   eventId: number;
-  isCreator: boolean;
+  isCreator?: boolean;  // Optional as we'll determine it from the API
 };
 
-export default function KhatmActionsDialog({ khatm, eventId, isCreator }: KhatmActionsDialogProps) {
+export default function KhatmActionsDialog({ khatm, eventId, isCreator: isCreatorProp }: KhatmActionsDialogProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<"archive" | "unarchive" | "delete" | null>(null);
+  
+  // Fetch event data to determine if current user is creator
+  const { data: event } = useQuery<EventWithKhatms>({
+    queryKey: [`/api/events/${eventId}`],
+    // Only fetch if not provided and user is logged in
+    enabled: isCreatorProp === undefined && !!user
+  });
+  
+  // Determine if the current user is the creator
+  const isCreator = isCreatorProp !== undefined 
+    ? isCreatorProp 
+    : (user && event ? user.id === event.createdBy : false);
 
   const archiveMutation = useMutation({
     mutationFn: async () => {

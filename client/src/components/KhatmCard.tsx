@@ -291,13 +291,11 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
             )}
             
             {/* Khatm Actions Dialog - Only shown for event creator */}
-            {user && (
-              <KhatmActionsDialog 
-                khatm={khatm} 
-                eventId={eventId} 
-                isCreator={true} 
-              />
-            )}
+            <KhatmActionsDialog 
+              khatm={khatm} 
+              eventId={eventId} 
+              isCreator={false} // This will be properly controlled in KhatmActionsDialog
+            />
           </div>
         </div>
 
