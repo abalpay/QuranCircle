@@ -15,7 +15,10 @@ export interface IStorage {
   // User Methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByProviderId(providerType: string, providerId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  linkProviderToUser(userId: number, providerType: string, providerId: string): Promise<User | undefined>;
   
   // Event Methods
   createEvent(event: InsertEvent): Promise<Event>;
@@ -84,12 +87,38 @@ export class MemStorage implements IStorage {
       (user) => user.username === username
     );
   }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.usersData.values()).find(
+      (user) => user.email === email
+    );
+  }
+
+  async getUserByProviderId(providerType: string, providerId: string): Promise<User | undefined> {
+    return Array.from(this.usersData.values()).find(
+      (user) => user.providerType === providerType && user.providerId === providerId
+    );
+  }
   
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
     const user: User = { ...insertUser, id };
     this.usersData.set(id, user);
     return user;
+  }
+
+  async linkProviderToUser(userId: number, providerType: string, providerId: string): Promise<User | undefined> {
+    const user = this.usersData.get(userId);
+    if (!user) return undefined;
+    
+    const updatedUser = { 
+      ...user, 
+      providerType, 
+      providerId 
+    };
+    
+    this.usersData.set(userId, updatedUser);
+    return updatedUser;
   }
   
   // Event Methods
