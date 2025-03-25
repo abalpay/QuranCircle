@@ -7,10 +7,8 @@ import {
   Menu,
   LogOut,
   UserCircle,
-  BookOpen,
   Globe,
-  ChevronDown,
-  Search
+  ChevronDown
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -20,7 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 
 export default function Header() {
   const { user, logoutMutation } = useAuth();
@@ -35,7 +32,7 @@ export default function Header() {
     <header className="bg-white border-b border-[hsl(var(--quran-border))] sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center md:py-2">
         {/* Left section - Menu on mobile, logo on desktop */}
-        <div className="flex items-center md:w-1/4">
+        <div className="flex items-center md:w-1/3">
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -68,36 +65,21 @@ export default function Header() {
             </DropdownMenu>
           </div>
           
-          <div className="hidden md:block">
-            <Link href="/">
-              <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
-                Quran<span className="text-black">.circle</span>
-              </span>
-            </Link>
-          </div>
+          {/* Logo - visible on all devices (mobile and desktop) */}
+          <Link href="/">
+            <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
+              Quran<span className="text-black">Circle</span>
+            </span>
+          </Link>
         </div>
         
-        {/* Center section - Logo on mobile */}
-        <div className="flex items-center justify-center md:justify-center md:w-2/4">
-          <div className="md:hidden">
-            <Link href="/">
-              <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
-                Quran<span className="text-black">.circle</span>
-              </span>
-            </Link>
-          </div>
-          
-          <div className="hidden md:block">
-            <Link href="/">
-              <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
-                Quran<span className="text-black">.circle</span>
-              </span>
-            </Link>
-          </div>
+        {/* Center section - Empty now (logo has been moved to left) */}
+        <div className="flex-1 md:w-1/3">
+          {/* Intentionally empty */}
         </div>
         
         {/* Right section - Actions */}
-        <div className="flex items-center justify-end space-x-2 md:w-1/4">
+        <div className="flex items-center justify-end space-x-2 md:w-1/3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-gray-600 rounded-full hidden md:flex">
@@ -162,8 +144,6 @@ export default function Header() {
               </div>
             </Button>
           )}
-          
-          {/* No mobile search button */}
         </div>
       </div>
     </header>

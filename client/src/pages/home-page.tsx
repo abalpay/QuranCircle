@@ -40,7 +40,7 @@ export default function HomePage() {
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-medium text-[hsl(var(--quran-text))] mb-4">
-          Welcome to <span className="text-[hsl(var(--quran-green))]">Quran</span><span className="text-black">.circle</span>
+          Welcome to <span className="text-[hsl(var(--quran-green))]">Quran</span><span className="text-black">Circle</span>
         </h1>
         <p className="text-lg text-gray-600 max-w-xl mx-auto">
           Collaborative Quran reading made simple
@@ -100,56 +100,57 @@ export default function HomePage() {
           How It Works
         </h2>
         
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div className="flex items-start">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[hsl(var(--quran-green))] flex items-center justify-center mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </div>
             <div>
-              <h3 className="font-medium text-gray-800">Create or Join a Circle</h3>
-              <p className="text-gray-600">Start a new circle or join an existing one using a link</p>
+              <h3 className="font-medium text-gray-800 text-lg">Create or Join a Circle</h3>
+              <p className="text-gray-600 mt-1">Start a new circle or join an existing one using a link</p>
             </div>
           </div>
           
           <div className="flex items-start">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[hsl(var(--quran-green))] flex items-center justify-center mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
               </svg>
             </div>
             <div>
-              <h3 className="font-medium text-gray-800">Claim a Juz</h3>
-              <p className="text-gray-600">Select any available Juz from the Khatm</p>
+              <h3 className="font-medium text-gray-800 text-lg">Claim a Juz</h3>
+              <p className="text-gray-600 mt-1">Select any available Juz from the Khatm</p>
             </div>
           </div>
           
           <div className="flex items-start">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[hsl(var(--quran-green))] flex items-center justify-center mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
               </svg>
             </div>
             <div>
-              <h3 className="font-medium text-gray-800">Complete Your Reading</h3>
-              <p className="text-gray-600">Read your Juz and mark it as complete when finished</p>
+              <h3 className="font-medium text-gray-800 text-lg">Complete Your Reading</h3>
+              <p className="text-gray-600 mt-1">Read your Juz and mark it as complete when finished</p>
             </div>
           </div>
           
           <div className="flex items-start">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[hsl(var(--quran-green))] flex items-center justify-center mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
             </div>
             <div>
-              <h3 className="font-medium text-gray-800">New Khatms Created Automatically</h3>
-              <p className="text-gray-600">Once all Juz are claimed, a new Khatm is created automatically</p>
+              <h3 className="font-medium text-gray-800 text-lg">New Khatms Created Automatically</h3>
+              <p className="text-gray-600 mt-1">Once all Juz are claimed, a new Khatm is created automatically</p>
             </div>
           </div>
         </div>
