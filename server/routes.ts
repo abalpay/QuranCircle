@@ -144,9 +144,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "This Juz must be claimed before marking as read" });
       }
       
-      // Check if the user is the claimer (or creator)
+      // Allow both authenticated and anonymous users to mark juz as read
       if (req.isAuthenticated() && juz.claimedByUserId && juz.claimedByUserId !== req.user!.id) {
-        // Get the event to check if user is creator
+        // For authenticated users, check if they're the event creator
         const khatm = await storage.getKhatm(khatmId);
         if (khatm) {
           const event = await storage.getEvent(khatm.eventId);
@@ -155,6 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
+      // For anonymous users, we'll allow marking as read - this is a trust-based system
       
       // Mark the juz as read
       const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
@@ -260,9 +261,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       } else {
-        // Unauthenticated users can only unclaim their own juzs based on name
-        // This is a trust-based system, but we could add more verification if needed
-        return res.status(401).json({ message: "You must be signed in to unclaim this Juz" });
+        // Allow anonymous users to unclaim juz - trust-based system for community participation
+        // Anonymous users can unclaim any juz - this enables full participation without authentication
+        // This is intentional to lower barriers to participation
       }
       
       // Unclaim the juz
