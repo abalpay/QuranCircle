@@ -16,6 +16,8 @@ import { Loader2 } from "lucide-react";
 const HomePage = lazy(() => import("@/pages/home-page"));
 const EventPage = lazy(() => import("@/pages/event-page"));
 const CirclesPage = lazy(() => import("@/pages/circles-page"));
+const ForgotPasswordPage = lazy(() => import("@/pages/forgot-password"));
+const ResetPasswordPage = lazy(() => import("@/pages/reset-password"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function AppContent() {

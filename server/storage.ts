@@ -15,7 +15,11 @@ export interface IStorage {
   // User Methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, updates: Partial<User>): Promise<User | undefined>;
+  setPasswordResetToken(userId: number, token: string, expiry: Date): Promise<User | undefined>;
+  getUserByResetToken(token: string): Promise<User | undefined>;
   
   // Event Methods
   createEvent(event: InsertEvent): Promise<Event>;
@@ -85,16 +89,51 @@ export class MemStorage implements IStorage {
     );
   }
   
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.usersData.values()).find(
+      (user) => user.email === email
+    );
+  }
+  
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
     const user: User = { 
       ...insertUser, 
       id,
       providerType: null, 
-      providerId: null 
+      providerId: null,
+      resetToken: null,
+      resetTokenExpiry: null
     };
     this.usersData.set(id, user);
     return user;
+  }
+  
+  async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
+    const user = this.usersData.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser = { ...user, ...updates };
+    this.usersData.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  async setPasswordResetToken(userId: number, token: string, expiry: Date): Promise<User | undefined> {
+    const user = this.usersData.get(userId);
+    if (!user) return undefined;
+    
+    user.resetToken = token;
+    user.resetTokenExpiry = expiry;
+    this.usersData.set(userId, user);
+    
+    return user;
+  }
+  
+  async getUserByResetToken(token: string): Promise<User | undefined> {
+    const now = new Date();
+    return Array.from(this.usersData.values()).find(
+      (user) => user.resetToken === token && user.resetTokenExpiry && user.resetTokenExpiry > now
+    );
   }
   
   // Event Methods
