@@ -5,6 +5,8 @@ import { storage as memStorage } from "./storage";
 import { pgStorage } from "./pg-storage";
 import { setupAuth } from "./auth";
 import { generateShortCode, createShortUrl } from "./utils";
+import { getWebSocketManager } from "./websocket";
+import { cache, CACHE_TTL } from "./cache";
 import { 
   insertEventSchema, 
   claimJuzSchema,
@@ -16,7 +18,6 @@ import {
   unarchiveKhatmSchema,
   deleteKhatmSchema
 } from "@shared/schema";
-import { cache } from "./cache";
 
 // Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
 const storage = process.env.DATABASE_URL ? pgStorage : memStorage;

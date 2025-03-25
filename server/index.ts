@@ -8,6 +8,7 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import csurf from "csurf";
 import { randomBytes } from "crypto";
+import { initializeWebSockets } from "./websocket";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -149,6 +150,9 @@ app.use((req, res, next) => {
     app.use("/api/khatms", csrfProtection);
     
     const server = await registerRoutes(app);
+    
+    // Initialize WebSocket server for real-time updates
+    initializeWebSockets(server);
 
     app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
       // Handle CSRF errors specially
