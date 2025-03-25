@@ -277,10 +277,17 @@ export default function KhatmActionsDialog({ khatm, eventId, isCreator: isCreato
               <AlertCircle className="h-5 w-5 mr-2" />
               <p className="font-medium">Confirm Delete</p>
             </div>
-            <p className="mb-4">
-              This will permanently delete the khatm and all participant progress. 
-              This action cannot be undone.
-            </p>
+            <div className="space-y-3 mb-4">
+              <p className="text-red-600 font-semibold">
+                WARNING: This action is permanent and cannot be undone!
+              </p>
+              <p>
+                This will completely remove the khatm and all participant progress. The khatm will no longer appear in any view.
+              </p>
+              <p>
+                If you want to temporarily hide this khatm while preserving participant progress, please use the Archive option instead.
+              </p>
+            </div>
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
