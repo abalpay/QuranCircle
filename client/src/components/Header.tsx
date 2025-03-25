@@ -31,30 +31,77 @@ export default function Header() {
   
   return (
     <header className="bg-white border-b border-[hsl(var(--quran-border))] sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-        <div className="flex items-center">
-          <Link href="/">
-            <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
-              Quran<span className="text-black">.circle</span>
-            </span>
-          </Link>
-        </div>
-        
-        <div className="hidden md:flex max-w-sm w-full mx-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center md:py-2">
+        {/* Left section - Menu on mobile, logo on desktop */}
+        <div className="flex items-center md:w-1/4">
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-gray-700 -ml-2">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild>
+                  <Link href="/">
+                    <span className="w-full cursor-pointer">Home</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/circles">
+                    <span className="w-full cursor-pointer">Browse Circles</span>
+                  </Link>
+                </DropdownMenuItem>
+                {user && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Hello, {user.username}</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <Input 
-            type="search" 
-            placeholder="Search for circles" 
-            className="pl-10 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
-          />
+          
+          <div className="hidden md:block">
+            <Link href="/">
+              <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
+                Quran<span className="text-black">.circle</span>
+              </span>
+            </Link>
+          </div>
         </div>
         
-        <div className="flex items-center space-x-2">
+        {/* Center section - Logo on mobile */}
+        <div className="flex items-center justify-center md:justify-start md:w-2/4">
+          <div className="md:hidden">
+            <Link href="/">
+              <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
+                Quran<span className="text-black">.circle</span>
+              </span>
+            </Link>
+          </div>
+          
+          <div className="hidden md:flex max-w-md w-full mx-4 relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <Input 
+              type="search" 
+              placeholder="Search for circles" 
+              className="pl-10 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
+            />
+          </div>
+        </div>
+        
+        {/* Right section - Actions */}
+        <div className="flex items-center justify-end space-x-2 md:w-1/4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-gray-600 rounded-full">
+              <Button variant="ghost" size="sm" className="text-gray-600 rounded-full hidden md:flex">
                 <Globe className="h-4 w-4 mr-1" />
                 <span className="text-sm">English</span>
               </Button>
@@ -108,42 +155,10 @@ export default function Header() {
             </Button>
           )}
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="text-gray-700">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {user ? (
-                <>
-                  <DropdownMenuLabel>Hello, {user.username}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/">
-                      <span className="w-full cursor-pointer">My Circles</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/circles">
-                      <span className="w-full cursor-pointer">Browse Circles</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <DropdownMenuItem onClick={() => openAuthModal('login')}>
-                  <span className="w-full cursor-pointer flex items-center">
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    <span>Sign In</span>
-                  </span>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Mobile-only search button */}
+          <Button variant="ghost" size="icon" className="text-gray-700 md:hidden">
+            <Search className="h-5 w-5" />
+          </Button>
         </div>
       </div>
     </header>

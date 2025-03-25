@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, PlusCircle, UserCircle } from "lucide-react";
+import { BookOpen, PlusCircle, UserCircle, LogOut, Home, CircleUserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import CreateEventDialog from "./CreateEventDialog";
@@ -9,11 +9,8 @@ import { useAuthModal } from "@/hooks/use-auth-modal";
 export default function MobileNavigation() {
   const [location] = useLocation();
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const { openAuthModal } = useAuthModal();
-  
-  // Don't show nav bar for authenticated users
-  if (user) return null;
   
   return (
     <>
@@ -21,31 +18,52 @@ export default function MobileNavigation() {
         <div className="flex justify-around">
           <Link href="/">
             <div className={cn(
-              "flex flex-col items-center py-3 px-5 cursor-pointer",
-              location === "/" ? "text-primary" : "text-neutral-700"
+              "flex flex-col items-center py-3 px-3 cursor-pointer",
+              location === "/" ? "text-[hsl(var(--quran-green))]" : "text-neutral-700"
+            )}>
+              <Home size={20} />
+              <span className="text-xs mt-1">Home</span>
+            </div>
+          </Link>
+          
+          <Link href="/circles">
+            <div className={cn(
+              "flex flex-col items-center py-3 px-3 cursor-pointer",
+              location === "/circles" ? "text-[hsl(var(--quran-green))]" : "text-neutral-700"
             )}>
               <BookOpen size={20} />
-              <span className="text-xs mt-1">Events</span>
+              <span className="text-xs mt-1">Circles</span>
             </div>
           </Link>
           
           <button
             type="button"
             onClick={() => setIsCreateEventOpen(true)}
-            className="flex flex-col items-center py-3 px-5 text-neutral-700"
+            className="flex flex-col items-center py-3 px-3 text-neutral-700"
           >
             <PlusCircle size={20} />
-            <span className="text-xs mt-1">New Event</span>
+            <span className="text-xs mt-1">Create</span>
           </button>
           
-          <button
-            type="button"
-            onClick={() => openAuthModal('login')}
-            className="flex flex-col items-center py-3 px-5 text-neutral-700"
-          >
-            <UserCircle size={20} />
-            <span className="text-xs mt-1">Account</span>
-          </button>
+          {user ? (
+            <button
+              type="button"
+              onClick={() => logoutMutation.mutate()}
+              className="flex flex-col items-center py-3 px-3 text-neutral-700"
+            >
+              <LogOut size={20} />
+              <span className="text-xs mt-1">Logout</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => openAuthModal('login')}
+              className="flex flex-col items-center py-3 px-3 text-neutral-700"
+            >
+              <CircleUserRound size={20} />
+              <span className="text-xs mt-1">Sign In</span>
+            </button>
+          )}
         </div>
       </nav>
       

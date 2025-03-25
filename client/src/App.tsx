@@ -29,7 +29,7 @@ function AppContent() {
           <Route component={NotFound} />
         </Switch>
       </main>
-      {!user && <MobileNavigation />}
+      <MobileNavigation />
       
       {/* Auth Modal */}
       <AuthModal 
