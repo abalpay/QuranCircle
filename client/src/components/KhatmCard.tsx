@@ -345,44 +345,53 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId, isCreator }: Kh
           </div>
         ) : !khatm.isArchived && !khatm.isDeleted ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
-            {khatm.juzs.map(juz => (
-              <JuzCard 
-                key={juz.id} 
-                juz={juz}
-                onClaim={() => handleClaimJuz(juz.juzNumber)}
-                onMarkAsRead={() => handleMarkAsRead(juz.juzNumber)}
-                onUnmarkAsRead={() => handleUnmarkAsRead(juz.juzNumber)}
-                onUnclaim={() => handleUnclaim(juz.juzNumber)}
-                isOwner={user && juz.claimedByUserId ? user.id === juz.claimedByUserId : false}
-              />
+            {/* Sort juzs by juzNumber to maintain consistent order */}
+            {[...khatm.juzs]
+              .sort((a, b) => a.juzNumber - b.juzNumber)
+              .map(juz => (
+                <JuzCard 
+                  key={juz.id} 
+                  juz={juz}
+                  onClaim={() => handleClaimJuz(juz.juzNumber)}
+                  onMarkAsRead={() => handleMarkAsRead(juz.juzNumber)}
+                  onUnmarkAsRead={() => handleUnmarkAsRead(juz.juzNumber)}
+                  onUnclaim={() => handleUnclaim(juz.juzNumber)}
+                  isOwner={user && juz.claimedByUserId ? user.id === juz.claimedByUserId : false}
+                />
             ))}
           </div>
         ) : (
           // For archived or deleted khatms, show a read-only view of juzs
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4 opacity-80">
-            {khatm.juzs.map(juz => (
-              <div 
-                key={juz.id}
-                className={`quran-juz-card relative p-3 rounded-md shadow-sm text-center border ${
-                  juz.status === 'read' 
-                    ? 'bg-green-50 border-green-200' 
-                    : juz.status === 'claimed' 
-                      ? 'bg-blue-50 border-blue-200' 
-                      : 'bg-white border-gray-200'
-                }`}
-              >
-                <div className="text-lg font-medium">
-                  {juz.juzNumber}
-                </div>
-                <div className={`text-xs font-medium mt-1 ${
-                  juz.status === 'read' 
-                    ? 'text-green-600' 
-                    : juz.status === 'claimed' 
-                      ? 'text-blue-600' 
-                      : 'text-gray-400'
-                }`}>
-                  {juz.status === 'read' 
-                    ? 'Completed' 
+            {/* Sort juzs by juzNumber to maintain consistent order */}
+            {[...khatm.juzs]
+              .sort((a, b) => a.juzNumber - b.juzNumber)
+              .map(juz => (
+                <div 
+                  key={juz.id}
+                  className={`quran-juz-card relative p-4 rounded-lg shadow-sm text-center border ${
+                    juz.status === 'read' 
+                      ? 'bg-gradient-to-br from-emerald-50 to-white border-emerald-200' 
+                      : juz.status === 'claimed' 
+                        ? 'bg-gradient-to-br from-amber-50 to-white border-amber-200' 
+                        : 'bg-white border-gray-200'
+                  }`}
+                >
+                  <div className="absolute -top-1 -left-1 w-6 h-6 rounded-full bg-white shadow-sm border flex items-center justify-center">
+                    <span className="text-xs font-bold">{juz.juzNumber}</span>
+                  </div>
+                  <div className="text-lg font-bold mt-3">
+                    Juz {juz.juzNumber}
+                  </div>
+                  <div className={`text-xs font-medium mt-2 ${
+                    juz.status === 'read' 
+                      ? 'text-emerald-600' 
+                      : juz.status === 'claimed' 
+                        ? 'text-amber-600' 
+                        : 'text-gray-400'
+                  }`}>
+                    {juz.status === 'read' 
+                      ? 'Completed' 
                     : juz.status === 'claimed' 
                       ? 'Claimed' 
                       : 'Available'}
