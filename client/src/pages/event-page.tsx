@@ -154,9 +154,35 @@ export default function EventPage() {
           case WebSocketMessageType.KHATM_CREATED:
           case WebSocketMessageType.KHATM_ARCHIVED:
           case WebSocketMessageType.KHATM_UNARCHIVED:
+            console.log("Khatm unarchived, refreshing event data");
+            queryClient.invalidateQueries({ queryKey: [`/api/events/${id}`] });
+            refetch();
+            break;
+            
           case WebSocketMessageType.KHATM_DELETED:
+            console.log("Khatm deleted, refreshing event data", message.payload);
+            
+            // Add debug info about the payload received
+            if (message.payload && message.payload.khatmId) {
+              console.log(`Received khatm deletion notification for khatmId: ${message.payload.khatmId}, eventId: ${message.payload.eventId}`);
+            }
+            
+            // For khatm deletion, need to completely refresh the data
+            queryClient.removeQueries({ queryKey: [`/api/events/${id}`] });
+            
+            // If this deletion is for the currently viewed event, refetch
+            if (!message.payload.eventId || message.payload.eventId === parseInt(id)) {
+              setTimeout(() => {
+                refetch()
+                  .then(() => console.log("Successfully refetched event data after khatm deletion"))
+                  .catch(err => console.error("Error refetching event data after khatm deletion:", err));
+              }, 250);
+            }
+            break;
+            
           case WebSocketMessageType.EVENT_UPDATED:
-            // For any event updates, refetch the data
+            console.log("Event updated, refreshing event data");
+            queryClient.invalidateQueries({ queryKey: [`/api/events/${id}`] });
             refetch();
             break;
           

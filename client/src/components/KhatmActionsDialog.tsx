@@ -119,17 +119,21 @@ export default function KhatmActionsDialog({ khatm, eventId, isCreator: isCreato
     onSuccess: () => {
       toast({
         title: "Khatm Deleted",
-        description: `Khatm #${khatm.khatmNumber} has been deleted.`,
+        description: `Khatm #${khatm.khatmNumber} has been permanently deleted.`,
         duration: 3000
       });
       
-      // Refresh the event data and redirect to home page
-      queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
-      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      // Force complete refresh of all event data by removing cached data
+      queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
+      queryClient.removeQueries({ queryKey: ['/api/events'] });
+      
+      // Fetch fresh data (will be triggered by redirect, but explicitly done here for clarity)
+      queryClient.refetchQueries({ queryKey: ['/api/events'] });
+      
       setIsDialogOpen(false);
       setConfirmAction(null);
       
-      // Redirect to home page after deleting the khatm
+      // Redirect to home page after deleting the khatm 
       setLocation('/');
     },
     onError: (error: Error) => {

@@ -128,8 +128,25 @@ export default function HomePage() {
             }, 250);
             break;
           case WebSocketMessageType.KHATM_DELETED:
-            console.log("Khatm deleted, refreshing events");
+            console.log("Khatm deleted, refreshing events", message.payload);
+            
+            // Add debug info about the payload received
+            if (message.payload && message.payload.khatmId) {
+              console.log(`Received khatm deletion notification for khatmId: ${message.payload.khatmId}, eventId: ${message.payload.eventId}`);
+            }
+            
+            // First invalidate the query to mark it stale
             queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            
+            // Then explicitly remove cached data 
+            queryClient.removeQueries({ queryKey: ["/api/events"] });
+            
+            // Force a direct refetch with some delay to ensure the server updated its state
+            setTimeout(() => { 
+              refetch()
+                .then(() => console.log("Successfully refetched events after khatm deletion"))
+                .catch(err => console.error("Error refetching events after khatm deletion:", err));
+            }, 250);
             break;
           case WebSocketMessageType.EVENT_UPDATED:
             console.log("Event updated, refreshing events");
