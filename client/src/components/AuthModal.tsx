@@ -258,7 +258,7 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                         <FormControl>
                           <Input 
                             type="password" 
-                            placeholder="Enter your password" 
+                            placeholder="" 
                             {...field} 
                             autoComplete="current-password"
                           />

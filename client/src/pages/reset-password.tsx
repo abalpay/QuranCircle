@@ -195,12 +195,11 @@ export default function ResetPasswordPage() {
                       <div className="relative">
                         <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input 
-                          placeholder="••••••••" 
+                          placeholder="" 
                           {...field} 
                           type="password"
                           className="pl-9"
                           autoComplete="off"
-                          value={field.value}
                         />
                       </div>
                     </FormControl>
@@ -218,12 +217,11 @@ export default function ResetPasswordPage() {
                       <div className="relative">
                         <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input 
-                          placeholder="••••••••" 
+                          placeholder="" 
                           {...field} 
                           type="password"
                           className="pl-9"
                           autoComplete="off"
-                          value={field.value}
                         />
                       </div>
                     </FormControl>
