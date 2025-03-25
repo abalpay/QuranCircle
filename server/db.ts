@@ -12,9 +12,10 @@ const { Pool } = pg;
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: true },
-  max: 20, // Max number of clients in pool
+  max: 50, // Increased for higher concurrency
+  min: 5, // Maintain a minimum pool size for faster responses
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 5000, // Increased timeout for connection stability
 });
 
 // Create a Drizzle ORM instance with our schema

@@ -33,14 +33,14 @@ app.disable('x-powered-by');
 // Add compression for responses
 app.use(compression());
 
-// Apply global rate limiting - 100 requests per 15 minutes per IP
+// Apply global rate limiting - increased to handle high-traffic events
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 10 * 60 * 1000, // 10 minutes window
+  max: 500, // 500 requests per window
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests, please try again later.",
-  skipSuccessfulRequests: false,
+  skipSuccessfulRequests: true, // Skip successful requests to allow more reads
   trustProxy: true
 });
 
