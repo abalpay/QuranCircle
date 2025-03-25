@@ -41,11 +41,17 @@ export default function HomePage() {
   const wsRef = useRef<WebSocket | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: userCircles, isLoading, refetch } = useQuery<EventWithKhatms[]>({
+  const { 
+    data: userCircles, 
+    isLoading, 
+    refetch,
+    dataUpdatedAt 
+  } = useQuery<EventWithKhatms[]>({
     queryKey: ["/api/events"],
     enabled: !!user, // Only fetch if user is logged in
     refetchOnWindowFocus: true,
     staleTime: 0, // Always treat data as stale to force refetch
+    refetchInterval: 10000, // Refresh data every 10 seconds as a fallback
   });
   
   // Set up WebSocket connection for real-time updates if user is logged in
@@ -81,17 +87,45 @@ export default function HomePage() {
             break;
           case WebSocketMessageType.KHATM_ARCHIVED:
             console.log("Khatm archived, refreshing events", message.payload);
-            // Force a complete refetch of events when a khatm is archived
+            
+            // Add debug info about the payload received
+            if (message.payload && message.payload.khatmId) {
+              console.log(`Received khatm archive notification for khatmId: ${message.payload.khatmId}, eventId: ${message.payload.eventId}`);
+            }
+            
+            // First invalidate the query to mark it stale
+            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            
+            // Then explicitly remove cached data 
             queryClient.removeQueries({ queryKey: ["/api/events"] });
+            
+            // Force a direct refetch with some delay to ensure the server updated its state
             setTimeout(() => { 
-              // Add a slight delay to ensure the server has time to update its state
-              refetch(); 
-              console.log("Explicitly refetching events after archive");
-            }, 100);
+              refetch()
+                .then(() => console.log("Successfully refetched events after khatm archive"))
+                .catch(err => console.error("Error refetching events after khatm archive:", err));
+            }, 250);
             break;
           case WebSocketMessageType.KHATM_UNARCHIVED:
-            console.log("Khatm unarchived, refreshing events");
+            console.log("Khatm unarchived, refreshing events", message.payload);
+            
+            // Add debug info about the payload received
+            if (message.payload && message.payload.khatmId) {
+              console.log(`Received khatm unarchive notification for khatmId: ${message.payload.khatmId}, eventId: ${message.payload.eventId}`);
+            }
+            
+            // First invalidate the query to mark it stale
             queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            
+            // Then explicitly remove cached data 
+            queryClient.removeQueries({ queryKey: ["/api/events"] });
+            
+            // Force a direct refetch with some delay to ensure the server updated its state
+            setTimeout(() => { 
+              refetch()
+                .then(() => console.log("Successfully refetched events after khatm unarchive"))
+                .catch(err => console.error("Error refetching events after khatm unarchive:", err));
+            }, 250);
             break;
           case WebSocketMessageType.KHATM_DELETED:
             console.log("Khatm deleted, refreshing events");
