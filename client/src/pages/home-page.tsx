@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, ExternalLink, Loader2 } from "lucide-react";
 import CreateCircleDialog from "@/components/CreateCircleDialog";
 import { useAuth } from "@/hooks/use-auth";
+import { useAuthModal } from "@/hooks/use-auth-modal";
 import { format } from "date-fns";
 
 export default function HomePage() {
-  const [, navigate] = useLocation();
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
+  const { openAuthModal } = useAuthModal();
   
   const {
     data: userCircles,
@@ -49,7 +50,7 @@ export default function HomePage() {
       
       <div className="flex justify-center mb-10">
         <Button 
-          onClick={() => user ? setIsCreateCircleOpen(true) : navigate("/auth?returnTo=/")}
+          onClick={() => user ? setIsCreateCircleOpen(true) : openAuthModal('login')}
           className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white py-6 px-8 text-lg"
           size="lg"
         >

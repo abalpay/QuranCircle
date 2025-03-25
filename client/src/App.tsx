@@ -15,7 +15,6 @@ import { Loader2 } from "lucide-react";
 // Lazy load pages for code splitting
 const HomePage = lazy(() => import("@/pages/home-page"));
 const EventPage = lazy(() => import("@/pages/event-page"));
-const CirclesPage = lazy(() => import("@/pages/circles-page"));
 const ResetPasswordPage = lazy(() => import("@/pages/reset-password"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
@@ -51,7 +50,6 @@ function AppContent() {
             <Route path="/reset-password">
               {() => <ResetPasswordPage />}
             </Route>
-            <ProtectedRoute path="/circles" component={() => <CirclesPage />} />
             <Route>
               {() => <NotFound />}
             </Route>

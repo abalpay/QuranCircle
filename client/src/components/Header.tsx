@@ -46,11 +46,6 @@ export default function Header() {
                     <span className="w-full cursor-pointer">Home</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/circles">
-                    <span className="w-full cursor-pointer">Browse Circles</span>
-                  </Link>
-                </DropdownMenuItem>
                 {user && (
                   <>
                     <DropdownMenuSeparator />
@@ -116,11 +111,6 @@ export default function Header() {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/">
-                    <span className="w-full cursor-pointer">My Circles</span>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
