@@ -40,10 +40,8 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
       isPublic: boolean;
       deadline?: Date;
     }) => {
-      return apiRequest("/api/events", {
-        method: "POST",
-        body: eventData
-      });
+      const response = await apiRequest("POST", "/api/events", eventData);
+      return await response.json();
     },
     onSuccess: (event) => {
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });

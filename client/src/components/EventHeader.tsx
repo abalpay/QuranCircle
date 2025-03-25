@@ -29,9 +29,8 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
   // Query for generating a short URL
   const shortUrlMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest<ShortUrlResponse>(`/api/events/${event.id}/short-url`, {
-        method: 'POST'
-      });
+      const response = await apiRequest('POST', `/api/events/${event.id}/short-url`);
+      return await response.json() as ShortUrlResponse;
     },
     onSuccess: (data) => {
       setShareUrl(data.shortUrl);
