@@ -259,9 +259,16 @@ export class WebSocketManager {
    * Broadcast a khatm deleted message to the event
    */
   public broadcastKhatmDeleted(eventId: number, khatmId: number) {
+    // Broadcast to event subscribers
     this.broadcastToEvent(eventId, {
       type: WebSocketMessageType.KHATM_DELETED,
-      payload: { khatmId }
+      payload: { khatmId, eventId }
+    });
+    
+    // Also broadcast to all clients for home page updates
+    this.broadcastToAll({
+      type: WebSocketMessageType.KHATM_DELETED,
+      payload: { khatmId, eventId }
     });
   }
   
@@ -269,9 +276,16 @@ export class WebSocketManager {
    * Broadcast an event updated message to all subscribers
    */
   public broadcastEventUpdated(eventId: number, event: Event) {
+    // Broadcast to event subscribers
     this.broadcastToEvent(eventId, {
       type: WebSocketMessageType.EVENT_UPDATED,
       payload: { event }
+    });
+    
+    // Also broadcast to all clients for home page updates
+    this.broadcastToAll({
+      type: WebSocketMessageType.EVENT_UPDATED,
+      payload: { event, eventId }
     });
   }
   
