@@ -44,8 +44,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // But since we use Vite for serving the frontend, we'll use an api-based approach
       // and redirect to the event page
       
-      // First check if the event exists
-      const event = await storage.getEventByShortCode(shortCode);
+      // Use cache with a longer TTL for shortcode lookups since they rarely change
+      const event = await cache.getOrSet(
+        `shortcode:${shortCode}`,
+        async () => storage.getEventByShortCode(shortCode),
+        CACHE_TTL.EVENT_SHORT
+      );
       
       if (event) {
         // If found, redirect to the event page
@@ -367,6 +371,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to mark Juz as read" });
       }
       
+      // Invalidate event cache since khatm status has changed
+      const khatm = await storage.getKhatm(khatmId);
+      if (khatm) {
+        cache.delete(`event:${khatm.eventId}`);
+      }
+      
       res.status(200).json({ juz: updatedJuz });
     } catch (error) {
       console.error("Error marking juz as read:", error);
@@ -479,6 +489,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to unclaim Juz" });
       }
       
+      // Invalidate event cache since khatm status has changed
+      const khatm = await storage.getKhatm(khatmId);
+      if (khatm) {
+        cache.delete(`event:${khatm.eventId}`);
+      }
+      
       res.status(200).json({ juz: updatedJuz });
     } catch (error) {
       console.error("Error unclaiming juz:", error);
@@ -525,6 +541,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to unmark Juz as read" });
       }
       
+      // Invalidate event cache since khatm status has changed
+      const khatm = await storage.getKhatm(khatmId);
+      if (khatm) {
+        cache.delete(`event:${khatm.eventId}`);
+      }
+      
       res.status(200).json({ juz: updatedJuz });
     } catch (error) {
       console.error("Error unmarking juz:", error);
@@ -560,6 +582,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!archivedKhatm) {
         return res.status(500).json({ message: "Failed to archive khatm" });
       }
+      
+      // Invalidate the event cache to reflect this change
+      cache.delete(`event:${event.id}`);
       
       res.status(200).json({ khatm: archivedKhatm });
     } catch (error) {
@@ -600,6 +625,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to unarchive khatm" });
       }
       
+      // Invalidate the event cache to reflect this change
+      cache.delete(`event:${event.id}`);
+      
       res.status(200).json({ khatm: unarchivedKhatm });
     } catch (error) {
       console.error("Error unarchiving khatm:", error);
@@ -633,6 +661,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!deletedKhatm) {
         return res.status(500).json({ message: "Failed to delete khatm" });
       }
+      
+      // Invalidate the event cache to reflect this change
+      cache.delete(`event:${event.id}`);
       
       res.status(200).json({ khatm: deletedKhatm });
     } catch (error) {

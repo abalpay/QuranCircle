@@ -8,14 +8,23 @@ import { dirname } from 'path';
 
 const { Pool } = pg;
 
-// Create a PostgreSQL connection pool
+// Create a PostgreSQL connection pool optimized for high traffic
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: true },
-  max: 50, // Increased for higher concurrency
-  min: 5, // Maintain a minimum pool size for faster responses
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000, // Increased timeout for connection stability
+  max: 75, // Further increased for higher concurrency
+  min: 10, // Maintain more idle connections for sudden traffic spikes
+  idleTimeoutMillis: 60000, // Keep connections alive longer
+  connectionTimeoutMillis: 10000, // Longer timeout for connection stability under load
+  allowExitOnIdle: false, // Prevent pool from shutting down during idle periods
+  maxUses: 10000, // Recycle connections after max uses to prevent memory issues
+  statement_timeout: 10000, // Prevent long-running queries
+  query_timeout: 10000, // Timeout for queries
+});
+
+// Add error handling for pool
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
 });
 
 // Create a Drizzle ORM instance with our schema
