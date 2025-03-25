@@ -64,27 +64,12 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
     }
   };
   
-  // Add a function to copy the production URL
-  const copyProductionUrl = () => {
-    if (!productionUrl) return;
-    
-    navigator.clipboard.writeText(productionUrl).then(() => {
-      toast({
-        title: "🔗 Website link copied!",
-        description: "Official website URL has been copied to clipboard ✅",
-      });
-    }).catch(() => {
-      toast({
-        title: "❌ Failed to copy",
-        description: "Please copy the website URL manually",
-        variant: "destructive",
-      });
-    });
-  };
+  // Production URL copy functionality has been merged into copyToClipboard
   
-  // Copy the local development URL
+  // Copy URL to clipboard
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(shareUrl).then(() => {
+    const urlToCopy = productionUrl || shareUrl;
+    navigator.clipboard.writeText(urlToCopy).then(() => {
       toast({
         title: "🔗 Link copied!",
         description: "Quran circle link has been copied to clipboard ✅",
@@ -162,31 +147,17 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
             {shortUrlMutation.isPending ? (
               <div className="flex items-center justify-center mb-4">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-                <span className="ml-2 text-sm text-neutral-500">Creating shorter link...</span>
+                <span className="ml-2 text-sm text-neutral-500">Creating link...</span>
               </div>
             ) : (
               <div className="mb-4 bg-neutral-50 p-3 rounded-md border border-neutral-200">
                 <div className="flex items-center">
                   <Link className="h-4 w-4 text-neutral-500 mr-2" />
-                  <span className="text-sm text-neutral-700 font-medium truncate">{shareUrl}</span>
+                  <span className="text-sm text-neutral-700 font-medium truncate">{productionUrl || shareUrl}</span>
                 </div>
-                {hasShortUrl && (
-                  <p className="text-xs text-neutral-500 mt-1">
-                    ✨ Using a shorter, easier-to-share URL
-                  </p>
-                )}
-                
-                {productionUrl && (
-                  <div className="mt-3 pt-3 border-t border-neutral-200">
-                    <div className="flex items-center">
-                      <Link className="h-4 w-4 text-neutral-500 mr-2" />
-                      <span className="text-sm text-neutral-700 font-medium truncate">{productionUrl}</span>
-                    </div>
-                    <p className="text-xs text-neutral-500 mt-1">
-                      🌐 Official website URL (qurancircle.io)
-                    </p>
-                  </div>
-                )}
+                <p className="text-xs text-neutral-500 mt-1">
+                  🌐 Official website URL
+                </p>
               </div>
             )}
             
@@ -199,17 +170,6 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
               >
                 <span>📋</span> Copy Link to Clipboard
               </Button>
-              
-              {productionUrl && (
-                <Button 
-                  onClick={copyProductionUrl} 
-                  className="w-full flex items-center justify-center gap-2"
-                  variant="outline"
-                  disabled={shortUrlMutation.isPending}
-                >
-                  <span>🌐</span> Copy Website URL
-                </Button>
-              )}
               
               <a 
                 href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🌙 Join our blessed Quran reading circle! Let's read together ✨\n\n${productionUrl || shareUrl}`)}`}
