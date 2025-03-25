@@ -1,31 +1,91 @@
-import Mailjet from 'node-mailjet';
-import { User } from '@shared/schema';
-
-// Initialize Mailjet client with API credentials
-const mailjet = new Mailjet({
-  apiKey: process.env.MAILJET_API_KEY || '',
-  apiSecret: process.env.MAILJET_SECRET_KEY || ''
-});
+import { User } from "@shared/schema";
 
 export interface EmailService {
   sendPasswordResetEmail(user: User, token: string, resetUrl: string): Promise<void>;
 }
 
+/**
+ * Email service implementation using Mailjet API
+ */
 export class MailjetService implements EmailService {
+  private client: any;
+  private clientInitPromise: Promise<any> | null = null;
   private senderEmail: string;
   private senderName: string;
-
+  
   constructor(senderEmail: string = 'reset@quran.circle', senderName: string = 'Quran Circle') {
+    // Check if the required environment variables are set
+    if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_SECRET_KEY) {
+      console.warn('Mailjet API credentials are not set. Email functionality will not work.');
+    }
+    
     this.senderEmail = senderEmail;
     this.senderName = senderName;
+    
+    // Initialize the client if credentials are available
+    if (process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY) {
+      this.initClient();
+    }
   }
-
+  
+  private async initClient() {
+    if (this.clientInitPromise) {
+      return this.clientInitPromise;
+    }
+    
+    this.clientInitPromise = new Promise(async (resolve, reject) => {
+      try {
+        const mailjetModule = await import('node-mailjet');
+        const mailjet = mailjetModule.default || mailjetModule;
+        this.client = mailjet.apiConnect(
+          process.env.MAILJET_API_KEY!,
+          process.env.MAILJET_SECRET_KEY!
+        );
+        resolve(this.client);
+      } catch (error) {
+        console.error('Failed to initialize Mailjet client:', error);
+        reject(error);
+      }
+    });
+    
+    return this.clientInitPromise;
+  }
+  
   /**
    * Sends a password reset email to the user with a link containing the reset token
    */
   async sendPasswordResetEmail(user: User, token: string, resetUrl: string): Promise<void> {
     try {
-      const response = await mailjet.post('send', { version: 'v3.1' }).request({
+      // Initialize client if needed
+      if (!this.client) {
+        await this.initClient();
+      }
+      
+      // Create the HTML content for the email
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="color: #16a34a; margin-bottom: 5px;">Quran Circle</h1>
+            <p style="color: #64748b; font-size: 16px;">Password Reset Request</p>
+          </div>
+          <div style="margin-bottom: 30px;">
+            <p>Hello ${user.username || 'there'},</p>
+            <p>We received a request to reset your password for your Quran Circle account. Click the button below to set a new password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">Reset Your Password</a>
+            </div>
+            <p>If you didn't request this, you can safely ignore this email.</p>
+            <p>This link will expire in 1 hour.</p>
+          </div>
+          <div style="border-top: 1px solid #eaeaea; padding-top: 20px; font-size: 12px; color: #64748b;">
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="word-break: break-all;">${resetUrl}</p>
+          </div>
+        </div>
+      `;
+      
+      // Send email using Mailjet API
+      const request = this.client.post('send', { version: 'v3.1' }).request({
         Messages: [
           {
             From: {
@@ -34,66 +94,19 @@ export class MailjetService implements EmailService {
             },
             To: [
               {
-                Email: user.email || '',
-                Name: user.username
+                Email: user.email,
+                Name: user.username || user.email
               }
             ],
-            Subject: 'Reset Your Quran Circle Password',
-            TextPart: `
-Hello ${user.username},
-
-You recently requested to reset your password for your Quran Circle account. 
-Use the link below to reset it. This password reset link is only valid for 1 hour.
-
-${resetUrl}
-
-If you did not request a password reset, please ignore this email or contact support if you have questions.
-
-Warm regards,
-The Quran Circle Team
-            `,
-            HTMLPart: `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background-color: #4CAF50; padding: 20px; text-align: center; color: white; }
-    .content { padding: 20px; background-color: #f9f9f9; }
-    .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; 
-              text-decoration: none; border-radius: 4px; }
-    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Quran Circle Password Reset</h1>
-    </div>
-    <div class="content">
-      <p>Hello ${user.username},</p>
-      <p>You recently requested to reset your password for your Quran Circle account.</p>
-      <p>Click the button below to reset your password. This link is only valid for 1 hour.</p>
-      <p style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
-        <a href="${resetUrl}" class="button">Reset Your Password</a>
-      </p>
-      <p>If the button doesn't work, copy and paste this link into your browser:</p>
-      <p>${resetUrl}</p>
-      <p>If you did not request a password reset, please ignore this email or contact our support team if you have questions.</p>
-    </div>
-    <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} Quran Circle. All rights reserved.</p>
-    </div>
-  </div>
-</body>
-</html>
-            `
+            Subject: "Reset Your Quran Circle Password",
+            HTMLPart: htmlContent,
+            TextPart: `Hello ${user.username || 'there'},\n\nWe received a request to reset your password for your Quran Circle account. Please visit the following link to set a new password:\n\n${resetUrl}\n\nIf you didn't request this, you can safely ignore this email.\n\nThis link will expire in 1 hour.\n\nThe Quran Circle Team`
           }
         ]
       });
       
-      console.log('Password reset email sent successfully');
+      await request;
+      console.log(`Password reset email sent to ${user.email}`);
     } catch (error) {
       console.error('Error sending password reset email:', error);
       throw new Error('Failed to send password reset email');
@@ -101,5 +114,20 @@ The Quran Circle Team
   }
 }
 
-// Create a singleton instance of the email service
-export const emailService = new MailjetService();
+/**
+ * Mock email service for testing or when Mailjet is not set up
+ */
+export class MockEmailService implements EmailService {
+  async sendPasswordResetEmail(user: User, token: string, resetUrl: string): Promise<void> {
+    console.log(`[MOCK EMAIL] Password reset email for ${user.email}`);
+    console.log(`[MOCK EMAIL] Reset URL: ${resetUrl}`);
+    console.log(`[MOCK EMAIL] Token: ${token}`);
+    return Promise.resolve();
+  }
+}
+
+// Export a single instance based on environment
+export const emailService = process.env.NODE_ENV === 'production' || 
+                           (process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY) 
+                         ? new MailjetService()
+                         : new MockEmailService();

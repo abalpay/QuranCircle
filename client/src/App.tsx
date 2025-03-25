@@ -40,6 +40,12 @@ function AppContent() {
             <Route path="/event/:id">
               {() => <EventPage />}
             </Route>
+            <Route path="/forgot-password">
+              {() => <ForgotPasswordPage />}
+            </Route>
+            <Route path="/reset-password">
+              {() => <ResetPasswordPage />}
+            </Route>
             <ProtectedRoute path="/circles" component={() => <CirclesPage />} />
             <Route>
               {() => <NotFound />}

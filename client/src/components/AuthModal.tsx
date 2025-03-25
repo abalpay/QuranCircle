@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth, LoginData, RegisterData } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -153,6 +154,13 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                 >
                   {loginMutation.isPending ? "Logging in..." : "Login"}
                 </Button>
+                <div className="text-sm text-center mt-4">
+                  <Link href="/forgot-password" onClick={onClose}>
+                    <span className="text-sm text-primary hover:underline cursor-pointer">
+                      Forgot your password?
+                    </span>
+                  </Link>
+                </div>
               </form>
             </Form>
           </TabsContent>
