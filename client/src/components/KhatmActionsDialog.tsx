@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import { 
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ export default function KhatmActionsDialog({ khatm, eventId, isCreator: isCreato
   const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<"archive" | "unarchive" | "delete" | null>(null);
+  const [, setLocation] = useLocation();
   
   // Fetch event data to determine if current user is creator
   const { data: event } = useQuery<EventWithKhatms>({
@@ -121,10 +123,14 @@ export default function KhatmActionsDialog({ khatm, eventId, isCreator: isCreato
         duration: 3000
       });
       
-      // Refresh the event data
+      // Refresh the event data and redirect to home page
       queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
       setIsDialogOpen(false);
       setConfirmAction(null);
+      
+      // Redirect to home page after deleting the khatm
+      setLocation('/');
     },
     onError: (error: Error) => {
       console.error("Failed to delete khatm:", error);
