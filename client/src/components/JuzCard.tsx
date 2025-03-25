@@ -26,22 +26,16 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProp
   // Memoize event handlers to prevent unnecessary re-renders
   const handleCardClick = useCallback(() => {
     if (isUnclaimed) {
-      if (user) {
-        onClaim();
-      } else {
-        openAuthModal('login');
-      }
+      // Allow anonymous users to claim juz
+      onClaim();
     }
-  }, [isUnclaimed, user, onClaim, openAuthModal]);
+  }, [isUnclaimed, onClaim]);
   
   const handleClaimClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    if (user) {
-      onClaim();
-    } else {
-      openAuthModal('login');
-    }
-  }, [user, onClaim, openAuthModal]);
+    // Allow anonymous users to claim juz
+    onClaim();
+  }, [onClaim]);
   
   const handleMarkAsReadClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -115,7 +109,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProp
               size="sm"
               onClick={handleClaimClick}
             >
-              {user ? "Claim" : "Login to Claim"}
+              Claim
             </Button>
           ) : isClaimed && isOwner ? (
             <div className="flex flex-col gap-2">

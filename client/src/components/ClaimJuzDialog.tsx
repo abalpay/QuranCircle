@@ -23,14 +23,21 @@ export default function ClaimJuzDialog({
   defaultName = ""
 }: ClaimJuzDialogProps) {
   const { user } = useAuth();
-  const [name, setName] = useState(defaultName || "");
+  // Use user's username as default if logged in, otherwise use provided defaultName
+  const [name, setName] = useState(user ? user.username : (defaultName || ""));
   
-  // Reset name when the dialog opens with new defaultName
+  // Reset name when the dialog opens with new defaultName or user changes
   useEffect(() => {
-    if (isOpen && defaultName !== name) {
-      setName(defaultName || "");
+    if (isOpen) {
+      if (user) {
+        // If user is logged in, use their username
+        setName(user.username);
+      } else if (defaultName !== name) {
+        // Otherwise use the provided defaultName
+        setName(defaultName || "");
+      }
     }
-  }, [isOpen, defaultName, name]);
+  }, [isOpen, defaultName, name, user]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,12 +76,11 @@ export default function ClaimJuzDialog({
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your name"
               className="mt-1 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
-              disabled={!!user}
               required
             />
             {user && (
               <p className="text-xs text-gray-500 mt-1">
-                You're signed in, so we'll use your username automatically.
+                You're signed in, but you can use a different name if you prefer.
               </p>
             )}
           </div>
