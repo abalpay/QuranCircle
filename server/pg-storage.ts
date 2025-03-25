@@ -114,8 +114,12 @@ export class PgStorage implements IStorage {
     const creatorResult = await db.select().from(users).where(eq(users.id, event.createdBy));
     const creatorName = creatorResult.length ? creatorResult[0].username : "Unknown";
     
-    // Get all khatms for this event
-    const khatmsResult = await db.select().from(khatms).where(eq(khatms.eventId, id));
+    // Get all khatms for this event that are not deleted
+    const khatmsResult = await db.select().from(khatms)
+      .where(and(
+        eq(khatms.eventId, id),
+        eq(khatms.isDeleted, false)
+      ));
     
     // Prepare to track khatm statistics and juzs
     const khatmsWithJuzs: KhatmWithJuzs[] = [];
@@ -148,7 +152,10 @@ export class PgStorage implements IStorage {
   }
 
   async getEventsByUser(userId: number): Promise<Event[]> {
-    return await db.select().from(events).where(eq(events.createdBy, userId));
+    // First get all events created by this user
+    const userEvents = await db.select().from(events).where(eq(events.createdBy, userId));
+    
+    return userEvents;
   }
 
   async getAllEvents(): Promise<Event[]> {
@@ -175,7 +182,11 @@ export class PgStorage implements IStorage {
   }
 
   async getKhatmWithJuzs(id: number): Promise<KhatmWithJuzs | undefined> {
-    const khatmResult = await db.select().from(khatms).where(eq(khatms.id, id));
+    const khatmResult = await db.select().from(khatms)
+      .where(and(
+        eq(khatms.id, id),
+        eq(khatms.isDeleted, false)
+      ));
     if (!khatmResult.length) return undefined;
     
     const khatm = khatmResult[0];
@@ -292,8 +303,12 @@ export class PgStorage implements IStorage {
   }
 
   async checkAndCreateNewKhatm(eventId: number): Promise<Khatm | undefined> {
-    // Get all khatms for this event
-    const khatmsResult = await db.select().from(khatms).where(eq(khatms.eventId, eventId));
+    // Get all khatms for this event that are not deleted
+    const khatmsResult = await db.select().from(khatms)
+      .where(and(
+        eq(khatms.eventId, eventId),
+        eq(khatms.isDeleted, false)
+      ));
     
     // Check if each khatm has all juzs claimed
     for (const khatm of khatmsResult) {
