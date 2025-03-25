@@ -29,8 +29,12 @@ async function getCsrfToken(): Promise<string> {
     }
     
     const data = await response.json();
-    csrfToken = data.csrfToken;
-    return csrfToken;
+    const token = data.csrfToken;
+    if (typeof token !== 'string') {
+      throw new Error('Invalid CSRF token received');
+    }
+    csrfToken = token;
+    return token;
   } catch (error) {
     console.error('Error fetching CSRF token:', error);
     throw error;
@@ -43,17 +47,25 @@ export async function apiRequest<T = any>(
   body?: any,
   options?: Omit<ExtendedRequestInit, 'body' | 'method'>
 ): Promise<Response> {
-  // For non-GET methods, get CSRF token
-  const headers: Record<string, string> = {
-    ...(options?.headers || {}),
+  // Create a new headers object with the content type
+  const headersInit: Record<string, string> = {
     "Content-Type": "application/json",
   };
+  
+  // Add any custom headers from options
+  if (options?.headers) {
+    Object.entries(options.headers).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        headersInit[key] = value;
+      }
+    });
+  }
   
   // For state-changing methods, include CSRF token
   if (method !== 'GET') {
     try {
       const token = await getCsrfToken();
-      headers['X-CSRF-Token'] = token;
+      headersInit['X-CSRF-Token'] = token;
     } catch (error) {
       console.error('Failed to include CSRF token:', error);
       // Continue without token, server will reject if needed
@@ -63,7 +75,7 @@ export async function apiRequest<T = any>(
   const res = await fetch(url, {
     ...options,
     method,
-    headers,
+    headers: headersInit,
     credentials: "include",
     body: body && typeof body !== 'string' 
       ? JSON.stringify(body) 

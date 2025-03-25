@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -14,6 +14,11 @@ export const users = pgTable("users", {
   // Password reset fields
   resetToken: text("reset_token"),
   resetTokenExpiry: timestamp("reset_token_expiry"),
+}, (table) => {
+  return {
+    resetTokenIdx: index("users_reset_token_idx").on(table.resetToken),
+    emailProviderIdx: index("users_email_provider_idx").on(table.email, table.providerType)
+  };
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -35,6 +40,12 @@ export const events = pgTable("events", {
   createdBy: integer("created_by").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   shortCode: text("short_code").unique(),
+}, (table) => {
+  return {
+    createdByIdx: index("events_created_by_idx").on(table.createdBy),
+    shortCodeIdx: index("events_short_code_idx").on(table.shortCode),
+    deadlineIdx: index("events_deadline_idx").on(table.deadline)
+  };
 });
 
 // Create the basic schema from Drizzle ORM
