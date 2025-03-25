@@ -11,7 +11,10 @@ import {
   claimMultipleJuzSchema,
   markJuzAsReadSchema,
   unclaimJuzSchema,
-  unmarkJuzAsReadSchema
+  unmarkJuzAsReadSchema,
+  archiveKhatmSchema,
+  unarchiveKhatmSchema,
+  deleteKhatmSchema
 } from "@shared/schema";
 
 // Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
@@ -483,6 +486,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error unmarking juz:", error);
       res.status(400).json({ message: "Invalid data" });
+    }
+  });
+
+  // Khatm Management API Endpoints
+  
+  // Archive a khatm (only available to event creator)
+  app.post("/api/khatm/archive", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { khatmId } = archiveKhatmSchema.parse(req.body);
+      
+      // Get khatm and check if it exists
+      const khatm = await storage.getKhatm(khatmId);
+      if (!khatm) {
+        return res.status(404).json({ message: "Khatm not found" });
+      }
+      
+      // Check if the user is the event creator
+      const event = await storage.getEvent(khatm.eventId);
+      if (!event || event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "Only the event creator can archive this khatm" });
+      }
+      
+      // Archive the khatm
+      const archivedKhatm = await storage.archiveKhatm(khatmId);
+      if (!archivedKhatm) {
+        return res.status(500).json({ message: "Failed to archive khatm" });
+      }
+      
+      res.status(200).json({ khatm: archivedKhatm });
+    } catch (error) {
+      console.error("Error archiving khatm:", error);
+      res.status(400).json({ message: "Invalid request" });
+    }
+  });
+  
+  // Unarchive a khatm (only available to event creator)
+  app.post("/api/khatm/unarchive", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { khatmId } = unarchiveKhatmSchema.parse(req.body);
+      
+      // Get khatm and check if it exists
+      const khatm = await storage.getKhatm(khatmId);
+      if (!khatm) {
+        return res.status(404).json({ message: "Khatm not found" });
+      }
+      
+      // Check if the khatm is actually archived
+      if (!khatm.isArchived) {
+        return res.status(400).json({ message: "This khatm is not archived" });
+      }
+      
+      // Check if the user is the event creator
+      const event = await storage.getEvent(khatm.eventId);
+      if (!event || event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "Only the event creator can unarchive this khatm" });
+      }
+      
+      // Unarchive the khatm
+      const unarchivedKhatm = await storage.unarchiveKhatm(khatmId);
+      if (!unarchivedKhatm) {
+        return res.status(500).json({ message: "Failed to unarchive khatm" });
+      }
+      
+      res.status(200).json({ khatm: unarchivedKhatm });
+    } catch (error) {
+      console.error("Error unarchiving khatm:", error);
+      res.status(400).json({ message: "Invalid request" });
+    }
+  });
+  
+  // Delete a khatm (only available to event creator)
+  app.post("/api/khatm/delete", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { khatmId } = deleteKhatmSchema.parse(req.body);
+      
+      // Get khatm and check if it exists
+      const khatm = await storage.getKhatm(khatmId);
+      if (!khatm) {
+        return res.status(404).json({ message: "Khatm not found" });
+      }
+      
+      // Check if the user is the event creator
+      const event = await storage.getEvent(khatm.eventId);
+      if (!event || event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "Only the event creator can delete this khatm" });
+      }
+      
+      // Delete the khatm (soft delete)
+      const deletedKhatm = await storage.deleteKhatm(khatmId);
+      if (!deletedKhatm) {
+        return res.status(500).json({ message: "Failed to delete khatm" });
+      }
+      
+      res.status(200).json({ khatm: deletedKhatm });
+    } catch (error) {
+      console.error("Error deleting khatm:", error);
+      res.status(400).json({ message: "Invalid request" });
     }
   });
 
