@@ -78,7 +78,7 @@ export default function Header() {
         </div>
         
         {/* Center section - Logo on mobile */}
-        <div className="flex items-center justify-center md:justify-start md:w-2/4">
+        <div className="flex items-center justify-center md:justify-center md:w-2/4">
           <div className="md:hidden">
             <Link href="/">
               <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
@@ -87,20 +87,12 @@ export default function Header() {
             </Link>
           </div>
           
-          <div className="hidden md:flex max-w-md w-full mx-4 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
-            </div>
-            <Input 
-              type="search" 
-              placeholder="Search for circles" 
-              className="pl-10 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
-              onClick={() => toast({
-                title: "Feature Disabled",
-                description: "Search functionality is coming in a future update."
-              })}
-              readOnly
-            />
+          <div className="hidden md:block">
+            <Link href="/">
+              <span className="text-xl font-heading font-bold cursor-pointer text-[hsl(var(--quran-green))]">
+                Quran<span className="text-black">.circle</span>
+              </span>
+            </Link>
           </div>
         </div>
         
@@ -171,18 +163,7 @@ export default function Header() {
             </Button>
           )}
           
-          {/* Mobile-only search button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-gray-700 md:hidden"
-            onClick={() => toast({
-              title: "Feature Disabled",
-              description: "Search functionality is coming in a future update."
-            })}
-          >
-            <Search className="h-5 w-5" />
-          </Button>
+          {/* No mobile search button */}
         </div>
       </div>
     </header>

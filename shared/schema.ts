@@ -117,12 +117,18 @@ export const unclaimJuzSchema = z.object({
   juzNumber: z.number(),
 });
 
+export const unmarkJuzAsReadSchema = z.object({
+  khatmId: z.number(),
+  juzNumber: z.number(),
+});
+
 export type InsertJuz = z.infer<typeof insertJuzSchema>;
 export type Juz = typeof juzs.$inferSelect;
 export type ClaimJuzInput = z.infer<typeof claimJuzSchema>;
 export type ClaimMultipleJuzInput = z.infer<typeof claimMultipleJuzSchema>;
 export type MarkJuzAsReadInput = z.infer<typeof markJuzAsReadSchema>;
 export type UnclaimJuzInput = z.infer<typeof unclaimJuzSchema>;
+export type UnmarkJuzAsReadInput = z.infer<typeof unmarkJuzAsReadSchema>;
 
 // Extended types for API responses
 export type KhatmWithJuzs = Khatm & {
