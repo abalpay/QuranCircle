@@ -50,8 +50,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if the event already has a short code
       if (event.shortCode) {
-        // Use a consistent clean domain for short URLs
-        const baseUrl = "https://quran.circle";
+        // Use the specified domain for short URLs
+        const baseUrl = "https://qurancircle.io";
         const shortUrl = createShortUrl(baseUrl, event.shortCode);
         return res.json({ shortCode: event.shortCode, shortUrl });
       }
@@ -66,16 +66,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to create short URL" });
       }
       
-      // Create the full short URL - use a clean domain name
-      // In development or when deployed to Replit, we'll use a cleaner format
-      // Note: In production, you would use your actual domain (e.g., quran.circle)
-      const baseUrl = "https://quran.circle";
+      // Create the full short URL with the specified domain
+      const baseUrl = "https://qurancircle.io";
       const shortUrl = createShortUrl(baseUrl, shortCode);
       
       res.json({ shortCode, shortUrl });
     } catch (error) {
       console.error("Error creating short URL:", error);
       res.status(500).json({ message: "Error creating short URL" });
+    }
+  });
+
+  // Endpoint to get event by short code
+  app.get("/api/events/shortcode/:shortCode", async (req: Request, res: Response) => {
+    try {
+      const { shortCode } = req.params;
+      const event = await storage.getEventByShortCode(shortCode);
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      res.json(event);
+    } catch (error) {
+      console.error("Error getting event by short code:", error);
+      res.status(500).json({ message: "Server error" });
     }
   });
 
