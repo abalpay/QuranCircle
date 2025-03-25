@@ -19,8 +19,8 @@ export class MailjetService implements EmailService {
       console.warn('Mailjet API credentials are not set. Email functionality will not work.');
     }
     
-    // Explicitly use info@qurancircle.io as the sender email
-    this.senderEmail = 'info@qurancircle.io';
+    // Explicitly use admin@qurancircle.io as the sender email
+    this.senderEmail = 'admin@qurancircle.io';
     this.senderName = senderName;
     
     console.log(`Mailjet initialized with sender: ${this.senderEmail}`);
