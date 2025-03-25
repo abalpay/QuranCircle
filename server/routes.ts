@@ -7,7 +7,8 @@ import {
   claimJuzSchema,
   claimMultipleJuzSchema,
   markJuzAsReadSchema,
-  unclaimJuzSchema
+  unclaimJuzSchema,
+  unmarkJuzAsReadSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -282,6 +283,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json({ juz: updatedJuz });
     } catch (error) {
       console.error("Error unclaiming juz:", error);
+      res.status(400).json({ message: "Invalid data" });
+    }
+  });
+
+  // Endpoint for unmarking a Juz as read (changing from 'read' back to 'claimed')
+  app.post("/api/juz/unmark-read", async (req: Request, res: Response) => {
+    try {
+      const { khatmId, juzNumber } = unmarkJuzAsReadSchema.parse(req.body);
+      
+      // Check if this juz exists and is in read status
+      const juz = await storage.getJuz(khatmId, juzNumber);
+      
+      if (!juz) {
+        return res.status(404).json({ message: "Juz not found" });
+      }
+      
+      if (juz.status !== 'read') {
+        return res.status(400).json({ message: "This Juz is not marked as read" });
+      }
+      
+      // Allow both authenticated and anonymous users to unmark juz as read
+      // For authenticated users, check if they're the event creator or claimer
+      if (req.isAuthenticated() && juz.claimedByUserId && juz.claimedByUserId !== req.user!.id) {
+        const khatm = await storage.getKhatm(khatmId);
+        if (khatm) {
+          const event = await storage.getEvent(khatm.eventId);
+          if (event && event.createdBy !== req.user!.id) {
+            return res.status(403).json({ message: "Only the claimer or event creator can unmark this Juz" });
+          }
+        }
+      }
+      // For anonymous users, we'll allow unmarking - this is a trust-based system
+      
+      // Change the juz status from 'read' back to 'claimed'
+      const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
+        status: 'claimed',
+        readAt: null
+      });
+      
+      if (!updatedJuz) {
+        return res.status(500).json({ message: "Failed to unmark Juz as read" });
+      }
+      
+      res.status(200).json({ juz: updatedJuz });
+    } catch (error) {
+      console.error("Error unmarking juz:", error);
       res.status(400).json({ message: "Invalid data" });
     }
   });

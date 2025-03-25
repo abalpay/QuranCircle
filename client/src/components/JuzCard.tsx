@@ -11,11 +11,12 @@ type JuzCardProps = {
   juz: Juz;
   onClaim: () => void;
   onMarkAsRead: () => void;
+  onUnmarkAsRead: () => void;
   onUnclaim: () => void;
   isOwner: boolean;
 };
 
-function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProps) {
+function JuzCard({ juz, onClaim, onMarkAsRead, onUnmarkAsRead, onUnclaim, isOwner }: JuzCardProps) {
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [location, navigate] = useLocation();
@@ -46,6 +47,11 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProp
     e.stopPropagation();
     onUnclaim();
   }, [onUnclaim]);
+  
+  const handleUnmarkAsReadClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onUnmarkAsRead();
+  }, [onUnmarkAsRead]);
   
   return (
     <div 
@@ -101,7 +107,7 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProp
       </div>
       
       {/* Hover overlay for actions */}
-      {(isUnclaimed || isClaimed) && (
+      {(isUnclaimed || isClaimed || isRead) && (
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
           {isUnclaimed ? (
             <Button 
@@ -119,6 +125,25 @@ function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProp
                 onClick={handleMarkAsReadClick}
               >
                 Mark as Read
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                className="border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
+                onClick={handleUnclaimClick}
+              >
+                Unclaim
+              </Button>
+            </div>
+          ) : isRead ? (
+            <div className="flex flex-col gap-2">
+              <Button 
+                variant="outline"
+                size="sm"
+                className="border-yellow-500 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
+                onClick={handleUnmarkAsReadClick}
+              >
+                Unmark as Read
               </Button>
               <Button 
                 variant="outline"

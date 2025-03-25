@@ -7,6 +7,7 @@ import { useState, useCallback, memo, useMemo } from "react";
 import ClaimJuzDialog from "./ClaimJuzDialog";
 import MarkAsReadDialog from "./MarkAsReadDialog";
 import UnclaimDialog from "./UnclaimDialog";
+import UnmarkReadDialog from "./UnmarkReadDialog";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const [isReadDialogOpen, setIsReadDialogOpen] = useState(false);
   const [isUnclaimDialogOpen, setIsUnclaimDialogOpen] = useState(false);
+  const [isUnmarkReadDialogOpen, setIsUnmarkReadDialogOpen] = useState(false);
   
   // Memoize calculated values to prevent recalculation on every render
   const progressPercentage = useMemo(() => 
