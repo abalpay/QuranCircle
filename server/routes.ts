@@ -16,7 +16,12 @@ import {
   unmarkJuzAsReadSchema,
   archiveKhatmSchema,
   unarchiveKhatmSchema,
-  deleteKhatmSchema
+  deleteKhatmSchema,
+  Event,
+  EventWithKhatms,
+  KhatmWithJuzs,
+  Khatm,
+  Juz
 } from "@shared/schema";
 
 // Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
@@ -325,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (event.createdBy) {
             const creator = await storage.getUser(event.createdBy);
             if (creator) {
-              creatorName = creator.name || creator.username;
+              creatorName = creator.username;
             }
           }
           
@@ -337,7 +342,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Cache the enriched events
-        cache.set(cacheKey, enrichedEvents, CACHE_TTL.MINUTES_5);
+        cache.set(cacheKey, enrichedEvents, CACHE_TTL.MINUTE * 5);
         
         return res.status(200).json(enrichedEvents);
       }

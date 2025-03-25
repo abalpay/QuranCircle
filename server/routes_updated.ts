@@ -213,8 +213,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(201).json(eventWithKhatms);
     } catch (error) {
       console.error("Error creating event:", error);
-      if (error.name === "ZodError") {
-        return res.status(400).json({ message: "Invalid event data", errors: error.errors });
+      if (error && typeof error === 'object' && 'name' in error && error.name === "ZodError") {
+        return res.status(400).json({ message: "Invalid event data", errors: (error as any).errors });
       }
       return res.status(400).json({ message: "Invalid event data" });
     }
