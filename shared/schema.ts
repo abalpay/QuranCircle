@@ -34,6 +34,7 @@ export const events = pgTable("events", {
   deadline: timestamp("deadline"),
   createdBy: integer("created_by").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  shortCode: text("short_code").unique(),
 });
 
 // Create the basic schema from Drizzle ORM
