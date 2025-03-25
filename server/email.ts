@@ -19,8 +19,11 @@ export class MailjetService implements EmailService {
       console.warn('Mailjet API credentials are not set. Email functionality will not work.');
     }
     
-    this.senderEmail = senderEmail;
+    // Use the sender's email from environment variable if available
+    this.senderEmail = process.env.MAILJET_SENDER_EMAIL || senderEmail;
     this.senderName = senderName;
+    
+    console.log(`Mailjet initialized with sender: ${this.senderEmail}`);
     
     // Initialize the client if credentials are available
     if (process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY) {
@@ -35,12 +38,16 @@ export class MailjetService implements EmailService {
     
     this.clientInitPromise = new Promise(async (resolve, reject) => {
       try {
+        // Using dynamic import for ES modules
         const mailjetModule = await import('node-mailjet');
-        const mailjet = mailjetModule.default || mailjetModule;
-        this.client = mailjet.apiConnect(
+        // Handle both default and named exports
+        const Mailjet = mailjetModule.default || mailjetModule;
+        
+        this.client = Mailjet.apiConnect(
           process.env.MAILJET_API_KEY!,
           process.env.MAILJET_SECRET_KEY!
         );
+        console.log('Mailjet client initialized successfully');
         resolve(this.client);
       } catch (error) {
         console.error('Failed to initialize Mailjet client:', error);
@@ -84,8 +91,8 @@ export class MailjetService implements EmailService {
         </div>
       `;
       
-      // Send email using Mailjet API
-      const request = this.client.post('send', { version: 'v3.1' }).request({
+      // Prepare email data according to Mailjet API v3.1
+      const data = {
         Messages: [
           {
             From: {
@@ -103,12 +110,27 @@ export class MailjetService implements EmailService {
             TextPart: `Hello ${user.username || 'there'},\n\nWe received a request to reset your password for your Quran Circle account. Please visit the following link to set a new password:\n\n${resetUrl}\n\nIf you didn't request this, you can safely ignore this email.\n\nThis link will expire in 1 hour.\n\nThe Quran Circle Team`
           }
         ]
-      });
+      };
       
-      await request;
-      console.log(`Password reset email sent to ${user.email}`);
-    } catch (error) {
+      console.log(`Attempting to send email to ${user.email} from ${this.senderEmail}`);
+      
+      // Send email using Mailjet API
+      const response = await this.client
+        .post('send', { version: 'v3.1' })
+        .request(data);
+      
+      console.log(`Password reset email sent to ${user.email}. Mailjet response status: ${response.status}`);
+      
+      // Log more detailed response info for debugging
+      if (response.body) {
+        console.log('Mailjet response:', JSON.stringify(response.body));
+      }
+      
+    } catch (error: any) {
       console.error('Error sending password reset email:', error);
+      if (error && error.response) {
+        console.error('Mailjet API error response:', JSON.stringify(error.response.data));
+      }
       throw new Error('Failed to send password reset email');
     }
   }

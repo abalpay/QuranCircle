@@ -1,6 +1,17 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import * as dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
+
+console.log("Environment variables loaded");
+if (process.env.MAILJET_API_KEY) {
+  console.log("Mailjet API key is configured");
+} else {
+  console.log("Mailjet API key is not set");
+}
 
 const app = express();
 app.use(express.json());
