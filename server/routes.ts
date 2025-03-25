@@ -192,8 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create an initial khatm for the event
       const khatm = await storage.createKhatm({
         eventId: event.id,
-        name: "Khatm #1",
-        status: "active"
+        khatmNumber: 1
       });
       
       if (!khatm) {
@@ -350,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.isAuthenticated() ? req.user!.id : null;
       const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
         status: 'claimed',
-        claimedBy: claimerName,
+        claimedByName: claimerName,
         claimedByUserId: userId,
         claimedAt: new Date()
       });
@@ -471,7 +470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const userId = req.isAuthenticated() ? req.user!.id : null;
         const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
           status: 'claimed',
-          claimedBy: claimerName,
+          claimedByName: claimerName,
           claimedByUserId: userId,
           claimedAt: new Date()
         });
@@ -546,7 +545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Unclaim the juz
       const updatedJuz = await storage.updateJuz(khatmId, juzNumber, {
         status: 'unclaimed',
-        claimedBy: null,
+        claimedByName: null,
         claimedByUserId: null,
         claimedAt: null,
         readAt: null
