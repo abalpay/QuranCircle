@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, QueryClient } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { Loader2, Info } from "lucide-react";
 import { EventWithKhatms } from "@shared/schema";
@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import CircleSettingsDialog from "@/components/CircleSettingsDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
+import { queryClient } from "@/lib/queryClient";
 
 // WebSocket message types
 enum WebSocketMessageType {
@@ -153,10 +154,38 @@ export default function EventPage() {
           case WebSocketMessageType.JUZ_UNREAD:
           case WebSocketMessageType.KHATM_CREATED:
           case WebSocketMessageType.KHATM_ARCHIVED:
+            // For basic updates, refetch the data
+            refetch();
+            break;
+            
           case WebSocketMessageType.KHATM_UNARCHIVED:
+            console.log("Khatm unarchived, refreshing event data");
+            refetch();
+            break;
+            
           case WebSocketMessageType.KHATM_DELETED:
+            console.log("Khatm deleted, refreshing event data", message.payload);
+            
+            // Add debug info about the payload received
+            if (message.payload && message.payload.khatmId) {
+              console.log(`Received khatm deletion notification for khatmId: ${message.payload.khatmId}, eventId: ${message.payload.eventId}`);
+            }
+            
+            // For khatm deletion, need to completely refresh the data without relying on the cache
+            queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
+            
+            // If this deletion is for the currently viewed event, refetch with delay
+            if (!message.payload.eventId || message.payload.eventId === eventId) {
+              setTimeout(() => {
+                refetch()
+                  .then(() => console.log("Successfully refetched event data after khatm deletion"))
+                  .catch(err => console.error("Error refetching event data after khatm deletion:", err));
+              }, 250);
+            }
+            break;
+            
           case WebSocketMessageType.EVENT_UPDATED:
-            // For any event updates, refetch the data
+            console.log("Event updated, refreshing event data");
             refetch();
             break;
           

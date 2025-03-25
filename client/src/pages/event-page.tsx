@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import CircleSettingsDialog from "@/components/CircleSettingsDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
+import { queryClient } from "@/lib/queryClient";
 
 // WebSocket message types
 enum WebSocketMessageType {
