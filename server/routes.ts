@@ -16,9 +16,17 @@ import {
   unarchiveKhatmSchema,
   deleteKhatmSchema
 } from "@shared/schema";
+import { cache } from "./cache";
 
 // Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
 const storage = process.env.DATABASE_URL ? pgStorage : memStorage;
+
+// Cache TTL constants (in milliseconds)
+const CACHE_TTL = {
+  EVENT: 5 * 60 * 1000,        // 5 minutes for event data
+  EVENT_SHORT: 10 * 60 * 1000, // 10 minutes for short code lookups
+  EVENT_LIST: 2 * 60 * 1000    // 2 minutes for event lists
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
@@ -110,7 +118,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { shortCode } = req.params;
       console.log(`[API] Looking up event by short code: ${shortCode}`);
       
-      const event = await storage.getEventByShortCode(shortCode);
+      // Cache shortcode lookups with a longer TTL as they rarely change once created
+      const event = await cache.getOrSet(
+        `shortcode:${shortCode}`,
+        async () => storage.getEventByShortCode(shortCode),
+        CACHE_TTL.EVENT_SHORT
+      );
       
       if (!event) {
         console.log(`[API] No event found for short code: ${shortCode}`);
@@ -158,7 +171,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/events/:id", async (req: Request, res: Response) => {
     try {
       const eventId = parseInt(req.params.id);
-      const event = await storage.getEventWithKhatms(eventId);
+      
+      // Use cache with a 5-min TTL for event data to reduce database load
+      const event = await cache.getOrSet(
+        `event:${eventId}`,
+        async () => storage.getEventWithKhatms(eventId),
+        CACHE_TTL.EVENT
+      );
       
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -240,6 +259,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to update event" });
       }
       
+      // Clear cache entries for this event to ensure fresh data is fetched
+      cache.delete(`event:${eventId}`);
+      
+      // If this event has a shortcode, clear that cache entry too
+      if (updatedEvent.shortCode) {
+        cache.delete(`shortcode:${updatedEvent.shortCode}`);
+      }
+      
       res.json(updatedEvent);
     } catch (error) {
       console.error("Error updating event:", error);
@@ -278,6 +305,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if all juzs are claimed in this khatm
       const khatm = await storage.getKhatm(khatmId);
       if (khatm) {
+        // Since claiming and reading juzs modifies the khatm state, we need to invalidate event cache
+        // to ensure the khatm changes are reflected on next event fetch
+        cache.delete(`event:${khatm.eventId}`);
+        
         const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
         
         // Return the updated juz and info about new khatm if created

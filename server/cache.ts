@@ -71,11 +71,12 @@ class Cache {
    * @param keyPrefix The prefix to match
    */
   deleteByPrefix(keyPrefix: string): void {
-    for (const key of this.cache.keys()) {
+    // Convert keys() iterator to array to avoid iterator issues
+    Array.from(this.cache.keys()).forEach(key => {
       if (key.startsWith(keyPrefix)) {
         this.cache.delete(key);
       }
-    }
+    });
   }
   
   /**

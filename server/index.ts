@@ -40,9 +40,11 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests, please try again later.",
-  skipSuccessfulRequests: true, // Skip successful requests to allow more reads
-  trustProxy: true
+  skipSuccessfulRequests: true // Skip successful requests to allow more reads
 });
+
+// Enable trust proxy to get correct client IP behind proxies
+app.set('trust proxy', true);
 
 // Registration rate limit
 const registerLimiter = rateLimit({
