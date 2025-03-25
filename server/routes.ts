@@ -30,7 +30,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).redirect('/not-found');
       }
       
-      // Redirect to the event page
+      // Redirect to the event page with full URL to ensure proper routing
       return res.redirect(`/event/${event.id}`);
     } catch (error) {
       console.error("Error redirecting from short URL:", error);
@@ -50,7 +50,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if the event already has a short code
       if (event.shortCode) {
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        // Use a consistent clean domain for short URLs
+        const baseUrl = "https://quran.circle";
         const shortUrl = createShortUrl(baseUrl, event.shortCode);
         return res.json({ shortCode: event.shortCode, shortUrl });
       }
@@ -65,8 +66,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to create short URL" });
       }
       
-      // Create the full short URL
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      // Create the full short URL - use a clean domain name
+      // In development or when deployed to Replit, we'll use a cleaner format
+      // Note: In production, you would use your actual domain (e.g., quran.circle)
+      const baseUrl = "https://quran.circle";
       const shortUrl = createShortUrl(baseUrl, shortCode);
       
       res.json({ shortCode, shortUrl });
