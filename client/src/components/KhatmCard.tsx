@@ -20,10 +20,11 @@ type KhatmCardProps = {
   khatm: KhatmWithJuzs;
   onNewKhatmCreated?: () => void;
   eventId: number;
+  isCreator?: boolean;
 };
 
 // Define the component separately so we can wrap it with memo
-function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProps) {
+function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId, isCreator }: KhatmCardProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
@@ -294,7 +295,7 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId }: KhatmCardProp
             <KhatmActionsDialog 
               khatm={khatm} 
               eventId={eventId} 
-              isCreator={false} // This will be properly controlled in KhatmActionsDialog
+              isCreator={isCreator}
             />
           </div>
         </div>

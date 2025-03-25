@@ -110,7 +110,7 @@ export default function EventPage() {
     );
   }
 
-  const isEventCreator = user && user.id === event.createdBy;
+  const isEventCreator = user && user.id === event.createdBy ? true : false;
 
   return (
     <div>
@@ -151,6 +151,7 @@ export default function EventPage() {
           khatm={khatm}
           onNewKhatmCreated={handleNewKhatmCreated}
           eventId={eventId}
+          isCreator={isEventCreator}
         />
       ))}
 
