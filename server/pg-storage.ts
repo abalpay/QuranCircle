@@ -82,7 +82,16 @@ export class PgStorage implements IStorage {
 
   // Event Methods
   async createEvent(event: InsertEvent): Promise<Event> {
-    const result = await db.insert(events).values(event).returning();
+    // Make sure we have a valid object with the required fields
+    const eventData = {
+      name: event.name,
+      description: event.description,
+      isPublic: event.isPublic,
+      deadline: event.deadline,
+      createdBy: event.createdBy || 0 // Default to 0 if createdBy is not provided
+    };
+    
+    const result = await db.insert(events).values(eventData).returning();
     return result[0];
   }
 
@@ -151,23 +160,83 @@ export class PgStorage implements IStorage {
     };
   }
 
-  async getEventsByUser(userId: number): Promise<Event[]> {
+  async getEventsByUser(userId: number): Promise<EventWithKhatms[]> {
     try {
       // Get all events created by this user
-      const userEvents = await db.select().from(events)
+      const userCreatedEvents = await db.select().from(events)
         .where(eq(events.createdBy, userId))
         .orderBy(desc(events.createdAt));
+      
+      // Get all events the user has participated in by claiming juzs
+      // First, get all juzs the user has claimed
+      const userJuzs = await db.select()
+        .from(juzs)
+        .where(eq(juzs.claimedByUserId, userId));
+      
+      // Extract khatm IDs from the juzs
+      const khatmIdSet = new Set(userJuzs.map(juz => juz.khatmId));
+      const khatmIds = Array.from(khatmIdSet);
+      
+      // Get the khatms for those juz claims
+      const userKhatms: Khatm[] = [];
+      for (const khatmId of khatmIds) {
+        const khatm = await this.getKhatm(khatmId);
+        if (khatm && !khatm.isDeleted) {
+          userKhatms.push(khatm);
+        }
+      }
+      
+      // Extract event IDs from khatms
+      const participatedEventIdSet = new Set(userKhatms.map(khatm => khatm.eventId));
+      const participatedEventIds = Array.from(participatedEventIdSet);
+      
+      // Get the events for those khatms
+      const participatedEvents: Event[] = [];
+      for (const eventId of participatedEventIds) {
+        const event = await this.getEvent(eventId);
+        if (event) {
+          participatedEvents.push(event);
+        }
+      }
       
       // Create a Map to deduplicate events
       const eventsMap = new Map<number, Event>();
       
       // Add user-created events to the map
-      userEvents.forEach(event => {
+      userCreatedEvents.forEach(event => {
         eventsMap.set(event.id, event);
       });
       
-      // Return the combined, deduplicated list of events
-      return Array.from(eventsMap.values());
+      // Add events the user has participated in
+      participatedEvents.forEach(event => {
+        if (!eventsMap.has(event.id)) {
+          eventsMap.set(event.id, event);
+        }
+      });
+      
+      // Get the list of unique event IDs
+      const eventIds = Array.from(eventsMap.keys());
+      
+      // Build the enriched events with khatms and juzs
+      const enrichedEvents: EventWithKhatms[] = [];
+      
+      for (const eventId of eventIds) {
+        const event = eventsMap.get(eventId);
+        if (!event) continue;
+        
+        // Get the event with all its khatms and juzs
+        const eventWithKhatms = await this.getEventWithKhatms(eventId);
+        if (eventWithKhatms) {
+          enrichedEvents.push(eventWithKhatms);
+        }
+      }
+      
+      // Sort by most recently created
+      enrichedEvents.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      
+      return enrichedEvents;
     } catch (error) {
       console.error("Error in getEventsByUser:", error);
       return [];

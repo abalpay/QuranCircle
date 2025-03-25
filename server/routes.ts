@@ -300,46 +300,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(200).json(cachedEvents);
         }
         
-        // Get events from storage with their khatms
-        const userEvents = await storage.getEventsByUser(userId);
-        
-        // For each event, get its khatms and enrich the response
-        const enrichedEvents: EventWithKhatms[] = [];
-        
-        for (const event of userEvents) {
-          const khatms = await storage.getKhatmsByEventId(event.id);
-          
-          // For each khatm, get its juz information
-          const khatmsWithJuzs: KhatmWithJuzs[] = [];
-          
-          for (const khatm of khatms) {
-            const juzs = await storage.getJuzsByKhatmId(khatm.id);
-            const claimedCount = juzs.filter(juz => juz.status !== 'unclaimed').length;
-            const readCount = juzs.filter(juz => juz.status === 'read').length;
-            
-            khatmsWithJuzs.push({
-              ...khatm,
-              juzs,
-              claimedCount,
-              readCount
-            });
-          }
-          
-          // Add creator name
-          let creatorName = "Anonymous";
-          if (event.createdBy) {
-            const creator = await storage.getUser(event.createdBy);
-            if (creator) {
-              creatorName = creator.username;
-            }
-          }
-          
-          enrichedEvents.push({
-            ...event,
-            khatms: khatmsWithJuzs,
-            creatorName
-          });
-        }
+        // Get enriched events from storage with khatms and juzs
+        const enrichedEvents = await storage.getEventsByUser(userId);
         
         // Cache the enriched events
         cache.set(cacheKey, enrichedEvents, CACHE_TTL.MINUTE * 5);
