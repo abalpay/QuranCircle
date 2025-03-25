@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useAuthModal } from "@/hooks/use-auth-modal";
 
 type KhatmCardProps = {
   khatm: KhatmWithJuzs;
@@ -21,6 +22,7 @@ type KhatmCardProps = {
 export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCardProps) {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   
   // Dialog state
   const [selectedJuz, setSelectedJuz] = useState<{ khatmId: number; juzNumber: number } | null>(null);
@@ -256,7 +258,7 @@ export default function KhatmCard({ khatm, onNewKhatmCreated, eventId }: KhatmCa
             ) : (
               <Button 
                 className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
-                onClick={() => window.location.href = "/auth"}
+                onClick={() => openAuthModal('login')}
               >
                 Sign In to Claim
               </Button>

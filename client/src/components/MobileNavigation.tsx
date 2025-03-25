@@ -10,6 +10,7 @@ export default function MobileNavigation() {
   const [location] = useLocation();
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   
   // Don't show nav bar for authenticated users
   if (user) return null;
@@ -37,15 +38,14 @@ export default function MobileNavigation() {
             <span className="text-xs mt-1">New Event</span>
           </button>
           
-          <Link href="/auth">
-            <div className={cn(
-              "flex flex-col items-center py-3 px-5 cursor-pointer",
-              location === "/auth" ? "text-primary" : "text-neutral-700"
-            )}>
-              <UserCircle size={20} />
-              <span className="text-xs mt-1">Account</span>
-            </div>
-          </Link>
+          <button
+            type="button"
+            onClick={() => openAuthModal('login')}
+            className="flex flex-col items-center py-3 px-5 text-neutral-700"
+          >
+            <UserCircle size={20} />
+            <span className="text-xs mt-1">Account</span>
+          </button>
         </div>
       </nav>
       
