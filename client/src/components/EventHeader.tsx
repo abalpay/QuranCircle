@@ -100,13 +100,30 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
           </DialogHeader>
           <div className="py-4">
             <p className="mb-2">Share this link with others to invite them to join:</p>
-            <div className="flex items-center p-2 border rounded bg-slate-50">
-              <span className="truncate flex-1">{window.location.href}</span>
+            <div className="flex flex-col gap-4">
+              <Button 
+                onClick={copyToClipboard} 
+                className="w-full"
+                variant="outline"
+              >
+                Copy Link
+              </Button>
+              
+              <a 
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Join my Quran reading circle: ${window.location.href}`)}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full"
+              >
+                <Button 
+                  className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white"
+                  type="button"
+                >
+                  Share via WhatsApp
+                </Button>
+              </a>
             </div>
           </div>
-          <DialogFooter>
-            <Button onClick={copyToClipboard}>Copy Link</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

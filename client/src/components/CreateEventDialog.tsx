@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -30,7 +30,6 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [calendarOpen, setCalendarOpen] = useState(false);
   
@@ -62,7 +61,6 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
   const resetForm = () => {
     setName("");
     setDescription("");
-    setIsPublic(false);
     setDate(undefined);
   };
   
@@ -92,7 +90,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
     createEventMutation.mutate({
       name: name.trim(),
       description: description.trim() || undefined,
-      isPublic,
+      isPublic: false, // All circles are private now
       deadline: date,
     });
   };
@@ -161,24 +159,7 @@ export default function CreateEventDialog({ isOpen, onClose }: CreateEventDialog
               </Popover>
             </div>
             
-            <div className="space-y-2">
-              <Label>Privacy</Label>
-              <RadioGroup
-                defaultValue="private"
-                onValueChange={(value) => setIsPublic(value === "public")}
-              >
-                <div className="flex flex-wrap gap-3">
-                  <div className="flex items-center space-x-2 border border-neutral-300 rounded-md px-4 py-3 cursor-pointer hover:bg-neutral-50">
-                    <RadioGroupItem value="private" id="privacy-private" />
-                    <Label htmlFor="privacy-private" className="cursor-pointer">Private (Link only)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 border border-neutral-300 rounded-md px-4 py-3 cursor-pointer hover:bg-neutral-50">
-                    <RadioGroupItem value="public" id="privacy-public" />
-                    <Label htmlFor="privacy-public" className="cursor-pointer">Public (Discoverable)</Label>
-                  </div>
-                </div>
-              </RadioGroup>
-            </div>
+            {/* Privacy options removed - all circles are now private by default */}
           </div>
           
           <DialogFooter className="mt-4">
