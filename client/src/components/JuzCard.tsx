@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useLocation } from "wouter";
+import { memo, useCallback } from "react";
 
 type JuzCardProps = {
   juz: Juz;
@@ -14,13 +15,43 @@ type JuzCardProps = {
   isOwner: boolean;
 };
 
-export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProps) {
+function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner }: JuzCardProps) {
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [location, navigate] = useLocation();
   const isUnclaimed = juz.status === 'unclaimed';
   const isClaimed = juz.status === 'claimed';
   const isRead = juz.status === 'read';
+  
+  // Memoize event handlers to prevent unnecessary re-renders
+  const handleCardClick = useCallback(() => {
+    if (isUnclaimed) {
+      if (user) {
+        onClaim();
+      } else {
+        openAuthModal('login');
+      }
+    }
+  }, [isUnclaimed, user, onClaim, openAuthModal]);
+  
+  const handleClaimClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (user) {
+      onClaim();
+    } else {
+      openAuthModal('login');
+    }
+  }, [user, onClaim, openAuthModal]);
+  
+  const handleMarkAsReadClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onMarkAsRead();
+  }, [onMarkAsRead]);
+  
+  const handleUnclaimClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onUnclaim();
+  }, [onUnclaim]);
   
   return (
     <div 
@@ -30,7 +61,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
         isClaimed ? "bg-[#fdfbf5]" : 
         "bg-[#f7fcfb]"
       )}
-      onClick={isUnclaimed ? (user ? onClaim : () => openAuthModal('login')) : undefined}
+      onClick={handleCardClick}
     >
       <div className="text-xs text-gray-500 absolute left-2 top-2">
         {juz.juzNumber}
@@ -82,14 +113,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
             <Button 
               className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
               size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (user) {
-                  onClaim();
-                } else {
-                  openAuthModal('login');
-                }
-              }}
+              onClick={handleClaimClick}
             >
               {user ? "Claim" : "Login to Claim"}
             </Button>
@@ -98,10 +122,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
               <Button 
                 className="bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
                 size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMarkAsRead();
-                }}
+                onClick={handleMarkAsReadClick}
               >
                 Mark as Read
               </Button>
@@ -109,10 +130,7 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
                 variant="outline"
                 size="sm"
                 className="border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUnclaim();
-                }}
+                onClick={handleUnclaimClick}
               >
                 Unclaim
               </Button>
@@ -123,3 +141,13 @@ export default function JuzCard({ juz, onClaim, onMarkAsRead, onUnclaim, isOwner
     </div>
   );
 }
+
+// Export a memoized version of the component
+export default memo(JuzCard, (prevProps, nextProps) => {
+  // Custom equality check to prevent unnecessary re-renders
+  return (
+    prevProps.juz.status === nextProps.juz.status &&
+    prevProps.juz.claimedByName === nextProps.juz.claimedByName &&
+    prevProps.isOwner === nextProps.isOwner
+  );
+});
