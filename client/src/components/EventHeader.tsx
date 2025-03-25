@@ -1,8 +1,8 @@
-import { Calendar, Clock, Eye, Share2, Settings } from "lucide-react";
+import { Calendar, Clock, Share2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventWithKhatms } from "@shared/schema";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
@@ -24,13 +24,13 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
       toast({
-        title: "Link copied!",
-        description: "Event link has been copied to clipboard",
+        title: "🔗 Link copied!",
+        description: "Quran circle link has been copied to clipboard ✅",
       });
       setShareDialogOpen(false);
     }).catch(() => {
       toast({
-        title: "Failed to copy",
+        title: "❌ Failed to copy",
         description: "Please copy the link manually",
         variant: "destructive",
       });
@@ -53,12 +53,13 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
           </div>
           <div className="flex gap-2">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="text-[hsl(var(--quran-green))]" 
+              className="text-[hsl(var(--quran-green))] border-[hsl(var(--quran-green))] hover:bg-[hsl(var(--quran-green)/0.1)] flex items-center gap-1" 
               onClick={handleShare}
             >
               <Share2 className="h-4 w-4" />
+              <span>Share</span>
             </Button>
             
             {isEventCreator && (
@@ -85,41 +86,36 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
               <span>Due: {format(new Date(event.deadline), 'MMM d, yyyy')}</span>
             </div>
           )}
-          
-          <div className="flex items-center gap-1">
-            <Eye className="h-3 w-3" />
-            <span>{event.isPublic ? 'Public' : 'Private'}</span>
-          </div>
         </div>
       </div>
       
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Share Event</DialogTitle>
+            <DialogTitle>📢 Share Quran Circle</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p className="mb-2">Share this link with others to invite them to join:</p>
+            <p className="mb-4 text-center">Invite others to join this blessed Quran reading circle 🌙✨</p>
             <div className="flex flex-col gap-4">
               <Button 
                 onClick={copyToClipboard} 
-                className="w-full"
+                className="w-full flex items-center justify-center gap-2"
                 variant="outline"
               >
-                Copy Link
+                <span>📋</span> Copy Link to Clipboard
               </Button>
               
               <a 
-                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Join my Quran reading circle: ${window.location.href}`)}`}
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🌙 Join our blessed Quran reading circle! Let's read together ✨\n\n${window.location.href}`)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-full"
               >
                 <Button 
-                  className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white"
+                  className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white flex items-center justify-center gap-2"
                   type="button"
                 >
-                  Share via WhatsApp
+                  <span>💬</span> Share via WhatsApp
                 </Button>
               </a>
             </div>
