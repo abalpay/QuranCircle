@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth, LoginData, RegisterData } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { FcGoogle } from "react-icons/fc";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -153,6 +155,42 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                 >
                   {loginMutation.isPending ? "Logging in..." : "Login"}
                 </Button>
+
+                <div className="mt-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator className="w-full" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <a href="/auth/google">
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        type="button"
+                      >
+                        <FcGoogle className="mr-2 h-4 w-4" />
+                        Google
+                      </Button>
+                    </a>
+                    <a href="/auth/github">
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        type="button"
+                      >
+                        <FaGithub className="mr-2 h-4 w-4" />
+                        GitHub
+                      </Button>
+                    </a>
+                  </div>
+                </div>
               </form>
             </Form>
           </TabsContent>
@@ -220,6 +258,42 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                 >
                   {registerMutation.isPending ? "Creating account..." : "Register"}
                 </Button>
+
+                <div className="mt-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator className="w-full" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <a href="/auth/google">
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        type="button"
+                      >
+                        <FcGoogle className="mr-2 h-4 w-4" />
+                        Google
+                      </Button>
+                    </a>
+                    <a href="/auth/github">
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        type="button"
+                      >
+                        <FaGithub className="mr-2 h-4 w-4" />
+                        GitHub
+                      </Button>
+                    </a>
+                  </div>
+                </div>
               </form>
             </Form>
           </TabsContent>
