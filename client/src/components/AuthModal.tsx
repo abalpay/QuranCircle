@@ -69,13 +69,27 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
   });
 
   const onLoginSubmit = (data: LoginFormValues) => {
-    loginMutation.mutate(data, {
+    // Get event ID from localStorage if it exists
+    const savedEventId = localStorage.getItem('quranCircleReturnToEvent');
+    
+    // Include the returnTo parameter if we have a saved event ID
+    const loginData: LoginFormValues & { returnTo?: string } = { ...data };
+    if (savedEventId) {
+      loginData.returnTo = `/events/${savedEventId}`;
+    }
+    
+    loginMutation.mutate(loginData, {
       onSuccess: () => {
         toast({
           title: "Login successful",
           description: "You are now logged in.",
         });
         onClose();
+        
+        // Clear the saved event ID after successful login
+        if (savedEventId) {
+          localStorage.removeItem('quranCircleReturnToEvent');
+        }
       },
       onError: (error) => {
         toast({
@@ -88,17 +102,31 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
   };
 
   const onRegisterSubmit = (data: RegisterFormValues) => {
-    registerMutation.mutate(data, {
+    // Get event ID from localStorage if it exists
+    const savedEventId = localStorage.getItem('quranCircleReturnToEvent');
+    
+    // Include the returnTo parameter if we have a saved event ID
+    const registerData: RegisterFormValues & { returnTo?: string } = { ...data };
+    if (savedEventId) {
+      registerData.returnTo = `/events/${savedEventId}`;
+    }
+    
+    registerMutation.mutate(registerData, {
       onSuccess: () => {
         toast({
           title: "Registration successful",
           description: "Your account has been created. You are now logged in.",
         });
         onClose();
+        
+        // Clear the saved event ID after successful registration
+        if (savedEventId) {
+          localStorage.removeItem('quranCircleReturnToEvent');
+        }
       },
       onError: (error) => {
         toast({
-          title: "Registration failed",
+          title: "Registration failed", 
           description: error.message,
           variant: "destructive",
         });

@@ -99,7 +99,15 @@ export default function Header() {
               variant="outline" 
               size="sm" 
               className="text-[hsl(var(--quran-green))] border-[hsl(var(--quran-green))] hidden md:flex"
-              onClick={() => openAuthModal('login')}
+              onClick={() => {
+                // Check if we're on an event page and save the ID
+                const pathname = window.location.pathname;
+                const eventPathMatch = pathname.match(/^\/events\/(\d+)$/);
+                if (eventPathMatch) {
+                  localStorage.setItem('quranCircleReturnToEvent', eventPathMatch[1]);
+                }
+                openAuthModal('login');
+              }}
             >
               <div className="flex items-center">
                 <span className="text-sm">Sign In</span>
