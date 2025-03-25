@@ -152,7 +152,10 @@ export function setupAuth(app: Express) {
         await emailService.sendPasswordResetEmail(user, resetToken, resetUrl);
       } catch (error) {
         console.error('Failed to send password reset email:', error);
-        return res.status(500).json({ error: "Failed to send password reset email" });
+        return res.status(500).json({ 
+          error: "Failed to send password reset email", 
+          message: "We're experiencing issues with our email service. Please try again later or contact support." 
+        });
       }
       
       // Return success message (same message whether user exists or not for security)

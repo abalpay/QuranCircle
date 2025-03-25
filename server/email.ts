@@ -13,7 +13,7 @@ export class MailjetService implements EmailService {
   private senderEmail: string;
   private senderName: string;
   
-  constructor(senderEmail: string = 'reset@quran.circle', senderName: string = 'Quran Circle') {
+  constructor(senderEmail: string = 'info@qurancircle.io', senderName: string = 'Quran Circle') {
     // Check if the required environment variables are set
     if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_SECRET_KEY) {
       console.warn('Mailjet API credentials are not set. Email functionality will not work.');
@@ -149,7 +149,38 @@ export class MockEmailService implements EmailService {
 }
 
 // Export a single instance based on environment
-export const emailService = process.env.NODE_ENV === 'production' || 
-                           (process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY) 
-                         ? new MailjetService()
-                         : new MockEmailService();
+// Create a composite email service that falls back to the mock service if Mailjet fails
+export class FallbackEmailService implements EmailService {
+  private primaryService: EmailService;
+  private backupService: EmailService;
+  private usingFallback: boolean = false;
+
+  constructor(primary: EmailService, backup: EmailService) {
+    this.primaryService = primary;
+    this.backupService = backup;
+  }
+
+  async sendPasswordResetEmail(user: User, token: string, resetUrl: string): Promise<void> {
+    try {
+      // If we've already had a failure, go straight to the backup
+      if (this.usingFallback) {
+        return this.backupService.sendPasswordResetEmail(user, token, resetUrl);
+      }
+      
+      // Try the primary service first
+      return await this.primaryService.sendPasswordResetEmail(user, token, resetUrl);
+    } catch (error) {
+      console.warn('Primary email service failed, falling back to backup service');
+      this.usingFallback = true;
+      // Fall back to the backup service
+      return this.backupService.sendPasswordResetEmail(user, token, resetUrl);
+    }
+  }
+}
+
+// Create instances of our email services
+const mailjetService = new MailjetService();
+const mockEmailService = new MockEmailService();
+
+// Export the fallback email service
+export const emailService = new FallbackEmailService(mailjetService, mockEmailService);

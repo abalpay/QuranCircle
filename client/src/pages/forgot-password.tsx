@@ -41,10 +41,14 @@ export default function ForgotPasswordPage() {
       setIsSuccess(true);
       form.reset();
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      // Check if the error response contains a more friendly message
+      const errorMessage = error.response?.data?.message || 
+                          "We're experiencing issues with our email service. Please try again later.";
+      
       toast({
-        title: "Error",
-        description: error.message || "Something went wrong. Please try again.",
+        title: "Cannot Reset Password",
+        description: errorMessage,
         variant: "destructive",
       });
     },
