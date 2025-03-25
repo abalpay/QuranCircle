@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HomePage() {
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
+  const [recentlyVisitedCircles, setRecentlyVisitedCircles] = useState<{id: number, name: string, visitedAt: string}[]>([]);
   const { user, isLoading: authLoading } = useAuth();
   const { openAuthModal } = useAuthModal();
 
@@ -20,8 +21,18 @@ export default function HomePage() {
     queryKey: ["/api/events"],
     enabled: !!user, // Only fetch if user is logged in
   });
-
-  // Remove unused functions
+  
+  // Load recently visited circles from localStorage
+  useEffect(() => {
+    if (!user) {
+      try {
+        const visitedEvents = JSON.parse(localStorage.getItem('quranCircleVisitedEvents') || '[]');
+        setRecentlyVisitedCircles(visitedEvents);
+      } catch (error) {
+        console.error('Error loading visited circles from localStorage:', error);
+      }
+    }
+  }, [user]);
 
   // Show loading indicator while checking authentication
   if (authLoading) {
@@ -86,6 +97,49 @@ export default function HomePage() {
           {user ? "Create New Khatm Circle" : "Sign In to Create Khatm Circle"}
         </Button>
       </div>
+
+      {/* Show recently visited circles for non-logged in users */}
+      {!user && recentlyVisitedCircles.length > 0 && (
+        <div className="mb-10">
+          <h2 className="text-xl font-medium text-gray-800 mb-4">
+            Recently Visited Circles
+          </h2>
+          <div className="grid gap-3">
+            {recentlyVisitedCircles.map((circle) => (
+              <Link key={circle.id} href={`/event/${circle.id}`}>
+                <div className="cursor-pointer block bg-white rounded-lg border border-[hsl(var(--quran-border))] hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center p-4">
+                    <div>
+                      <h3 className="font-medium text-gray-800">
+                        {circle.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Visited on{" "}
+                        {format(new Date(circle.visitedAt), "MMM d, yyyy")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          openAuthModal('login');
+                        }}
+                        className="text-xs hover:bg-[hsl(var(--quran-green))]/10 hover:text-[hsl(var(--quran-green))] transition-colors text-gray-500 bg-gray-100 px-2 py-1 rounded"
+                      >
+                        Sign in to save
+                      </button>
+                      <div className="bg-[hsl(var(--quran-gray))] p-2 rounded-full">
+                        <ExternalLink className="h-4 w-4 text-gray-500" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {user && (
         <div className="mb-10">
