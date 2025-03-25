@@ -727,8 +727,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create a new khatm if all existing khatms are archived or completed
       const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
       
-      // Invalidate the event cache
+      // Invalidate all relevant caches
       cache.delete(`event:${khatm.eventId}`);
+      
+      // Also invalidate user's events cache to show archived events properly
+      if (req.isAuthenticated()) {
+        cache.delete(`events:user:${req.user!.id}`);
+        console.log(`Invalidated events cache for user ${req.user!.id} after khatm archive`);
+      }
+      
+      // Invalidate any other related caches
+      cache.deleteByPrefix(`events:`);
       
       // Broadcast khatm archived event via WebSockets
       try {
@@ -792,8 +801,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to unarchive khatm" });
       }
       
-      // Invalidate the event cache
+      // Invalidate all relevant caches
       cache.delete(`event:${khatm.eventId}`);
+      
+      // Also invalidate user's events cache to show updated archives
+      if (req.isAuthenticated()) {
+        cache.delete(`events:user:${req.user!.id}`);
+        console.log(`Invalidated events cache for user ${req.user!.id} after khatm unarchive`);
+      }
+      
+      // Invalidate any other related caches
+      cache.deleteByPrefix(`events:`);
       
       // Broadcast khatm unarchived event via WebSockets
       try {
@@ -849,8 +867,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create a new khatm if all existing khatms are archived or completed
       const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
       
-      // Invalidate the event cache
+      // Invalidate all relevant caches
       cache.delete(`event:${khatm.eventId}`);
+      
+      // Also invalidate user's events cache to show updated khatms
+      if (req.isAuthenticated()) {
+        cache.delete(`events:user:${req.user!.id}`);
+        console.log(`Invalidated events cache for user ${req.user!.id} after khatm delete`);
+      }
+      
+      // Invalidate any other related caches
+      cache.deleteByPrefix(`events:`);
       
       // Broadcast khatm deleted event via WebSockets
       try {

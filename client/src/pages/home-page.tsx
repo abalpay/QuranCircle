@@ -80,10 +80,14 @@ export default function HomePage() {
             queryClient.invalidateQueries({ queryKey: ["/api/events"] });
             break;
           case WebSocketMessageType.KHATM_ARCHIVED:
-            console.log("Khatm archived, refreshing events");
+            console.log("Khatm archived, refreshing events", message.payload);
             // Force a complete refetch of events when a khatm is archived
             queryClient.removeQueries({ queryKey: ["/api/events"] });
-            refetch(); // Explicitly call refetch to get fresh data
+            setTimeout(() => { 
+              // Add a slight delay to ensure the server has time to update its state
+              refetch(); 
+              console.log("Explicitly refetching events after archive");
+            }, 100);
             break;
           case WebSocketMessageType.KHATM_UNARCHIVED:
             console.log("Khatm unarchived, refreshing events");
