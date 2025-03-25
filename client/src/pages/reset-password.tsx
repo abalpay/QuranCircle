@@ -92,7 +92,7 @@ export default function ResetPasswordPage() {
   // Loading state
   if (tokenQuery.isLoading) {
     return (
-      <div className="container max-w-md py-10">
+      <div className="container max-w-md py-10 mx-auto">
         <Card>
           <CardHeader className="space-y-1 items-center text-center">
             <CardTitle className="text-2xl">Verifying Reset Link</CardTitle>
@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center py-6">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-quran-green"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--quran-green))]"></div>
           </CardContent>
         </Card>
       </div>
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
   // Error state - invalid token
   if (tokenQuery.isError) {
     return (
-      <div className="container max-w-md py-10">
+      <div className="container max-w-md py-10 mx-auto">
         <Card>
           <CardHeader className="space-y-1 items-center text-center">
             <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
@@ -124,12 +124,13 @@ export default function ResetPasswordPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Please request a new password reset link.
             </p>
-            <Button 
-              onClick={() => setLocation('/forgot-password')}
-              className="mx-auto"
-            >
-              Try Again
-            </Button>
+            <Link href="/">
+              <Button 
+                className="mx-auto bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
+              >
+                Back to Home
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -139,7 +140,7 @@ export default function ResetPasswordPage() {
   // Success state
   if (isSuccess) {
     return (
-      <div className="container max-w-md py-10">
+      <div className="container max-w-md py-10 mx-auto">
         <Card>
           <CardHeader className="space-y-1 items-center text-center">
             <CheckCircle className="h-10 w-10 text-green-500 mb-2" />
@@ -152,12 +153,11 @@ export default function ResetPasswordPage() {
             <p className="text-sm text-muted-foreground mb-4">
               You can now sign in with your new password.
             </p>
-            <Button 
-              onClick={() => setLocation('/login')}
-              className="mx-auto"
-            >
-              Sign In
-            </Button>
+            <Link href="/">
+              <Button className="mx-auto bg-[hsl(var(--quran-green))] hover:opacity-90 text-white">
+                Sign In
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -166,12 +166,12 @@ export default function ResetPasswordPage() {
 
   // Reset password form
   return (
-    <div className="container max-w-md py-10">
+    <div className="container max-w-md py-10 mx-auto">
       <Card>
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">Reset Password</CardTitle>
-            <Link href="/login">
+            <Link href="/">
               <Button variant="ghost" size="sm" className="gap-1">
                 <ArrowLeft className="h-4 w-4" />
                 Back
@@ -199,7 +199,8 @@ export default function ResetPasswordPage() {
                           {...field} 
                           type="password"
                           className="pl-9"
-                          autoComplete="new-password"
+                          autoComplete="off"
+                          value={field.value}
                         />
                       </div>
                     </FormControl>
@@ -221,7 +222,8 @@ export default function ResetPasswordPage() {
                           {...field} 
                           type="password"
                           className="pl-9"
-                          autoComplete="new-password"
+                          autoComplete="off"
+                          value={field.value}
                         />
                       </div>
                     </FormControl>
@@ -231,7 +233,7 @@ export default function ResetPasswordPage() {
               />
               <Button 
                 type="submit" 
-                className="w-full"
+                className="w-full bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
                 disabled={resetPasswordMutation.isPending}
               >
                 {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
