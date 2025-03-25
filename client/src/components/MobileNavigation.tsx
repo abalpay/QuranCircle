@@ -49,7 +49,14 @@ export default function MobileNavigation() {
           ) : (
             <button
               type="button"
-              onClick={() => openAuthModal('login')}
+              onClick={() => {
+                // Check if we're on an event page and save the ID
+                const eventPathMatch = location.match(/^\/events\/(\d+)$/);
+                if (eventPathMatch) {
+                  localStorage.setItem('quranCircleReturnToEvent', eventPathMatch[1]);
+                }
+                openAuthModal('login');
+              }}
               className="flex flex-col items-center py-3 px-3 text-neutral-700"
             >
               <CircleUserRound size={20} />

@@ -42,7 +42,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser, variables) => {
       queryClient.setQueryData(["/api/user"], user);
-      setLocation(variables.returnTo || "/");
+      
+      // Check if there's a saved event to return to
+      const savedEventId = localStorage.getItem('quranCircleReturnToEvent');
+      let redirectPath = variables.returnTo || "/";
+      
+      if (savedEventId) {
+        redirectPath = `/events/${savedEventId}`;
+        // Clear the saved event ID after using it
+        localStorage.removeItem('quranCircleReturnToEvent');
+      }
+      
+      setLocation(redirectPath);
       toast({
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
@@ -66,7 +77,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser, variables) => {
       queryClient.setQueryData(["/api/user"], user);
-      setLocation(variables.returnTo || "/");
+      
+      // Check if there's a saved event to return to (same as login)
+      const savedEventId = localStorage.getItem('quranCircleReturnToEvent');
+      let redirectPath = variables.returnTo || "/";
+      
+      if (savedEventId) {
+        redirectPath = `/events/${savedEventId}`;
+        // Clear the saved event ID after using it
+        localStorage.removeItem('quranCircleReturnToEvent');
+      }
+      
+      setLocation(redirectPath);
       toast({
         title: "Registration successful",
         description: `Welcome to Quran Circle, ${user.username}!`,

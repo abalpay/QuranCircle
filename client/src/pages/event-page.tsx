@@ -168,7 +168,14 @@ export default function EventPage() {
                 variant="outline" 
                 size="sm" 
                 className="h-7 border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
-                onClick={() => useAuthModal().openAuthModal('login')}
+                onClick={() => {
+                  // Store current event ID in localStorage to return after login
+                  if (event) {
+                    localStorage.setItem('quranCircleReturnToEvent', event.id.toString());
+                  }
+                  const authModal = useAuthModal();
+                  authModal.openAuthModal('login');
+                }}
               >
                 Sign in
               </Button>
