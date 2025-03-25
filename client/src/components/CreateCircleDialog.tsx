@@ -28,6 +28,7 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  // Privacy setting is deprecated, all circles are private (link only)
   const [isPublic, setIsPublic] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -165,23 +166,11 @@ export default function CreateCircleDialog({ isOpen, onClose }: CreateCircleDial
               </Popover>
             </div>
             
-            <div className="space-y-2">
-              <Label>Privacy</Label>
-              <RadioGroup
-                defaultValue="private"
-                onValueChange={(value) => setIsPublic(value === "public")}
-              >
-                <div className="flex flex-wrap gap-3">
-                  <div className="flex items-center space-x-2 border border-[hsl(var(--quran-border))] rounded-md px-4 py-3 cursor-pointer hover:bg-[hsl(var(--quran-gray))]">
-                    <RadioGroupItem value="private" id="privacy-private" />
-                    <Label htmlFor="privacy-private" className="cursor-pointer">Private (Link only)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 border border-[hsl(var(--quran-border))] rounded-md px-4 py-3 cursor-pointer hover:bg-[hsl(var(--quran-gray))]">
-                    <RadioGroupItem value="public" id="privacy-public" />
-                    <Label htmlFor="privacy-public" className="cursor-pointer">Public (Discoverable)</Label>
-                  </div>
-                </div>
-              </RadioGroup>
+            {/* Privacy note - all circles are link-only */}
+            <div className="space-y-2 bg-[hsl(var(--quran-gray))] p-3 rounded-md">
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold">Note:</span> All circles are private and accessible only by direct link. Share the link with those you want to invite.
+              </p>
             </div>
           </div>
           

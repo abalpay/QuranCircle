@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import {
@@ -24,6 +25,7 @@ import { Input } from "@/components/ui/input";
 export default function Header() {
   const { user, logoutMutation } = useAuth();
   const { openAuthModal } = useAuthModal();
+  const { toast } = useToast();
   
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -93,6 +95,11 @@ export default function Header() {
               type="search" 
               placeholder="Search for circles" 
               className="pl-10 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
+              onClick={() => toast({
+                title: "Feature Disabled",
+                description: "Search functionality is coming in a future update."
+              })}
+              readOnly
             />
           </div>
         </div>
@@ -108,9 +115,18 @@ export default function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>English</DropdownMenuItem>
-              <DropdownMenuItem>Arabic</DropdownMenuItem>
-              <DropdownMenuItem>Turkish</DropdownMenuItem>
-              <DropdownMenuItem>Urdu</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast({
+                title: "Coming Soon",
+                description: "Arabic language support will be available soon."
+              })}>Arabic</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast({
+                title: "Coming Soon",
+                description: "Turkish language support will be available soon."
+              })}>Turkish</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast({
+                title: "Coming Soon",
+                description: "Urdu language support will be available soon."
+              })}>Urdu</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           
@@ -156,7 +172,15 @@ export default function Header() {
           )}
           
           {/* Mobile-only search button */}
-          <Button variant="ghost" size="icon" className="text-gray-700 md:hidden">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-gray-700 md:hidden"
+            onClick={() => toast({
+              title: "Feature Disabled",
+              description: "Search functionality is coming in a future update."
+            })}
+          >
             <Search className="h-5 w-5" />
           </Button>
         </div>
