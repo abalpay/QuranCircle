@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Event, EventWithKhatms } from "@shared/schema";
 import { Button } from "@/components/ui/button";
@@ -11,16 +11,95 @@ import { useAuthModal } from "@/hooks/use-auth-modal";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Define WebSocket message types for the homepage
+enum WebSocketMessageType {
+  JUZ_CLAIMED = 'JUZ_CLAIMED',
+  JUZ_UNCLAIMED = 'JUZ_UNCLAIMED',
+  JUZ_READ = 'JUZ_READ',
+  JUZ_UNREAD = 'JUZ_UNREAD',
+  KHATM_CREATED = 'KHATM_CREATED',
+  KHATM_ARCHIVED = 'KHATM_ARCHIVED',
+  KHATM_UNARCHIVED = 'KHATM_UNARCHIVED',
+  KHATM_DELETED = 'KHATM_DELETED',
+  EVENT_UPDATED = 'EVENT_UPDATED',
+  SUBSCRIBE_EVENT = 'SUBSCRIBE_EVENT',
+  PING = 'PING',
+  PONG = 'PONG',
+}
+
+interface WebSocketMessage {
+  type: WebSocketMessageType;
+  payload: any;
+}
+
 export default function HomePage() {
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
   const [recentlyVisitedCircles, setRecentlyVisitedCircles] = useState<{id: number, name: string, visitedAt: string}[]>([]);
   const { user, isLoading: authLoading } = useAuth();
   const { openAuthModal } = useAuthModal();
+  const wsRef = useRef<WebSocket | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: userCircles, isLoading } = useQuery<EventWithKhatms[]>({
     queryKey: ["/api/events"],
     enabled: !!user, // Only fetch if user is logged in
   });
+  
+  // Set up WebSocket connection for real-time updates if user is logged in
+  useEffect(() => {
+    if (!user) return;
+    
+    // Set up WebSocket connection
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/events`;
+    
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+    
+    ws.onopen = () => {
+      console.log("WebSocket connection established for home page");
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const message: WebSocketMessage = JSON.parse(event.data);
+        
+        // Handle different WebSocket message types
+        switch (message.type) {
+          case WebSocketMessageType.KHATM_CREATED:
+          case WebSocketMessageType.KHATM_ARCHIVED:
+          case WebSocketMessageType.KHATM_UNARCHIVED:
+          case WebSocketMessageType.KHATM_DELETED:
+          case WebSocketMessageType.EVENT_UPDATED:
+            // Invalidate the circles cache to refresh the list
+            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            break;
+            
+          case WebSocketMessageType.PING:
+            // Respond to ping with pong
+            ws.send(JSON.stringify({ type: WebSocketMessageType.PONG }));
+            break;
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
+      }
+    };
+    
+    ws.onclose = () => {
+      console.log("WebSocket connection closed for home page");
+    };
+    
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    
+    // Clean up WebSocket connection when component unmounts
+    return () => {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
+      }
+    };
+  }, [user, queryClient]);
   
   // Load recently visited circles from localStorage
   useEffect(() => {

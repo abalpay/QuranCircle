@@ -1,17 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
-import { Loader2, Info, WifiOff } from "lucide-react";
+import { Loader2, Info } from "lucide-react";
 import { EventWithKhatms, Juz, KhatmWithJuzs } from "@shared/schema";
 import EventHeader from "@/components/EventHeader";
 import KhatmCard from "@/components/KhatmCard";
 import { useCallback, memo, useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CircleSettingsDialog from "@/components/CircleSettingsDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
-import { useToast } from "@/hooks/use-toast";
 
 // WebSocket message types
 enum WebSocketMessageType {
