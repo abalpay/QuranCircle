@@ -64,6 +64,25 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
     }
   };
   
+  // Add a function to copy the production URL
+  const copyProductionUrl = () => {
+    if (!productionUrl) return;
+    
+    navigator.clipboard.writeText(productionUrl).then(() => {
+      toast({
+        title: "🔗 Production link copied!",
+        description: "Production URL has been copied to clipboard ✅",
+      });
+    }).catch(() => {
+      toast({
+        title: "❌ Failed to copy",
+        description: "Please copy the production link manually",
+        variant: "destructive",
+      });
+    });
+  };
+  
+  // Copy the local development URL
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl).then(() => {
       toast({
@@ -180,6 +199,17 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
               >
                 <span>📋</span> Copy Link to Clipboard
               </Button>
+              
+              {productionUrl && (
+                <Button 
+                  onClick={copyProductionUrl} 
+                  className="w-full flex items-center justify-center gap-2"
+                  variant="outline"
+                  disabled={shortUrlMutation.isPending}
+                >
+                  <span>🌐</span> Copy Production URL
+                </Button>
+              )}
               
               <a 
                 href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`🌙 Join our blessed Quran reading circle! Let's read together ✨\n\n${shareUrl}`)}`}
