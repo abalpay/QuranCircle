@@ -92,18 +92,18 @@ export default function ResetPasswordPage() {
   // Loading state
   if (tokenQuery.isLoading) {
     return (
-      <div className="container max-w-md py-10 mx-auto">
-        <Card>
-          <CardHeader className="space-y-1 items-center text-center">
-            <CardTitle className="text-2xl">Verifying Reset Link</CardTitle>
-            <CardDescription>
+      <div className="flex justify-center items-center min-h-screen bg-[hsl(var(--quran-gray))]">
+        <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-sm">
+          <div className="text-center mb-4">
+            <h1 className="text-2xl font-semibold text-gray-800">Verifying Reset Link</h1>
+            <p className="text-gray-600 mt-2">
               Please wait while we verify your password reset link...
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center py-6">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--quran-green))]"></div>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[hsl(var(--quran-green))]"></div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -111,28 +111,30 @@ export default function ResetPasswordPage() {
   // Error state - invalid token
   if (tokenQuery.isError) {
     return (
-      <div className="container max-w-md py-10 mx-auto">
-        <Card>
-          <CardHeader className="space-y-1 items-center text-center">
-            <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
-            <CardTitle className="text-2xl">Invalid Reset Link</CardTitle>
-            <CardDescription>
+      <div className="flex justify-center items-center min-h-screen bg-[hsl(var(--quran-gray))]">
+        <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-sm">
+          <div className="text-center mb-4">
+            <div className="flex justify-center mb-4">
+              <AlertTriangle className="h-12 w-12 text-red-500" />
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-800">Invalid Reset Link</h1>
+            <p className="text-gray-600 mt-2">
               This password reset link is invalid or has expired.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-sm text-muted-foreground mb-4">
+            </p>
+          </div>
+          <div className="mt-8">
+            <p className="text-sm text-gray-500 mb-4 text-center">
               Please request a new password reset link.
             </p>
             <Link href="/">
               <Button 
-                className="mx-auto bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
+                className="w-full py-6 bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
               >
                 Back to Home
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -140,106 +142,102 @@ export default function ResetPasswordPage() {
   // Success state
   if (isSuccess) {
     return (
-      <div className="container max-w-md py-10 mx-auto">
-        <Card>
-          <CardHeader className="space-y-1 items-center text-center">
-            <CheckCircle className="h-10 w-10 text-green-500 mb-2" />
-            <CardTitle className="text-2xl">Password Reset Successful</CardTitle>
-            <CardDescription>
+      <div className="flex justify-center items-center min-h-screen bg-[hsl(var(--quran-gray))]">
+        <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-sm">
+          <div className="text-center mb-4">
+            <div className="flex justify-center mb-4">
+              <CheckCircle className="h-12 w-12 text-green-500" />
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-800">Password Reset Successful</h1>
+            <p className="text-gray-600 mt-2">
               Your password has been reset successfully.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-sm text-muted-foreground mb-4">
+            </p>
+          </div>
+          <div className="mt-8">
+            <p className="text-sm text-gray-500 mb-4 text-center">
               You can now sign in with your new password.
             </p>
             <Link href="/">
-              <Button className="mx-auto bg-[hsl(var(--quran-green))] hover:opacity-90 text-white">
+              <Button className="w-full py-6 bg-[hsl(var(--quran-green))] hover:opacity-90 text-white">
                 Sign In
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   // Reset password form
   return (
-    <div className="container max-w-md py-10 mx-auto">
-      <Card>
-        <CardHeader className="space-y-1">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl">Reset Password</CardTitle>
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-1">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
-            </Link>
-          </div>
-          <CardDescription>
-            Create a new password for your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="newPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="" 
-                          {...field} 
-                          type="password"
-                          className="pl-9"
-                          autoComplete="off"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm New Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="" 
-                          {...field} 
-                          type="password"
-                          className="pl-9"
-                          autoComplete="off"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button 
-                type="submit" 
-                className="w-full bg-[hsl(var(--quran-green))] hover:opacity-90 text-white"
-                disabled={resetPasswordMutation.isPending}
-              >
-                {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+    <div className="flex justify-center items-center min-h-screen bg-[hsl(var(--quran-gray))]">
+      <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-sm">
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-2xl font-semibold text-gray-800">Reset Password</h1>
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="flex items-center text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back
+            </Button>
+          </Link>
+        </div>
+        
+        <p className="text-gray-600 mb-6">Create a new password for your account</p>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="newPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700 font-medium">New Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        {...field} 
+                        type="password"
+                        className="pl-10 py-6 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
+                        autoComplete="new-password"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-red-500" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700 font-medium">Confirm New Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        {...field} 
+                        type="password"
+                        className="pl-10 py-6 bg-[hsl(var(--quran-gray))] border-0 focus-visible:ring-1 focus-visible:ring-[hsl(var(--quran-green))]"
+                        autoComplete="new-password"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-red-500" />
+                </FormItem>
+              )}
+            />
+            <Button 
+              type="submit" 
+              className="w-full py-6 bg-[hsl(var(--quran-green))] hover:opacity-90 text-white font-medium text-base"
+              disabled={resetPasswordMutation.isPending}
+            >
+              {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
+            </Button>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }
