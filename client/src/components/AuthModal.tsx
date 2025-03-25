@@ -162,7 +162,7 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
           </div>
           <Button 
             type="button" 
-            className="w-full" 
+            className="w-full bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
             onClick={() => setActiveTab("login")}
           >
             Back to Login
@@ -194,7 +194,7 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
           />
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
             disabled={forgotPasswordSubmitting}
           >
             {forgotPasswordSubmitting ? "Sending..." : "Send Reset Link"}
@@ -269,7 +269,7 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                   />
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? "Logging in..." : "Login"}
@@ -333,7 +333,7 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                         <FormControl>
                           <Input 
                             type="password" 
-                            placeholder="Create a password" 
+                            placeholder="" 
                             {...field} 
                             autoComplete="new-password"
                           />
@@ -344,7 +344,7 @@ export default function AuthModal({ isOpen, onClose, action = "login" }: AuthMod
                   />
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full bg-[hsl(var(--quran-green))] hover:opacity-90 text-white" 
                     disabled={registerMutation.isPending}
                   >
                     {registerMutation.isPending ? "Creating account..." : "Register"}
