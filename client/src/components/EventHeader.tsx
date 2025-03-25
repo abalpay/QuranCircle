@@ -18,12 +18,14 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const { user } = useAuth();
   const [shareUrl, setShareUrl] = useState<string>(window.location.href);
+  const [productionUrl, setProductionUrl] = useState<string | null>(null);
   const [hasShortUrl, setHasShortUrl] = useState(false);
   
   // Define the response type
   type ShortUrlResponse = {
     shortCode: string;
     shortUrl: string;
+    productionUrl?: string;
   };
 
   // Query for generating a short URL
@@ -33,7 +35,12 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
       return await response.json() as ShortUrlResponse;
     },
     onSuccess: (data) => {
+      // Use the relative shortUrl that works in the current environment
       setShareUrl(data.shortUrl);
+      // Store the production URL for reference
+      if (data.productionUrl) {
+        setProductionUrl(data.productionUrl);
+      }
       setHasShortUrl(true);
       toast({
         title: "✅ Short URL generated",
@@ -148,6 +155,18 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
                   <p className="text-xs text-neutral-500 mt-1">
                     ✨ Using a shorter, easier-to-share URL
                   </p>
+                )}
+                
+                {productionUrl && (
+                  <div className="mt-3 pt-3 border-t border-neutral-200">
+                    <div className="flex items-center">
+                      <Link className="h-4 w-4 text-neutral-500 mr-2" />
+                      <span className="text-sm text-neutral-700 font-medium truncate">{productionUrl}</span>
+                    </div>
+                    <p className="text-xs text-neutral-500 mt-1">
+                      🌐 Production URL (will work after deployment)
+                    </p>
+                  </div>
                 )}
               </div>
             )}

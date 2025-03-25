@@ -52,10 +52,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if the event already has a short code
       if (event.shortCode) {
-        // Use the specified domain for short URLs
-        const baseUrl = "https://qurancircle.io";
-        const shortUrl = createShortUrl(baseUrl, event.shortCode);
-        return res.json({ shortCode: event.shortCode, shortUrl });
+        // First create a relative URL that will work in any environment
+        const shortUrl = createShortUrl(null, event.shortCode);
+        
+        // For display purposes, we'll also include the production URL
+        const prodUrl = createShortUrl("https://qurancircle.io", event.shortCode);
+        
+        return res.json({ 
+          shortCode: event.shortCode, 
+          shortUrl,
+          productionUrl: prodUrl
+        });
       }
       
       // Generate a new short code
@@ -68,11 +75,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to create short URL" });
       }
       
-      // Create the full short URL with the specified domain
-      const baseUrl = "https://qurancircle.io";
-      const shortUrl = createShortUrl(baseUrl, shortCode);
+      // Create the relative short URL that works in any environment
+      const shortUrl = createShortUrl(null, shortCode);
       
-      res.json({ shortCode, shortUrl });
+      // For display purposes, also include the production URL
+      const prodUrl = createShortUrl("https://qurancircle.io", shortCode);
+      
+      res.json({ 
+        shortCode, 
+        shortUrl,
+        productionUrl: prodUrl 
+      });
     } catch (error) {
       console.error("Error creating short URL:", error);
       res.status(500).json({ message: "Error creating short URL" });

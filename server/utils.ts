@@ -20,11 +20,17 @@ export function generateShortCode(length: number = 6): string {
 
 /**
  * Creates a short URL from the base URL and short code
- * @param baseUrl - The base URL of the application
+ * @param baseUrl - The base URL of the application (optional, defaults to relative URL)
  * @param shortCode - The short code to append
  * @returns The complete short URL
  */
-export function createShortUrl(baseUrl: string, shortCode: string): string {
+export function createShortUrl(baseUrl: string | null = null, shortCode: string): string {
+  // If we're not given a base URL, just use a relative path
+  // This ensures the URL works in both development and production
+  if (!baseUrl) {
+    return `/s/${shortCode}`;
+  }
+  
   // Remove trailing slash from baseUrl if it exists
   const baseUrlFormatted = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   return `${baseUrlFormatted}/s/${shortCode}`;
