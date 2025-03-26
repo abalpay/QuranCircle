@@ -278,10 +278,10 @@ export class WebSocketManager {
    * Broadcast an event updated message to all subscribers
    */
   public broadcastEventUpdated(eventId: number, event: Event) {
-    // Broadcast to event subscribers
+    // Broadcast to event subscribers with eventId included in payload for immediate UI updates
     this.broadcastToEvent(eventId, {
       type: WebSocketMessageType.EVENT_UPDATED,
-      payload: { event }
+      payload: { event, eventId }
     });
     
     // Also broadcast to all clients for home page updates

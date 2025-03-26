@@ -194,39 +194,118 @@ export default function EventPage() {
             break;
             
           case WebSocketMessageType.EVENT_UPDATED:
-            console.log("Event updated, refreshing event data");
-            // Remove any cached data to ensure we get fresh data
+            console.log("Event updated, refreshing event data", message.payload);
+            
+            if (message.payload && message.payload.eventId) {
+              console.log(`Received event update notification for eventId: ${message.payload.eventId}`);
+              
+              // Immediately update the local state if possible
+              if (event && message.payload.event) {
+                // First directly update the cached event data to show the changes immediately
+                queryClient.setQueryData([`/api/events/${eventId}`], (oldData: any) => {
+                  if (oldData) {
+                    return {
+                      ...oldData,
+                      name: message.payload.event.name || oldData.name,
+                      description: message.payload.event.description !== undefined ? 
+                        message.payload.event.description : oldData.description,
+                      deadline: message.payload.event.deadline || oldData.deadline
+                    };
+                  }
+                  return oldData;
+                });
+                
+                console.log("Updated local event data with new values from WebSocket");
+              }
+            }
+            
+            // Then do a complete cache refresh
             queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
-            // Force immediate refetch
+            queryClient.removeQueries({ queryKey: ['/api/events'] });
+            
+            // Force immediate refetch with a small delay to ensure server has processed the change
             setTimeout(() => {
-              refetch()
+              Promise.all([
+                refetch(),
+                queryClient.refetchQueries({ queryKey: ['/api/events'] })
+              ])
                 .then(() => console.log("Successfully refetched event data after update"))
                 .catch(err => console.error("Error refetching event data after update:", err));
-            }, 100);
+            }, 150);
             break;
             
           case WebSocketMessageType.EVENT_ARCHIVED:
-            console.log("Event archived, refreshing event data");
-            // Remove any cached data
+            console.log("Event archived, refreshing event data", message.payload);
+            
+            if (message.payload && message.payload.eventId) {
+              console.log(`Received event archive notification for eventId: ${message.payload.eventId}`);
+              
+              // Immediately update the local state if possible
+              if (event && message.payload.event) {
+                // First directly update the cached event data to show archived status immediately
+                queryClient.setQueryData([`/api/events/${eventId}`], (oldData: any) => {
+                  if (oldData) {
+                    return {
+                      ...oldData,
+                      isArchived: true,
+                      archivedAt: message.payload.event.archivedAt || new Date().toISOString()
+                    };
+                  }
+                  return oldData;
+                });
+              }
+            }
+            
+            // Then do a complete cache refresh
             queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
-            // Force immediate refetch
+            queryClient.removeQueries({ queryKey: ['/api/events'] });
+            
+            // Force immediate refetch with a small delay to ensure server has processed the change
             setTimeout(() => {
-              refetch()
+              Promise.all([
+                refetch(),
+                queryClient.refetchQueries({ queryKey: ['/api/events'] })
+              ])
                 .then(() => console.log("Successfully refetched event data after archive"))
                 .catch(err => console.error("Error refetching event data after archive:", err));
-            }, 100);
+            }, 150);
             break;
             
           case WebSocketMessageType.EVENT_UNARCHIVED:
-            console.log("Event unarchived, refreshing event data");
-            // Remove any cached data
+            console.log("Event unarchived, refreshing event data", message.payload);
+            
+            if (message.payload && message.payload.eventId) {
+              console.log(`Received event unarchive notification for eventId: ${message.payload.eventId}`);
+              
+              // Immediately update the local state if possible
+              if (event && message.payload.event) {
+                // First directly update the cached event data to show unarchived status immediately
+                queryClient.setQueryData([`/api/events/${eventId}`], (oldData: any) => {
+                  if (oldData) {
+                    return {
+                      ...oldData,
+                      isArchived: false,
+                      archivedAt: null
+                    };
+                  }
+                  return oldData;
+                });
+              }
+            }
+            
+            // Then do a complete cache refresh
             queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
-            // Force immediate refetch
+            queryClient.removeQueries({ queryKey: ['/api/events'] });
+            
+            // Force immediate refetch with a small delay to ensure server has processed the change
             setTimeout(() => {
-              refetch()
+              Promise.all([
+                refetch(),
+                queryClient.refetchQueries({ queryKey: ['/api/events'] })
+              ])
                 .then(() => console.log("Successfully refetched event data after unarchive"))
                 .catch(err => console.error("Error refetching event data after unarchive:", err));
-            }, 100);
+            }, 150);
             break;
           
           case WebSocketMessageType.PING:
