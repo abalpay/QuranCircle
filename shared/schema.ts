@@ -130,6 +130,21 @@ export const juzs = pgTable("juzs", {
   };
 });
 
+// Bookmarks schema
+export const bookmarks = pgTable("bookmarks", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  eventId: integer("event_id").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => {
+  return {
+    // Create a composite index for efficient lookups
+    userEventIdx: index("bookmarks_user_event_idx").on(table.userId, table.eventId),
+    userIdx: index("bookmarks_user_idx").on(table.userId),
+    eventIdx: index("bookmarks_event_idx").on(table.eventId)
+  };
+});
+
 export const insertJuzSchema = createInsertSchema(juzs).pick({
   khatmId: true,
   juzNumber: true,
@@ -212,4 +227,24 @@ export type KhatmWithJuzs = Khatm & {
 export type EventWithKhatms = Event & {
   khatms: KhatmWithJuzs[];
   creatorName: string;
+  isBookmarked?: boolean; // Optional flag to indicate if the event is bookmarked by the current user
 };
+
+// Bookmark schemas for API operations
+export const insertBookmarkSchema = createInsertSchema(bookmarks).pick({
+  userId: true,
+  eventId: true,
+});
+
+export const bookmarkEventSchema = z.object({
+  eventId: z.number(),
+});
+
+export const unbookmarkEventSchema = z.object({
+  eventId: z.number(),
+});
+
+export type InsertBookmark = z.infer<typeof insertBookmarkSchema>;
+export type Bookmark = typeof bookmarks.$inferSelect;
+export type BookmarkEventInput = z.infer<typeof bookmarkEventSchema>;
+export type UnbookmarkEventInput = z.infer<typeof unbookmarkEventSchema>;

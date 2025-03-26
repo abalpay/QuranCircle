@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { users, events, khatms, juzs } from '@shared/schema';
+import { users, events, khatms, juzs, bookmarks } from '@shared/schema';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -28,7 +28,7 @@ pool.on('error', (err) => {
 });
 
 // Create a Drizzle ORM instance with our schema
-export const db = drizzle(pool, { schema: { users, events, khatms, juzs } });
+export const db = drizzle(pool, { schema: { users, events, khatms, juzs, bookmarks } });
 
 // Function to run migrations
 export async function runMigrations() {
