@@ -14,6 +14,13 @@ import { emailService } from "./email";
 // Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
 const storage = process.env.DATABASE_URL ? pgStorage : memStorage;
 
+// Extend session type to include returnTo
+declare module 'express-session' {
+  interface SessionData {
+    returnTo?: string;
+  }
+}
+
 declare global {
   namespace Express {
     interface User extends SelectUser {}
