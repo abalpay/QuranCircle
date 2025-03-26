@@ -170,21 +170,11 @@ export default function EventPage() {
               // Update the local state to immediately reflect the deletion
               if (event && message.payload.khatmId) {
                 const deletedKhatmId = message.payload.khatmId;
-                console.log(`Locally marking khatm ${deletedKhatmId} as deleted in the UI state`);
+                console.log(`Removing deleted khatm ${deletedKhatmId} from the UI state`);
                 
-                // Update the internal state to mark the deleted khatm
-                setEvent(prevEvent => {
-                  if (!prevEvent) return prevEvent;
-                  
-                  return {
-                    ...prevEvent,
-                    khatms: prevEvent.khatms.map(k => 
-                      k.id === deletedKhatmId 
-                        ? { ...k, isDeleted: true } 
-                        : k
-                    )
-                  };
-                });
+                // Force a refresh instead of trying to update state directly
+                // This ensures we get fresh data from the server after deletion
+                queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
               }
             }
             
@@ -306,10 +296,8 @@ export default function EventPage() {
         </Alert>
       )}
 
-      {/* Only show non-deleted khatms in the UI */}
-      {event.khatms
-        .filter((khatm) => !khatm.isDeleted)
-        .map((khatm) => (
+      {/* Show all khatms (deleted ones are truly deleted now) */}
+      {event.khatms.map((khatm) => (
           <MemoizedKhatmCard
             key={khatm.id}
             khatm={khatm}
