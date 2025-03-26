@@ -3,6 +3,7 @@ import {
   events, type Event, type InsertEvent,
   khatms, type Khatm, type InsertKhatm,
   juzs, type Juz, type InsertJuz,
+  bookmarks, type Bookmark, type InsertBookmark,
   type KhatmWithJuzs, type EventWithKhatms
 } from "@shared/schema";
 import session from "express-session";
@@ -49,6 +50,13 @@ export interface IStorage {
   getJuzsByKhatmId(khatmId: number): Promise<Juz[]>;
   updateJuz(khatmId: number, juzNumber: number, updates: Partial<Juz>): Promise<Juz | undefined>;
   
+  // Bookmark Methods
+  createBookmark(bookmark: InsertBookmark): Promise<Bookmark>;
+  getBookmark(userId: number, eventId: number): Promise<Bookmark | undefined>;
+  getBookmarksByUser(userId: number): Promise<Bookmark[]>;
+  getBookmarksByEvent(eventId: number): Promise<Bookmark[]>;
+  deleteBookmark(userId: number, eventId: number): Promise<Bookmark | undefined>;
+  
   // Batch operations
   createAllJuzForKhatm(khatmId: number): Promise<void>;
   checkAndCreateNewKhatm(eventId: number): Promise<Khatm | undefined>;
@@ -62,11 +70,13 @@ export class MemStorage implements IStorage {
   private eventsData: Map<number, Event>;
   private khatmsData: Map<number, Khatm>;
   private juzsData: Map<string, Juz>; // Composite key: khatmId-juzNumber
+  private bookmarksData: Map<string, Bookmark>; // Composite key: userId-eventId
   
   private userIdCounter: number;
   private eventIdCounter: number;
   private khatmIdCounter: number;
   private juzIdCounter: number;
+  private bookmarkIdCounter: number;
   
   sessionStore: any; // Using any for session store type
   
@@ -75,11 +85,13 @@ export class MemStorage implements IStorage {
     this.eventsData = new Map();
     this.khatmsData = new Map();
     this.juzsData = new Map();
+    this.bookmarksData = new Map();
     
     this.userIdCounter = 1;
     this.eventIdCounter = 1;
     this.khatmIdCounter = 1;
     this.juzIdCounter = 1;
+    this.bookmarkIdCounter = 1;
     
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // 24 hours
@@ -470,6 +482,46 @@ export class MemStorage implements IStorage {
     }
     
     return undefined;
+  }
+
+  // Bookmark Methods
+  async createBookmark(insertBookmark: InsertBookmark): Promise<Bookmark> {
+    const id = this.bookmarkIdCounter++;
+    const bookmark: Bookmark = {
+      ...insertBookmark,
+      id,
+      createdAt: new Date()
+    };
+
+    const key = `${bookmark.userId}-${bookmark.eventId}`;
+    this.bookmarksData.set(key, bookmark);
+    return bookmark;
+  }
+
+  async getBookmark(userId: number, eventId: number): Promise<Bookmark | undefined> {
+    const key = `${userId}-${eventId}`;
+    return this.bookmarksData.get(key);
+  }
+
+  async getBookmarksByUser(userId: number): Promise<Bookmark[]> {
+    return Array.from(this.bookmarksData.values()).filter(
+      bookmark => bookmark.userId === userId
+    );
+  }
+
+  async getBookmarksByEvent(eventId: number): Promise<Bookmark[]> {
+    return Array.from(this.bookmarksData.values()).filter(
+      bookmark => bookmark.eventId === eventId
+    );
+  }
+
+  async deleteBookmark(userId: number, eventId: number): Promise<Bookmark | undefined> {
+    const key = `${userId}-${eventId}`;
+    const bookmark = this.bookmarksData.get(key);
+    if (!bookmark) return undefined;
+
+    this.bookmarksData.delete(key);
+    return bookmark;
   }
 }
 

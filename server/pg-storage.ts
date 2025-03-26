@@ -3,6 +3,7 @@ import {
   events, type Event, type InsertEvent,
   khatms, type Khatm, type InsertKhatm,
   juzs, type Juz, type InsertJuz,
+  bookmarks, type Bookmark, type InsertBookmark,
   type KhatmWithJuzs, type EventWithKhatms
 } from "@shared/schema";
 
@@ -113,7 +114,7 @@ export class PgStorage implements IStorage {
     return result[0];
   }
 
-  async getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined> {
+  async getEventWithKhatms(id: number, userId?: number): Promise<EventWithKhatms | undefined> {
     // Get the event
     const eventResult = await db.select().from(events).where(eq(events.id, id));
     if (!eventResult.length) return undefined;
@@ -155,11 +156,19 @@ export class PgStorage implements IStorage {
     // Sort khatms by khatmNumber
     khatmsWithJuzs.sort((a, b) => a.khatmNumber - b.khatmNumber);
     
+    // Check if this event is bookmarked by the user
+    let isBookmarked = false;
+    if (userId) {
+      const bookmark = await this.getBookmark(userId, id);
+      isBookmarked = !!bookmark;
+    }
+    
     // Return the combined event with khatms
     return {
       ...event,
       khatms: khatmsWithJuzs,
-      creatorName
+      creatorName,
+      isBookmarked
     };
   }
 
@@ -464,6 +473,49 @@ export class PgStorage implements IStorage {
       )
       .returning();
     return result[0];
+  }
+  
+  // Bookmark Methods
+  async createBookmark(bookmark: InsertBookmark): Promise<Bookmark> {
+    const result = await db.insert(bookmarks).values(bookmark).returning();
+    return result[0];
+  }
+
+  async getBookmark(userId: number, eventId: number): Promise<Bookmark | undefined> {
+    const result = await db.select()
+      .from(bookmarks)
+      .where(
+        and(
+          eq(bookmarks.userId, userId),
+          eq(bookmarks.eventId, eventId)
+        )
+      );
+    return result[0];
+  }
+
+  async getBookmarksByUser(userId: number): Promise<Bookmark[]> {
+    return await db.select().from(bookmarks).where(eq(bookmarks.userId, userId));
+  }
+
+  async getBookmarksByEvent(eventId: number): Promise<Bookmark[]> {
+    return await db.select().from(bookmarks).where(eq(bookmarks.eventId, eventId));
+  }
+
+  async deleteBookmark(userId: number, eventId: number): Promise<Bookmark | undefined> {
+    // First get the bookmark to return it
+    const bookmark = await this.getBookmark(userId, eventId);
+    if (!bookmark) return undefined;
+
+    // Delete the bookmark
+    await db.delete(bookmarks)
+      .where(
+        and(
+          eq(bookmarks.userId, userId),
+          eq(bookmarks.eventId, eventId)
+        )
+      );
+    
+    return bookmark;
   }
 
   // Batch operations
