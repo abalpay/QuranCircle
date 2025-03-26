@@ -278,7 +278,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <div className="relative text-center py-12 md:py-16 px-4 md:px-8 bg-gradient-to-b from-emerald-50/70 to-transparent rounded-3xl shadow-sm mb-8">
           <div className="max-w-2xl mx-auto">
-            <img src="/quran-icon.png" alt="Quran Icon" className="w-16 h-16 mx-auto mb-6" />
+            <img src="/quran-icon.png" alt="Quran Icon" className="w-24 h-24 mx-auto mb-6" />
             
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-500">
               Welcome to <span className="font-extrabold">QuranCircle</span>
