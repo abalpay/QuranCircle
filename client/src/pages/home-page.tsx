@@ -37,7 +37,7 @@ interface WebSocketMessage {
 
 export default function HomePage() {
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
-  const [recentlyVisitedCircles, setRecentlyVisitedCircles] = useState<{id: number, name: string, visitedAt: string}[]>([]);
+  // We no longer use recentlyVisitedCircles as we're now using bookmarks for logged-in users
   const { user, isLoading: authLoading } = useAuth();
   const { openAuthModal } = useAuthModal();
   const wsRef = useRef<WebSocket | null>(null);
@@ -252,17 +252,8 @@ export default function HomePage() {
     };
   }, [user, queryClient]);
   
-  // Load recently visited circles from localStorage
-  useEffect(() => {
-    if (!user) {
-      try {
-        const visitedEvents = JSON.parse(localStorage.getItem('quranCircleVisitedEvents') || '[]');
-        setRecentlyVisitedCircles(visitedEvents);
-      } catch (error) {
-        console.error('Error loading visited circles from localStorage:', error);
-      }
-    }
-  }, [user]);
+  // We no longer need to use localStorage for recently visited circles
+  // as we're now using bookmarks for logged-in users
 
   // Show loading indicator while checking authentication
   if (authLoading) {
@@ -356,45 +347,20 @@ export default function HomePage() {
         </Button>
       </div>
 
-      {/* Show recently visited circles for non-logged in users */}
-      {!user && recentlyVisitedCircles.length > 0 && (
+      {/* Non-logged in users now need to sign in to see their bookmarked circles */}
+      {!user && (
         <div className="mb-10">
-          <h2 className="text-xl font-medium text-gray-800 mb-4">
-            Recently Visited Circles
-          </h2>
-          <div className="grid gap-3">
-            {recentlyVisitedCircles.map((circle) => (
-              <Link key={circle.id} href={`/event/${circle.id}`}>
-                <div className="cursor-pointer block bg-white rounded-lg border border-[hsl(var(--quran-border))] hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-center p-4">
-                    <div>
-                      <h3 className="font-medium text-gray-800">
-                        {circle.name}
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Visited on{" "}
-                        {format(new Date(circle.visitedAt), "MMM d, yyyy")}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          openAuthModal('login');
-                        }}
-                        className="text-xs hover:bg-[hsl(var(--quran-green))]/10 hover:text-[hsl(var(--quran-green))] transition-colors text-gray-500 bg-gray-100 px-2 py-1 rounded"
-                      >
-                        Sign in to save
-                      </button>
-                      <div className="bg-[hsl(var(--quran-gray))] p-2 rounded-full">
-                        <ExternalLink className="h-4 w-4 text-gray-500" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div className="text-center py-8 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
+            <p className="text-gray-600 mb-4">
+              Sign in to see your bookmarked reading circles
+            </p>
+            <Button
+              onClick={() => openAuthModal("login")}
+              variant="outline"
+              className="border-[hsl(var(--quran-green))] text-[hsl(var(--quran-green))]"
+            >
+              Sign In
+            </Button>
           </div>
         </div>
       )}

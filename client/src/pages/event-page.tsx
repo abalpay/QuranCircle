@@ -91,24 +91,8 @@ export default function EventPage() {
     return () => clearInterval(interval);
   }, [refetch, lastRefreshed]);
   
-  // Store visited circles in localStorage for easier access later
-  useEffect(() => {
-    if (event) {
-      // Get existing visited events
-      const visitedEvents = JSON.parse(localStorage.getItem('quranCircleVisitedEvents') || '[]');
-      
-      // Check if this event is already in the list
-      if (!visitedEvents.some((e: {id: number}) => e.id === event.id)) {
-        // Add it and save back to localStorage
-        visitedEvents.push({
-          id: event.id,
-          name: event.name,
-          visitedAt: new Date().toISOString()
-        });
-        localStorage.setItem('quranCircleVisitedEvents', JSON.stringify(visitedEvents));
-      }
-    }
-  }, [event]);
+  // We no longer need to store recently visited circles in localStorage
+  // as we're now using bookmarks for logged-in users
   
   // Set up WebSocket connection for real-time updates
   useEffect(() => {
