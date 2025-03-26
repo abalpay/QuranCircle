@@ -123,12 +123,17 @@ export default function KhatmActionsDialog({ khatm, eventId, isCreator: isCreato
         duration: 3000
       });
       
+      console.log(`Successfully deleted khatm ${khatm.id} from event ${eventId}`);
+      
       // Force complete refresh of all event data by removing cached data
       queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
       queryClient.removeQueries({ queryKey: ['/api/events'] });
       
-      // Fetch fresh data (will be triggered by redirect, but explicitly done here for clarity)
-      queryClient.refetchQueries({ queryKey: ['/api/events'] });
+      // Also invalidate any other queries that might contain this khatm
+      queryClient.invalidateQueries();
+      
+      // Fetch fresh data immediately (don't wait for WebSocket)
+      queryClient.fetchQuery({ queryKey: ['/api/events'] });
       
       setIsDialogOpen(false);
       setConfirmAction(null);
