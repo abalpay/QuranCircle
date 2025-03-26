@@ -7,9 +7,10 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage as memStorage } from "./storage";
 import { pgStorage } from "./pg-storage";
-import { User as SelectUser, insertGoogleUserSchema } from "@shared/schema";
+import { User as SelectUser, insertGoogleUserSchema, insertBookmarkSchema } from "@shared/schema";
 import { z } from "zod";
 import { emailService } from "./email";
+import { cache } from "./cache";
 
 // Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
 const storage = process.env.DATABASE_URL ? pgStorage : memStorage;
@@ -189,7 +190,48 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
+  app.post("/api/login", passport.authenticate("local"), async (req, res) => {
+    // Check if the request includes a returnTo parameter with an event ID for auto-bookmarking
+    try {
+      const { returnTo } = req.body;
+      
+      if (returnTo && returnTo.includes('/circle/') && req.isAuthenticated() && req.user) {
+        const parts = returnTo.split('/');
+        const eventIdIndex = parts.indexOf('circle') + 1;
+        
+        if (eventIdIndex < parts.length) {
+          const eventId = parseInt(parts[eventIdIndex]);
+          
+          if (!isNaN(eventId)) {
+            // Check if the event exists
+            const event = await storage.getEvent(eventId);
+            
+            if (event) {
+              // Check if the bookmark already exists
+              const existingBookmark = await storage.getBookmark(req.user.id, eventId);
+              
+              if (!existingBookmark) {
+                // Auto-bookmark the event
+                console.log(`Auto-bookmarking event ${eventId} for user ${req.user.id} after login`);
+                await storage.createBookmark({
+                  userId: req.user.id,
+                  eventId: eventId,
+                  createdAt: new Date()
+                });
+                
+                // Clear any cached data for this event and user
+                cache.delete(`event:${eventId}:user:${req.user.id}`);
+                cache.delete(`events:user:${req.user.id}`);
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error auto-bookmarking event after login:', error);
+      // Don't block the response if bookmarking fails
+    }
+    
     res.status(200).json(req.user);
   });
 
@@ -218,10 +260,49 @@ export function setupAuth(app: Express) {
       failureRedirect: '/?googleAuthFailed=true',
       session: true
     }),
-    (req, res) => {
+    async (req, res) => {
       // Check if there's a return to URL
       const returnTo = req.session.returnTo || '/';
       delete req.session.returnTo;
+      
+      // Auto-bookmark if returning to a circle page
+      try {
+        if (returnTo.includes('/circle/') && req.isAuthenticated() && req.user) {
+          const parts = returnTo.split('/');
+          const eventIdIndex = parts.indexOf('circle') + 1;
+          
+          if (eventIdIndex < parts.length) {
+            const eventId = parseInt(parts[eventIdIndex]);
+            
+            if (!isNaN(eventId)) {
+              // Check if the event exists
+              const event = await storage.getEvent(eventId);
+              
+              if (event) {
+                // Check if the bookmark already exists
+                const existingBookmark = await storage.getBookmark(req.user.id, eventId);
+                
+                if (!existingBookmark) {
+                  // Auto-bookmark the event
+                  console.log(`Auto-bookmarking event ${eventId} for user ${req.user.id} after login`);
+                  await storage.createBookmark({
+                    userId: req.user.id,
+                    eventId: eventId,
+                    createdAt: new Date()
+                  });
+                  
+                  // Clear any cached data for this event and user
+                  cache.delete(`event:${eventId}:user:${req.user.id}`);
+                  cache.delete(`events:user:${req.user.id}`);
+                }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error auto-bookmarking event after login:', error);
+        // Don't block the redirect if bookmarking fails
+      }
       
       // Redirect to the client-side app
       res.redirect(returnTo);

@@ -217,11 +217,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createAllJuzForKhatm(khatm.id);
       
       // Get the event with its khatms
-      const eventWithKhatms = await storage.getEventWithKhatms(event.id);
+      const eventWithKhatms = await storage.getEventWithKhatms(event.id, req.user?.id);
       
       // Cache the event for future requests
       if (eventWithKhatms) {
-        cache.set(`event:${event.id}`, eventWithKhatms, EVENT_CACHE_TTL);
+        const cacheKey = req.user?.id 
+          ? `event:${event.id}:user:${req.user.id}` 
+          : `event:${event.id}`;
+        cache.set(cacheKey, eventWithKhatms, EVENT_CACHE_TTL);
         
         // If a user created this event, invalidate the events cache for that user
         if (req.isAuthenticated() && req.user!.id) {
