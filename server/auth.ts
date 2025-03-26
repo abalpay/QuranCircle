@@ -97,64 +97,116 @@ export function setupAuth(app: Express) {
   
   // Google OAuth strategy
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    console.log('Google OAuth initialized');
+    console.log('Google OAuth initialization starting...');
     
-    const callbackURL = process.env.NODE_ENV === 'production' 
+    // Define allowed callback domains for Google OAuth
+    // These should match exactly what's configured in the Google Cloud Console
+    const allowedCallbackDomains = [
+      'https://qurancircle.io',  // Production with Cloudflare
+      'https://www.qurancircle.io', // With www subdomain
+      'https://quranreadingcircle.replit.app', // Replit domain
+      'http://localhost:5000'    // Local development
+    ];
+    
+    // Log allowed domains for debugging
+    console.log('Allowed Google OAuth callback domains:', allowedCallbackDomains);
+    
+    // Default callback URL (will be dynamically overridden by proxy callback)
+    const defaultCallbackURL = process.env.NODE_ENV === 'production' 
       ? 'https://qurancircle.io/auth/google/callback'
       : 'http://localhost:5000/auth/google/callback';
+    
+    console.log('Default Google OAuth callback URL:', defaultCallbackURL);
+    
+    // Use a proxy callback that dynamically determines the correct callback URL
+    const proxyCallback = (req: any, accessToken: string, refreshToken: string, profile: any, done: any) => {
+      // Get the request origin or referer to determine which domain is being used
+      const origin = req.headers.origin || req.headers.referer || '';
+      console.log(`Google OAuth request from origin: ${origin}`);
+      
+      // Find matching domain from our allowed list
+      let matchingDomain = allowedCallbackDomains.find(domain => origin.startsWith(domain));
+      
+      if (!matchingDomain && process.env.NODE_ENV === 'production') {
+        console.log('Could not determine exact origin domain, defaulting to production URL');
+        matchingDomain = 'https://qurancircle.io';
+      } else if (!matchingDomain) {
+        console.log('Could not determine exact origin domain, defaulting to localhost');
+        matchingDomain = 'http://localhost:5000';
+      }
+      
+      console.log(`Using Google OAuth callback domain: ${matchingDomain}`);
+      
+      // Call the actual strategy callback
+      return googleStrategyCallback(accessToken, refreshToken, profile, done);
+    };
+    
+    // The actual Google strategy callback function
+    const googleStrategyCallback = async (accessToken: string, refreshToken: string, profile: any, done: any) => {
+      try {
+        console.log(`Google OAuth profile received: ${profile.id}`);
+        const email = profile.emails?.[0]?.value;
+          
+        if (!email) {
+          console.error('No email provided from Google');
+          return done(new Error('No email provided from Google'));
+        }
+        
+        console.log(`Google authentication for email: ${email}`);
+        
+        // Check if user already exists
+        let user = await storage.getUserByEmail(email);
+        
+        // If user exists but was not created with Google, don't proceed
+        if (user && user.providerType !== 'google') {
+          console.log(`User exists with different provider: ${user.providerType}`);
+          return done(null, false, { message: 'Email already registered with a different login method' });
+        }
+        
+        // If user doesn't exist, create a new one
+        if (!user) {
+          console.log(`Creating new user for Google authentication: ${email}`);
+          // Create a username based on their email or Google ID
+          const defaultUsername = email.split('@')[0];
+          
+          // Check if username already exists
+          const existingUserByUsername = await storage.getUserByUsername(defaultUsername);
+          
+          // If username exists, append a random string
+          const username = existingUserByUsername 
+            ? `${defaultUsername}-${randomBytes(3).toString('hex')}`
+            : defaultUsername;
+          
+          console.log(`Generated username: ${username}`);
+            
+          const newUser = await storage.createUser(insertGoogleUserSchema.parse({
+            username: username,
+            email: email,
+            providerType: 'google',
+            providerId: profile.id
+          }));
+          
+          console.log(`New user created successfully with ID: ${newUser.id}`);
+          return done(null, newUser);
+        }
+        
+        // User exists and was created with Google
+        console.log(`Existing Google user found: ${user.username} (ID: ${user.id})`);
+        return done(null, user);
+      } catch (error) {
+        console.error('Error in Google authentication:', error);
+        return done(error as Error);
+      }
+    }
       
     passport.use(
       new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: callbackURL,
-        scope: ['profile', 'email']
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          const email = profile.emails?.[0]?.value;
-          
-          if (!email) {
-            return done(new Error('No email provided from Google'));
-          }
-          
-          // Check if user already exists
-          let user = await storage.getUserByEmail(email);
-          
-          // If user exists but was not created with Google, don't proceed
-          if (user && user.providerType !== 'google') {
-            return done(null, false, { message: 'Email already registered with a different login method' });
-          }
-          
-          // If user doesn't exist, create a new one
-          if (!user) {
-            // Create a username based on their email or Google ID
-            const defaultUsername = email.split('@')[0];
-            
-            // Check if username already exists
-            const existingUserByUsername = await storage.getUserByUsername(defaultUsername);
-            
-            // If username exists, append a random string
-            const username = existingUserByUsername 
-              ? `${defaultUsername}-${randomBytes(3).toString('hex')}`
-              : defaultUsername;
-              
-            const newUser = await storage.createUser(insertGoogleUserSchema.parse({
-              username: username,
-              email: email,
-              providerType: 'google',
-              providerId: profile.id
-            }));
-            
-            return done(null, newUser);
-          }
-          
-          // User exists and was created with Google
-          return done(null, user);
-        } catch (error) {
-          return done(error as Error);
-        }
-      })
+        callbackURL: defaultCallbackURL,
+        passReqToCallback: true // Pass request to callback
+      } as any, // Type assertion needed because of passReqToCallback
+      proxyCallback as any)
     );
   } else {
     console.log('Google OAuth not configured. GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required.');
