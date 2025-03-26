@@ -45,9 +45,25 @@ export default function CircleSettingsDialog({ isOpen, onClose, event }: CircleS
       );
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Remove any cached data to ensure clean state
+      queryClient.removeQueries({ queryKey: [`/api/events/${event.id}`] });
+      queryClient.removeQueries({ queryKey: ['/api/events'] });
+      
+      // Then invalidate to trigger refetch
       queryClient.invalidateQueries({ queryKey: [`/api/events/${event.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      
+      // Force direct refetch of the data to ensure it's updated in UI
+      Promise.all([
+        queryClient.refetchQueries({ queryKey: [`/api/events/${event.id}`] }),
+        queryClient.refetchQueries({ queryKey: ['/api/events'] })
+      ]).then(() => {
+        console.log("Successfully refetched event data after settings update");
+      }).catch(err => {
+        console.error("Error refetching after settings update:", err);
+      });
+      
       toast({
         title: 'Circle settings updated',
         description: 'Your changes have been saved.',

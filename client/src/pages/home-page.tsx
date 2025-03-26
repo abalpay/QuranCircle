@@ -158,8 +158,26 @@ export default function HomePage() {
             }, 500); // Using a longer delay of 500ms to ensure server state is updated
             break;
           case WebSocketMessageType.EVENT_UPDATED:
-            console.log("Event updated, refreshing events");
-            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            console.log("Event updated, refreshing events", message.payload);
+            
+            if (message.payload && message.payload.eventId) {
+              console.log(`Received event update notification for eventId: ${message.payload.eventId}`);
+            }
+            
+            // Remove all query cache first for a fresh start
+            queryClient.removeQueries({ queryKey: ["/api/events"] });
+            
+            // Invalidate the specific event
+            if (message.payload && message.payload.eventId) {
+              queryClient.removeQueries({ queryKey: [`/api/events/${message.payload.eventId}`] });
+            }
+            
+            // Force an immediate refetch
+            setTimeout(() => {
+              refetch()
+                .then(() => console.log("Successfully refetched events after event update"))
+                .catch(err => console.error("Error refetching events after event update:", err));
+            }, 100); // Use a short delay for updates
             break;
           
           case WebSocketMessageType.EVENT_ARCHIVED:

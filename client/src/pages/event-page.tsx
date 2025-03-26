@@ -23,6 +23,8 @@ enum WebSocketMessageType {
   KHATM_UNARCHIVED = 'KHATM_UNARCHIVED',
   KHATM_DELETED = 'KHATM_DELETED',
   EVENT_UPDATED = 'EVENT_UPDATED',
+  EVENT_ARCHIVED = 'EVENT_ARCHIVED',
+  EVENT_UNARCHIVED = 'EVENT_UNARCHIVED',
   SUBSCRIBE_EVENT = 'SUBSCRIBE_EVENT',
   PING = 'PING',
   PONG = 'PONG',
@@ -193,8 +195,38 @@ export default function EventPage() {
             
           case WebSocketMessageType.EVENT_UPDATED:
             console.log("Event updated, refreshing event data");
-            queryClient.invalidateQueries({ queryKey: [`/api/events/${eventId}`] });
-            refetch();
+            // Remove any cached data to ensure we get fresh data
+            queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
+            // Force immediate refetch
+            setTimeout(() => {
+              refetch()
+                .then(() => console.log("Successfully refetched event data after update"))
+                .catch(err => console.error("Error refetching event data after update:", err));
+            }, 100);
+            break;
+            
+          case WebSocketMessageType.EVENT_ARCHIVED:
+            console.log("Event archived, refreshing event data");
+            // Remove any cached data
+            queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
+            // Force immediate refetch
+            setTimeout(() => {
+              refetch()
+                .then(() => console.log("Successfully refetched event data after archive"))
+                .catch(err => console.error("Error refetching event data after archive:", err));
+            }, 100);
+            break;
+            
+          case WebSocketMessageType.EVENT_UNARCHIVED:
+            console.log("Event unarchived, refreshing event data");
+            // Remove any cached data
+            queryClient.removeQueries({ queryKey: [`/api/events/${eventId}`] });
+            // Force immediate refetch
+            setTimeout(() => {
+              refetch()
+                .then(() => console.log("Successfully refetched event data after unarchive"))
+                .catch(err => console.error("Error refetching event data after unarchive:", err));
+            }, 100);
             break;
           
           case WebSocketMessageType.PING:
