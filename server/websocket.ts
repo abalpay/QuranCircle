@@ -16,6 +16,8 @@ export enum WebSocketMessageType {
   KHATM_DELETED = 'KHATM_DELETED',
   EVENT_UPDATED = 'EVENT_UPDATED',
   EVENT_CREATED = 'EVENT_CREATED',
+  EVENT_ARCHIVED = 'EVENT_ARCHIVED',
+  EVENT_UNARCHIVED = 'EVENT_UNARCHIVED',
   SUBSCRIBE_EVENT = 'SUBSCRIBE_EVENT',
   PING = 'PING',
   PONG = 'PONG',
@@ -310,6 +312,40 @@ export class WebSocketManager {
     this.broadcastToAll({
       type: WebSocketMessageType.EVENT_CREATED,
       payload: { event }
+    });
+  }
+  
+  /**
+   * Broadcast event archived message to all connected clients
+   */
+  public broadcastEventArchived(eventId: number, event: Event) {
+    // Broadcast to event subscribers
+    this.broadcastToEvent(eventId, {
+      type: WebSocketMessageType.EVENT_ARCHIVED,
+      payload: { event, eventId }
+    });
+    
+    // Also broadcast to all clients for home page updates
+    this.broadcastToAll({
+      type: WebSocketMessageType.EVENT_ARCHIVED,
+      payload: { event, eventId }
+    });
+  }
+  
+  /**
+   * Broadcast event unarchived message to all connected clients
+   */
+  public broadcastEventUnarchived(eventId: number, event: Event) {
+    // Broadcast to event subscribers
+    this.broadcastToEvent(eventId, {
+      type: WebSocketMessageType.EVENT_UNARCHIVED,
+      payload: { event, eventId }
+    });
+    
+    // Also broadcast to all clients for home page updates
+    this.broadcastToAll({
+      type: WebSocketMessageType.EVENT_UNARCHIVED,
+      payload: { event, eventId }
     });
   }
   

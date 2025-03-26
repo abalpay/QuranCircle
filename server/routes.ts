@@ -472,9 +472,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cache.delete(`events:user:${req.user!.id}`);
       }
       
-      // Broadcast the event update to all clients
+      // Broadcast the event archive to all clients
       const websocketManager = getWebSocketManager();
-      websocketManager.broadcastEventUpdated(eventId, archivedEvent);
+      websocketManager.broadcastEventArchived(eventId, archivedEvent);
       
       console.log(`Event ${eventId} archived by user ${req.user!.id}`);
       
@@ -530,9 +530,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cache.delete(`events:user:${req.user!.id}`);
       }
       
-      // Broadcast the event update to all clients
+      // Broadcast the event unarchive to all clients
       const websocketManager = getWebSocketManager();
-      websocketManager.broadcastEventUpdated(eventId, unarchivedEvent);
+      websocketManager.broadcastEventUnarchived(eventId, unarchivedEvent);
       
       console.log(`Event ${eventId} unarchived by user ${req.user!.id}`);
       

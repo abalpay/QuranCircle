@@ -23,6 +23,8 @@ enum WebSocketMessageType {
   KHATM_DELETED = 'KHATM_DELETED',
   EVENT_UPDATED = 'EVENT_UPDATED',
   EVENT_CREATED = 'EVENT_CREATED',
+  EVENT_ARCHIVED = 'EVENT_ARCHIVED',
+  EVENT_UNARCHIVED = 'EVENT_UNARCHIVED',
   SUBSCRIBE_EVENT = 'SUBSCRIBE_EVENT',
   PING = 'PING',
   PONG = 'PONG',
@@ -158,6 +160,52 @@ export default function HomePage() {
           case WebSocketMessageType.EVENT_UPDATED:
             console.log("Event updated, refreshing events");
             queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            break;
+          
+          case WebSocketMessageType.EVENT_ARCHIVED:
+            console.log("Event archived, refreshing events", message.payload);
+            
+            if (message.payload && message.payload.eventId) {
+              console.log(`Received event archive notification for eventId: ${message.payload.eventId}`);
+            }
+            
+            // Remove all query cache first for a fresh start
+            queryClient.removeQueries({ queryKey: ["/api/events"] });
+            
+            // Invalidate the specific event
+            if (message.payload && message.payload.eventId) {
+              queryClient.removeQueries({ queryKey: [`/api/events/${message.payload.eventId}`] });
+            }
+            
+            // Force an immediate refetch
+            setTimeout(() => {
+              refetch()
+                .then(() => console.log("Successfully refetched events after event archive"))
+                .catch(err => console.error("Error refetching events after event archive:", err));
+            }, 250);
+            break;
+            
+          case WebSocketMessageType.EVENT_UNARCHIVED:
+            console.log("Event unarchived, refreshing events", message.payload);
+            
+            if (message.payload && message.payload.eventId) {
+              console.log(`Received event unarchive notification for eventId: ${message.payload.eventId}`);
+            }
+            
+            // Remove all query cache first for a fresh start
+            queryClient.removeQueries({ queryKey: ["/api/events"] });
+            
+            // Invalidate the specific event
+            if (message.payload && message.payload.eventId) {
+              queryClient.removeQueries({ queryKey: [`/api/events/${message.payload.eventId}`] });
+            }
+            
+            // Force an immediate refetch
+            setTimeout(() => {
+              refetch()
+                .then(() => console.log("Successfully refetched events after event unarchive"))
+                .catch(err => console.error("Error refetching events after event unarchive:", err));
+            }, 250);
             break;
             
           case WebSocketMessageType.PING:
@@ -393,8 +441,8 @@ export default function HomePage() {
                 <div className="grid gap-3">
                   {userCircles
                     .filter(circle => {
-                      // Filter circles with at least one archived khatm
-                      return circle.khatms?.some(khatm => khatm.isArchived === true && !khatm.isDeleted);
+                      // Filter circles that are archived
+                      return circle.isArchived === true;
                     })
                     .map((circle) => (
                       <Link key={circle.id} href={`/event/${circle.id}`}>
@@ -411,6 +459,12 @@ export default function HomePage() {
                                 Created on{" "}
                                 {format(new Date(circle.createdAt), "MMM d, yyyy")}
                               </p>
+                              {circle.archivedAt && (
+                                <p className="text-xs text-amber-600 mt-1">
+                                  Archived on{" "}
+                                  {format(new Date(circle.archivedAt), "MMM d, yyyy")}
+                                </p>
+                              )}
                             </div>
                             <div className="bg-[hsl(var(--quran-gray))] p-2 rounded-full">
                               <ExternalLink className="h-4 w-4 text-gray-500" />
@@ -420,7 +474,7 @@ export default function HomePage() {
                       </Link>
                     ))}
                   {userCircles.filter(circle => 
-                    circle.khatms?.some(khatm => khatm.isArchived === true && !khatm.isDeleted)
+                    circle.isArchived === true
                   ).length === 0 && (
                     <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
                       <p className="text-gray-600">
