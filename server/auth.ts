@@ -1,12 +1,13 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Express, Request, Response } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage as memStorage } from "./storage";
 import { pgStorage } from "./pg-storage";
-import { User as SelectUser } from "@shared/schema";
+import { User as SelectUser, insertGoogleUserSchema } from "@shared/schema";
 import { z } from "zod";
 import { emailService } from "./email";
 
@@ -67,6 +68,7 @@ export function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Local strategy for username/password login
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       // Check if the input is an email by looking for @ symbol
@@ -84,6 +86,71 @@ export function setupAuth(app: Express) {
       }
     }),
   );
+  
+  // Google OAuth strategy
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    console.log('Google OAuth initialized');
+    
+    const callbackURL = process.env.NODE_ENV === 'production' 
+      ? 'https://qurancircle.io/auth/google/callback'
+      : 'http://localhost:5000/auth/google/callback';
+      
+    passport.use(
+      new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: callbackURL,
+        scope: ['profile', 'email']
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          const email = profile.emails?.[0]?.value;
+          
+          if (!email) {
+            return done(new Error('No email provided from Google'));
+          }
+          
+          // Check if user already exists
+          let user = await storage.getUserByEmail(email);
+          
+          // If user exists but was not created with Google, don't proceed
+          if (user && user.providerType !== 'google') {
+            return done(null, false, { message: 'Email already registered with a different login method' });
+          }
+          
+          // If user doesn't exist, create a new one
+          if (!user) {
+            // Create a username based on their email or Google ID
+            const defaultUsername = email.split('@')[0];
+            
+            // Check if username already exists
+            const existingUserByUsername = await storage.getUserByUsername(defaultUsername);
+            
+            // If username exists, append a random string
+            const username = existingUserByUsername 
+              ? `${defaultUsername}-${randomBytes(3).toString('hex')}`
+              : defaultUsername;
+              
+            const newUser = await storage.createUser(insertGoogleUserSchema.parse({
+              username: username,
+              email: email,
+              providerType: 'google',
+              providerId: profile.id
+            }));
+            
+            return done(null, newUser);
+          }
+          
+          // User exists and was created with Google
+          return done(null, user);
+        } catch (error) {
+          return done(error as Error);
+        }
+      })
+    );
+  } else {
+    console.log('Google OAuth not configured. GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required.');
+  }
 
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
@@ -129,6 +196,36 @@ export function setupAuth(app: Express) {
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
+  });
+  
+  // Google OAuth routes
+  app.get('/auth/google', 
+    passport.authenticate('google', { 
+      scope: ['profile', 'email'],
+      prompt: 'select_account' // Always prompt the user to select an account
+    })
+  );
+  
+  app.get('/auth/google/callback', 
+    passport.authenticate('google', { 
+      failureRedirect: '/?googleAuthFailed=true',
+      session: true
+    }),
+    (req, res) => {
+      // Check if there's a return to URL
+      const returnTo = req.session.returnTo || '/';
+      delete req.session.returnTo;
+      
+      // Redirect to the client-side app
+      res.redirect(returnTo);
+    }
+  );
+  
+  // Save the returnTo URL before redirecting to Google OAuth
+  app.get('/auth/google-redirect', (req, res) => {
+    const returnTo = req.query.returnTo as string || '/';
+    req.session.returnTo = returnTo;
+    res.redirect('/auth/google');
   });
 
   // Schema for forgot password request

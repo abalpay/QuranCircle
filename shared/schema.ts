@@ -27,6 +27,16 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
+// Schema for users created through Google OAuth
+export const insertGoogleUserSchema = createInsertSchema(users).pick({
+  username: true,
+  email: true,
+}).extend({
+  providerType: z.literal('google'),
+  providerId: z.string(),
+  password: z.string().optional().default(''), // Password will be empty for Google users
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
