@@ -30,6 +30,7 @@ export interface IStorage {
   getAllEvents(): Promise<Event[]>;
   updateEvent(id: number, event: Partial<Event>): Promise<Event | undefined>;
   setEventShortCode(id: number, shortCode: string): Promise<Event | undefined>;
+  deleteEvent(id: number): Promise<Event | undefined>;
   
   // Khatm Methods
   createKhatm(khatm: InsertKhatm): Promise<Khatm>;
@@ -220,6 +221,38 @@ export class MemStorage implements IStorage {
     const updatedEvent = { ...event, ...updates };
     this.eventsData.set(id, updatedEvent);
     return updatedEvent;
+  }
+  
+  async deleteEvent(id: number): Promise<Event | undefined> {
+    const event = this.eventsData.get(id);
+    if (!event) return undefined;
+    
+    // Get all khatms for this event
+    const khatms = Array.from(this.khatmsData.values()).filter(
+      khatm => khatm.eventId === id
+    );
+    
+    // Delete all juzs for each khatm
+    for (const khatm of khatms) {
+      // Get all juzs for this khatm
+      const juzs = Array.from(this.juzsData.values()).filter(
+        juz => juz.khatmId === khatm.id
+      );
+      
+      // Delete each juz
+      for (const juz of juzs) {
+        const key = `${juz.khatmId}-${juz.juzNumber}`;
+        this.juzsData.delete(key);
+      }
+      
+      // Delete the khatm
+      this.khatmsData.delete(khatm.id);
+    }
+    
+    // Delete the event
+    this.eventsData.delete(id);
+    
+    return event;
   }
   
   // Khatm Methods
