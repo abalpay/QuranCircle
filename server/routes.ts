@@ -17,11 +17,14 @@ import {
   archiveKhatmSchema,
   unarchiveKhatmSchema,
   deleteKhatmSchema,
+  bookmarkEventSchema,
+  unbookmarkEventSchema,
   Event,
   EventWithKhatms,
   KhatmWithJuzs,
   Khatm,
-  Juz
+  Juz,
+  Bookmark
 } from "@shared/schema";
 
 // Use PostgreSQL storage if DATABASE_URL is set, otherwise use in-memory storage
@@ -1076,6 +1079,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting khatm:", error);
       res.status(400).json({ message: "Invalid data" });
+    }
+  });
+
+  // Bookmark an event
+  app.post("/api/events/bookmark", async (req: Request, res: Response) => {
+    // Require authentication for bookmarking events
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { eventId } = bookmarkEventSchema.parse(req.body);
+      
+      // Check if the event exists
+      const event = await storage.getEvent(eventId);
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      // Check if bookmark already exists
+      const existingBookmark = await storage.getBookmark(req.user!.id, eventId);
+      if (existingBookmark) {
+        return res.status(200).json({ message: "Event already bookmarked", bookmark: existingBookmark });
+      }
+      
+      // Create the bookmark
+      const bookmark = await storage.createBookmark({
+        userId: req.user!.id,
+        eventId: eventId,
+        createdAt: new Date()
+      });
+      
+      // Invalidate user's events cache
+      cache.delete(`events:user:${req.user!.id}`);
+      
+      return res.status(201).json({ 
+        message: "Event bookmarked successfully", 
+        bookmark 
+      });
+    } catch (error: any) {
+      console.error("Error bookmarking event:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({ message: "Invalid request", errors: error.errors });
+      }
+      return res.status(500).json({ message: "Error bookmarking event" });
+    }
+  });
+  
+  // Unbookmark an event
+  app.post("/api/events/unbookmark", async (req: Request, res: Response) => {
+    // Require authentication for unbookmarking events
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { eventId } = unbookmarkEventSchema.parse(req.body);
+      
+      // Delete the bookmark
+      const deletedBookmark = await storage.deleteBookmark(req.user!.id, eventId);
+      
+      if (!deletedBookmark) {
+        return res.status(404).json({ message: "Bookmark not found" });
+      }
+      
+      // Invalidate user's events cache
+      cache.delete(`events:user:${req.user!.id}`);
+      
+      return res.status(200).json({ 
+        message: "Event unbookmarked successfully" 
+      });
+    } catch (error: any) {
+      console.error("Error unbookmarking event:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({ message: "Invalid request", errors: error.errors });
+      }
+      return res.status(500).json({ message: "Error unbookmarking event" });
     }
   });
 
