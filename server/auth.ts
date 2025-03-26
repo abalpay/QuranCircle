@@ -63,13 +63,16 @@ export function setupAuth(app: Express) {
     name: 'sid',
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      secure: process.env.NODE_ENV === 'production',
+      // Set secure to true only if using HTTPS and not behind a proxy that doesn't properly set X-Forwarded-Proto
+      secure: process.env.NODE_ENV === 'production' && !process.env.REPLIT_ENVIRONMENT,
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: process.env.REPLIT_ENVIRONMENT ? 'none' : 'lax', // Use 'none' for Replit environment
       path: '/'
     },
     rolling: true // Extend session with activity
   };
+  
+  console.log(`Session cookie settings: secure=${process.env.NODE_ENV === 'production' && !process.env.REPLIT_ENVIRONMENT}, sameSite=${process.env.REPLIT_ENVIRONMENT ? 'none' : 'lax'}`)
 
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
@@ -345,15 +348,24 @@ export function setupAuth(app: Express) {
       return res.redirect('/?googleAuthFailed=true&reason=strategy_not_available_callback');
     }
     
+    // Log the callback
+    console.log('Google OAuth callback received');
+    
     passport.authenticate('google', { 
       failureRedirect: '/?googleAuthFailed=true',
       session: true
     })(req, res, next);
   },
     async (req, res) => {
+      // Log successful authentication
+      console.log('Google OAuth authentication successful');
+      
       // Check if there's a return to URL
       const returnTo = req.session.returnTo || '/';
       delete req.session.returnTo;
+      
+      // Log the return URL
+      console.log(`Redirecting after Google auth to: ${returnTo}`);
       
       // Auto-bookmark if returning to a circle page
       try {

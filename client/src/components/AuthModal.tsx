@@ -46,16 +46,34 @@ const GoogleSignInButton = () => {
   
   // Create the returnTo URL based on current location or saved event
   const getReturnToUrl = () => {
-    if (savedEventId) {
-      return `/events/${savedEventId}`;
+    // First check for a saved return URL in localStorage (for cross-page navigation)
+    const savedReturnTo = localStorage.getItem('quranCircleReturnTo');
+    if (savedReturnTo) {
+      return savedReturnTo;
     }
+    
+    // Then check for a saved event ID (backward compatibility)
+    if (savedEventId) {
+      return `/circle/${savedEventId}`;
+    }
+    
+    // Default to current location
     return location;
   };
   
   const handleGoogleSignIn = () => {
+    // Save current location to localStorage for persistent access across redirects
+    localStorage.setItem('quranCircleReturnTo', location);
+    
+    // Log for debugging
+    console.log(`Saving return URL to localStorage: ${location}`);
+    
     // Redirect to the Google auth endpoint with the current location as returnTo
-    const returnTo = encodeURIComponent(getReturnToUrl());
+    const returnTo = encodeURIComponent(location);
     window.location.href = `/auth/google-redirect?returnTo=${returnTo}`;
+    
+    // Log the redirect URL
+    console.log(`Redirecting to: /auth/google-redirect?returnTo=${returnTo}`);
   };
   
   return (
