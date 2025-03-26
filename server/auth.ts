@@ -104,7 +104,7 @@ export function setupAuth(app: Express) {
     const allowedCallbackDomains = [
       'https://qurancircle.io',  // Production with Cloudflare
       'https://www.qurancircle.io', // With www subdomain
-      'https://quranreadingcircle.replit.app', // Replit domain
+      'https://quran-circle-abalpay94.replit.app', // Correct Replit domain
       'http://localhost:5000'    // Local development
     ];
     
@@ -112,8 +112,12 @@ export function setupAuth(app: Express) {
     console.log('Allowed Google OAuth callback domains:', allowedCallbackDomains);
     
     // Default callback URL (will be dynamically overridden by proxy callback)
+    // This is the URL that Google will call back to after authentication 
+    // Make sure it's registered in Google Cloud Console
     const defaultCallbackURL = process.env.NODE_ENV === 'production' 
-      ? 'https://qurancircle.io/auth/google/callback'
+      ? (process.env.BASE_URL 
+          ? `${process.env.BASE_URL}/auth/google/callback` 
+          : 'https://quran-circle-abalpay94.replit.app/auth/google/callback')
       : 'http://localhost:5000/auth/google/callback';
     
     console.log('Default Google OAuth callback URL:', defaultCallbackURL);
@@ -129,11 +133,14 @@ export function setupAuth(app: Express) {
       
       if (!matchingDomain && process.env.NODE_ENV === 'production') {
         console.log('Could not determine exact origin domain, defaulting to production URL');
-        matchingDomain = 'https://qurancircle.io';
+        matchingDomain = process.env.BASE_URL || 'https://quran-circle-abalpay94.replit.app';
       } else if (!matchingDomain) {
         console.log('Could not determine exact origin domain, defaulting to localhost');
         matchingDomain = 'http://localhost:5000';
       }
+      
+      // Log detected domain for debugging
+      console.log(`Using domain for authentication: ${matchingDomain}`);
       
       console.log(`Using Google OAuth callback domain: ${matchingDomain}`);
       
