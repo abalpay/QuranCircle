@@ -8,7 +8,7 @@ import ClaimJuzDialog from "./ClaimJuzDialog";
 import MarkAsReadDialog from "./MarkAsReadDialog";
 import UnclaimDialog from "./UnclaimDialog";
 import UnmarkReadDialog from "./UnmarkReadDialog";
-import KhatmActionsDialog from "./KhatmActionsDialog";
+// Removed KhatmActionsDialog import as it's now handled at the circle level
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";

@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import CircleActionsDialog from "./CircleActionsDialog";
 
 type EventHeaderProps = {
   event: EventWithKhatms;
@@ -99,14 +100,19 @@ export default function EventHeader({ event, onManage }: EventHeaderProps) {
               <span>Share</span>
             </Button>
             
+            {/* Show CircleActionsDialog instead of settings button */}
             {isEventCreator && (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={onManage}
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
+              <>
+                <CircleActionsDialog event={event} isCreator={isEventCreator} />
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={onManage}
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </>
             )}
           </div>
         </div>
