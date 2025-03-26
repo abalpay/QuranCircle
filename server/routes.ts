@@ -429,6 +429,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Error deleting event" });
     }
   });
+  
+  // Archive a circle (event)
+  app.post("/api/events/:id/archive", async (req: Request, res: Response) => {
+    // Require authentication for archiving events
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { id } = req.params;
+    const eventId = parseInt(id);
+    
+    if (isNaN(eventId)) {
+      return res.status(400).json({ message: "Invalid event ID" });
+    }
+    
+    try {
+      // Get the event to check ownership
+      const event = await storage.getEvent(eventId);
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      // Only the creator can archive the event
+      if (event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "You don't have permission to archive this event" });
+      }
+      
+      // Archive the event and all related data
+      const archivedEvent = await storage.archiveEvent(eventId);
+      
+      if (!archivedEvent) {
+        return res.status(500).json({ message: "Failed to archive event" });
+      }
+      
+      // Remove from cache
+      cache.delete(`event:${eventId}`);
+      
+      // If the user has a cached events list, invalidate it
+      if (req.user!.id) {
+        cache.delete(`events:user:${req.user!.id}`);
+      }
+      
+      // Broadcast the event update to all clients
+      const websocketManager = getWebSocketManager();
+      websocketManager.broadcastEventUpdated(eventId, archivedEvent);
+      
+      console.log(`Event ${eventId} archived by user ${req.user!.id}`);
+      
+      return res.status(200).json({ 
+        message: "Event archived successfully", 
+        event: archivedEvent 
+      });
+    } catch (error) {
+      console.error("Error archiving event:", error);
+      return res.status(500).json({ message: "Error archiving event" });
+    }
+  });
+  
+  // Unarchive a circle (event)
+  app.post("/api/events/:id/unarchive", async (req: Request, res: Response) => {
+    // Require authentication for unarchiving events
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { id } = req.params;
+    const eventId = parseInt(id);
+    
+    if (isNaN(eventId)) {
+      return res.status(400).json({ message: "Invalid event ID" });
+    }
+    
+    try {
+      // Get the event to check ownership
+      const event = await storage.getEvent(eventId);
+      
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      // Only the creator can unarchive the event
+      if (event.createdBy !== req.user!.id) {
+        return res.status(403).json({ message: "You don't have permission to unarchive this event" });
+      }
+      
+      // Unarchive the event and all related data
+      const unarchivedEvent = await storage.unarchiveEvent(eventId);
+      
+      if (!unarchivedEvent) {
+        return res.status(500).json({ message: "Failed to unarchive event" });
+      }
+      
+      // Remove from cache
+      cache.delete(`event:${eventId}`);
+      
+      // If the user has a cached events list, invalidate it
+      if (req.user!.id) {
+        cache.delete(`events:user:${req.user!.id}`);
+      }
+      
+      // Broadcast the event update to all clients
+      const websocketManager = getWebSocketManager();
+      websocketManager.broadcastEventUpdated(eventId, unarchivedEvent);
+      
+      console.log(`Event ${eventId} unarchived by user ${req.user!.id}`);
+      
+      return res.status(200).json({ 
+        message: "Event unarchived successfully", 
+        event: unarchivedEvent 
+      });
+    } catch (error) {
+      console.error("Error unarchiving event:", error);
+      return res.status(500).json({ message: "Error unarchiving event" });
+    }
+  });
 
   // Endpoint for claiming a Juz
   app.post("/api/juz/claim", async (req: Request, res: Response) => {

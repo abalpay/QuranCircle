@@ -258,6 +258,68 @@ export class PgStorage implements IStorage {
     return result[0];
   }
   
+  async archiveEvent(id: number): Promise<Event | undefined> {
+    try {
+      // First find the event
+      const event = await this.getEvent(id);
+      if (!event) return undefined;
+      
+      // Archive the event
+      const result = await db.update(events)
+        .set({ 
+          isArchived: true, 
+          archivedAt: new Date() 
+        })
+        .where(eq(events.id, id))
+        .returning();
+      
+      if (result.length === 0) return undefined;
+      
+      // Archive all khatms for this event
+      const eventKhatms = await this.getKhatmsByEventId(id);
+      for (const khatm of eventKhatms) {
+        await this.archiveKhatm(khatm.id);
+      }
+      
+      return result[0];
+    } catch (error) {
+      console.error("Error archiving event:", error);
+      return undefined;
+    }
+  }
+  
+  async unarchiveEvent(id: number): Promise<Event | undefined> {
+    try {
+      // First find the event
+      const event = await this.getEvent(id);
+      if (!event) return undefined;
+      
+      // Unarchive the event
+      const result = await db.update(events)
+        .set({ 
+          isArchived: false, 
+          archivedAt: null 
+        })
+        .where(eq(events.id, id))
+        .returning();
+      
+      if (result.length === 0) return undefined;
+      
+      // Unarchive all khatms for this event
+      const eventKhatms = await this.getKhatmsByEventId(id);
+      for (const khatm of eventKhatms) {
+        if (khatm.isArchived) {
+          await this.unarchiveKhatm(khatm.id);
+        }
+      }
+      
+      return result[0];
+    } catch (error) {
+      console.error("Error unarchiving event:", error);
+      return undefined;
+    }
+  }
+  
   async deleteEvent(id: number): Promise<Event | undefined> {
     // First get the event to return it
     const eventResult = await db.select().from(events).where(eq(events.id, id));
