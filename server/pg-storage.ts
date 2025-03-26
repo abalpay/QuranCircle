@@ -130,6 +130,9 @@ export class PgStorage implements IStorage {
         eq(khatms.isDeleted, false)
       ));
     
+    // Add debug logging
+    console.log(`Fetched ${khatmsResult.length} non-deleted khatms for event ${id}`);
+    
     // Prepare to track khatm statistics and juzs
     const khatmsWithJuzs: KhatmWithJuzs[] = [];
     
@@ -392,6 +395,7 @@ export class PgStorage implements IStorage {
   }
 
   async checkAndCreateNewKhatm(eventId: number): Promise<Khatm | undefined> {
+    console.log(`Checking for possible new khatm needed for event ${eventId}`);
     // Get all khatms for this event that are not deleted
     const khatmsResult = await db.select().from(khatms)
       .where(and(
@@ -399,18 +403,23 @@ export class PgStorage implements IStorage {
         eq(khatms.isDeleted, false)
       ));
     
+    console.log(`Found ${khatmsResult.length} active khatms for event ${eventId}`);
+    
     // Check if each khatm has all juzs claimed
     for (const khatm of khatmsResult) {
       const juzsResult = await db.select().from(juzs).where(eq(juzs.khatmId, khatm.id));
       
       // If not all juzs are claimed, no need to create a new khatm
       if (juzsResult.some(juz => juz.status === 'unclaimed')) {
+        console.log(`Khatm ${khatm.id} has unclaimed juzs, not creating a new khatm`);
         return undefined;
       }
     }
     
-    // If all khatms have all juzs claimed, create a new one
+    // If there are no active khatms or all have all juzs claimed, create a new one
     const newKhatmNumber = khatmsResult.length + 1;
+    console.log(`Creating new khatm #${newKhatmNumber} for event ${eventId}`);
+    
     const newKhatm = await this.createKhatm({
       eventId,
       khatmNumber: newKhatmNumber
