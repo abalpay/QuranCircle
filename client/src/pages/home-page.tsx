@@ -135,18 +135,25 @@ export default function HomePage() {
               console.log(`Received khatm deletion notification for khatmId: ${message.payload.khatmId}, eventId: ${message.payload.eventId}`);
             }
             
-            // First invalidate the query to mark it stale
-            queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+            // Do a more aggressive cache cleanup
             
-            // Then explicitly remove cached data 
+            // Remove all query cache first
             queryClient.removeQueries({ queryKey: ["/api/events"] });
             
-            // Force a direct refetch with some delay to ensure the server updated its state
+            if (message.payload && message.payload.eventId) {
+              // Also clear the specific event cache
+              queryClient.removeQueries({ queryKey: [`/api/events/${message.payload.eventId}`] });
+            }
+            
+            // Now invalidate all queries (this will force a refetch for any active queries)
+            queryClient.invalidateQueries();
+            
+            // Force an immediate refetch with some delay to ensure server data is updated
             setTimeout(() => { 
               refetch()
                 .then(() => console.log("Successfully refetched events after khatm deletion"))
                 .catch(err => console.error("Error refetching events after khatm deletion:", err));
-            }, 250);
+            }, 500); // Using a longer delay of 500ms to ensure server state is updated
             break;
           case WebSocketMessageType.EVENT_UPDATED:
             console.log("Event updated, refreshing events");

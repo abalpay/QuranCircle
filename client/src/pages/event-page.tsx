@@ -166,6 +166,26 @@ export default function EventPage() {
             // Add debug info about the payload received
             if (message.payload && message.payload.khatmId) {
               console.log(`Received khatm deletion notification for khatmId: ${message.payload.khatmId}, eventId: ${message.payload.eventId}`);
+              
+              // Update the local state to immediately reflect the deletion
+              if (event && message.payload.khatmId) {
+                const deletedKhatmId = message.payload.khatmId;
+                console.log(`Locally marking khatm ${deletedKhatmId} as deleted in the UI state`);
+                
+                // Update the internal state to mark the deleted khatm
+                setEvent(prevEvent => {
+                  if (!prevEvent) return prevEvent;
+                  
+                  return {
+                    ...prevEvent,
+                    khatms: prevEvent.khatms.map(k => 
+                      k.id === deletedKhatmId 
+                        ? { ...k, isDeleted: true } 
+                        : k
+                    )
+                  };
+                });
+              }
             }
             
             // For khatm deletion, need to completely refresh the data
