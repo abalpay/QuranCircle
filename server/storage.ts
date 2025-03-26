@@ -26,7 +26,7 @@ export interface IStorage {
   createEvent(event: InsertEvent): Promise<Event>;
   getEvent(id: number): Promise<Event | undefined>;
   getEventByShortCode(shortCode: string): Promise<Event | undefined>;
-  getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined>;
+  getEventWithKhatms(id: number, userId?: number): Promise<EventWithKhatms | undefined>;
   getEventsByUser(userId: number): Promise<Event[]>;
   getAllEvents(): Promise<Event[]>;
   updateEvent(id: number, event: Partial<Event>): Promise<Event | undefined>;
@@ -194,7 +194,7 @@ export class MemStorage implements IStorage {
     return updatedEvent;
   }
   
-  async getEventWithKhatms(id: number): Promise<EventWithKhatms | undefined> {
+  async getEventWithKhatms(id: number, userId?: number): Promise<EventWithKhatms | undefined> {
     const event = this.eventsData.get(id);
     if (!event) return undefined;
     
@@ -213,10 +213,18 @@ export class MemStorage implements IStorage {
       })
     );
     
+    // Check if the event is bookmarked by the user
+    let isBookmarked = undefined;
+    if (userId) {
+      const bookmark = await this.getBookmark(userId, id);
+      isBookmarked = !!bookmark;
+    }
+    
     return {
       ...event,
       khatms: khatmsWithJuzs,
-      creatorName: creator?.username || 'Unknown'
+      creatorName: creator?.username || 'Unknown',
+      isBookmarked
     };
   }
   

@@ -1107,8 +1107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create the bookmark
       const bookmark = await storage.createBookmark({
         userId: req.user!.id,
-        eventId: eventId,
-        createdAt: new Date()
+        eventId: eventId
       });
       
       // Invalidate user's events cache
