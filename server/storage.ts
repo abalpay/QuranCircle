@@ -30,6 +30,8 @@ export interface IStorage {
   getAllEvents(): Promise<Event[]>;
   updateEvent(id: number, event: Partial<Event>): Promise<Event | undefined>;
   setEventShortCode(id: number, shortCode: string): Promise<Event | undefined>;
+  archiveEvent(id: number): Promise<Event | undefined>;
+  unarchiveEvent(id: number): Promise<Event | undefined>;
   deleteEvent(id: number): Promise<Event | undefined>;
   
   // Khatm Methods
@@ -153,7 +155,9 @@ export class MemStorage implements IStorage {
       description: insertEvent.description || null,
       isPublic: insertEvent.isPublic || false,
       deadline: insertEvent.deadline || null,
-      shortCode: null
+      shortCode: null,
+      isArchived: false,
+      archivedAt: null
     };
     this.eventsData.set(id, event);
     return event;
@@ -220,6 +224,54 @@ export class MemStorage implements IStorage {
     
     const updatedEvent = { ...event, ...updates };
     this.eventsData.set(id, updatedEvent);
+    return updatedEvent;
+  }
+
+  async archiveEvent(id: number): Promise<Event | undefined> {
+    const event = this.eventsData.get(id);
+    if (!event) return undefined;
+
+    // Archive the event
+    const updatedEvent = { 
+      ...event,
+      isArchived: true,
+      archivedAt: new Date()
+    };
+    this.eventsData.set(id, updatedEvent);
+
+    // Also archive all khatms for this event
+    const khatms = Array.from(this.khatmsData.values()).filter(
+      khatm => khatm.eventId === id && !khatm.isDeleted
+    );
+
+    for (const khatm of khatms) {
+      await this.archiveKhatm(khatm.id);
+    }
+
+    return updatedEvent;
+  }
+
+  async unarchiveEvent(id: number): Promise<Event | undefined> {
+    const event = this.eventsData.get(id);
+    if (!event) return undefined;
+
+    // Unarchive the event
+    const updatedEvent = { 
+      ...event,
+      isArchived: false,
+      archivedAt: null
+    };
+    this.eventsData.set(id, updatedEvent);
+
+    // Also unarchive all khatms for this event
+    const khatms = Array.from(this.khatmsData.values()).filter(
+      khatm => khatm.eventId === id && !khatm.isDeleted && khatm.isArchived
+    );
+
+    for (const khatm of khatms) {
+      await this.unarchiveKhatm(khatm.id);
+    }
+
     return updatedEvent;
   }
   

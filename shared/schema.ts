@@ -40,11 +40,14 @@ export const events = pgTable("events", {
   createdBy: integer("created_by").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   shortCode: text("short_code").unique(),
+  isArchived: boolean("is_archived").notNull().default(false),
+  archivedAt: timestamp("archived_at"),
 }, (table) => {
   return {
     createdByIdx: index("events_created_by_idx").on(table.createdBy),
     shortCodeIdx: index("events_short_code_idx").on(table.shortCode),
-    deadlineIdx: index("events_deadline_idx").on(table.deadline)
+    deadlineIdx: index("events_deadline_idx").on(table.deadline),
+    isArchivedIdx: index("events_is_archived_idx").on(table.isArchived)
   };
 });
 
@@ -167,6 +170,15 @@ export const deleteKhatmSchema = z.object({
   khatmId: z.number(),
 });
 
+// For archiving and unarchiving events (circles)
+export const archiveEventSchema = z.object({
+  eventId: z.number(),
+});
+
+export const unarchiveEventSchema = z.object({
+  eventId: z.number(),
+});
+
 export type InsertJuz = z.infer<typeof insertJuzSchema>;
 export type Juz = typeof juzs.$inferSelect;
 export type ClaimJuzInput = z.infer<typeof claimJuzSchema>;
@@ -177,6 +189,8 @@ export type UnmarkJuzAsReadInput = z.infer<typeof unmarkJuzAsReadSchema>;
 export type ArchiveKhatmInput = z.infer<typeof archiveKhatmSchema>;
 export type UnarchiveKhatmInput = z.infer<typeof unarchiveKhatmSchema>;
 export type DeleteKhatmInput = z.infer<typeof deleteKhatmSchema>;
+export type ArchiveEventInput = z.infer<typeof archiveEventSchema>;
+export type UnarchiveEventInput = z.infer<typeof unarchiveEventSchema>;
 
 // Extended types for API responses
 export type KhatmWithJuzs = Khatm & {
