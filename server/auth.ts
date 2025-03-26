@@ -247,18 +247,34 @@ export function setupAuth(app: Express) {
   });
   
   // Google OAuth routes
-  app.get('/auth/google', 
+  app.get('/auth/google', (req, res, next) => {
+    // Check if Google strategy is available before attempting to authenticate
+    // Use any type assertion to access internal passport property
+    const passportAny = passport as any;
+    if (!passportAny._strategies['google']) {
+      console.error('Google authentication strategy not available');
+      return res.redirect('/?googleAuthFailed=true&reason=strategy_not_available');
+    }
+    
     passport.authenticate('google', { 
       scope: ['profile', 'email'],
       prompt: 'select_account' // Always prompt the user to select an account
-    })
-  );
+    })(req, res, next);
+  });
   
-  app.get('/auth/google/callback', 
+  app.get('/auth/google/callback', (req, res, next) => {
+    // Check if Google strategy is available before attempting to authenticate
+    const passportAny = passport as any;
+    if (!passportAny._strategies['google']) {
+      console.error('Google authentication strategy not available on callback');
+      return res.redirect('/?googleAuthFailed=true&reason=strategy_not_available_callback');
+    }
+    
     passport.authenticate('google', { 
       failureRedirect: '/?googleAuthFailed=true',
       session: true
-    }),
+    })(req, res, next);
+  },
     async (req, res) => {
       // Check if there's a return to URL
       const returnTo = req.session.returnTo || '/';
@@ -309,8 +325,19 @@ export function setupAuth(app: Express) {
   
   // Save the returnTo URL before redirecting to Google OAuth
   app.get('/auth/google-redirect', (req, res) => {
+    // Check if Google strategy is available before redirecting
+    const passportAny = passport as any;
+    if (!passportAny._strategies['google']) {
+      console.error('Google authentication strategy not available at redirect');
+      return res.redirect('/?googleAuthFailed=true&reason=strategy_not_available_redirect');
+    }
+    
     const returnTo = req.query.returnTo as string || '/';
     req.session.returnTo = returnTo;
+    
+    // Log the redirect for debugging
+    console.log(`Redirecting to Google OAuth with returnTo: ${returnTo}`);
+    
     res.redirect('/auth/google');
   });
 
