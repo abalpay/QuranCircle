@@ -108,10 +108,14 @@ export function setupAuth(app: Express) {
       'https://qurancircle.io',  // Production with Cloudflare
       'https://www.qurancircle.io', // With www subdomain
       'https://quran-circle-abalpay94.replit.app', // Correct Replit domain
-      'https://workspace.abalpay94.replit.app', // Current Replit domain based on REPL_SLUG and REPL_OWNER
-      'https://' + process.env.REPL_SLUG + '.' + process.env.REPL_OWNER + '.replit.app', // Dynamic Replit domain
+      
+      // Correctly formatted Replit domains
+      process.env.REPL_SLUG && process.env.REPL_OWNER 
+        ? `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app` 
+        : null,
+      
       'http://localhost:5000'    // Local development
-    ];
+    ].filter(Boolean); // Remove any null values
     
     // Log allowed domains for debugging
     console.log('Allowed Google OAuth callback domains:', allowedCallbackDomains);
@@ -122,13 +126,16 @@ export function setupAuth(app: Express) {
     let defaultCallbackURL = 'http://localhost:5000/auth/google/callback';
     
     if (process.env.NODE_ENV === 'production') {
+      // First priority: Custom domain if set
       if (process.env.BASE_URL) {
         defaultCallbackURL = `${process.env.BASE_URL}/auth/google/callback`;
-      } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-        // Dynamic Replit URL based on environment variables
-        defaultCallbackURL = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app/auth/google/callback`;
-      } else {
-        // Fallback to the static URL
+      }
+      // Second priority: Default Replit app domain
+      else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+        defaultCallbackURL = `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app/auth/google/callback`;
+      }
+      // Fallback to the known Replit URL
+      else {
         defaultCallbackURL = 'https://quran-circle-abalpay94.replit.app/auth/google/callback';
       }
     }
@@ -147,10 +154,13 @@ export function setupAuth(app: Express) {
       if (!matchingDomain && process.env.NODE_ENV === 'production') {
         console.log('Could not determine exact origin domain, defaulting to production URL');
         if (process.env.BASE_URL) {
+          // First priority: Custom domain if set
           matchingDomain = process.env.BASE_URL;
         } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-          matchingDomain = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+          // Second priority: Default Replit app domain
+          matchingDomain = `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app`;
         } else {
+          // Fallback to the known Replit URL
           matchingDomain = 'https://quran-circle-abalpay94.replit.app';
         }
       } else if (!matchingDomain) {
@@ -332,6 +342,12 @@ export function setupAuth(app: Express) {
     if (!passportAny._strategies['google']) {
       console.error('Google authentication strategy not available');
       return res.redirect('/?googleAuthFailed=true&reason=strategy_not_available');
+    }
+    
+    // Store returnTo in session if provided
+    if (req.query.returnTo) {
+      req.session.returnTo = req.query.returnTo as string;
+      console.log(`Storing returnTo in session: ${req.session.returnTo}`);
     }
     
     passport.authenticate('google', { 
