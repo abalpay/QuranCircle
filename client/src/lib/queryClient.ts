@@ -2,8 +2,25 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage = res.statusText;
+    
+    try {
+      // Try to parse the response as JSON first
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await res.json();
+        errorMessage = errorData.message || errorData.error || JSON.stringify(errorData);
+      } else {
+        // If not JSON, get as text
+        errorMessage = await res.text() || res.statusText;
+      }
+    } catch (parseError) {
+      // If parsing fails, use default status text
+      console.warn('Error parsing response:', parseError);
+      // Keep the original status text as fallback
+    }
+    
+    throw new Error(`${res.status}: ${errorMessage}`);
   }
 }
 
@@ -25,19 +42,23 @@ async function getCsrfToken(): Promise<string> {
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch CSRF token: ${response.status}`);
+      console.warn(`CSRF token fetch failed with status: ${response.status}`);
+      // Return a fallback empty token instead of throwing
+      return '';
     }
     
     const data = await response.json();
     const token = data.csrfToken;
     if (typeof token !== 'string') {
-      throw new Error('Invalid CSRF token received');
+      console.warn('Invalid CSRF token received');
+      return '';
     }
     csrfToken = token;
     return token;
   } catch (error) {
     console.error('Error fetching CSRF token:', error);
-    throw error;
+    // Return empty token instead of throwing to prevent unhandled rejections
+    return '';
   }
 }
 
@@ -63,12 +84,9 @@ export async function apiRequest<T = any>(
   
   // For state-changing methods, include CSRF token
   if (method !== 'GET') {
-    try {
-      const token = await getCsrfToken();
+    const token = await getCsrfToken();
+    if (token) {
       headersInit['X-CSRF-Token'] = token;
-    } catch (error) {
-      console.error('Failed to include CSRF token:', error);
-      // Continue without token, server will reject if needed
     }
   }
 

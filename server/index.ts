@@ -136,7 +136,7 @@ app.use((req, res, next) => {
     // Setup CSRF protection - must be after cookie-parser and before routes
     const csrfProtection = csurf({ cookie: { 
       sameSite: process.env.REPLIT_ENVIRONMENT ? 'none' : 'lax',
-      secure: process.env.NODE_ENV === 'production' || process.env.REPLIT_ENVIRONMENT
+      secure: process.env.NODE_ENV === 'production' || !!process.env.REPLIT_ENVIRONMENT
     }});
     
     // CSRF token endpoint
