@@ -213,11 +213,10 @@ export function setupAuth(app: Express) {
               if (!existingBookmark) {
                 // Auto-bookmark the event
                 console.log(`Auto-bookmarking event ${eventId} for user ${req.user.id} after login`);
-                await storage.createBookmark({
+                await storage.createBookmark(insertBookmarkSchema.parse({
                   userId: req.user.id,
-                  eventId: eventId,
-                  createdAt: new Date()
-                });
+                  eventId: eventId
+                }));
                 
                 // Clear any cached data for this event and user
                 cache.delete(`event:${eventId}:user:${req.user.id}`);
@@ -285,11 +284,10 @@ export function setupAuth(app: Express) {
                 if (!existingBookmark) {
                   // Auto-bookmark the event
                   console.log(`Auto-bookmarking event ${eventId} for user ${req.user.id} after login`);
-                  await storage.createBookmark({
+                  await storage.createBookmark(insertBookmarkSchema.parse({
                     userId: req.user.id,
-                    eventId: eventId,
-                    createdAt: new Date()
-                  });
+                    eventId: eventId
+                  }));
                   
                   // Clear any cached data for this event and user
                   cache.delete(`event:${eventId}:user:${req.user.id}`);
