@@ -184,7 +184,7 @@ export class PgStorage implements IStorage {
       const userKhatms: Khatm[] = [];
       for (const khatmId of khatmIds) {
         const khatm = await this.getKhatm(khatmId);
-        if (khatm && !khatm.isDeleted) {
+        if (khatm) {
           userKhatms.push(khatm);
         }
       }
@@ -266,19 +266,13 @@ export class PgStorage implements IStorage {
 
   async getKhatm(id: number): Promise<Khatm | undefined> {
     const result = await db.select().from(khatms)
-      .where(and(
-        eq(khatms.id, id),
-        eq(khatms.isDeleted, false)
-      ));
+      .where(eq(khatms.id, id));
     return result[0];
   }
 
   async getKhatmWithJuzs(id: number): Promise<KhatmWithJuzs | undefined> {
     const khatmResult = await db.select().from(khatms)
-      .where(and(
-        eq(khatms.id, id),
-        eq(khatms.isDeleted, false)
-      ));
+      .where(eq(khatms.id, id));
     if (!khatmResult.length) return undefined;
     
     const khatm = khatmResult[0];
@@ -299,12 +293,7 @@ export class PgStorage implements IStorage {
   async getKhatmsByEventId(eventId: number): Promise<Khatm[]> {
     return await db.select()
       .from(khatms)
-      .where(
-        and(
-          eq(khatms.eventId, eventId),
-          eq(khatms.isDeleted, false)
-        )
-      )
+      .where(eq(khatms.eventId, eventId))
       .orderBy(khatms.khatmNumber);
   }
   
@@ -332,15 +321,19 @@ export class PgStorage implements IStorage {
   }
   
   async deleteKhatm(id: number): Promise<Khatm | undefined> {
-    const now = new Date();
-    const result = await db.update(khatms)
-      .set({
-        isDeleted: true,
-        deletedAt: now
-      })
-      .where(eq(khatms.id, id))
-      .returning();
-    return result[0];
+    // First, get the khatm to return it after deletion
+    const khatmToDelete = await this.getKhatm(id);
+    if (!khatmToDelete) {
+      return undefined;
+    }
+    
+    // Delete all associated juzs first to maintain referential integrity
+    await db.delete(juzs).where(eq(juzs.khatmId, id));
+    
+    // Then delete the khatm itself
+    await db.delete(khatms).where(eq(khatms.id, id));
+    
+    return khatmToDelete;
   }
 
   // Juz Methods
@@ -396,14 +389,12 @@ export class PgStorage implements IStorage {
 
   async checkAndCreateNewKhatm(eventId: number): Promise<Khatm | undefined> {
     console.log(`Checking for possible new khatm needed for event ${eventId}`);
-    // Get all khatms for this event that are not deleted
+    // Get all khatms for this event
+    // Since we now actually delete khatms, we don't need to check isDeleted flag
     const khatmsResult = await db.select().from(khatms)
-      .where(and(
-        eq(khatms.eventId, eventId),
-        eq(khatms.isDeleted, false)
-      ));
+      .where(eq(khatms.eventId, eventId));
     
-    console.log(`Found ${khatmsResult.length} active khatms for event ${eventId}`);
+    console.log(`Found ${khatmsResult.length} khatms for event ${eventId}`);
     
     // Check if each khatm has all juzs claimed
     for (const khatm of khatmsResult) {

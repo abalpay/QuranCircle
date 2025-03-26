@@ -866,7 +866,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to delete khatm" });
       }
       
-      console.log(`Successfully marked khatm ${khatmId} as deleted`);
+      console.log(`Successfully deleted khatm ${khatmId} and all associated juzs`);
       
       // Create a new khatm if all existing khatms are archived or completed
       const newKhatm = await storage.checkAndCreateNewKhatm(khatm.eventId);
