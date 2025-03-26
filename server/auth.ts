@@ -105,6 +105,8 @@ export function setupAuth(app: Express) {
       'https://qurancircle.io',  // Production with Cloudflare
       'https://www.qurancircle.io', // With www subdomain
       'https://quran-circle-abalpay94.replit.app', // Correct Replit domain
+      'https://workspace.abalpay94.replit.app', // Current Replit domain based on REPL_SLUG and REPL_OWNER
+      'https://' + process.env.REPL_SLUG + '.' + process.env.REPL_OWNER + '.replit.app', // Dynamic Replit domain
       'http://localhost:5000'    // Local development
     ];
     
@@ -114,11 +116,19 @@ export function setupAuth(app: Express) {
     // Default callback URL (will be dynamically overridden by proxy callback)
     // This is the URL that Google will call back to after authentication 
     // Make sure it's registered in Google Cloud Console
-    const defaultCallbackURL = process.env.NODE_ENV === 'production' 
-      ? (process.env.BASE_URL 
-          ? `${process.env.BASE_URL}/auth/google/callback` 
-          : 'https://quran-circle-abalpay94.replit.app/auth/google/callback')
-      : 'http://localhost:5000/auth/google/callback';
+    let defaultCallbackURL = 'http://localhost:5000/auth/google/callback';
+    
+    if (process.env.NODE_ENV === 'production') {
+      if (process.env.BASE_URL) {
+        defaultCallbackURL = `${process.env.BASE_URL}/auth/google/callback`;
+      } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+        // Dynamic Replit URL based on environment variables
+        defaultCallbackURL = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app/auth/google/callback`;
+      } else {
+        // Fallback to the static URL
+        defaultCallbackURL = 'https://quran-circle-abalpay94.replit.app/auth/google/callback';
+      }
+    }
     
     console.log('Default Google OAuth callback URL:', defaultCallbackURL);
     
@@ -133,7 +143,13 @@ export function setupAuth(app: Express) {
       
       if (!matchingDomain && process.env.NODE_ENV === 'production') {
         console.log('Could not determine exact origin domain, defaulting to production URL');
-        matchingDomain = process.env.BASE_URL || 'https://quran-circle-abalpay94.replit.app';
+        if (process.env.BASE_URL) {
+          matchingDomain = process.env.BASE_URL;
+        } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+          matchingDomain = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+        } else {
+          matchingDomain = 'https://quran-circle-abalpay94.replit.app';
+        }
       } else if (!matchingDomain) {
         console.log('Could not determine exact origin domain, defaulting to localhost');
         matchingDomain = 'http://localhost:5000';
