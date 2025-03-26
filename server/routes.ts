@@ -156,19 +156,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Now get the complete event with khatms
-      const cachedEvent = cache.get<any>(`event:${eventId}`);
+      // Get the user ID if available
+      const userId = req.user?.id;
+      
+      // Generate a cache key that includes user ID if available (for bookmarks)
+      const cacheKey = userId ? `event:${eventId}:user:${userId}` : `event:${eventId}`;
+      
+      const cachedEvent = cache.get<any>(cacheKey);
       if (cachedEvent) {
         return res.status(200).json(cachedEvent);
       }
       
-      const eventWithKhatms = await storage.getEventWithKhatms(eventId);
+      const eventWithKhatms = await storage.getEventWithKhatms(eventId, userId);
       
       if (!eventWithKhatms) {
         return res.status(404).json({ message: "Event not found" });
       }
       
       // Cache the result
-      cache.set(`event:${eventId}`, eventWithKhatms, EVENT_CACHE_TTL);
+      cache.set(cacheKey, eventWithKhatms, EVENT_CACHE_TTL);
       
       return res.status(200).json(eventWithKhatms);
     } catch (error) {
@@ -265,21 +271,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
+      // Get the user ID if available
+      const userId = req.user?.id;
+      
+      // Generate a cache key that includes user ID if available (for bookmarks)
+      const cacheKey = userId ? `event:${eventId}:user:${userId}` : `event:${eventId}`;
+      
       // Check cache first
-      const cachedEvent = cache.get<any>(`event:${eventId}`);
+      const cachedEvent = cache.get<any>(cacheKey);
       if (cachedEvent) {
         return res.status(200).json(cachedEvent);
       }
       
       // Not in cache, fetch from storage
-      const event = await storage.getEventWithKhatms(eventId);
+      const event = await storage.getEventWithKhatms(eventId, userId);
       
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
       }
       
       // Cache the result
-      cache.set(`event:${eventId}`, event, EVENT_CACHE_TTL);
+      cache.set(cacheKey, event, EVENT_CACHE_TTL);
       
       return res.status(200).json(event);
     } catch (error) {
