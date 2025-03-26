@@ -257,6 +257,39 @@ export class PgStorage implements IStorage {
       .returning();
     return result[0];
   }
+  
+  async deleteEvent(id: number): Promise<Event | undefined> {
+    // First get the event to return it
+    const eventResult = await db.select().from(events).where(eq(events.id, id));
+    if (!eventResult.length) return undefined;
+    const event = eventResult[0];
+    
+    // Get all khatms for this event
+    const khatmsResult = await db.select().from(khatms).where(eq(khatms.eventId, id));
+    
+    // Use a transaction to ensure all related data is deleted atomically
+    try {
+      // Begin transaction
+      await db.transaction(async (tx) => {
+        for (const khatm of khatmsResult) {
+          // Delete all juzs for this khatm
+          await tx.delete(juzs).where(eq(juzs.khatmId, khatm.id));
+          
+          // Delete the khatm
+          await tx.delete(khatms).where(eq(khatms.id, khatm.id));
+        }
+        
+        // Finally delete the event
+        await tx.delete(events).where(eq(events.id, id));
+      });
+      
+      console.log(`Successfully deleted event ${id} and all related data`);
+      return event;
+    } catch (error) {
+      console.error(`Error deleting event ${id}:`, error);
+      return undefined;
+    }
+  }
 
   // Khatm Methods
   async createKhatm(khatm: InsertKhatm): Promise<Khatm> {

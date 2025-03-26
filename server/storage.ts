@@ -148,7 +148,7 @@ export class MemStorage implements IStorage {
     const event: Event = { 
       id,
       name: insertEvent.name,
-      createdBy: insertEvent.createdBy,
+      createdBy: insertEvent.createdBy || 0, // Ensure createdBy is always a number
       createdAt: new Date(),
       description: insertEvent.description || null,
       isPublic: insertEvent.isPublic || false,
