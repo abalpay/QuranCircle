@@ -1,5 +1,4 @@
-import { KhatmWithJuzs, EventWithKhatms } from "@shared/schema";
-import { Progress } from "@/components/ui/progress";
+import { KhatmWithJuzs } from "@shared/schema";
 import { UserCheck, CheckCircle, ArchiveIcon, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import JuzCard from "./JuzCard";
@@ -8,7 +7,6 @@ import ClaimJuzDialog from "./ClaimJuzDialog";
 import MarkAsReadDialog from "./MarkAsReadDialog";
 import UnclaimDialog from "./UnclaimDialog";
 import UnmarkReadDialog from "./UnmarkReadDialog";
-// Removed KhatmActionsDialog import as it's now handled at the circle level
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -291,12 +289,7 @@ function KhatmCardComponent({ khatm, onNewKhatmCreated, eventId, isCreator }: Kh
               </div>
             )}
             
-            {/* Khatm Actions Dialog - Only shown for event creator */}
-            <KhatmActionsDialog 
-              khatm={khatm} 
-              eventId={eventId} 
-              isCreator={isCreator}
-            />
+            {/* Actions have been moved to the circle level in EventHeader */}
           </div>
         </div>
 
