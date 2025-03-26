@@ -354,8 +354,8 @@ export default function HomePage() {
                 <div className="grid gap-3">
                   {userCircles
                     .filter(circle => {
-                      // Filter circles with at least one non-archived khatm
-                      return circle.khatms?.some(khatm => !khatm.isArchived && !khatm.isDeleted);
+                      // Filter circles that are not archived
+                      return !circle.isArchived;
                     })
                     .map((circle) => (
                       <Link key={circle.id} href={`/event/${circle.id}`}>
@@ -378,7 +378,7 @@ export default function HomePage() {
                       </Link>
                     ))}
                   {userCircles.filter(circle => 
-                    circle.khatms?.some(khatm => !khatm.isArchived && !khatm.isDeleted)
+                    !circle.isArchived
                   ).length === 0 && (
                     <div className="text-center py-6 bg-white rounded-lg border border-[hsl(var(--quran-border))]">
                       <p className="text-gray-600">
