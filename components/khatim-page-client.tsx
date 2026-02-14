@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,6 +76,14 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
   const deviceToken = getOrCreateDeviceToken();
   const khatmIds = event.khatms.map((k) => k.id).join(",");
 
+  const refreshEvent = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/event?shortCode=${shortCode}`);
+      const data = await res.json();
+      if (data && !data.error) setEvent(data);
+    } catch {}
+  }, [shortCode]);
+
   useEffect(() => {
     if (!khatmIds) return;
 
@@ -91,10 +99,7 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
           filter: `khatm_id=in.(${khatmIds})`,
         },
         () => {
-          fetch(`/api/event?shortCode=${shortCode}`)
-            .then((r) => r.json())
-            .then((data) => data && setEvent(data))
-            .catch(() => {});
+          refreshEvent();
         }
       )
       .subscribe();
@@ -102,7 +107,7 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [shortCode, khatmIds]);
+  }, [shortCode, khatmIds, refreshEvent]);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/s/${shortCode}`;
@@ -230,6 +235,7 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
             isLocked={event.is_locked}
             deviceToken={deviceToken}
             isCreator={Boolean(isCreator)}
+            onRefresh={refreshEvent}
           />
         ))}
       </div>

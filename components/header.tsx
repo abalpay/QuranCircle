@@ -109,7 +109,7 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="border-[hsl(var(--quran-border))] bg-[hsl(var(--quran-card))]"
+                className="border-quran-border bg-quran-card"
               >
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />

@@ -15,7 +15,7 @@ export default async function KhatimPage({
   }
 
   return (
-    <main className="page-shell flex-grow">
+    <main className="page-shell grow">
       <KhatimPageClient event={event} shortCode={shortCode} />
     </main>
   );

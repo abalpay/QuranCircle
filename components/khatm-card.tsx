@@ -8,7 +8,6 @@ import { claimJuz, unclaimJuz } from "@/lib/actions/juz";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { BookMarked, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 type Juz = {
   id: string;
@@ -32,6 +31,7 @@ type Props = {
   isLocked: boolean;
   deviceToken: string;
   isCreator: boolean;
+  onRefresh: () => Promise<void>;
 };
 
 export default function KhatmCard({
@@ -40,6 +40,7 @@ export default function KhatmCard({
   isLocked,
   deviceToken,
   isCreator,
+  onRefresh,
 }: Props) {
   const [selectedJuz, setSelectedJuz] = useState<{
     juzNumber: number;
@@ -47,7 +48,6 @@ export default function KhatmCard({
   } | null>(null);
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const { user } = useAuth();
-  const router = useRouter();
 
   const claimProgress = Math.round((khatm.claimed_count / 30) * 100);
 
@@ -64,8 +64,6 @@ export default function KhatmCard({
     claimerName: string,
     juzNumbers: number[]
   ) => {
-    // Optimistic update could go here, but for now we rely on the server action + reload
-    // We'll improve this in the next step
     const result = await claimJuz(
       shortCode,
       khatm.id,
@@ -80,7 +78,7 @@ export default function KhatmCard({
     toast.success("Juz claimed successfully");
     setIsClaimDialogOpen(false);
     setSelectedJuz(null);
-    router.refresh();
+    await onRefresh();
   };
 
   const handleUnclaim = async (juzId: string) => {
@@ -90,7 +88,7 @@ export default function KhatmCard({
       return;
     }
     toast.success("Juz unclaimed");
-    router.refresh();
+    await onRefresh();
   };
 
   return (

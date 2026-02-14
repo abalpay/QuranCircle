@@ -6,7 +6,7 @@ export default async function BrowsePage() {
   const events = await getPublicEvents();
 
   return (
-    <main className="page-shell flex-grow">
+    <main className="page-shell grow">
       <section className="quran-card-primary mb-8 p-6 sm:p-10 text-center sm:text-left">
         <div className="flex flex-col items-center sm:items-start">
           <span className="quran-badge mb-4">

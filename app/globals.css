@@ -274,22 +274,32 @@
     @apply pointer-events-none absolute inset-0;
     z-index: -1;
     background-image:
-      /* Vignette — fades the geometric pattern at edges */
+      /* Top & bottom edge fade — prevents hard cut-off */
+      linear-gradient(
+        to bottom,
+        hsl(var(--quran-bg)) 0%,
+        transparent 12%,
+        transparent 90%,
+        hsl(var(--quran-bg)) 100%
+      ),
+      /* Radial vignette — fades pattern at left/right edges */
       radial-gradient(
         ellipse at 50% 45%,
-        transparent 35%,
-        hsl(var(--quran-bg)) 72%
+        transparent 50%,
+        hsl(var(--quran-bg)) 85%
       ),
       /* Warm center glow */
       radial-gradient(
         circle at 50% 30%,
-        hsl(var(--quran-light-green) / 0.1),
+        hsl(var(--quran-light-green) / 0.14),
         transparent 55%
       ),
-      /* Islamic 8-pointed star tessellation */
-      url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231f4e45' stroke-width='1' opacity='0.07'%3E%3Crect x='24' y='24' width='32' height='32'/%3E%3Crect x='24' y='24' width='32' height='32' transform='rotate(45 40 40)'/%3E%3Cline x1='40' y1='0' x2='40' y2='17.4'/%3E%3Cline x1='80' y1='40' x2='62.6' y2='40'/%3E%3Cline x1='40' y1='80' x2='40' y2='62.6'/%3E%3Cline x1='0' y1='40' x2='17.4' y2='40'/%3E%3Cline x1='0' y1='0' x2='24' y2='24'/%3E%3Cline x1='80' y1='0' x2='56' y2='24'/%3E%3Cline x1='80' y1='80' x2='56' y2='56'/%3E%3Cline x1='0' y1='80' x2='24' y2='56'/%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: no-repeat, no-repeat, repeat;
-    background-size: 100% 100%, 100% 100%, 80px 80px;
+      /* Primary Islamic 8-pointed star with inner octagon (green, 120px tile) */
+      url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231f4e45' stroke-width='1.5' opacity='0.12'%3E%3Crect x='36' y='36' width='48' height='48'/%3E%3Crect x='36' y='36' width='48' height='48' transform='rotate(45 60 60)'/%3E%3Cpolygon points='70,36 84,50 84,70 70,84 50,84 36,70 36,50 50,36'/%3E%3Cline x1='60' y1='0' x2='60' y2='26'/%3E%3Cline x1='120' y1='60' x2='94' y2='60'/%3E%3Cline x1='60' y1='120' x2='60' y2='94'/%3E%3Cline x1='0' y1='60' x2='26' y2='60'/%3E%3Cline x1='0' y1='0' x2='36' y2='36'/%3E%3Cline x1='120' y1='0' x2='84' y2='36'/%3E%3Cline x1='120' y1='120' x2='84' y2='84'/%3E%3Cline x1='0' y1='120' x2='36' y2='84'/%3E%3C/g%3E%3C/svg%3E"),
+      /* Gold accent tessellation (smaller offset grid) */
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%238a6d2b' stroke-width='0.8' opacity='0.05'%3E%3Crect x='18' y='18' width='24' height='24'/%3E%3Crect x='18' y='18' width='24' height='24' transform='rotate(45 30 30)'/%3E%3Cline x1='30' y1='0' x2='30' y2='13'/%3E%3Cline x1='60' y1='30' x2='47' y2='30'/%3E%3Cline x1='30' y1='60' x2='30' y2='47'/%3E%3Cline x1='0' y1='30' x2='13' y2='30'/%3E%3Cline x1='0' y1='0' x2='18' y2='18'/%3E%3Cline x1='60' y1='0' x2='42' y2='18'/%3E%3Cline x1='60' y1='60' x2='42' y2='42'/%3E%3Cline x1='0' y1='60' x2='18' y2='42'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat;
+    background-size: 100% 100%, 100% 100%, 100% 100%, 120px 120px, 60px 60px;
   }
 
   /* ── Section containment panel ── */

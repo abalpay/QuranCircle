@@ -33,7 +33,7 @@ const steps = [
 
 export default function HomePage() {
   return (
-    <main className="page-shell flex-grow">
+    <main className="page-shell grow">
       {/* Hero Section */}
       <section className="hero-pattern relative flex flex-col items-center justify-center py-16 text-center sm:py-24">
         <span className="quran-badge mb-6 animate-fade-rise">

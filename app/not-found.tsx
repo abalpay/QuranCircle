@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <main className="page-shell flex-grow flex items-center justify-center">
+    <main className="page-shell grow flex items-center justify-center">
       <section className="quran-card-info mx-auto max-w-xl p-10 text-center shadow-lg">
         <div className="mb-6 flex justify-center">
           <span className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-quran-green/10 text-3xl font-bold text-quran-green">
