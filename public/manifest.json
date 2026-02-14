@@ -1,0 +1,21 @@
+{
+  "name": "QuranCircle",
+  "short_name": "QuranCircle",
+  "description": "Collaborative Quran reading platform for Khatm events",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#006B5B",
+  "icons": [
+    {
+      "src": "/quran-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/quran-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

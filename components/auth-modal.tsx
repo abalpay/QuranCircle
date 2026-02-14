@@ -1,0 +1,423 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const registerSchema = z.object({
+  username: z.string().min(2, "Username must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
+type AuthModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  action?: "login" | "register" | "forgot-password";
+};
+
+const GoogleSignInButton = () => {
+  const { signInWithGoogle } = useAuth();
+
+  const handleGoogleSignIn = async () => {
+    const { error } = await signInWithGoogle();
+    if (error) {
+      toast.error("Google sign-in failed", {
+        description: error.message,
+      });
+    }
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full rounded-full border-quran-border bg-white/80 font-medium"
+      onClick={handleGoogleSignIn}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+          <path
+            fill="#4285F4"
+            d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"
+          />
+          <path
+            fill="#34A853"
+            d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"
+          />
+          <path
+            fill="#EA4335"
+            d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"
+          />
+        </g>
+      </svg>
+      Sign in with Google
+    </Button>
+  );
+};
+
+export default function AuthModal({
+  isOpen,
+  onClose,
+  action = "login",
+}: AuthModalProps) {
+  const [selectedTab, setSelectedTab] = useState<
+    "login" | "register" | "forgot-password" | null
+  >(null);
+  const activeTab = selectedTab ?? action;
+  const setActiveTab = (tab: "login" | "register" | "forgot-password") => {
+    setSelectedTab(tab);
+  };
+  const { signInWithPassword, signUp, resetPassword } = useAuth();
+  const [forgotPasswordSubmitting, setForgotPasswordSubmitting] =
+    useState(false);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
+
+  const closeAndReset = () => {
+    setSelectedTab(null);
+    setForgotPasswordSuccess(false);
+    onClose();
+  };
+
+  const loginForm = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const registerForm = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { username: "", email: "", password: "" },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: "" },
+  });
+
+  const onLoginSubmit = async (data: LoginFormValues) => {
+    const { error } = await signInWithPassword(data.email, data.password);
+    if (error) {
+      toast.error("Login failed", { description: error.message });
+      return;
+    }
+    toast.success("Login successful");
+    closeAndReset();
+  };
+
+  const onRegisterSubmit = async (data: RegisterFormValues) => {
+    const { error } = await signUp(data.email, data.password, data.username);
+    if (error) {
+      toast.error("Registration failed", { description: error.message });
+      return;
+    }
+    toast.success("Account created", {
+      description: "Check your email to confirm your account.",
+    });
+    closeAndReset();
+  };
+
+  const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {
+    setForgotPasswordSubmitting(true);
+    const { error } = await resetPassword(data.email);
+    setForgotPasswordSubmitting(false);
+    if (error) {
+      toast.error("Failed to send reset email", { description: error.message });
+      return;
+    }
+    setForgotPasswordSuccess(true);
+    toast.success("Password reset email sent");
+  };
+
+  return (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) closeAndReset();
+      }}
+    >
+      <DialogContent className="sm:max-w-md rounded-3xl border-quran-border bg-quran-card p-5 sm:p-6">
+        <DialogHeader className="text-left">
+          <DialogTitle className="font-heading text-3xl text-quran-deep">
+            {activeTab === "forgot-password" ? "Reset Password" : activeTab === "register" ? "Create Account" : "Login"}
+          </DialogTitle>
+          <DialogDescription>
+            {activeTab === "forgot-password"
+              ? "Enter your email to receive a password reset link."
+              : activeTab === "register"
+                ? "Create an account to manage your Khatim circles."
+                : "Log in to manage your Khatim circles."}
+          </DialogDescription>
+        </DialogHeader>
+
+        {activeTab === "forgot-password" ? (
+          forgotPasswordSuccess ? (
+            <div className="space-y-4 py-4">
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-medium text-quran-deep">
+                  Check your email
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  We&apos;ve sent a password reset link to your email.
+                </p>
+              </div>
+              <Button
+                type="button"
+                className="w-full rounded-full"
+                onClick={() => setActiveTab("login")}
+              >
+                Back to Login
+              </Button>
+            </div>
+          ) : (
+            <Form {...forgotPasswordForm}>
+              <form
+                onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={forgotPasswordForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Your email address"
+                          {...field}
+                          type="email"
+                          className="rounded-xl border-quran-border bg-white/85"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="w-full rounded-full"
+                  disabled={forgotPasswordSubmitting}
+                >
+                  {forgotPasswordSubmitting ? "Sending..." : "Send Reset Link"}
+                </Button>
+                <div
+                  className="text-sm text-center mt-4 text-primary hover:underline cursor-pointer"
+                  onClick={() => setActiveTab("login")}
+                >
+                  Back to Login
+                </div>
+              </form>
+            </Form>
+          )
+        ) : (
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as "login" | "register")}
+          >
+            <TabsList className="grid w-full grid-cols-2 rounded-full border border-quran-border bg-white/70 p-1">
+              <TabsTrigger
+                value="login"
+                className="rounded-full data-[state=active]:bg-quran-green data-[state=active]:text-primary-foreground"
+              >
+                Login
+              </TabsTrigger>
+              <TabsTrigger
+                value="register"
+                className="rounded-full data-[state=active]:bg-quran-green data-[state=active]:text-primary-foreground"
+              >
+                Register
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="login">
+              <div className="space-y-4 py-4">
+                <GoogleSignInButton />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or continue with email
+                    </span>
+                  </div>
+                </div>
+                <Form {...loginForm}>
+                  <form
+                    onSubmit={loginForm.handleSubmit(onLoginSubmit)}
+                    className="space-y-4"
+                  >
+                    <FormField
+                      control={loginForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="you@example.com"
+                              {...field}
+                              type="email"
+                              className="rounded-xl border-quran-border bg-white/85"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              {...field}
+                              className="rounded-xl border-quran-border bg-white/85"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div
+                      className="text-sm text-primary hover:underline cursor-pointer"
+                      onClick={() => setActiveTab("forgot-password")}
+                    >
+                      Forgot password?
+                    </div>
+                    <Button type="submit" className="w-full rounded-full">
+                      Login
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="register">
+              <div className="space-y-4 py-4">
+                <GoogleSignInButton />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or continue with email
+                    </span>
+                  </div>
+                </div>
+                <Form {...registerForm}>
+                  <form
+                    onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
+                    className="space-y-4"
+                  >
+                    <FormField
+                      control={registerForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Your name"
+                              {...field}
+                              className="rounded-xl border-quran-border bg-white/85"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="you@example.com"
+                              {...field}
+                              type="email"
+                              className="rounded-xl border-quran-border bg-white/85"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              {...field}
+                              className="rounded-xl border-quran-border bg-white/85"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full rounded-full">
+                      Create Account
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+            </TabsContent>
+          </Tabs>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

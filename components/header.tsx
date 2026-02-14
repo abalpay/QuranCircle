@@ -1,0 +1,139 @@
+"use client";
+
+import { useAuth } from "@/hooks/use-auth";
+import { useAuthModal } from "@/hooks/use-auth-modal";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import {
+  UserCircle,
+  ChevronDown,
+  Globe2,
+  LogOut,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Image from "next/image";
+import { toast } from "sonner";
+
+export default function Header() {
+  const { user, signOut } = useAuth();
+  const { openAuthModal } = useAuthModal();
+
+  const displayName =
+    (user?.user_metadata?.username as string) ||
+    user?.email?.split("@")[0] ||
+    "User";
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-quran-border/65 bg-quran-bg/92 backdrop-blur-xl">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <Link href="/" className="group inline-flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-quran-border bg-white/70 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]">
+            <Image src="/quran-icon.png" alt="Quran Icon" width={23} height={23} />
+          </span>
+          <span className="leading-none">
+            <span className="block font-heading text-2xl text-quran-green">
+              QuranCircle
+            </span>
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-quran-muted">
+              Read Together
+            </span>
+          </span>
+        </Link>
+
+        <div className="ml-auto flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden rounded-full border border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70 md:flex"
+              >
+                <Globe2 className="mr-1 h-4 w-4" />
+                <span className="text-sm">English</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="border-quran-border bg-quran-card"
+            >
+              <DropdownMenuItem>English</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  toast.info("Coming Soon", {
+                    description: "Arabic language support will be available soon.",
+                  })
+                }
+              >
+                Arabic
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  toast.info("Coming Soon", {
+                    description: "Turkish language support will be available soon.",
+                  })
+                }
+              >
+                Turkish
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  toast.info("Coming Soon", {
+                    description: "Urdu language support will be available soon.",
+                  })
+                }
+                >
+                  Urdu
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden rounded-full border border-quran-border/80 bg-white/70 px-3 text-quran-deep hover:bg-white md:flex"
+                >
+                  <UserCircle className="mr-2 h-4 w-4 text-quran-green" />
+                  <span className="text-sm">Salam, {displayName}</span>
+                  <ChevronDown className="ml-1 h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="border-[hsl(var(--quran-border))] bg-[hsl(var(--quran-card))]"
+              >
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="text-red-600 focus:bg-red-50 focus:text-red-700"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="default"
+              size="sm"
+              className="hidden rounded-full px-5 text-primary-foreground shadow-[0_12px_24px_-16px_var(--color-quran-deep)] md:flex"
+              onClick={() => openAuthModal("login")}
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}

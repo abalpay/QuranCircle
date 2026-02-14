@@ -1,0 +1,330 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans:
+    var(--font-body), var(--font-arabic), "Segoe UI", "Tahoma", sans-serif;
+  --font-serif: var(--font-display), "Times New Roman", serif;
+  --font-mono: ui-monospace, monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-quran-green: hsl(var(--quran-green));
+  --color-quran-light-green: hsl(var(--quran-light-green));
+  --color-quran-bg: hsl(var(--quran-bg));
+  --color-quran-card: hsl(var(--quran-card));
+  --color-quran-text: hsl(var(--quran-text));
+  --color-quran-muted: hsl(var(--quran-muted));
+  --color-quran-border: hsl(var(--quran-border));
+  --color-quran-gold: hsl(var(--quran-gold));
+  --color-quran-deep: hsl(var(--quran-deep));
+}
+
+:root {
+  --quran-green: 166 62% 24%;
+  --quran-light-green: 162 32% 44%;
+  --quran-bg: 44 40% 95%;
+  --quran-card: 42 52% 98%;
+  --quran-text: 168 24% 16%;
+  --quran-muted: 162 13% 37%;
+  --quran-border: 41 24% 78%;
+  --quran-gold: 39 54% 42%;
+  --quran-deep: 167 53% 18%;
+  --radius: 0.9rem;
+  --background: hsl(var(--quran-bg));
+  --foreground: hsl(var(--quran-text));
+  --card: hsl(var(--quran-card));
+  --card-foreground: hsl(var(--quran-text));
+  --popover: hsl(var(--quran-card));
+  --popover-foreground: hsl(var(--quran-text));
+  --primary: hsl(var(--quran-green));
+  --primary-foreground: hsl(44 58% 95%);
+  --secondary: hsl(44 38% 90%);
+  --secondary-foreground: hsl(var(--quran-deep));
+  --muted: hsl(43 32% 90%);
+  --muted-foreground: hsl(var(--quran-muted));
+  --accent: hsl(42 52% 84%);
+  --accent-foreground: hsl(var(--quran-deep));
+  --destructive: hsl(0 72% 46%);
+  --border: hsl(var(--quran-border));
+  --input: hsl(var(--quran-border) / 0.75);
+  --ring: hsl(var(--quran-green) / 0.3);
+  --chart-1: hsl(var(--quran-green));
+  --chart-2: hsl(var(--quran-gold));
+  --chart-3: hsl(176 28% 30%);
+  --chart-4: hsl(48 66% 52%);
+  --chart-5: hsl(25 64% 52%);
+  --sidebar: hsl(var(--quran-card));
+  --sidebar-foreground: hsl(var(--quran-text));
+  --sidebar-primary: hsl(var(--quran-green));
+  --sidebar-primary-foreground: hsl(44 58% 95%);
+  --sidebar-accent: hsl(45 45% 88%);
+  --sidebar-accent-foreground: hsl(var(--quran-deep));
+  --sidebar-border: hsl(var(--quran-border));
+  --sidebar-ring: hsl(var(--quran-green) / 0.3);
+}
+
+.dark {
+  --background: hsl(168 18% 11%);
+  --foreground: hsl(44 28% 93%);
+  --card: hsl(166 22% 14%);
+  --card-foreground: hsl(44 28% 93%);
+  --popover: hsl(166 22% 14%);
+  --popover-foreground: hsl(44 28% 93%);
+  --primary: hsl(160 45% 61%);
+  --primary-foreground: hsl(165 26% 14%);
+  --secondary: hsl(169 14% 20%);
+  --secondary-foreground: hsl(45 26% 89%);
+  --muted: hsl(168 12% 19%);
+  --muted-foreground: hsl(45 15% 72%);
+  --accent: hsl(171 13% 23%);
+  --accent-foreground: hsl(44 28% 93%);
+  --destructive: hsl(0 68% 54%);
+  --border: hsl(170 16% 26%);
+  --input: hsl(170 16% 26%);
+  --ring: hsl(161 35% 55%);
+  --chart-1: hsl(157 45% 60%);
+  --chart-2: hsl(40 70% 58%);
+  --chart-3: hsl(188 35% 60%);
+  --chart-4: hsl(53 72% 56%);
+  --chart-5: hsl(26 70% 58%);
+  --sidebar: hsl(166 22% 14%);
+  --sidebar-foreground: hsl(44 28% 93%);
+  --sidebar-primary: hsl(157 45% 60%);
+  --sidebar-primary-foreground: hsl(165 26% 14%);
+  --sidebar-accent: hsl(169 14% 20%);
+  --sidebar-accent-foreground: hsl(44 28% 93%);
+  --sidebar-border: hsl(170 16% 26%);
+  --sidebar-ring: hsl(161 35% 55%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(
+        circle at top right,
+        hsl(var(--quran-light-green) / 0.16),
+        transparent 42%
+      ),
+      radial-gradient(
+        circle at bottom left,
+        hsl(var(--quran-gold) / 0.1),
+        transparent 42%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(var(--quran-bg)),
+        hsl(var(--quran-bg)) 44%,
+        hsl(44 34% 93%) 100%
+      );
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: hsl(var(--quran-green) / 0.2);
+    color: hsl(var(--quran-deep));
+  }
+
+  .safe-area-bottom {
+    padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+  }
+
+  .font-heading {
+    font-family:
+      var(--font-display), var(--font-arabic), "Iowan Old Style",
+      "Times New Roman", serif;
+    @apply font-semibold;
+  }
+
+  .arabic-text {
+    font-family:
+      var(--font-arabic), var(--font-body), "Segoe UI", "Tahoma", sans-serif;
+    @apply text-right text-xl leading-relaxed font-semibold;
+  }
+
+  .page-shell {
+    @apply relative z-10 mx-auto w-full max-w-6xl px-4 py-8 pb-28 sm:px-6 lg:px-8 md:pb-8;
+  }
+
+  .quran-card {
+    @apply rounded-3xl border transition-all;
+    background: 
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(44 50% 97%) 100%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    border-color: hsl(var(--quran-border));
+    box-shadow:
+      0 18px 40px -34px hsl(var(--quran-deep) / 0.68),
+      inset 0 1px 0 hsl(0 0% 100% / 0.85);
+  }
+
+  .quran-card-primary {
+    @apply rounded-3xl border transition-all;
+    background: 
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(44 50% 97%) 100%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    border-color: hsl(var(--quran-border) / 0.8);
+    box-shadow: 0 24px 48px -12px hsl(var(--quran-deep) / 0.15);
+  }
+
+  .quran-card-interactive {
+    @apply rounded-3xl border transition-all;
+    background: 
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(44 50% 97%) 100%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    border-color: hsl(var(--quran-border));
+    box-shadow:
+      0 18px 40px -34px hsl(var(--quran-deep) / 0.68),
+      inset 0 1px 0 hsl(0 0% 100% / 0.85);
+  }
+
+  .quran-card-interactive:hover {
+    border-color: hsl(var(--quran-light-green) / 0.7);
+    transform: translateY(-4px);
+    box-shadow:
+      0 28px 55px -36px hsl(var(--quran-deep) / 0.76),
+      inset 0 1px 0 hsl(0 0% 100% / 0.9);
+  }
+
+  .quran-card-info {
+    @apply rounded-2xl border border-quran-border/60 bg-white/60 p-6 backdrop-blur-sm;
+  }
+
+  .quran-card:hover {
+    border-color: hsl(var(--quran-light-green) / 0.7);
+    box-shadow:
+      0 28px 55px -36px hsl(var(--quran-deep) / 0.76),
+      inset 0 1px 0 hsl(0 0% 100% / 0.9);
+  }
+
+  .quran-badge {
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.18em];
+    border-color: hsl(var(--quran-border));
+    color: hsl(var(--quran-deep));
+    background: linear-gradient(
+      130deg,
+      hsl(var(--quran-card)),
+      hsl(var(--quran-bg))
+    );
+  }
+
+  .ornament-panel {
+    background:
+      linear-gradient(140deg, hsl(var(--quran-card) / 0.95), hsl(45 62% 96%)),
+      radial-gradient(
+        circle at 20% 20%,
+        hsl(var(--quran-gold) / 0.16),
+        transparent 42%
+      );
+  }
+
+  /* ── Hero geometric pattern ── */
+  .hero-pattern {
+    @apply relative isolate;
+  }
+
+  .hero-pattern::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0;
+    z-index: -1;
+    background-image:
+      /* Vignette — fades the geometric pattern at edges */
+      radial-gradient(
+        ellipse at 50% 45%,
+        transparent 35%,
+        hsl(var(--quran-bg)) 72%
+      ),
+      /* Warm center glow */
+      radial-gradient(
+        circle at 50% 30%,
+        hsl(var(--quran-light-green) / 0.1),
+        transparent 55%
+      ),
+      /* Islamic 8-pointed star tessellation */
+      url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231f4e45' stroke-width='1' opacity='0.07'%3E%3Crect x='24' y='24' width='32' height='32'/%3E%3Crect x='24' y='24' width='32' height='32' transform='rotate(45 40 40)'/%3E%3Cline x1='40' y1='0' x2='40' y2='17.4'/%3E%3Cline x1='80' y1='40' x2='62.6' y2='40'/%3E%3Cline x1='40' y1='80' x2='40' y2='62.6'/%3E%3Cline x1='0' y1='40' x2='17.4' y2='40'/%3E%3Cline x1='0' y1='0' x2='24' y2='24'/%3E%3Cline x1='80' y1='0' x2='56' y2='24'/%3E%3Cline x1='80' y1='80' x2='56' y2='56'/%3E%3Cline x1='0' y1='80' x2='24' y2='56'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat, no-repeat, repeat;
+    background-size: 100% 100%, 100% 100%, 80px 80px;
+  }
+
+  /* ── Section containment panel ── */
+  .section-panel {
+    @apply rounded-[2rem] border px-6 py-10 sm:px-10 sm:py-14;
+    border-color: hsl(var(--quran-border) / 0.4);
+    background: linear-gradient(
+      170deg,
+      hsl(var(--quran-card) / 0.55),
+      hsl(44 42% 96% / 0.45)
+    );
+  }
+
+  .animate-fade-rise {
+    animation: fade-rise 0.7s cubic-bezier(0.18, 0.75, 0.28, 1) both;
+  }
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
