@@ -52,7 +52,7 @@ export default function UserDashboard() {
 
   return (
     <>
-      <section className="section-panel mt-16 animate-fade-rise [animation-delay:200ms]" style={{ animationFillMode: "both" }}>
+      <section className="section-panel mt-16 animate-fade-rise border-t-2 border-t-quran-gold/20 [animation-delay:200ms]" style={{ animationFillMode: "both" }}>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-heading text-3xl text-quran-deep">

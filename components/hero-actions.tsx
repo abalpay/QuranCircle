@@ -11,10 +11,10 @@ export default function HeroActions() {
 
   return (
     <>
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
         <Button
           size="lg"
-          className="h-12 rounded-full px-8 text-base font-medium text-primary-foreground shadow-[0_14px_26px_-18px_var(--color-quran-deep)] transition-transform active:scale-[0.98]"
+          className="h-12 w-full rounded-full px-8 text-base font-medium text-primary-foreground shadow-[0_14px_26px_-18px_var(--color-quran-deep)] transition-transform hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
           onClick={() => setIsCreateOpen(true)}
         >
           <Plus className="mr-2 h-5 w-5" />
@@ -24,7 +24,7 @@ export default function HeroActions() {
           asChild
           size="lg"
           variant="outline"
-          className="h-12 rounded-full border-quran-border bg-white/60 px-8 text-base font-medium text-quran-deep backdrop-blur-sm hover:bg-white/90"
+          className="h-12 w-full rounded-full border-quran-border bg-white/60 px-8 text-base font-medium text-quran-deep backdrop-blur-sm hover:bg-white/90 sm:w-auto"
         >
           <Link href="/browse">
             <Compass className="mr-2 h-5 w-5" />

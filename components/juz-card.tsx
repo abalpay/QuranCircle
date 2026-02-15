@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Lock, X } from "lucide-react";
+import { CheckCircle2, Lock, X, Check, Undo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Juz = {
@@ -14,6 +14,8 @@ type Props = {
   juz: Juz;
   onClaim: () => void;
   onUnclaim: () => void;
+  onMarkRead?: () => void;
+  onUnmarkRead?: () => void;
   isLocked: boolean;
   isOwner: boolean;
 };
@@ -22,6 +24,8 @@ export default function JuzCard({
   juz,
   onClaim,
   onUnclaim,
+  onMarkRead,
+  onUnmarkRead,
   isLocked,
   isOwner,
 }: Props) {
@@ -71,18 +75,60 @@ export default function JuzCard({
         <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-quran-muted/40" />
       )}
 
-      {/* Unclaim button for owners */}
+      {/* Action buttons for owners */}
       {isClaimed && isOwner && (
-        <button
-          className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full text-amber-400 opacity-0 transition-opacity hover:bg-amber-100 hover:text-red-500 group-hover:opacity-100"
-          onClick={(e) => {
-            e.stopPropagation();
-            onUnclaim();
-          }}
-          title="Unclaim"
-        >
-          <X className="h-3 w-3" />
-        </button>
+        <div className="absolute right-0.5 top-0.5 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+          {onMarkRead && (
+            <button
+              className="flex h-5 w-5 items-center justify-center rounded-full text-emerald-500 hover:bg-emerald-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkRead();
+              }}
+              title="Mark as read"
+            >
+              <Check className="h-3 w-3" />
+            </button>
+          )}
+          <button
+            className="flex h-5 w-5 items-center justify-center rounded-full text-amber-400 hover:bg-amber-100 hover:text-red-500"
+            onClick={(e) => {
+              e.stopPropagation();
+              onUnclaim();
+            }}
+            title="Unclaim"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      )}
+
+      {/* Action buttons for read state owners */}
+      {isRead && isOwner && (
+        <div className="absolute right-0.5 top-0.5 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+          {onUnmarkRead && (
+            <button
+              className="flex h-5 w-5 items-center justify-center rounded-full text-amber-500 hover:bg-amber-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUnmarkRead();
+              }}
+              title="Mark as unread"
+            >
+              <Undo2 className="h-3 w-3" />
+            </button>
+          )}
+          <button
+            className="flex h-5 w-5 items-center justify-center rounded-full text-emerald-400 hover:bg-red-100 hover:text-red-500"
+            onClick={(e) => {
+              e.stopPropagation();
+              onUnclaim();
+            }}
+            title="Unclaim"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </div>
       )}
 
       {/* Large centered number */}

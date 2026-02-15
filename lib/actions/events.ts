@@ -108,10 +108,12 @@ export async function getEventByShortCode(shortCode: string) {
         .eq("khatm_id", k.id)
         .order("juz_number", { ascending: true });
       const claimedCount = juzs?.filter((j) => j.status !== "unclaimed").length ?? 0;
+      const readCount = juzs?.filter((j) => j.status === "read").length ?? 0;
       return {
         ...k,
         juzs: juzs ?? [],
         claimed_count: claimedCount,
+        read_count: readCount,
       };
     })
   );

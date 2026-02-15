@@ -289,6 +289,7 @@ export default function KhatimPageClient({
             shortCode={shortCode}
             isLocked={event.is_locked}
             deviceToken={deviceToken}
+            creatorToken={creatorToken}
             isCreator={Boolean(isCreator)}
             onRefresh={refreshEvent}
           />

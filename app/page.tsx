@@ -4,11 +4,13 @@ import {
   Share2,
   CheckCircle2,
   Compass,
-  Sparkles,
   HandHeart,
 } from "lucide-react";
 import UserDashboard from "@/components/home-content";
 import HeroActions from "@/components/hero-actions";
+import FeaturedCircles from "@/components/featured-circles";
+import { getCommunityStats } from "@/lib/actions/stats";
+import { getPublicEvents } from "@/lib/actions/events";
 
 const steps = [
   {
@@ -31,33 +33,63 @@ const steps = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [stats, publicEvents] = await Promise.all([
+    getCommunityStats(),
+    getPublicEvents(),
+  ]);
+
+  const featuredEvents = publicEvents.slice(0, 3);
+
   return (
     <main className="page-shell grow">
-      {/* Hero Section */}
-      <section className="hero-pattern relative flex flex-col items-center justify-center py-16 text-center sm:py-24">
-        <span className="quran-badge mb-6 animate-fade-rise">
-          <Sparkles className="mr-2 h-3.5 w-3.5" />
-          Community Khatm Platform
-        </span>
-        <h1 className="font-heading max-w-4xl text-5xl leading-tight text-quran-deep animate-fade-rise [animation-delay:100ms] sm:text-6xl md:text-7xl">
-          Complete the Quran together, <br className="hidden sm:block" />
-          <span className="text-quran-green">one Juz at a time.</span>
+      {/* ── Hero Section ── */}
+      <section className="hero-pattern relative flex flex-col items-center justify-center py-20 text-center sm:py-28 lg:py-36">
+        <p className="bismillah-decoration mb-6 animate-fade-rise">
+          بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
+        </p>
+
+        <h1 className="font-heading max-w-4xl animate-fade-rise text-4xl leading-[1.1] text-quran-deep [animation-delay:100ms] sm:text-5xl md:text-6xl lg:text-7xl">
+          Complete the Quran
+          <br />
+          <span className="hero-gradient-text">together.</span>
         </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-quran-muted animate-fade-rise [animation-delay:200ms] sm:text-xl">
+
+        <p className="mt-6 max-w-2xl animate-fade-rise text-base leading-relaxed text-quran-muted [animation-delay:200ms] sm:text-lg md:text-xl">
           QuranCircle helps families, masjids, and groups coordinate meaningful
           recitation. Create a circle, let people claim their portion, and
           finish your collective Khatm with clarity.
         </p>
-        <div className="animate-fade-rise [animation-delay:300ms]">
+
+        <div className="w-full max-w-md animate-fade-rise px-2 [animation-delay:300ms] sm:w-auto sm:max-w-none sm:px-0">
           <HeroActions />
         </div>
+
+        <div className="hero-divider" />
       </section>
 
-      {/* User Dashboard (Only visible if logged in) */}
+      {/* ── Community Stats Bar ── */}
+      <div className="stats-bar animate-fade-rise [animation-delay:400ms]">
+        <div className="grid grid-cols-3 gap-4">
+          <div className="stats-bar-item">
+            <span className="stats-value">{stats.totalCircles}</span>
+            <span className="stats-label">Circles</span>
+          </div>
+          <div className="stats-bar-item border-x border-quran-border/30 px-4">
+            <span className="stats-value">{stats.totalJuzClaimed}</span>
+            <span className="stats-label">Juz Claimed</span>
+          </div>
+          <div className="stats-bar-item">
+            <span className="stats-value">{stats.activeKhatms}</span>
+            <span className="stats-label">Khatms</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── User Dashboard (only if logged in) ── */}
       <UserDashboard />
 
-      {/* Features / How It Works */}
+      {/* ── How It Works — Vertical Timeline ── */}
       <section className="section-panel mt-24">
         <div className="mb-10 text-center">
           <h2 className="font-heading text-3xl text-quran-deep sm:text-4xl">
@@ -67,8 +99,37 @@ export default function HomePage() {
             Simple, focused, and designed for spiritual collaboration.
           </p>
         </div>
-        
-        <div className="grid gap-6 md:grid-cols-3">
+
+        {/* Mobile: vertical timeline / Desktop: 3-column grid */}
+        <div className="flex flex-col gap-10 md:hidden">
+          {steps.map((step, index) => (
+            <div
+              key={step.title}
+              className="how-it-works-step animate-fade-rise"
+              style={{
+                animationDelay: `${index * 100 + 400}ms`,
+                animationFillMode: "both",
+              }}
+            >
+              {/* Connector line (not on last item) */}
+              {index < steps.length - 1 && <div className="step-connector" />}
+
+              <div className="step-number-circle">{index + 1}</div>
+
+              <div className="flex-1 pb-2">
+                <h3 className="font-heading text-xl text-quran-deep">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-quran-muted">
+                  {step.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: card grid */}
+        <div className="hidden gap-6 md:grid md:grid-cols-3">
           {steps.map((step, index) => (
             <div
               key={step.title}
@@ -92,9 +153,40 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="mt-24 mb-12 rounded-[2.5rem] border border-quran-border bg-quran-green/94 px-6 py-16 text-center text-primary-foreground shadow-[0_32px_64px_-32px_var(--color-quran-deep)] sm:px-12 sm:py-20">
-        <div className="mx-auto max-w-2xl">
+      {/* ── Featured Public Circles ── */}
+      {featuredEvents.length > 0 && (
+        <section className="mt-24">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="font-heading text-3xl text-quran-deep sm:text-4xl">
+                Active Circles
+              </h2>
+              <p className="mt-2 text-quran-muted">
+                Join an ongoing Khatm and contribute today.
+              </p>
+            </div>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full border-quran-border bg-white/60 px-6 hover:bg-white/90"
+            >
+              <Link href="/browse">
+                <Compass className="mr-2 h-4 w-4" />
+                View All
+              </Link>
+            </Button>
+          </div>
+
+          <FeaturedCircles events={featuredEvents} />
+        </section>
+      )}
+
+      {/* ── CTA Section ── */}
+      <section className="cta-section">
+        <span className="cta-arabic-decoration" aria-hidden="true">
+          اقْرَأْ
+        </span>
+        <div className="relative z-10 mx-auto max-w-2xl">
           <h3 className="font-heading text-3xl sm:text-4xl md:text-5xl">
             Join a public circle today
           </h3>
@@ -105,7 +197,7 @@ export default function HomePage() {
             <Button
               asChild
               size="lg"
-              className="h-12 rounded-full border-2 border-white bg-white text-base font-semibold text-quran-green shadow-lg transition-transform hover:bg-white/90 hover:scale-105 active:scale-95"
+              className="h-12 w-full rounded-full border-2 border-white bg-white text-base font-semibold text-quran-green shadow-lg transition-transform hover:scale-105 hover:bg-white/90 active:scale-95 sm:w-auto"
             >
               <Link href="/browse">
                 <Compass className="mr-2 h-5 w-5" />
