@@ -18,29 +18,7 @@ import KhatmCard from "@/components/khatm-card";
 import { lockEvent, unlockEvent } from "@/lib/actions/events";
 import { useAuth } from "@/hooks/use-auth";
 
-const CREATOR_TOKEN_KEY = "quran_circle_creator_token";
 const DEVICE_TOKEN_KEY = "quran_circle_device_token";
-
-function getOrCreateDeviceToken(): string {
-  if (typeof window === "undefined") return "";
-  let token = document.cookie
-    .split("; ")
-    .find((r) => r.startsWith(`${DEVICE_TOKEN_KEY}=`))
-    ?.split("=")[1];
-  if (!token) {
-    token = crypto.randomUUID();
-    document.cookie = `${DEVICE_TOKEN_KEY}=${token}; path=/; max-age=31536000`;
-  }
-  return token;
-}
-
-function getCreatorToken(): string | undefined {
-  if (typeof window === "undefined") return undefined;
-  return document.cookie
-    .split("; ")
-    .find((r) => r.startsWith(`${CREATOR_TOKEN_KEY}=`))
-    ?.split("=")[1];
-}
 
 type EventData = {
   id: string;
@@ -69,12 +47,27 @@ type EventData = {
 type Props = {
   event: EventData;
   shortCode: string;
+  deviceToken: string;
+  creatorToken?: string;
 };
 
-export default function KhatimPageClient({ event: initialEvent, shortCode }: Props) {
+export default function KhatimPageClient({
+  event: initialEvent,
+  shortCode,
+  deviceToken: initialDeviceToken,
+  creatorToken,
+}: Props) {
   const [event, setEvent] = useState(initialEvent);
   const [isLocking, setIsLocking] = useState(false);
-  const deviceToken = getOrCreateDeviceToken();
+  const [deviceToken, setDeviceToken] = useState(initialDeviceToken);
+
+  // First-visit: generate device token after hydration if none exists
+  useEffect(() => {
+    if (deviceToken) return;
+    const token = crypto.randomUUID();
+    document.cookie = `${DEVICE_TOKEN_KEY}=${token}; path=/; max-age=31536000`;
+    setDeviceToken(token);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const khatmIds = event.khatms.map((k) => k.id).join(",");
 
   const refreshEvent = useCallback(async () => {
@@ -193,7 +186,6 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
 
   const handleLockToggle = async () => {
     setIsLocking(true);
-    const creatorToken = getCreatorToken();
     const result = event.is_locked
       ? await unlockEvent(shortCode, creatorToken)
       : await lockEvent(shortCode, creatorToken);
@@ -207,7 +199,6 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
   };
 
   const { user } = useAuth();
-  const creatorToken = getCreatorToken();
   const isCreator =
     (user && event.created_by === user.id) ||
     (event.creator_token && creatorToken && event.creator_token === creatorToken);
