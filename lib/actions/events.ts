@@ -21,6 +21,7 @@ export async function createEvent(formData: {
 }) {
   const parsed = createEventSchema.safeParse(formData);
   if (!parsed.success) return { error: "Invalid input" };
+  const { name, description, isPublic } = parsed.data;
 
   const supabase = await createClient();
   const {
@@ -46,9 +47,9 @@ export async function createEvent(formData: {
   const { data: event, error: eventError } = await supabase
     .from("events")
     .insert({
-      name: formData.name,
-      description: formData.description || null,
-      is_public: formData.isPublic ?? false,
+      name,
+      description: description || null,
+      is_public: isPublic ?? false,
       created_by: user.id,
       creator_token: null,
       short_code: shortCode,
