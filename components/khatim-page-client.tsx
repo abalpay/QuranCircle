@@ -1,9 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Share2,
   Lock,
@@ -12,10 +20,21 @@ import {
   Link2,
   ShieldCheck,
   ShieldAlert,
+  Settings,
+  Archive,
+  ArchiveRestore,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import KhatmCard from "@/components/khatm-card";
-import { lockEvent, unlockEvent } from "@/lib/actions/events";
+import DeleteEventDialog from "@/components/delete-event-dialog";
+import {
+  lockEvent,
+  unlockEvent,
+  archiveEvent,
+  unarchiveEvent,
+  deleteEvent,
+} from "@/lib/actions/events";
 import { useAuth } from "@/hooks/use-auth";
 
 const DEVICE_TOKEN_KEY = "quran_circle_device_token";
@@ -27,6 +46,7 @@ type EventData = {
   short_code: string;
   is_locked: boolean;
   is_public: boolean;
+  is_archived: boolean;
   created_by: string | null;
   creator_token: string | null;
   khatms: Array<{
@@ -58,8 +78,11 @@ export default function KhatimPageClient({
   deviceToken: initialDeviceToken,
   creatorToken,
 }: Props) {
+  const router = useRouter();
   const [event, setEvent] = useState(initialEvent);
   const [isLocking, setIsLocking] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [deviceToken, setDeviceToken] = useState(initialDeviceToken);
 
   // First-visit: generate device token after hydration if none exists
@@ -227,6 +250,29 @@ export default function KhatimPageClient({
     toast.success(event.is_locked ? "Khatim unlocked" : "Khatim locked");
   };
 
+  const handleArchiveToggle = async () => {
+    const action = event.is_archived ? unarchiveEvent : archiveEvent;
+    const result = await action(shortCode, creatorToken);
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+    setEvent((e) => ({ ...e, is_archived: !e.is_archived }));
+    toast.success(event.is_archived ? "Khatim unarchived" : "Khatim archived");
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    const result = await deleteEvent(shortCode, creatorToken);
+    setIsDeleting(false);
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Khatim deleted");
+    router.push("/");
+  };
+
   const { user } = useAuth();
   const isCreator =
     (user && event.created_by === user.id) ||
@@ -250,7 +296,12 @@ export default function KhatimPageClient({
             )}
           </span>
           <span className="quran-badge">
-            {event.is_locked ? (
+            {event.is_archived ? (
+              <>
+                <Archive className="mr-2 h-3.5 w-3.5" />
+                Archived
+              </>
+            ) : event.is_locked ? (
               <>
                 <ShieldAlert className="mr-2 h-3.5 w-3.5" />
                 Locked
@@ -286,29 +337,80 @@ export default function KhatimPageClient({
               Share
             </Button>
             {isCreator && (
-              <Button
-                variant={event.is_locked ? "outline" : "default"}
-                size="sm"
-                className="rounded-full px-4"
-                onClick={handleLockToggle}
-                disabled={isLocking}
-              >
-                {event.is_locked ? (
-                  <>
-                    <Unlock className="mr-2 h-4 w-4" />
-                    Unlock
-                  </>
-                ) : (
-                  <>
-                    <Lock className="mr-2 h-4 w-4" />
-                    Lock
-                  </>
-                )}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-quran-border bg-white/80 px-3"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={handleLockToggle}
+                    disabled={isLocking}
+                  >
+                    {event.is_locked ? (
+                      <>
+                        <Unlock className="mr-2 h-4 w-4" />
+                        Unlock Khatim
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="mr-2 h-4 w-4" />
+                        Lock Khatim
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleArchiveToggle}>
+                    {event.is_archived ? (
+                      <>
+                        <ArchiveRestore className="mr-2 h-4 w-4" />
+                        Unarchive Khatim
+                      </>
+                    ) : (
+                      <>
+                        <Archive className="mr-2 h-4 w-4" />
+                        Archive Khatim
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-red-600 focus:text-red-600"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Khatim
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
       </section>
+
+      {event.is_archived && (
+        <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <div className="flex items-center gap-3 text-sm text-amber-800">
+            <Archive className="h-5 w-5 shrink-0 text-amber-600" />
+            <span>This circle is archived and read-only.</span>
+          </div>
+          {isCreator && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 rounded-full border-amber-300 text-amber-800 hover:bg-amber-100"
+              onClick={handleArchiveToggle}
+            >
+              <ArchiveRestore className="mr-2 h-4 w-4" />
+              Unarchive
+            </Button>
+          )}
+        </div>
+      )}
 
       <div className="space-y-8">
         {event.khatms.map((khatm, index) => {
@@ -319,7 +421,7 @@ export default function KhatimPageClient({
               key={khatm.id}
               khatm={khatm}
               shortCode={shortCode}
-              isLocked={event.is_locked}
+              isLocked={event.is_locked || event.is_archived}
               deviceToken={deviceToken}
               creatorToken={creatorToken}
               isCreator={Boolean(isCreator)}
@@ -329,6 +431,14 @@ export default function KhatimPageClient({
           );
         })}
       </div>
+
+      <DeleteEventDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        eventName={event.name}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

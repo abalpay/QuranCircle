@@ -82,7 +82,6 @@ export async function getEventByShortCode(shortCode: string) {
     .from("events")
     .select("*")
     .eq("short_code", shortCode)
-    .eq("is_archived", false)
     .single();
 
   if (error || !event) {
@@ -183,10 +182,29 @@ export async function getUserEvents() {
 
   const withProgress = await Promise.all(
     events.map(async (e) => {
-      const eventFull = await getEventByShortCode(e.short_code);
-      const claimed = eventFull?.khatms?.[0]?.claimed_count ?? 0;
-      const total = eventFull?.khatms?.[0]?.juzs?.length ?? 30;
-      return { ...e, claimed, total };
+      const { data: khatms } = await supabase
+        .from("khatms")
+        .select("id")
+        .eq("event_id", e.id)
+        .eq("is_deleted", false);
+      let claimed = 0;
+      let total = 0;
+      if (khatms) {
+        for (const k of khatms) {
+          const { count } = await supabase
+            .from("juzs")
+            .select("*", { count: "exact", head: true })
+            .eq("khatm_id", k.id);
+          const { count: claimedCount } = await supabase
+            .from("juzs")
+            .select("*", { count: "exact", head: true })
+            .eq("khatm_id", k.id)
+            .neq("status", "unclaimed");
+          total += count ?? 0;
+          claimed += claimedCount ?? 0;
+        }
+      }
+      return { ...e, claimed, total: total || 30 };
     })
   );
 
@@ -238,5 +256,90 @@ export async function unlockEvent(shortCode: string, creatorToken?: string) {
     .eq("id", event.id);
 
   revalidatePath(`/s/${shortCode}`);
+  return {};
+}
+
+export async function archiveEvent(shortCode: string, creatorToken?: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: event } = await supabase
+    .from("events")
+    .select("id, created_by, creator_token")
+    .eq("short_code", shortCode)
+    .single();
+
+  if (!event) return { error: "Event not found" };
+  const isCreator =
+    user?.id === event.created_by ||
+    (creatorToken && event.creator_token === creatorToken);
+  if (!isCreator) return { error: "Unauthorized" };
+
+  await supabase
+    .from("events")
+    .update({ is_archived: true, archived_at: new Date().toISOString() })
+    .eq("id", event.id);
+
+  revalidatePath(`/s/${shortCode}`);
+  revalidatePath("/");
+  return {};
+}
+
+export async function unarchiveEvent(shortCode: string, creatorToken?: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: event } = await supabase
+    .from("events")
+    .select("id, created_by, creator_token")
+    .eq("short_code", shortCode)
+    .single();
+
+  if (!event) return { error: "Event not found" };
+  const isCreator =
+    user?.id === event.created_by ||
+    (creatorToken && event.creator_token === creatorToken);
+  if (!isCreator) return { error: "Unauthorized" };
+
+  await supabase
+    .from("events")
+    .update({ is_archived: false, archived_at: null })
+    .eq("id", event.id);
+
+  revalidatePath(`/s/${shortCode}`);
+  revalidatePath("/");
+  return {};
+}
+
+export async function deleteEvent(shortCode: string, creatorToken?: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: event } = await supabase
+    .from("events")
+    .select("id, created_by, creator_token")
+    .eq("short_code", shortCode)
+    .single();
+
+  if (!event) return { error: "Event not found" };
+  const isCreator =
+    user?.id === event.created_by ||
+    (creatorToken && event.creator_token === creatorToken);
+  if (!isCreator) return { error: "Unauthorized" };
+
+  // Delete in FK-safe order
+  const { data: khatms } = await supabase
+    .from("khatms")
+    .select("id")
+    .eq("event_id", event.id);
+
+  if (khatms && khatms.length > 0) {
+    const khatmIds = khatms.map((k) => k.id);
+    await supabase.from("juzs").delete().in("khatm_id", khatmIds);
+    await supabase.from("khatms").delete().eq("event_id", event.id);
+  }
+
+  await supabase.from("bookmarks").delete().eq("event_id", event.id);
+  await supabase.from("events").delete().eq("id", event.id);
+
+  revalidatePath("/");
+  revalidatePath("/browse");
   return {};
 }
