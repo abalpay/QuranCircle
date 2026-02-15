@@ -3,6 +3,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { generateShortCode } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const shortCodeSchema = z.string().min(1).max(20).regex(/^[A-Za-z0-9]+$/);
+const tokenSchema = z.string().max(255).optional();
+
+const createEventSchema = z.object({
+  name: z.string().min(1).max(200).trim(),
+  description: z.string().max(2000).trim().optional(),
+  isPublic: z.boolean().optional(),
+  creatorToken: tokenSchema,
+});
 
 export async function createEvent(formData: {
   name: string;
@@ -10,6 +21,9 @@ export async function createEvent(formData: {
   isPublic?: boolean;
   creatorToken?: string;
 }) {
+  const parsed = createEventSchema.safeParse(formData);
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -77,6 +91,8 @@ export async function createEvent(formData: {
 }
 
 export async function getEventByShortCode(shortCode: string) {
+  if (!shortCodeSchema.safeParse(shortCode).success) return null;
+
   const supabase = await createClient();
   const { data: event, error } = await supabase
     .from("events")
@@ -212,6 +228,9 @@ export async function getUserEvents() {
 }
 
 export async function lockEvent(shortCode: string, creatorToken?: string) {
+  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { data: event } = await supabase
@@ -236,6 +255,9 @@ export async function lockEvent(shortCode: string, creatorToken?: string) {
 }
 
 export async function unlockEvent(shortCode: string, creatorToken?: string) {
+  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { data: event } = await supabase
@@ -260,6 +282,9 @@ export async function unlockEvent(shortCode: string, creatorToken?: string) {
 }
 
 export async function archiveEvent(shortCode: string, creatorToken?: string) {
+  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { data: event } = await supabase
@@ -285,6 +310,9 @@ export async function archiveEvent(shortCode: string, creatorToken?: string) {
 }
 
 export async function unarchiveEvent(shortCode: string, creatorToken?: string) {
+  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { data: event } = await supabase
@@ -310,6 +338,9 @@ export async function unarchiveEvent(shortCode: string, creatorToken?: string) {
 }
 
 export async function deleteEvent(shortCode: string, creatorToken?: string) {
+  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { data: event } = await supabase

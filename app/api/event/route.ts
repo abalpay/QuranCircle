@@ -13,5 +13,15 @@ export async function GET(request: Request) {
   if (!event) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(event);
+
+  // Strip sensitive fields before sending to client
+  const { creator_token, created_by, ...safeEvent } = event;
+  const safeKhatms = safeEvent.khatms?.map(
+    (k: Record<string, unknown> & { juzs?: Record<string, unknown>[] }) => ({
+      ...k,
+      juzs: k.juzs?.map(({ device_token, claimed_by_user_id, ...safeJuz }: Record<string, unknown>) => safeJuz),
+    })
+  );
+
+  return NextResponse.json({ ...safeEvent, khatms: safeKhatms ?? [] });
 }

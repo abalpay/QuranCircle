@@ -31,7 +31,7 @@ function getOrCreateCreatorToken(): string {
     ?.split("=")[1];
   if (!token) {
     token = crypto.randomUUID();
-    document.cookie = `${CREATOR_TOKEN_KEY}=${token}; path=/; max-age=31536000`;
+    document.cookie = `${CREATOR_TOKEN_KEY}=${token}; path=/; max-age=31536000; SameSite=Lax; Secure`;
   }
   return token;
 }

@@ -1,5 +1,3 @@
-const LOCAL_DEV_URL = "http://localhost:3001";
-
 function trimTrailingSlash(url: string) {
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
@@ -14,7 +12,14 @@ export function getSiteUrl() {
     return trimTrailingSlash(window.location.origin);
   }
 
-  return LOCAL_DEV_URL;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "NEXT_PUBLIC_SITE_URL is required in production. Set it in your environment variables."
+    );
+  }
+
+  // Dev-only fallback
+  return "http://localhost:3001";
 }
 
 export function getSafeNextPath(nextPath?: string) {

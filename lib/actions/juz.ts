@@ -3,6 +3,14 @@
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const shortCodeSchema = z.string().min(1).max(20).regex(/^[A-Za-z0-9]+$/);
+const uuidSchema = z.string().uuid();
+const claimerNameSchema = z.string().min(1).max(100).trim();
+const juzNumberSchema = z.number().int().min(1).max(30);
+const juzNumbersSchema = z.array(juzNumberSchema).min(1).max(30);
+const tokenSchema = z.string().max(255).optional();
 
 function normalizeToken(token?: string): string | undefined {
   const trimmed = token?.trim();
@@ -71,8 +79,19 @@ export async function claimJuz(
   claimerName: string,
   deviceToken?: string
 ) {
+  const parsed = z
+    .object({
+      shortCode: shortCodeSchema,
+      khatmId: uuidSchema,
+      juzNumber: juzNumberSchema,
+      claimerName: claimerNameSchema,
+      deviceToken: tokenSchema,
+    })
+    .safeParse({ shortCode, khatmId, juzNumber, claimerName, deviceToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
-  const normalizedToken = normalizeToken(deviceToken);
+  const normalizedToken = normalizeToken(parsed.data.deviceToken);
 
   const { data: event } = await supabase
     .from("events")
@@ -87,17 +106,8 @@ export async function claimJuz(
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: juz } = await supabase
-    .from("juzs")
-    .select("id, status")
-    .eq("khatm_id", khatmId)
-    .eq("juz_number", juzNumber)
-    .single();
-
-  if (!juz) return { error: "Juz not found" };
-  if (juz.status !== "unclaimed") return { error: "Juz already claimed" };
-
-  const { error } = await supabase
+  // Atomic update: WHERE status = 'unclaimed' prevents race conditions
+  const { data: updated, error } = await supabase
     .from("juzs")
     .update({
       claimed_by_name: claimerName,
@@ -106,9 +116,13 @@ export async function claimJuz(
       status: "claimed",
       claimed_at: new Date().toISOString(),
     })
-    .eq("id", juz.id);
+    .eq("khatm_id", khatmId)
+    .eq("juz_number", juzNumber)
+    .eq("status", "unclaimed")
+    .select("id");
 
   if (error) return { error: error.message };
+  if (!updated?.length) return { error: "Juz already claimed" };
 
   // Check if all juz in this khatm are now claimed → auto-create next khatm
   let newKhatmCreated = false;
@@ -142,8 +156,19 @@ export async function claimMultipleJuz(
   claimerName: string,
   deviceToken?: string
 ) {
+  const parsed = z
+    .object({
+      shortCode: shortCodeSchema,
+      khatmId: uuidSchema,
+      juzNumbers: juzNumbersSchema,
+      claimerName: claimerNameSchema,
+      deviceToken: tokenSchema,
+    })
+    .safeParse({ shortCode, khatmId, juzNumbers, claimerName, deviceToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
-  const normalizedToken = normalizeToken(deviceToken);
+  const normalizedToken = normalizeToken(parsed.data.deviceToken);
 
   const { data: event } = await supabase
     .from("events")
@@ -158,8 +183,12 @@ export async function claimMultipleJuz(
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Track which juz were actually claimed (WHERE status = 'unclaimed' prevents races)
+  const claimed: number[] = [];
+  const failed: number[] = [];
+
   for (const juzNumber of juzNumbers) {
-    await supabase
+    const { data: updated } = await supabase
       .from("juzs")
       .update({
         claimed_by_name: claimerName,
@@ -170,7 +199,18 @@ export async function claimMultipleJuz(
       })
       .eq("khatm_id", khatmId)
       .eq("juz_number", juzNumber)
-      .eq("status", "unclaimed");
+      .eq("status", "unclaimed")
+      .select("id");
+
+    if (updated?.length) {
+      claimed.push(juzNumber);
+    } else {
+      failed.push(juzNumber);
+    }
+  }
+
+  if (claimed.length === 0) {
+    return { error: "All selected juz were already claimed by someone else" };
   }
 
   // Check if all juz in this khatm are now claimed → auto-create next khatm
@@ -195,7 +235,17 @@ export async function claimMultipleJuz(
   }
 
   revalidatePath(`/s/${shortCode}`);
-  return { newKhatmCreated };
+
+  if (failed.length > 0) {
+    return {
+      newKhatmCreated,
+      claimed,
+      failed,
+      partialError: `Juz ${failed.join(", ")} already claimed by someone else`,
+    };
+  }
+
+  return { newKhatmCreated, claimed };
 }
 
 export async function unclaimJuz(
@@ -204,6 +254,16 @@ export async function unclaimJuz(
   deviceToken?: string,
   creatorToken?: string
 ) {
+  const parsed = z
+    .object({
+      shortCode: shortCodeSchema,
+      juzId: uuidSchema,
+      deviceToken: tokenSchema,
+      creatorToken: tokenSchema,
+    })
+    .safeParse({ shortCode, juzId, deviceToken, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -264,6 +324,16 @@ export async function markJuzAsRead(
   deviceToken?: string,
   creatorToken?: string
 ) {
+  const parsed = z
+    .object({
+      shortCode: shortCodeSchema,
+      juzId: uuidSchema,
+      deviceToken: tokenSchema,
+      creatorToken: tokenSchema,
+    })
+    .safeParse({ shortCode, juzId, deviceToken, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -323,6 +393,16 @@ export async function unmarkJuzAsRead(
   deviceToken?: string,
   creatorToken?: string
 ) {
+  const parsed = z
+    .object({
+      shortCode: shortCodeSchema,
+      juzId: uuidSchema,
+      deviceToken: tokenSchema,
+      creatorToken: tokenSchema,
+    })
+    .safeParse({ shortCode, juzId, deviceToken, creatorToken });
+  if (!parsed.success) return { error: "Invalid input" };
+
   const supabase = await createClient();
   const {
     data: { user },

@@ -89,7 +89,7 @@ export default function KhatimPageClient({
   useEffect(() => {
     if (deviceToken) return;
     const token = crypto.randomUUID();
-    document.cookie = `${DEVICE_TOKEN_KEY}=${token}; path=/; max-age=31536000`;
+    document.cookie = `${DEVICE_TOKEN_KEY}=${token}; path=/; max-age=31536000; SameSite=Lax; Secure`;
     setDeviceToken(token);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const khatmIds = event.khatms.map((k) => k.id).join(",");
@@ -99,7 +99,9 @@ export default function KhatimPageClient({
       const res = await fetch(`/api/event?shortCode=${shortCode}`);
       const data = await res.json();
       if (data && !data.error) setEvent(data);
-    } catch {}
+    } catch (err) {
+      console.warn("[QuranCircle] Failed to refresh event:", err);
+    }
   }, [shortCode]);
 
   // Realtime subscription: use payload directly to update juz state
@@ -231,8 +233,12 @@ export default function KhatimPageClient({
         // User cancellation is expected in native share sheets.
       }
     } else {
-      navigator.clipboard.writeText(url);
-      toast.success("Link copied to clipboard");
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
+      } catch {
+        toast.error("Failed to copy link");
+      }
     }
   };
 

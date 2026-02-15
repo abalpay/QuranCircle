@@ -139,7 +139,10 @@ export default function KhatmCard({
       toast.error(result.error);
       return;
     }
-    const count = juzNumbers.length;
+    if (result.partialError) {
+      toast.warning(result.partialError);
+    }
+    const count = result.claimed?.length ?? juzNumbers.length;
     if (result.newKhatmCreated) {
       toast.success("Juz claimed! A new Khatm cycle has started.");
     } else {
