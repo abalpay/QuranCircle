@@ -105,11 +105,12 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
           if (!update) return juz;
           changed = true;
           return {
-            ...juz,
-            status: (update.status as string) ?? juz.status,
-            claimed_by_name: (update.claimed_by_name as string | null) ?? juz.claimed_by_name,
-            claimed_by_user_id: (update.claimed_by_user_id as string | null) ?? juz.claimed_by_user_id,
-            device_token: (update.device_token as string | null) ?? juz.device_token,
+            id: juz.id,
+            juz_number: juz.juz_number,
+            status: update.status as string,
+            claimed_by_name: update.claimed_by_name as string | null,
+            claimed_by_user_id: update.claimed_by_user_id as string | null,
+            device_token: update.device_token as string | null,
           };
         });
         if (!changed) return khatm;
@@ -150,7 +151,14 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        if (status === "SUBSCRIBED") {
+          console.log("[QuranCircle] Realtime subscribed for", shortCode);
+        }
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.error("[QuranCircle] Realtime error:", status, err);
+        }
+      });
 
     // Safety-net: full refresh every 60s to catch any missed events
     const safetyInterval = setInterval(refreshEvent, 60_000);
