@@ -21,21 +21,6 @@ import { useRouter } from "next/navigation";
 import { Loader2, CirclePlus, Globe2, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
-const CREATOR_TOKEN_KEY = "quran_circle_creator_token";
-
-function getOrCreateCreatorToken(): string {
-  if (typeof window === "undefined") return "";
-  let token = document.cookie
-    .split("; ")
-    .find((r) => r.startsWith(`${CREATOR_TOKEN_KEY}=`))
-    ?.split("=")[1];
-  if (!token) {
-    token = crypto.randomUUID();
-    document.cookie = `${CREATOR_TOKEN_KEY}=${token}; path=/; max-age=31536000; SameSite=Lax; Secure`;
-  }
-  return token;
-}
-
 type CreateKhatimDialogProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -66,19 +51,17 @@ export default function CreateKhatimDialog({
       return;
     }
 
-    if (isPublic && !user) {
-      toast.error("Sign in to create a public Khatim");
+    if (!user) {
+      toast.error("Sign in to create a Khatm circle");
       openAuthModal("login");
       return;
     }
 
     setIsSubmitting(true);
-    const creatorToken = !user ? getOrCreateCreatorToken() : undefined;
     const result = await createEvent({
       name: name.trim(),
       description: description.trim() || undefined,
       isPublic,
-      creatorToken,
     });
 
     setIsSubmitting(false);

@@ -12,14 +12,12 @@ const createEventSchema = z.object({
   name: z.string().min(1).max(200).trim(),
   description: z.string().max(2000).trim().optional(),
   isPublic: z.boolean().optional(),
-  creatorToken: tokenSchema,
 });
 
 export async function createEvent(formData: {
   name: string;
   description?: string;
   isPublic?: boolean;
-  creatorToken?: string;
 }) {
   const parsed = createEventSchema.safeParse(formData);
   if (!parsed.success) return { error: "Invalid input" };
@@ -28,6 +26,7 @@ export async function createEvent(formData: {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) return { error: "Sign in required to create a circle." };
 
   let shortCode = generateShortCode(6);
   let attempts = 0;
@@ -50,8 +49,8 @@ export async function createEvent(formData: {
       name: formData.name,
       description: formData.description || null,
       is_public: formData.isPublic ?? false,
-      created_by: user?.id ?? null,
-      creator_token: formData.creatorToken ?? null,
+      created_by: user.id,
+      creator_token: null,
       short_code: shortCode,
     })
     .select()
