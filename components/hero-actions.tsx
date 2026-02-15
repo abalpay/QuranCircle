@@ -5,13 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Plus, Compass } from "lucide-react";
 import Link from "next/link";
 import CreateKhatimDialog from "@/components/create-khatim-dialog";
-import { useAuth } from "@/hooks/use-auth";
-import { useAuthModal } from "@/hooks/use-auth-modal";
 
 export default function HeroActions() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { user } = useAuth();
-  const { openAuthModal } = useAuthModal();
 
   return (
     <>

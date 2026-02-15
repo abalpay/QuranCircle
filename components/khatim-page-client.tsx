@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import {
   Share2,
@@ -84,6 +85,43 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
     } catch {}
   }, [shortCode]);
 
+  // Realtime subscription: use payload directly to update juz state
+  const batchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingUpdatesRef = useRef<Map<string, Record<string, unknown>>>(new Map());
+
+  const flushRealtimeUpdates = useCallback(() => {
+    const updates = new Map(pendingUpdatesRef.current);
+    pendingUpdatesRef.current.clear();
+    batchTimerRef.current = null;
+
+    if (updates.size === 0) return;
+
+    setEvent((prev) => ({
+      ...prev,
+      khatms: prev.khatms.map((khatm) => {
+        let changed = false;
+        const updatedJuzs = khatm.juzs.map((juz) => {
+          const update = updates.get(juz.id);
+          if (!update) return juz;
+          changed = true;
+          return {
+            ...juz,
+            status: (update.status as string) ?? juz.status,
+            claimed_by_name: (update.claimed_by_name as string | null) ?? juz.claimed_by_name,
+            claimed_by_user_id: (update.claimed_by_user_id as string | null) ?? juz.claimed_by_user_id,
+            device_token: (update.device_token as string | null) ?? juz.device_token,
+          };
+        });
+        if (!changed) return khatm;
+        return {
+          ...khatm,
+          juzs: updatedJuzs,
+          claimed_count: updatedJuzs.filter((j) => j.status !== "unclaimed").length,
+        };
+      }),
+    }));
+  }, []);
+
   useEffect(() => {
     if (!khatmIds) return;
 
@@ -98,16 +136,34 @@ export default function KhatimPageClient({ event: initialEvent, shortCode }: Pro
           table: "juzs",
           filter: `khatm_id=in.(${khatmIds})`,
         },
-        () => {
-          refreshEvent();
+        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+          if (payload.eventType === "DELETE") {
+            refreshEvent();
+            return;
+          }
+          const row = payload.new as Record<string, unknown>;
+          if (row && typeof row.id === "string") {
+            pendingUpdatesRef.current.set(row.id, row);
+            if (!batchTimerRef.current) {
+              batchTimerRef.current = setTimeout(flushRealtimeUpdates, 100);
+            }
+          }
         }
       )
       .subscribe();
 
+    // Safety-net: full refresh every 60s to catch any missed events
+    const safetyInterval = setInterval(refreshEvent, 60_000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(safetyInterval);
+      if (batchTimerRef.current) {
+        clearTimeout(batchTimerRef.current);
+        batchTimerRef.current = null;
+      }
     };
-  }, [shortCode, khatmIds, refreshEvent]);
+  }, [shortCode, khatmIds, refreshEvent, flushRealtimeUpdates]);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/s/${shortCode}`;

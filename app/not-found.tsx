@@ -14,7 +14,7 @@ export default function NotFound() {
           Page Not Found
         </h1>
         <p className="mt-4 text-base leading-relaxed text-quran-muted sm:text-lg">
-          We couldn't find the circle you're looking for. It may have been completed or moved.
+          We couldn&apos;t find the circle you&apos;re looking for. It may have been completed or moved.
         </p>
         <Button asChild className="mt-8 h-12 rounded-full px-8 text-base">
           <Link href="/">Return Home</Link>

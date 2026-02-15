@@ -7,7 +7,7 @@ import ClaimJuzDialog from "@/components/claim-juz-dialog";
 import { claimJuz, unclaimJuz } from "@/lib/actions/juz";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import { BookMarked, ChevronRight } from "lucide-react";
+import { BookMarked } from "lucide-react";
 
 type Juz = {
   id: string;

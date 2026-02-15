@@ -5,7 +5,6 @@ import React, {
   useState,
   useContext,
   ReactNode,
-  useEffect,
 } from "react";
 import AuthModal from "@/components/auth-modal";
 
