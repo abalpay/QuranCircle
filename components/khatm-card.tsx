@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import JuzCard from "@/components/juz-card";
@@ -55,29 +55,27 @@ export default function KhatmCard({
   const [isExpanded, setIsExpanded] = useState(!isCompleted);
   const { user } = useAuth();
 
-  // Auto-collapse when khatm becomes completed
-  useEffect(() => {
+  // Auto-collapse when khatm becomes completed (render-time adjustment)
+  const [prevIsCompleted, setPrevIsCompleted] = useState(isCompleted);
+  if (isCompleted !== prevIsCompleted) {
+    setPrevIsCompleted(isCompleted);
     if (isCompleted) setIsExpanded(false);
-  }, [isCompleted]);
+  }
 
-  // Clear selection when locked
-  useEffect(() => {
+  // Clear selection when locked (render-time adjustment)
+  const [prevIsLocked, setPrevIsLocked] = useState(isLocked);
+  if (isLocked !== prevIsLocked) {
+    setPrevIsLocked(isLocked);
     if (isLocked) setSelectedJuzNumbers(new Set());
-  }, [isLocked]);
+  }
 
-  // Prune selection when juz statuses change (realtime updates)
-  useEffect(() => {
-    setSelectedJuzNumbers((prev) => {
-      const unclaimed = new Set(
-        khatm.juzs.filter((j) => j.status === "unclaimed").map((j) => j.juz_number)
-      );
-      const pruned = new Set([...prev].filter((n) => unclaimed.has(n)));
-      if (pruned.size === prev.size) return prev;
-      // If dialog is open and all selections pruned, close it
-      if (pruned.size === 0) setIsClaimDialogOpen(false);
-      return pruned;
-    });
-  }, [khatm.juzs]);
+  // Derive pruned selection: intersection of user selection with unclaimed juz
+  const activeSelection = useMemo(() => {
+    const unclaimed = new Set(
+      khatm.juzs.filter((j) => j.status === "unclaimed").map((j) => j.juz_number)
+    );
+    return new Set([...selectedJuzNumbers].filter((n) => unclaimed.has(n)));
+  }, [selectedJuzNumbers, khatm.juzs]);
 
   const toggleJuzSelection = useCallback((juz: Juz) => {
     setSelectedJuzNumbers((prev) => {
@@ -96,9 +94,9 @@ export default function KhatmCard({
   }, []);
 
   const handleBatchClaim = useCallback(() => {
-    if (selectedJuzNumbers.size === 0) return;
+    if (activeSelection.size === 0) return;
     setIsClaimDialogOpen(true);
-  }, [selectedJuzNumbers]);
+  }, [activeSelection]);
 
   const claimProgress = Math.round((khatm.claimed_count / 30) * 100);
   const readCount = khatm.read_count ?? khatm.juzs.filter((j) => j.status === "read").length;
@@ -195,7 +193,7 @@ export default function KhatmCard({
           onMarkRead={() => handleMarkRead(juz.id)}
           isLocked={isLocked}
           isOwner={isJuzOwner(juz)}
-          isSelected={selectedJuzNumbers.has(juz.juz_number)}
+          isSelected={activeSelection.has(juz.juz_number)}
         />
       ))}
     </div>
@@ -389,16 +387,16 @@ export default function KhatmCard({
       </div>
 
       <ClaimJuzDialog
-        isOpen={isClaimDialogOpen}
+        isOpen={isClaimDialogOpen && activeSelection.size > 0}
         onClose={() => {
           setIsClaimDialogOpen(false);
         }}
-        juzNumbers={Array.from(selectedJuzNumbers).sort((a, b) => a - b)}
+        juzNumbers={Array.from(activeSelection).sort((a, b) => a - b)}
         onSubmit={handleClaimSubmit}
       />
 
       <FloatingClaimBar
-        selectedCount={selectedJuzNumbers.size}
+        selectedCount={activeSelection.size}
         onClaim={handleBatchClaim}
         onClear={clearSelection}
       />

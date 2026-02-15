@@ -1,9 +1,11 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+
+const emptySubscribe = () => () => {};
 
 type FloatingClaimBarProps = {
   selectedCount: number;
@@ -16,11 +18,7 @@ export default function FloatingClaimBar({
   onClaim,
   onClear,
 }: FloatingClaimBarProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   const visible = selectedCount > 0;
 
