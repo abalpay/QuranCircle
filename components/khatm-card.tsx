@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import JuzCard from "@/components/juz-card";
@@ -8,7 +8,7 @@ import ClaimJuzDialog from "@/components/claim-juz-dialog";
 import { claimJuz, unclaimJuz, markJuzAsRead, unmarkJuzAsRead } from "@/lib/actions/juz";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import { BookMarked } from "lucide-react";
+import { BookMarked, ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Juz = {
@@ -36,6 +36,7 @@ type Props = {
   creatorToken?: string;
   isCreator: boolean;
   onRefresh: () => Promise<void>;
+  isCompleted?: boolean;
 };
 
 export default function KhatmCard({
@@ -46,13 +47,20 @@ export default function KhatmCard({
   creatorToken,
   isCreator,
   onRefresh,
+  isCompleted = false,
 }: Props) {
   const [selectedJuz, setSelectedJuz] = useState<{
     juzNumber: number;
     juzId: string;
   } | null>(null);
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!isCompleted);
   const { user } = useAuth();
+
+  // Auto-collapse when khatm becomes completed
+  useEffect(() => {
+    if (isCompleted) setIsExpanded(false);
+  }, [isCompleted]);
 
   const claimProgress = Math.round((khatm.claimed_count / 30) * 100);
   const readCount = khatm.read_count ?? khatm.juzs.filter((j) => j.status === "read").length;
@@ -94,7 +102,11 @@ export default function KhatmCard({
       toast.error(result.error);
       return;
     }
-    toast.success("Juz claimed successfully");
+    if (result.newKhatmCreated) {
+      toast.success("Juz claimed! A new Khatm cycle has started.");
+    } else {
+      toast.success("Juz claimed successfully");
+    }
     setIsClaimDialogOpen(false);
     setSelectedJuz(null);
     await onRefresh();
@@ -145,6 +157,33 @@ export default function KhatmCard({
     </div>
   );
 
+  // Collapsed view for completed khatms
+  if (!isExpanded && isCompleted) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsExpanded(true)}
+        className="quran-card flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-quran-card/80 sm:p-5"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100">
+            <BookMarked className="h-4 w-4 text-emerald-600" />
+          </div>
+          <div>
+            <span className="text-sm font-semibold text-quran-deep">
+              Khatm #{khatm.khatm_number}
+            </span>
+            <span className="ml-2 text-xs text-quran-muted">
+              30/30 Claimed
+              {readCount > 0 && <> · {readCount} Read</>}
+            </span>
+          </div>
+        </div>
+        <ChevronDown className="h-5 w-5 text-quran-muted" />
+      </button>
+    );
+  }
+
   return (
     <div className="quran-card overflow-hidden p-0">
       <div className="border-b border-quran-border/60 bg-quran-card/50 p-6 sm:p-8">
@@ -158,13 +197,25 @@ export default function KhatmCard({
               Progress Tracker
             </h2>
           </div>
-          <div className="text-right">
-            <span className="block font-heading text-4xl text-quran-green">
-              {claimProgress}%
-            </span>
-            <span className="text-xs font-medium uppercase tracking-wider text-quran-muted">
-              Claimed
-            </span>
+          <div className="flex items-center gap-3">
+            {isExpanded && isCompleted && (
+              <button
+                type="button"
+                onClick={() => setIsExpanded(false)}
+                className="rounded-full p-1.5 text-quran-muted transition-colors hover:bg-quran-border/30"
+                aria-label="Collapse khatm"
+              >
+                <ChevronUp className="h-5 w-5" />
+              </button>
+            )}
+            <div className="text-right">
+              <span className="block font-heading text-4xl text-quran-green">
+                {claimProgress}%
+              </span>
+              <span className="text-xs font-medium uppercase tracking-wider text-quran-muted">
+                Claimed
+              </span>
+            </div>
           </div>
         </div>
 
@@ -205,8 +256,14 @@ export default function KhatmCard({
             {availableJuzs.length > 0 ? (
               renderJuzGrid(availableJuzs)
             ) : (
-              <div className="rounded-xl border border-quran-border/40 bg-white/60 py-12 text-center">
-                <p className="text-sm text-quran-muted">All juz have been claimed!</p>
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 py-10 text-center">
+                <CircleCheck className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
+                <p className="text-sm font-medium text-emerald-700">All juz have been claimed!</p>
+                {isCompleted && (
+                  <p className="mt-1 text-xs text-emerald-600/70">
+                    Check the next khatm below for available juz.
+                  </p>
+                )}
               </div>
             )}
           </TabsContent>

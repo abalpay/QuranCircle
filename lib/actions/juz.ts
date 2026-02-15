@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
 const CLAIM_LIMIT_PER_DEVICE = 5;
@@ -8,6 +9,61 @@ const CLAIM_LIMIT_PER_DEVICE = 5;
 function normalizeToken(token?: string): string | undefined {
   const trimmed = token?.trim();
   return trimmed || undefined;
+}
+
+async function createNextKhatm(
+  supabase: SupabaseClient,
+  eventId: string,
+  currentKhatmNumber: number
+): Promise<{ khatmId: string; khatmNumber: number } | null> {
+  const nextNumber = currentKhatmNumber + 1;
+
+  // Race guard: check if next khatm already exists
+  const { data: existing } = await supabase
+    .from("khatms")
+    .select("id, khatm_number")
+    .eq("event_id", eventId)
+    .eq("khatm_number", nextNumber)
+    .eq("is_deleted", false)
+    .single();
+
+  if (existing) {
+    return { khatmId: existing.id, khatmNumber: existing.khatm_number };
+  }
+
+  // Insert new khatm
+  const { data: khatm, error: khatmError } = await supabase
+    .from("khatms")
+    .insert({ event_id: eventId, khatm_number: nextNumber })
+    .select()
+    .single();
+
+  if (khatmError) {
+    // Unique constraint violation from concurrent request — fetch the winner's khatm
+    if (khatmError.code === "23505") {
+      const { data: winner } = await supabase
+        .from("khatms")
+        .select("id, khatm_number")
+        .eq("event_id", eventId)
+        .eq("khatm_number", nextNumber)
+        .eq("is_deleted", false)
+        .single();
+      if (winner) {
+        return { khatmId: winner.id, khatmNumber: winner.khatm_number };
+      }
+    }
+    return null;
+  }
+
+  // Insert 30 unclaimed juz for the new khatm
+  const juzInserts = Array.from({ length: 30 }, (_, i) => ({
+    khatm_id: khatm.id,
+    juz_number: i + 1,
+  }));
+
+  await supabase.from("juzs").insert(juzInserts);
+
+  return { khatmId: khatm.id, khatmNumber: khatm.khatm_number };
 }
 
 export async function claimJuz(
@@ -68,8 +124,29 @@ export async function claimJuz(
 
   if (error) return { error: error.message };
 
+  // Check if all juz in this khatm are now claimed → auto-create next khatm
+  let newKhatmCreated = false;
+  const { count: unclaimed } = await supabase
+    .from("juzs")
+    .select("*", { count: "exact", head: true })
+    .eq("khatm_id", khatmId)
+    .eq("status", "unclaimed");
+
+  if (unclaimed === 0) {
+    const { data: khatm } = await supabase
+      .from("khatms")
+      .select("event_id, khatm_number")
+      .eq("id", khatmId)
+      .single();
+
+    if (khatm) {
+      const result = await createNextKhatm(supabase, khatm.event_id, khatm.khatm_number);
+      if (result) newKhatmCreated = true;
+    }
+  }
+
   revalidatePath(`/s/${shortCode}`);
-  return {};
+  return { newKhatmCreated };
 }
 
 export async function claimMultipleJuz(
@@ -125,8 +202,29 @@ export async function claimMultipleJuz(
       .eq("status", "unclaimed");
   }
 
+  // Check if all juz in this khatm are now claimed → auto-create next khatm
+  let newKhatmCreated = false;
+  const { count: unclaimed } = await supabase
+    .from("juzs")
+    .select("*", { count: "exact", head: true })
+    .eq("khatm_id", khatmId)
+    .eq("status", "unclaimed");
+
+  if (unclaimed === 0) {
+    const { data: khatm } = await supabase
+      .from("khatms")
+      .select("event_id, khatm_number")
+      .eq("id", khatmId)
+      .single();
+
+    if (khatm) {
+      const result = await createNextKhatm(supabase, khatm.event_id, khatm.khatm_number);
+      if (result) newKhatmCreated = true;
+    }
+  }
+
   revalidatePath(`/s/${shortCode}`);
-  return {};
+  return { newKhatmCreated };
 }
 
 export async function unclaimJuz(

@@ -41,6 +41,7 @@ type EventData = {
       device_token: string | null;
     }>;
     claimed_count: number;
+    read_count: number;
   }>;
 };
 
@@ -162,11 +163,29 @@ export default function KhatimPageClient({
         }
       });
 
+    // Listen for new khatms being auto-created
+    const khatmsChannel = supabase
+      .channel(`khatms-${shortCode}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "khatms",
+          filter: `event_id=eq.${event.id}`,
+        },
+        () => {
+          refreshEvent();
+        }
+      )
+      .subscribe();
+
     // Safety-net: full refresh every 60s to catch any missed events
     const safetyInterval = setInterval(refreshEvent, 60_000);
 
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(khatmsChannel);
       clearInterval(safetyInterval);
       if (retryTimer) clearTimeout(retryTimer);
       if (batchTimerRef.current) {
@@ -174,7 +193,7 @@ export default function KhatimPageClient({
         batchTimerRef.current = null;
       }
     };
-  }, [shortCode, khatmIds, refreshEvent, flushRealtimeUpdates]);
+  }, [shortCode, khatmIds, event.id, refreshEvent, flushRealtimeUpdates]);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/s/${shortCode}`;
@@ -292,18 +311,23 @@ export default function KhatimPageClient({
       </section>
 
       <div className="space-y-8">
-        {event.khatms.map((khatm) => (
-          <KhatmCard
-            key={khatm.id}
-            khatm={khatm}
-            shortCode={shortCode}
-            isLocked={event.is_locked}
-            deviceToken={deviceToken}
-            creatorToken={creatorToken}
-            isCreator={Boolean(isCreator)}
-            onRefresh={refreshEvent}
-          />
-        ))}
+        {event.khatms.map((khatm, index) => {
+          const hasNewerKhatm = index < event.khatms.length - 1;
+          const isFullyClaimed = khatm.claimed_count === 30;
+          return (
+            <KhatmCard
+              key={khatm.id}
+              khatm={khatm}
+              shortCode={shortCode}
+              isLocked={event.is_locked}
+              deviceToken={deviceToken}
+              creatorToken={creatorToken}
+              isCreator={Boolean(isCreator)}
+              onRefresh={refreshEvent}
+              isCompleted={isFullyClaimed && hasNewerKhatm}
+            />
+          );
+        })}
       </div>
     </div>
   );
