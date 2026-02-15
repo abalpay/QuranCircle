@@ -8,7 +8,7 @@ import ClaimJuzDialog from "@/components/claim-juz-dialog";
 import { claimJuz, unclaimJuz, markJuzAsRead, unmarkJuzAsRead } from "@/lib/actions/juz";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import { BookMarked, Check, Undo2, X } from "lucide-react";
+import { BookMarked } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Juz = {
@@ -137,9 +137,7 @@ export default function KhatmCard({
           key={juz.id}
           juz={juz}
           onClaim={() => handleClaimClick(juz)}
-          onUnclaim={() => handleUnclaim(juz.id)}
           onMarkRead={() => handleMarkRead(juz.id)}
-          onUnmarkRead={() => handleUnmarkRead(juz.id)}
           isLocked={isLocked}
           isOwner={isJuzOwner(juz)}
         />
@@ -253,31 +251,28 @@ export default function KhatmCard({
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       {juz.status === "claimed" && (
                         <button
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 transition-colors hover:bg-emerald-100"
+                          className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
                           onClick={() => handleMarkRead(juz.id)}
-                          title="Mark as read"
                         >
-                          <Check className="h-4 w-4" />
+                          Mark Read
                         </button>
                       )}
                       {juz.status === "read" && (
                         <button
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-amber-600 transition-colors hover:bg-amber-100"
+                          className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
                           onClick={() => handleUnmarkRead(juz.id)}
-                          title="Mark as unread"
                         >
-                          <Undo2 className="h-4 w-4" />
+                          Undo
                         </button>
                       )}
                       <button
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-quran-muted transition-colors hover:bg-red-100 hover:text-red-500"
+                        className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
                         onClick={() => handleUnclaim(juz.id)}
-                        title="Unclaim"
                       >
-                        <X className="h-4 w-4" />
+                        Unclaim
                       </button>
                     </div>
                   </div>

@@ -120,6 +120,10 @@ export default function KhatimPageClient({
     if (!khatmIds) return;
 
     const supabase = createClient();
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
     const channel = supabase
       .channel(`juzs-${shortCode}`)
       .on(
@@ -146,10 +150,15 @@ export default function KhatimPageClient({
       )
       .subscribe((status, err) => {
         if (status === "SUBSCRIBED") {
-          console.log("[QuranCircle] Realtime subscribed for", shortCode);
+          retryCount = 0;
         }
         if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-          console.error("[QuranCircle] Realtime error:", status, err);
+          console.warn("[QuranCircle] Realtime", status, err ?? "");
+          if (retryCount < MAX_RETRIES) {
+            const delay = Math.min(2000 * 2 ** retryCount, 15_000);
+            retryCount++;
+            retryTimer = setTimeout(() => channel.subscribe(), delay);
+          }
         }
       });
 
@@ -159,6 +168,7 @@ export default function KhatimPageClient({
     return () => {
       supabase.removeChannel(channel);
       clearInterval(safetyInterval);
+      if (retryTimer) clearTimeout(retryTimer);
       if (batchTimerRef.current) {
         clearTimeout(batchTimerRef.current);
         batchTimerRef.current = null;

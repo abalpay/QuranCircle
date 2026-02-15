@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Lock, X, Check, Undo2 } from "lucide-react";
+import { CheckCircle2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Juz = {
@@ -13,9 +13,7 @@ type Juz = {
 type Props = {
   juz: Juz;
   onClaim: () => void;
-  onUnclaim: () => void;
   onMarkRead?: () => void;
-  onUnmarkRead?: () => void;
   isLocked: boolean;
   isOwner: boolean;
 };
@@ -23,9 +21,7 @@ type Props = {
 export default function JuzCard({
   juz,
   onClaim,
-  onUnclaim,
   onMarkRead,
-  onUnmarkRead,
   isLocked,
   isOwner,
 }: Props) {
@@ -33,6 +29,8 @@ export default function JuzCard({
   const isClaimed = juz.status === "claimed";
   const isRead = juz.status === "read";
   const canClaim = isUnclaimed && !isLocked;
+  const canMarkRead = isClaimed && isOwner && !!onMarkRead;
+  const isInteractive = canClaim || canMarkRead;
   const firstName = juz.claimed_by_name?.split(" ")[0] || "";
 
   return (
@@ -46,89 +44,42 @@ export default function JuzCard({
             "cursor-pointer hover:-translate-y-0.5 hover:border-t-quran-green hover:bg-white hover:shadow-md hover:shadow-quran-green/8",
           isLocked && "opacity-60",
         ],
-        isClaimed &&
+        isClaimed && [
           "border-t-amber-400 bg-linear-to-b from-amber-50/80 to-amber-50/30",
+          canMarkRead &&
+            "cursor-pointer hover:-translate-y-0.5 hover:border-t-emerald-400 hover:shadow-md hover:shadow-emerald-500/8",
+        ],
         isRead &&
           "border-t-emerald-500 bg-linear-to-b from-emerald-50/80 to-emerald-50/30"
       )}
-      onClick={() => canClaim && onClaim()}
+      onClick={() => {
+        if (canClaim) onClaim();
+        else if (canMarkRead) onMarkRead();
+      }}
       onKeyDown={(e) => {
-        if (canClaim && (e.key === "Enter" || e.key === " ")) {
+        if (isInteractive && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
-          onClaim();
+          if (canClaim) onClaim();
+          else if (canMarkRead) onMarkRead();
         }
       }}
-      role={canClaim ? "button" : undefined}
-      tabIndex={canClaim ? 0 : -1}
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : -1}
       title={
         canClaim
           ? `Tap to claim Juz ${juz.juz_number}`
-          : isClaimed
-            ? `Juz ${juz.juz_number} — ${firstName}`
-            : isRead
-              ? `Juz ${juz.juz_number} — completed`
-              : `Juz ${juz.juz_number}`
+          : canMarkRead
+            ? `Tap to mark Juz ${juz.juz_number} as read`
+            : isClaimed
+              ? `Juz ${juz.juz_number} — ${firstName}`
+              : isRead
+                ? `Juz ${juz.juz_number} — completed`
+                : `Juz ${juz.juz_number}`
       }
     >
       {/* Locked icon */}
       {isLocked && isUnclaimed && (
         <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-quran-muted/40" />
-      )}
-
-      {/* Action buttons for owners */}
-      {isClaimed && isOwner && (
-        <div className="absolute right-0.5 top-0.5 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-          {onMarkRead && (
-            <button
-              className="flex h-5 w-5 items-center justify-center rounded-full text-emerald-500 hover:bg-emerald-100"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMarkRead();
-              }}
-              title="Mark as read"
-            >
-              <Check className="h-3 w-3" />
-            </button>
-          )}
-          <button
-            className="flex h-5 w-5 items-center justify-center rounded-full text-amber-400 hover:bg-amber-100 hover:text-red-500"
-            onClick={(e) => {
-              e.stopPropagation();
-              onUnclaim();
-            }}
-            title="Unclaim"
-          >
-            <X className="h-3 w-3" />
-          </button>
-        </div>
-      )}
-
-      {/* Action buttons for read state owners */}
-      {isRead && isOwner && (
-        <div className="absolute right-0.5 top-0.5 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-          {onUnmarkRead && (
-            <button
-              className="flex h-5 w-5 items-center justify-center rounded-full text-amber-500 hover:bg-amber-100"
-              onClick={(e) => {
-                e.stopPropagation();
-                onUnmarkRead();
-              }}
-              title="Mark as unread"
-            >
-              <Undo2 className="h-3 w-3" />
-            </button>
-          )}
-          <button
-            className="flex h-5 w-5 items-center justify-center rounded-full text-emerald-400 hover:bg-red-100 hover:text-red-500"
-            onClick={(e) => {
-              e.stopPropagation();
-              onUnclaim();
-            }}
-            title="Unclaim"
-          >
-            <X className="h-3 w-3" />
-          </button>
-        </div>
       )}
 
       {/* Large centered number */}

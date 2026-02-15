@@ -3,6 +3,7 @@ import {
   Manrope,
   Cormorant_Garamond,
   Noto_Naskh_Arabic,
+  Amiri,
 } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -33,6 +34,14 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
   preload: false,
 });
 
+const amiri = Amiri({
+  variable: "--font-amiri",
+  subsets: ["arabic"],
+  weight: ["400", "700"],
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   title: "QuranCircle - Collaborative Quran Reading Platform",
   description:
@@ -56,7 +65,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${manrope.variable} ${cormorantGaramond.variable} ${notoNaskhArabic.variable} font-sans antialiased`}
+        className={`${manrope.variable} ${cormorantGaramond.variable} ${notoNaskhArabic.variable} ${amiri.variable} font-sans antialiased`}
       >
         <AuthProvider>
           <AuthModalProvider>
