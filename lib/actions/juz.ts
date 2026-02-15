@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
-const CLAIM_LIMIT_PER_DEVICE = 5;
-
 function normalizeToken(token?: string): string | undefined {
   const trimmed = token?.trim();
   return trimmed || undefined;
@@ -85,18 +83,6 @@ export async function claimJuz(
   if (!event) return { error: "Event not found" };
   if (event.is_locked) return { error: "This Khatim is locked" };
 
-  if (normalizedToken) {
-    const { count } = await supabase
-      .from("juzs")
-      .select("*", { count: "exact", head: true })
-      .eq("khatm_id", khatmId)
-      .eq("device_token", normalizedToken);
-
-    if ((count ?? 0) >= CLAIM_LIMIT_PER_DEVICE) {
-      return { error: `You can only claim up to ${CLAIM_LIMIT_PER_DEVICE} Juz per Khatim` };
-    }
-  }
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -167,21 +153,6 @@ export async function claimMultipleJuz(
 
   if (!event) return { error: "Event not found" };
   if (event.is_locked) return { error: "This Khatim is locked" };
-
-  if (normalizedToken) {
-    const { count } = await supabase
-      .from("juzs")
-      .select("*", { count: "exact", head: true })
-      .eq("khatm_id", khatmId)
-      .eq("device_token", normalizedToken);
-
-    const afterClaim = (count ?? 0) + juzNumbers.length;
-    if (afterClaim > CLAIM_LIMIT_PER_DEVICE) {
-      return {
-        error: `You can only claim up to ${CLAIM_LIMIT_PER_DEVICE} Juz per Khatim. You have ${count ?? 0} claimed.`,
-      };
-    }
-  }
 
   const {
     data: { user },

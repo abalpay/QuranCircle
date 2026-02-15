@@ -20,16 +20,17 @@ const CLAIMER_NAME_KEY = "quranCircleClaimerName";
 type ClaimJuzDialogProps = {
   isOpen: boolean;
   onClose: () => void;
-  juzNumber: number;
+  juzNumbers: number[];
   onSubmit: (claimerName: string, juzNumbers: number[]) => void;
 };
 
 export default function ClaimJuzDialog({
   isOpen,
   onClose,
-  juzNumber,
+  juzNumbers,
   onSubmit,
 }: ClaimJuzDialogProps) {
+  const isMultiple = juzNumbers.length > 1;
   const { user } = useAuth();
 
   const getSavedName = () => {
@@ -53,7 +54,7 @@ export default function ClaimJuzDialog({
       if (!user && typeof window !== "undefined") {
         localStorage.setItem(CLAIMER_NAME_KEY, name);
       }
-      onSubmit(name, [juzNumber]);
+      onSubmit(name, juzNumbers);
       onClose();
     }
   };
@@ -66,15 +67,17 @@ export default function ClaimJuzDialog({
             <BookOpen className="h-6 w-6 text-quran-green" />
           </div>
           <DialogTitle className="font-heading text-3xl text-quran-deep">
-            Claim Juz {juzNumber}
+            {isMultiple ? `Claim ${juzNumbers.length} Juz` : `Claim Juz ${juzNumbers[0]}`}
           </DialogTitle>
           <DialogDescription>
-            Enter your name to claim this portion of the Quran
+            {isMultiple
+              ? `Juz ${juzNumbers.join(", ")} — enter your name to claim`
+              : "Enter your name to claim this portion of the Quran"}
           </DialogDescription>
         </DialogHeader>
 
         <form
-          key={`${juzNumber}-${isOpen ? "open" : "closed"}-${user?.id ?? "guest"}`}
+          key={`${juzNumbers.join("-")}-${isOpen ? "open" : "closed"}-${user?.id ?? "guest"}`}
           onSubmit={handleSubmit}
           className="mt-2"
         >
@@ -105,7 +108,7 @@ export default function ClaimJuzDialog({
               Cancel
             </Button>
             <Button type="submit" className="rounded-full">
-              Claim Juz
+              {isMultiple ? `Claim ${juzNumbers.length} Juz` : "Claim Juz"}
             </Button>
           </DialogFooter>
         </form>

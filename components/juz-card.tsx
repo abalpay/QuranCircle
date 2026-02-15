@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Lock } from "lucide-react";
+import { Check, CheckCircle2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Juz = {
@@ -16,6 +16,7 @@ type Props = {
   onMarkRead?: () => void;
   isLocked: boolean;
   isOwner: boolean;
+  isSelected?: boolean;
 };
 
 export default function JuzCard({
@@ -24,6 +25,7 @@ export default function JuzCard({
   onMarkRead,
   isLocked,
   isOwner,
+  isSelected = false,
 }: Props) {
   const isUnclaimed = juz.status === "unclaimed";
   const isClaimed = juz.status === "claimed";
@@ -38,11 +40,14 @@ export default function JuzCard({
       className={cn(
         "group relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl border-t-[3px] transition-all duration-200",
         // Base border + background per state
-        isUnclaimed && [
+        isUnclaimed && !isSelected && [
           "border-quran-border/50 bg-white/70",
           canClaim &&
             "cursor-pointer hover:-translate-y-0.5 hover:border-t-quran-green hover:bg-white hover:shadow-md hover:shadow-quran-green/8",
           isLocked && "opacity-60",
+        ],
+        isSelected && [
+          "cursor-pointer ring-2 ring-quran-green border-t-quran-green bg-quran-green/10 shadow-md -translate-y-0.5",
         ],
         isClaimed && [
           "border-t-amber-400 bg-linear-to-b from-amber-50/80 to-amber-50/30",
@@ -66,27 +71,37 @@ export default function JuzCard({
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : -1}
       title={
-        canClaim
-          ? `Tap to claim Juz ${juz.juz_number}`
-          : canMarkRead
-            ? `Tap to mark Juz ${juz.juz_number} as read`
-            : isClaimed
-              ? `Juz ${juz.juz_number} — ${firstName}`
-              : isRead
-                ? `Juz ${juz.juz_number} — completed`
-                : `Juz ${juz.juz_number}`
+        isSelected
+          ? `Juz ${juz.juz_number} selected — tap to deselect`
+          : canClaim
+            ? `Tap to claim Juz ${juz.juz_number}`
+            : canMarkRead
+              ? `Tap to mark Juz ${juz.juz_number} as read`
+              : isClaimed
+                ? `Juz ${juz.juz_number} — ${firstName}`
+                : isRead
+                  ? `Juz ${juz.juz_number} — completed`
+                  : `Juz ${juz.juz_number}`
       }
     >
       {/* Locked icon */}
-      {isLocked && isUnclaimed && (
+      {isLocked && isUnclaimed && !isSelected && (
         <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-quran-muted/40" />
+      )}
+
+      {/* Selected checkmark */}
+      {isSelected && (
+        <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-quran-green text-white">
+          <Check className="h-2.5 w-2.5" strokeWidth={3} />
+        </span>
       )}
 
       {/* Large centered number */}
       <span
         className={cn(
           "font-heading text-2xl leading-none transition-colors duration-200 sm:text-3xl",
-          isUnclaimed &&
+          isSelected && "text-quran-green",
+          isUnclaimed && !isSelected &&
             "text-quran-muted/70 group-hover:text-quran-green",
           isClaimed && "text-amber-700",
           isRead && "text-emerald-700"
