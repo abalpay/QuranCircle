@@ -228,6 +228,8 @@ export default function AuthModal({
                           placeholder="Your email address"
                           {...field}
                           type="email"
+                          required
+                          aria-required="true"
                           className="rounded-xl border-quran-border bg-white/85"
                         />
                       </FormControl>
@@ -300,6 +302,8 @@ export default function AuthModal({
                               placeholder="you@example.com"
                               {...field}
                               type="email"
+                              required
+                              aria-required="true"
                               className="rounded-xl border-quran-border bg-white/85"
                             />
                           </FormControl>
@@ -317,6 +321,8 @@ export default function AuthModal({
                             <Input
                               type="password"
                               {...field}
+                              required
+                              aria-required="true"
                               className="rounded-xl border-quran-border bg-white/85"
                             />
                           </FormControl>
@@ -384,6 +390,8 @@ export default function AuthModal({
                               placeholder="you@example.com"
                               {...field}
                               type="email"
+                              required
+                              aria-required="true"
                               className="rounded-xl border-quran-border bg-white/85"
                             />
                           </FormControl>
@@ -401,6 +409,8 @@ export default function AuthModal({
                             <Input
                               type="password"
                               {...field}
+                              required
+                              aria-required="true"
                               className="rounded-xl border-quran-border bg-white/85"
                             />
                           </FormControl>

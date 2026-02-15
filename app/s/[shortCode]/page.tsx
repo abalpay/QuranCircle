@@ -1,7 +1,24 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { getEventByShortCode } from "@/lib/actions/events";
 import KhatimPageClient from "@/components/khatim-page-client";
+
+type PageProps = {
+  params: Promise<{ shortCode: string }>;
+};
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { shortCode } = await params;
+  const event = await getEventByShortCode(shortCode);
+  if (!event) {
+    return { title: "Circle Not Found - QuranCircle" };
+  }
+  return {
+    title: `${event.name} - QuranCircle`,
+    description: event.description || `Join the ${event.name} Khatm circle on QuranCircle`,
+  };
+}
 
 export default async function KhatimPage({
   params,

@@ -16,7 +16,7 @@ export default function Footer() {
           <nav className="flex gap-8 text-sm font-medium text-quran-muted">
             <Link href="/" className="hover:text-quran-green transition-colors">Home</Link>
             <Link href="/browse" className="hover:text-quran-green transition-colors">Browse</Link>
-            <button className="hover:text-quran-green transition-colors cursor-not-allowed opacity-60">About</button>
+            <button type="button" disabled aria-disabled="true" className="transition-colors cursor-not-allowed opacity-60">About</button>
           </nav>
           
           <p className="text-xs text-quran-muted/80">

@@ -58,7 +58,7 @@ export async function createEvent(formData: {
     .single();
 
   if (eventError) {
-    return { error: eventError.message };
+    return { error: "Failed to create event. Please try again." };
   }
 
   const { data: khatm, error: khatmError } = await supabase
@@ -71,7 +71,7 @@ export async function createEvent(formData: {
     .single();
 
   if (khatmError) {
-    return { error: khatmError.message };
+    return { error: "Failed to initialize reading circle. Please try again." };
   }
 
   const juzInserts = Array.from({ length: 30 }, (_, i) => ({
@@ -82,7 +82,7 @@ export async function createEvent(formData: {
   const { error: juzError } = await supabase.from("juzs").insert(juzInserts);
 
   if (juzError) {
-    return { error: juzError.message };
+    return { error: "Failed to set up juz sections. Please try again." };
   }
 
   revalidatePath("/");

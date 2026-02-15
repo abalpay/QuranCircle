@@ -92,7 +92,17 @@ export default function KhatimPageClient({
     document.cookie = `${DEVICE_TOKEN_KEY}=${token}; path=/; max-age=31536000; SameSite=Lax; Secure`;
     setDeviceToken(token);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Stabilize subscription dependencies: only resubscribe when khatm IDs actually change
   const khatmIds = event.khatms.map((k) => k.id).join(",");
+  const khatmIdsRef = useRef(khatmIds);
+  const eventIdRef = useRef(event.id);
+  khatmIdsRef.current = khatmIds;
+  eventIdRef.current = event.id;
+  const [stableKhatmIds, setStableKhatmIds] = useState(khatmIds);
+  useEffect(() => {
+    if (khatmIds !== stableKhatmIds) setStableKhatmIds(khatmIds);
+  }, [khatmIds, stableKhatmIds]);
 
   const refreshEvent = useCallback(async () => {
     try {
@@ -143,7 +153,7 @@ export default function KhatimPageClient({
   }, []);
 
   useEffect(() => {
-    if (!khatmIds) return;
+    if (!stableKhatmIds) return;
 
     const supabase = createClient();
     let retryCount = 0;
@@ -158,7 +168,7 @@ export default function KhatimPageClient({
           event: "*",
           schema: "public",
           table: "juzs",
-          filter: `khatm_id=in.(${khatmIds})`,
+          filter: `khatm_id=in.(${stableKhatmIds})`,
         },
         (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
           if (payload.eventType === "DELETE") {
@@ -197,7 +207,7 @@ export default function KhatimPageClient({
           event: "INSERT",
           schema: "public",
           table: "khatms",
-          filter: `event_id=eq.${event.id}`,
+          filter: `event_id=eq.${eventIdRef.current}`,
         },
         () => {
           refreshEvent();
@@ -218,7 +228,7 @@ export default function KhatimPageClient({
         batchTimerRef.current = null;
       }
     };
-  }, [shortCode, khatmIds, event.id, refreshEvent, flushRealtimeUpdates]);
+  }, [shortCode, stableKhatmIds, refreshEvent, flushRealtimeUpdates]);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/s/${shortCode}`;

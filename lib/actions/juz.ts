@@ -121,7 +121,7 @@ export async function claimJuz(
     .eq("status", "unclaimed")
     .select("id");
 
-  if (error) return { error: error.message };
+  if (error) return { error: "Failed to claim juz. Please try again." };
   if (!updated?.length) return { error: "Juz already claimed" };
 
   // Check if all juz in this khatm are now claimed → auto-create next khatm
@@ -381,7 +381,7 @@ export async function markJuzAsRead(
     })
     .eq("id", juzId);
 
-  if (error) return { error: error.message };
+  if (error) return { error: "Failed to mark juz as read. Please try again." };
 
   revalidatePath(`/s/${shortCode}`);
   return {};
@@ -450,7 +450,7 @@ export async function unmarkJuzAsRead(
     })
     .eq("id", juzId);
 
-  if (error) return { error: error.message };
+  if (error) return { error: "Failed to update juz status. Please try again." };
 
   revalidatePath(`/s/${shortCode}`);
   return {};
