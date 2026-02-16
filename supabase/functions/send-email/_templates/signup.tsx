@@ -17,7 +17,6 @@ interface SignupEmailProps {
   email_action_type: string;
   redirect_to: string;
   token_hash: string;
-  token?: string;
 }
 
 function buildVerifyUrl(supabaseUrl: string, tokenHash: string, type: string, redirectTo: string): string {

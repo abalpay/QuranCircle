@@ -12,7 +12,7 @@ export default function AuthErrorToast() {
     if (searchParams.get("error") === "auth") {
       toast.error("Authentication failed", {
         description:
-          "Email confirmation failed or the link has expired. Please try signing in or request a new confirmation email.",
+          "Something went wrong during authentication. The link may have expired or was already used. Please try again.",
       });
 
       const url = new URL(window.location.href);

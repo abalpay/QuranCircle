@@ -22,11 +22,9 @@ Deno.serve(async (req) => {
   const headers = Object.fromEntries(req.headers);
   const wh = new Webhook(hookSecret);
 
+  let verified;
   try {
-    const {
-      user,
-      email_data: { token, token_hash, redirect_to, email_action_type },
-    } = wh.verify(payload, headers) as {
+    verified = wh.verify(payload, headers) as {
       user: {
         email: string;
         user_metadata?: { username?: string };
@@ -41,11 +39,40 @@ Deno.serve(async (req) => {
         token_hash_new: string;
       };
     };
+  } catch (error) {
+    console.error("Webhook verification failed:", error);
+    return new Response(
+      JSON.stringify({
+        error: {
+          http_code: 401,
+          message: "Webhook verification failed",
+        },
+      }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  try {
+    const {
+      user,
+      email_data: { token_hash, redirect_to, email_action_type },
+    } = verified;
+
+    // Skip signup emails — no email confirmation needed.
+    // This also prevents Resend API failures from aborting the signup.
+    if (email_action_type === "signup") {
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const templateProps = {
       supabase_url: supabaseUrl,
-      token,
       token_hash,
       redirect_to,
       email_action_type,
@@ -88,16 +115,16 @@ Deno.serve(async (req) => {
       throw error;
     }
   } catch (error) {
-    console.error("Send email hook error:", error);
+    console.error("Email sending failed:", error);
     return new Response(
       JSON.stringify({
         error: {
-          http_code: (error as { code?: string })?.code ?? "unknown",
+          http_code: 500,
           message: (error as { message?: string })?.message ?? String(error),
         },
       }),
       {
-        status: 401,
+        status: 500,
         headers: { "Content-Type": "application/json" },
       }
     );

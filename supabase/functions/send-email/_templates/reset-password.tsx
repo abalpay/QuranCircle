@@ -16,7 +16,6 @@ interface ResetPasswordEmailProps {
   email_action_type: string;
   redirect_to: string;
   token_hash: string;
-  token: string;
 }
 
 function buildVerifyUrl(supabaseUrl: string, tokenHash: string, type: string, redirectTo: string): string {
@@ -28,7 +27,6 @@ function buildVerifyUrl(supabaseUrl: string, tokenHash: string, type: string, re
 }
 
 export const ResetPasswordEmail = ({
-  token,
   supabase_url,
   email_action_type,
   redirect_to,
@@ -53,12 +51,6 @@ export const ResetPasswordEmail = ({
             <Link href={verifyUrl} style={button}>
               Reset password
             </Link>
-          </Section>
-          <Text style={text}>
-            Or copy and paste this temporary code into the reset page:
-          </Text>
-          <Section style={codeBox}>
-            <Text style={code}>{token}</Text>
           </Section>
           <Text style={muted}>
             If you didn&apos;t request a password reset, you can safely ignore this email. Your password will remain unchanged.
@@ -125,23 +117,6 @@ const button = {
   borderRadius: "8px",
   textDecoration: "none",
   display: "inline-block",
-};
-
-const codeBox = {
-  backgroundColor: "#ffffff",
-  borderRadius: "8px",
-  border: "1px solid #e8e4d9",
-  padding: "20px",
-  margin: "16px 0",
-};
-
-const code = {
-  color: "#232e2d",
-  fontSize: "24px",
-  fontWeight: "600" as const,
-  textAlign: "center" as const,
-  margin: "0",
-  letterSpacing: "4px",
 };
 
 const muted = {

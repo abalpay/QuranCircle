@@ -108,6 +108,7 @@ export default function ResetPasswordPage() {
                         {...field}
                         required
                         aria-required="true"
+                        autoComplete="new-password"
                         className="rounded-xl border-quran-border bg-white/85"
                       />
                     </FormControl>
@@ -128,6 +129,7 @@ export default function ResetPasswordPage() {
                         {...field}
                         required
                         aria-required="true"
+                        autoComplete="new-password"
                         className="rounded-xl border-quran-border bg-white/85"
                       />
                     </FormControl>
