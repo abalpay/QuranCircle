@@ -14,10 +14,16 @@ export async function deleteAccount(): Promise<{ error?: string }> {
     return { error: "Not authenticated" };
   }
 
-  const adminSupabase = createAdminClient();
+  let adminSupabase;
+  try {
+    adminSupabase = createAdminClient();
+  } catch (e) {
+    console.error("[deleteAccount] Failed to create admin client:", e);
+    return { error: "Server configuration error. Please contact support." };
+  }
 
   // Unclaim all juzs claimed by this user
-  await adminSupabase
+  const { error: juzError } = await adminSupabase
     .from("juzs")
     .update({
       claimed_by_name: null,
@@ -28,19 +34,26 @@ export async function deleteAccount(): Promise<{ error?: string }> {
       read_at: null,
     })
     .eq("claimed_by_user_id", user.id);
+  if (juzError) console.error("[deleteAccount] juz cleanup error:", juzError);
 
   // Delete user's bookmarks
-  await adminSupabase.from("bookmarks").delete().eq("user_id", user.id);
+  const { error: bookmarkError } = await adminSupabase
+    .from("bookmarks")
+    .delete()
+    .eq("user_id", user.id);
+  if (bookmarkError) console.error("[deleteAccount] bookmark cleanup error:", bookmarkError);
 
   // Nullify created_by on user's events (preserve events for other participants)
-  await adminSupabase
+  const { error: eventError } = await adminSupabase
     .from("events")
     .update({ created_by: null })
     .eq("created_by", user.id);
+  if (eventError) console.error("[deleteAccount] event cleanup error:", eventError);
 
   // Delete the auth user
   const { error } = await adminSupabase.auth.admin.deleteUser(user.id);
   if (error) {
+    console.error("[deleteAccount] admin.deleteUser error:", error);
     return { error: "Failed to delete account. Please try again." };
   }
 
