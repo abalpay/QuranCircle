@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { createClient } from "@/lib/supabase/server";
+import { createAnonClient } from "@/lib/supabase/anon";
 
 export const runtime = "edge";
 
@@ -27,7 +27,7 @@ export default async function OGImage({
   let eventDescription = "";
 
   try {
-    const supabase = await createClient();
+    const supabase = createAnonClient();
     const { data: event } = await supabase
       .from("events")
       .select("name, description")
@@ -42,21 +42,13 @@ export default async function OGImage({
     // Fallback to defaults
   }
 
-  const cormorantFont = fetch(
-    new URL(
-      "https://fonts.gstatic.com/s/cormorantgaramond/v16/co3YmX5slCNuHLi8bLeY9MK7whWMhyjYqXtK.ttf"
-    )
-  ).then((res) => res.arrayBuffer());
-
-  const manropeFont = fetch(
-    new URL(
-      "https://fonts.gstatic.com/s/manrope/v15/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk79FO_F.ttf"
-    )
-  ).then((res) => res.arrayBuffer());
-
   const [cormorantData, manropeData] = await Promise.all([
-    cormorantFont,
-    manropeFont,
+    fetch(
+      new URL("../../fonts/CormorantGaramond-SemiBold.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer()),
+    fetch(
+      new URL("../../fonts/Manrope-Regular.ttf", import.meta.url)
+    ).then((res) => res.arrayBuffer()),
   ]);
 
   return new ImageResponse(
@@ -97,21 +89,6 @@ export default async function OGImage({
             borderRadius: "50%",
             background: `radial-gradient(circle, ${colors.gold}1a 0%, transparent 70%)`,
             display: "flex",
-          }}
-        />
-
-        {/* Subtle geometric overlay */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231f4e45' stroke-width='1' opacity='0.06'%3E%3Crect x='36' y='36' width='48' height='48'/%3E%3Crect x='36' y='36' width='48' height='48' transform='rotate(45 60 60)'/%3E%3Cpolygon points='70,36 84,50 84,70 70,84 50,84 36,70 36,50 50,36'/%3E%3Cline x1='60' y1='0' x2='60' y2='26'/%3E%3Cline x1='120' y1='60' x2='94' y2='60'/%3E%3Cline x1='60' y1='120' x2='60' y2='94'/%3E%3Cline x1='0' y1='60' x2='26' y2='60'/%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: "120px 120px",
-            opacity: 0.7,
           }}
         />
 

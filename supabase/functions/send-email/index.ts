@@ -6,12 +6,28 @@ import { SignupEmail } from "./_templates/signup.tsx";
 import { ResetPasswordEmail } from "./_templates/reset-password.tsx";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY") as string);
-const hookSecret = (Deno.env.get("SEND_EMAIL_HOOK_SECRET") as string).replace(
+const hookSecret = Deno.env.get("SEND_EMAIL_HOOK_SECRET")?.replace(
   "v1,whsec_",
   ""
 );
 
 const FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "QuranCircle <noreply@resend.dev>";
+
+interface HookPayload {
+  user: {
+    email: string;
+    user_metadata?: { username?: string };
+  };
+  email_data: {
+    token: string;
+    token_hash: string;
+    redirect_to: string;
+    email_action_type: string;
+    site_url: string;
+    token_new: string;
+    token_hash_new: string;
+  };
+}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -20,39 +36,38 @@ Deno.serve(async (req) => {
 
   const payload = await req.text();
   const headers = Object.fromEntries(req.headers);
-  const wh = new Webhook(hookSecret);
 
-  let verified;
-  try {
-    verified = wh.verify(payload, headers) as {
-      user: {
-        email: string;
-        user_metadata?: { username?: string };
-      };
-      email_data: {
-        token: string;
-        token_hash: string;
-        redirect_to: string;
-        email_action_type: string;
-        site_url: string;
-        token_new: string;
-        token_hash_new: string;
-      };
-    };
-  } catch (error) {
-    console.error("Webhook verification failed:", error);
-    return new Response(
-      JSON.stringify({
-        error: {
-          http_code: 401,
-          message: "Webhook verification failed",
-        },
-      }),
-      {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+  // Try webhook signature verification first; fall back to plain JSON
+  // when the Auth hook doesn't send standardwebhooks headers.
+  let verified: HookPayload;
+  const hasWebhookHeaders =
+    headers["webhook-id"] && headers["webhook-timestamp"] && headers["webhook-signature"];
+
+  if (hasWebhookHeaders && hookSecret) {
+    try {
+      const wh = new Webhook(hookSecret);
+      verified = wh.verify(payload, headers) as HookPayload;
+    } catch (error) {
+      console.error("Webhook verification failed:", error);
+      return new Response(
+        JSON.stringify({
+          error: { http_code: 401, message: "Webhook verification failed" },
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  } else {
+    // Auth hook called without webhook signing — parse body directly.
+    try {
+      verified = JSON.parse(payload) as HookPayload;
+    } catch {
+      return new Response(
+        JSON.stringify({
+          error: { http_code: 400, message: "Invalid JSON payload" },
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
   }
 
   try {
@@ -62,7 +77,6 @@ Deno.serve(async (req) => {
     } = verified;
 
     // Skip signup emails — no email confirmation needed.
-    // This also prevents Resend API failures from aborting the signup.
     if (email_action_type === "signup") {
       return new Response(JSON.stringify({}), {
         status: 200,
@@ -81,16 +95,7 @@ Deno.serve(async (req) => {
     let html: string;
     let subject: string;
 
-    if (email_action_type === "signup") {
-      const username = user.user_metadata?.username ?? user.email?.split("@")[0] ?? "there";
-      html = await renderAsync(
-        React.createElement(SignupEmail, {
-          ...templateProps,
-          username,
-        })
-      );
-      subject = "Confirm your QuranCircle account";
-    } else if (email_action_type === "recovery") {
+    if (email_action_type === "recovery") {
       html = await renderAsync(React.createElement(ResetPasswordEmail, templateProps));
       subject = "Reset your QuranCircle password";
     } else {
@@ -112,28 +117,26 @@ Deno.serve(async (req) => {
     });
 
     if (error) {
+      console.error("Resend API error:", JSON.stringify(error));
       throw error;
     }
   } catch (error) {
-    console.error("Email sending failed:", error);
+    const errMsg = (error as { message?: string })?.message ?? String(error);
+    const errName = (error as { name?: string })?.name ?? "";
+    console.error("Email sending failed:", errName, errMsg, JSON.stringify(error));
     return new Response(
       JSON.stringify({
         error: {
           http_code: 500,
-          message: (error as { message?: string })?.message ?? String(error),
+          message: `${errName}: ${errMsg}`,
         },
       }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 
-  const responseHeaders = new Headers();
-  responseHeaders.set("Content-Type", "application/json");
   return new Response(JSON.stringify({}), {
     status: 200,
-    headers: responseHeaders,
+    headers: { "Content-Type": "application/json" },
   });
 });

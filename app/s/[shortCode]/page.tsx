@@ -19,6 +19,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description =
     event.description || `Join the ${event.name} Khatm circle on QuranCircle`;
   const url = `https://qurancircle.io/s/${shortCode}`;
+  const ogVersion = new Date(event.created_at).getTime().toString(36);
+  const ogImageUrl = `https://qurancircle.io/s/${shortCode}/opengraph-image?v=${ogVersion}`;
 
   return {
     title: event.name,
@@ -28,11 +30,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url,
       type: "website",
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${event.name} - QuranCircle`,
       description,
+      images: [ogImageUrl],
     },
   };
 }
