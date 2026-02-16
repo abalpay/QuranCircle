@@ -31,7 +31,7 @@ export default function MobileNavigation() {
     if (user) {
       setIsCreateOpen(true);
     } else {
-      openAuthModal("login");
+      openAuthModal("login", () => setIsCreateOpen(true));
     }
   };
 
@@ -62,7 +62,7 @@ export default function MobileNavigation() {
           </Link>
           <button
             onClick={handleCreate}
-            className="mx-1 flex flex-col items-center justify-center rounded-xl py-2 text-quran-green transition-transform active:scale-[0.98]"
+            className="mx-1 flex flex-col items-center justify-center rounded-xl bg-quran-green py-2 text-white transition-transform active:scale-[0.96]"
           >
             <PlusCircle className="h-5 w-5" />
             <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em]">

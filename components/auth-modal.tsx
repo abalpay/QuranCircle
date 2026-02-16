@@ -50,6 +50,7 @@ type AuthModalProps = {
   isOpen: boolean;
   onClose: () => void;
   action?: "login" | "register" | "forgot-password";
+  onSuccess?: () => void;
 };
 
 const GoogleSignInButton = () => {
@@ -105,6 +106,7 @@ export default function AuthModal({
   isOpen,
   onClose,
   action = "login",
+  onSuccess,
 }: AuthModalProps) {
   const [selectedTab, setSelectedTab] = useState<
     "login" | "register" | "forgot-password" | null
@@ -149,6 +151,7 @@ export default function AuthModal({
     }
     toast.success("Login successful");
     closeAndReset();
+    onSuccess?.();
   };
 
   const onRegisterSubmit = async (data: RegisterFormValues) => {
@@ -161,6 +164,7 @@ export default function AuthModal({
     }
     toast.success("Account created successfully");
     closeAndReset();
+    onSuccess?.();
   };
 
   const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {
