@@ -35,7 +35,6 @@ import {
   unarchiveEvent,
   deleteEvent,
 } from "@/lib/actions/events";
-import { useAuth } from "@/hooks/use-auth";
 
 const DEVICE_TOKEN_KEY = "quran_circle_device_token";
 
@@ -47,8 +46,6 @@ type EventData = {
   is_locked: boolean;
   is_public: boolean;
   is_archived: boolean;
-  created_by: string | null;
-  creator_token: string | null;
   khatms: Array<{
     id: string;
     khatm_number: number;
@@ -70,6 +67,7 @@ type Props = {
   shortCode: string;
   deviceToken: string;
   creatorToken?: string;
+  isCreator: boolean;
 };
 
 export default function KhatimPageClient({
@@ -77,9 +75,11 @@ export default function KhatimPageClient({
   shortCode,
   deviceToken: initialDeviceToken,
   creatorToken,
+  isCreator: initialIsCreator,
 }: Props) {
   const router = useRouter();
   const [event, setEvent] = useState(initialEvent);
+  const [isCreator, setIsCreator] = useState(initialIsCreator);
   const [isLocking, setIsLocking] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -129,7 +129,13 @@ export default function KhatimPageClient({
     try {
       const res = await fetch(`/api/event?shortCode=${shortCode}`);
       const data = await res.json();
-      if (data && !data.error) setEvent(data);
+      if (data && !data.error) {
+        const { isCreator: refreshedIsCreator, ...eventData } = data;
+        setEvent(eventData);
+        if (typeof refreshedIsCreator === "boolean") {
+          setIsCreator(refreshedIsCreator);
+        }
+      }
     } catch (err) {
       console.warn("[QuranCircle] Failed to refresh event:", err);
     }
@@ -320,11 +326,6 @@ export default function KhatimPageClient({
     toast.success("Khatim deleted");
     router.push("/");
   };
-
-  const { user } = useAuth();
-  const isCreator =
-    (user && event.created_by === user.id) ||
-    (event.creator_token && creatorToken && event.creator_token === creatorToken);
 
   return (
     <div className="space-y-8 sm:space-y-10">

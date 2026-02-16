@@ -20,12 +20,21 @@ export async function GET(request: Request) {
   const cookieStore = await cookies();
   const requestDeviceToken =
     cookieStore.get("quran_circle_device_token")?.value ?? null;
+  const requestCreatorToken =
+    cookieStore.get("quran_circle_creator_token")?.value ?? null;
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const requestUserId = user?.id ?? null;
+
+  // Compute creator status server-side so raw credentials are never sent to the client
+  const isCreator =
+    (!!requestUserId && event.created_by === requestUserId) ||
+    (!!event.creator_token &&
+      !!requestCreatorToken &&
+      event.creator_token === requestCreatorToken);
 
   // Strip sensitive fields before sending to client.
   // Keep device_token/claimed_by_user_id ONLY for juz belonging to the requester.
@@ -57,5 +66,5 @@ export async function GET(request: Request) {
     })
   );
 
-  return NextResponse.json({ ...safeEvent, khatms: safeKhatms ?? [] });
+  return NextResponse.json({ ...safeEvent, khatms: safeKhatms ?? [], isCreator });
 }
