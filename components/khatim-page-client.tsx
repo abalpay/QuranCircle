@@ -104,6 +104,27 @@ export default function KhatimPageClient({
     if (khatmIds !== stableKhatmIds) setStableKhatmIds(khatmIds);
   }, [khatmIds, stableKhatmIds]);
 
+  // Realtime recovery: bump epoch to force subscription teardown/recreate
+  const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
+  const channelInstanceRef = useRef(0);
+
+  // Re-establish realtime subscription when tab becomes visible or network reconnects
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        setSubscriptionEpoch((e) => e + 1);
+      }
+    };
+    const onOnline = () => setSubscriptionEpoch((e) => e + 1);
+
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", onOnline);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onOnline);
+    };
+  }, []);
+
   const refreshEvent = useCallback(async () => {
     try {
       const res = await fetch(`/api/event?shortCode=${shortCode}`);
@@ -156,12 +177,17 @@ export default function KhatimPageClient({
     if (!stableKhatmIds) return;
 
     const supabase = createClient();
+    let disposed = false;
     let retryCount = 0;
-    const MAX_RETRIES = 3;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
+    // Unique channel names prevent collisions with dying channels from prior effect cycles
+    const instanceId = ++channelInstanceRef.current;
+    const juzChannelName = `juzs-${shortCode}-${instanceId}`;
+    const khatmChannelName = `khatms-${shortCode}-${instanceId}`;
+
     const channel = supabase
-      .channel(`juzs-${shortCode}`)
+      .channel(juzChannelName)
       .on(
         "postgres_changes",
         {
@@ -171,6 +197,7 @@ export default function KhatimPageClient({
           filter: `khatm_id=in.(${stableKhatmIds})`,
         },
         (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+          if (disposed) return;
           if (payload.eventType === "DELETE") {
             refreshEvent();
             return;
@@ -185,22 +212,26 @@ export default function KhatimPageClient({
         }
       )
       .subscribe((status, err) => {
+        if (disposed) return;
         if (status === "SUBSCRIBED") {
           retryCount = 0;
+          // Catch up on any changes missed during reconnection
+          refreshEvent();
         }
         if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
           console.warn("[QuranCircle] Realtime", status, err ?? "");
-          if (retryCount < MAX_RETRIES) {
-            const delay = Math.min(2000 * 2 ** retryCount, 15_000);
-            retryCount++;
-            retryTimer = setTimeout(() => channel.subscribe(), delay);
-          }
+          // Uncapped retries with backoff capped at 30s
+          const delay = Math.min(2000 * 2 ** retryCount, 30_000);
+          retryCount++;
+          retryTimer = setTimeout(() => {
+            if (!disposed) channel.subscribe();
+          }, delay);
         }
       });
 
     // Listen for new khatms being auto-created
     const khatmsChannel = supabase
-      .channel(`khatms-${shortCode}`)
+      .channel(khatmChannelName)
       .on(
         "postgres_changes",
         {
@@ -210,7 +241,7 @@ export default function KhatimPageClient({
           filter: `event_id=eq.${eventIdRef.current}`,
         },
         () => {
-          refreshEvent();
+          if (!disposed) refreshEvent();
         }
       )
       .subscribe();
@@ -219,6 +250,7 @@ export default function KhatimPageClient({
     const safetyInterval = setInterval(refreshEvent, 60_000);
 
     return () => {
+      disposed = true;
       supabase.removeChannel(channel);
       supabase.removeChannel(khatmsChannel);
       clearInterval(safetyInterval);
@@ -228,7 +260,7 @@ export default function KhatimPageClient({
         batchTimerRef.current = null;
       }
     };
-  }, [shortCode, stableKhatmIds, refreshEvent, flushRealtimeUpdates]);
+  }, [shortCode, stableKhatmIds, subscriptionEpoch, refreshEvent, flushRealtimeUpdates]);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/s/${shortCode}`;

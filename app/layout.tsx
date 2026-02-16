@@ -12,6 +12,7 @@ import { AuthModalProvider } from "@/hooks/use-auth-modal";
 import Header from "@/components/header";
 import MobileNavigation from "@/components/mobile-navigation";
 import Footer from "@/components/footer";
+import NavigationProgress from "@/components/navigation-progress";
 
 const manrope = Manrope({
   variable: "--font-body",
@@ -67,6 +68,7 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${cormorantGaramond.variable} ${notoNaskhArabic.variable} ${amiri.variable} font-sans antialiased`}
       >
+        <NavigationProgress />
         <AuthProvider>
           <AuthModalProvider>
             <div className="relative min-h-screen overflow-x-clip bg-quran-bg">
