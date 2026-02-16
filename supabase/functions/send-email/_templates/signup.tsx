@@ -17,7 +17,7 @@ interface SignupEmailProps {
   email_action_type: string;
   redirect_to: string;
   token_hash: string;
-  token: string;
+  token?: string;
 }
 
 function buildVerifyUrl(supabaseUrl: string, tokenHash: string, type: string, redirectTo: string): string {
@@ -30,7 +30,6 @@ function buildVerifyUrl(supabaseUrl: string, tokenHash: string, type: string, re
 
 export const SignupEmail = ({
   username,
-  token,
   supabase_url,
   email_action_type,
   redirect_to,
@@ -55,12 +54,6 @@ export const SignupEmail = ({
             <Link href={verifyUrl} style={button}>
               Confirm email address
             </Link>
-          </Section>
-          <Text style={text}>
-            Or copy and paste this temporary code into the verification page:
-          </Text>
-          <Section style={codeBox}>
-            <Text style={code}>{token}</Text>
           </Section>
           <Text style={muted}>
             If you didn&apos;t create an account with QuranCircle, you can safely ignore this email.
@@ -127,23 +120,6 @@ const button = {
   borderRadius: "8px",
   textDecoration: "none",
   display: "inline-block",
-};
-
-const codeBox = {
-  backgroundColor: "#ffffff",
-  borderRadius: "8px",
-  border: "1px solid #e8e4d9",
-  padding: "20px",
-  margin: "16px 0",
-};
-
-const code = {
-  color: "#232e2d",
-  fontSize: "24px",
-  fontWeight: "600" as const,
-  textAlign: "center" as const,
-  margin: "0",
-  letterSpacing: "4px",
 };
 
 const muted = {

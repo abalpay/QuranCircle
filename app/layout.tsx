@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import {
   Manrope,
   Cormorant_Garamond,
@@ -13,6 +14,7 @@ import Header from "@/components/header";
 import MobileNavigation from "@/components/mobile-navigation";
 import Footer from "@/components/footer";
 import NavigationProgress from "@/components/navigation-progress";
+import AuthErrorToast from "@/components/auth-error-toast";
 
 const manrope = Manrope({
   variable: "--font-body",
@@ -106,6 +108,9 @@ export default function RootLayout({
               </div>
               <MobileNavigation />
             </div>
+            <Suspense fallback={null}>
+              <AuthErrorToast />
+            </Suspense>
             <Toaster />
           </AuthModalProvider>
         </AuthProvider>

@@ -64,6 +64,10 @@ Apply the SQL in `supabase/migrations/00001_initial_schema.sql` and `00002_rls_p
 
 **Google OAuth flow**: User → your app → Supabase → Google consent → Supabase callback → your app `/auth/callback` → original page.
 
+## Testing Email Confirmation
+
+See [docs/TESTING.md](docs/TESTING.md) for testing the Resend email flow (signup, password reset). Includes options for full reset, test email accounts (Gmail+), and local Supabase.
+
 ## Scripts
 
 - `npm run dev` - Start development server

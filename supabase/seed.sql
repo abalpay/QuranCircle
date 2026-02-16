@@ -1,0 +1,2 @@
+-- Optional seed data for local development
+-- Add test data here if needed; runs after migrations on `supabase db reset`

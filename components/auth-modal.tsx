@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
+import { Mail } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -116,10 +117,14 @@ export default function AuthModal({
   const [forgotPasswordSubmitting, setForgotPasswordSubmitting] =
     useState(false);
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registrationEmail, setRegistrationEmail] = useState("");
 
   const closeAndReset = () => {
     setSelectedTab(null);
     setForgotPasswordSuccess(false);
+    setRegistrationSuccess(false);
+    setRegistrationEmail("");
     onClose();
   };
 
@@ -158,10 +163,8 @@ export default function AuthModal({
       });
       return;
     }
-    toast.success("Account created", {
-      description: "Check your email to confirm your account.",
-    });
-    closeAndReset();
+    setRegistrationEmail(data.email);
+    setRegistrationSuccess(true);
   };
 
   const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {
@@ -184,6 +187,40 @@ export default function AuthModal({
       }}
     >
       <DialogContent className="sm:max-w-md rounded-3xl border-quran-border bg-quran-card p-5 sm:p-6">
+        {registrationSuccess ? (
+          <div className="space-y-4 py-4">
+            <div className="flex justify-center">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-quran-green/10">
+                <Mail className="h-8 w-8 text-quran-green" />
+              </div>
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="font-heading text-2xl text-quran-deep">
+                Check your email
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                We&apos;ve sent a confirmation link to{" "}
+                <span className="font-medium text-quran-deep">{registrationEmail}</span>.
+                Click the link in the email to activate your account.
+              </p>
+              <p className="text-xs text-muted-foreground pt-1">
+                Don&apos;t see it? Check your spam folder.
+              </p>
+            </div>
+            <Button
+              type="button"
+              className="w-full rounded-full"
+              onClick={() => {
+                setRegistrationSuccess(false);
+                setRegistrationEmail("");
+                setActiveTab("login");
+              }}
+            >
+              Back to Login
+            </Button>
+          </div>
+        ) : (
+          <>
         <DialogHeader className="text-left">
           <DialogTitle className="font-heading text-3xl text-quran-deep">
             {activeTab === "forgot-password" ? "Reset Password" : activeTab === "register" ? "Create Account" : "Login"}
@@ -431,6 +468,8 @@ export default function AuthModal({
               </div>
             </TabsContent>
           </Tabs>
+        )}
+          </>
         )}
       </DialogContent>
     </Dialog>

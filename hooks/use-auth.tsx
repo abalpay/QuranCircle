@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: {
         data: { username: username || email.split("@")[0] },
+        emailRedirectTo: getAuthCallbackUrl(),
       },
     });
     return { error: error as Error | null };
