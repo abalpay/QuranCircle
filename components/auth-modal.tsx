@@ -23,17 +23,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 const registerSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 const forgotPasswordSchema = z.object({
@@ -140,7 +141,9 @@ export default function AuthModal({
   const onLoginSubmit = async (data: LoginFormValues) => {
     const { error } = await signInWithPassword(data.email, data.password);
     if (error) {
-      toast.error("Login failed", { description: error.message });
+      toast.error("Login failed", {
+        description: formatAuthError(error.message),
+      });
       return;
     }
     toast.success("Login successful");
@@ -150,7 +153,9 @@ export default function AuthModal({
   const onRegisterSubmit = async (data: RegisterFormValues) => {
     const { error } = await signUp(data.email, data.password, data.username);
     if (error) {
-      toast.error("Registration failed", { description: error.message });
+      toast.error("Registration failed", {
+        description: formatAuthError(error.message),
+      });
       return;
     }
     toast.success("Account created", {
