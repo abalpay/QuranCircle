@@ -183,25 +183,32 @@ export default async function HomePage() {
 
       {/* ── CTA Section ── */}
       <section className="cta-section">
-        <span className="cta-arabic-decoration" aria-hidden="true">
-          اقْرَأْ
-        </span>
         <div className="relative z-10 mx-auto max-w-2xl">
-          <h3 className="font-heading text-3xl sm:text-4xl md:text-5xl">
+          <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.07] px-4 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary-foreground/70 backdrop-blur-sm">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[hsl(var(--quran-gold))]" />
+            Open to Everyone
+          </p>
+
+          <h3 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem]">
             Join a public circle today
           </h3>
-          <p className="mt-4 text-lg text-primary-foreground/90 sm:text-xl">
-            Explore active Khatms and contribute to an ongoing completion.
+
+          <div className="cta-gold-divider" />
+
+          <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-primary-foreground/70 sm:text-lg">
+            Pick a Juz, join fellow readers, and help complete the Quran
+            together.
           </p>
-          <div className="mt-8">
+
+          <div className="mt-10">
             <Button
               asChild
               size="lg"
-              className="h-12 w-full rounded-full border-2 border-white bg-white text-base font-semibold text-quran-green shadow-lg transition-transform hover:scale-105 hover:bg-white/90 active:scale-95 sm:w-auto"
+              className="group h-14 w-full rounded-full border-2 border-white bg-white px-10 text-base font-semibold text-quran-green shadow-[0_16px_40px_-16px_hsl(0_0%_0%/0.3)] transition-all hover:scale-105 hover:shadow-[0_20px_50px_-16px_hsl(0_0%_0%/0.4)] active:scale-95 sm:w-auto"
             >
               <Link href="/browse">
-                <Compass className="mr-2 h-5 w-5" />
-                Browse Public Khatims
+                <Compass className="mr-2 h-5 w-5 transition-transform group-hover:rotate-45" />
+                Browse Public Circles
               </Link>
             </Button>
           </div>
