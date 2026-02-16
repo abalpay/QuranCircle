@@ -12,11 +12,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { shortCode } = await params;
   const event = await getEventByShortCode(shortCode);
   if (!event) {
-    return { title: "Circle Not Found - QuranCircle" };
+    return { title: "Circle Not Found" };
   }
+
+  const description =
+    event.description || `Join the ${event.name} Khatm circle on QuranCircle`;
+  const url = `https://qurancircle.io/s/${shortCode}`;
+
   return {
-    title: `${event.name} - QuranCircle`,
-    description: event.description || `Join the ${event.name} Khatm circle on QuranCircle`,
+    title: event.name,
+    description,
+    openGraph: {
+      title: `${event.name} - QuranCircle`,
+      description,
+      url,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${event.name} - QuranCircle`,
+      description,
+    },
   };
 }
 

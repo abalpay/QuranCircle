@@ -44,10 +44,29 @@ const amiri = Amiri({
 });
 
 export const metadata: Metadata = {
-  title: "QuranCircle - Collaborative Quran Reading Platform",
+  metadataBase: new URL("https://qurancircle.io"),
+  title: {
+    default: "QuranCircle - Read & Complete the Quran Together",
+    template: "%s - QuranCircle",
+  },
   description:
-    "A collaborative Quran reading platform for community-driven Khatm events",
+    "Join collaborative Quran readings with your community. Create or join a Khatm circle, claim your Juz, and complete the Quran together. Free and open to all.",
   manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://qurancircle.io",
+    siteName: "QuranCircle",
+    title: "QuranCircle - Read & Complete the Quran Together",
+    description:
+      "Join collaborative Quran readings with your community. Create or join a Khatm circle, claim your Juz, and complete the Quran together.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "QuranCircle - Read & Complete the Quran Together",
+    description:
+      "Join collaborative Quran readings with your community. Create or join a Khatm circle, claim your Juz, and complete the Quran together.",
+  },
 };
 
 export const viewport = {
