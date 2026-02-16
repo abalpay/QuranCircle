@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PlusCircle, Compass, UserCircle, LogOut } from "lucide-react";
+import { Home, PlusCircle, Compass, UserCircle, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useState } from "react";
@@ -117,7 +117,15 @@ export default function MobileNavigation() {
               </SheetDescription>
             )}
           </SheetHeader>
-          <div className="px-4 pb-6">
+          <div className="space-y-3 px-4 pb-6">
+            <Link
+              href="/account"
+              onClick={() => setIsProfileOpen(false)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/70 border border-quran-border px-4 py-3 text-sm font-medium text-quran-deep transition-colors active:bg-white"
+            >
+              <Settings className="h-4 w-4" />
+              Account Settings
+            </Link>
             <button
               onClick={() => {
                 setIsProfileOpen(false);

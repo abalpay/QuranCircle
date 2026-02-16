@@ -8,12 +8,12 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const colors = {
-  bg: "#f5f0e4",
-  deep: "#163f38",
-  green: "#17634f",
-  lightGreen: "#4d9482",
-  gold: "#a58230",
-  muted: "#526b64",
+  bg: "#163f38",
+  bgGradient: "#1a4a3f",
+  cream: "#f5f0e4",
+  gold: "#c9a84c",
+  mutedLight: "#9cb3ac",
+  greenGlow: "#2a6b5a",
 };
 
 export default async function OGImage({
@@ -59,49 +59,36 @@ export default async function OGImage({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: `linear-gradient(180deg, ${colors.bg} 0%, ${colors.bg} 44%, #f0ead8 100%)`,
+          background: `linear-gradient(160deg, ${colors.bg} 0%, ${colors.bgGradient} 100%)`,
           position: "relative",
           overflow: "hidden",
           padding: "60px 80px",
         }}
       >
-        {/* Top-right green radial glow */}
+        {/* Top-right gold radial glow — subtle accent */}
         <div
           style={{
             position: "absolute",
-            top: -100,
-            right: -100,
+            top: -120,
+            right: -120,
             width: 500,
             height: 500,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.lightGreen}28 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.gold}0d 0%, transparent 70%)`,
             display: "flex",
           }}
         />
-        {/* Bottom-left gold radial glow */}
+        {/* Bottom-left green radial glow — subtle accent */}
         <div
           style={{
             position: "absolute",
-            bottom: -80,
-            left: -80,
-            width: 450,
-            height: 450,
+            bottom: -100,
+            left: -100,
+            width: 500,
+            height: 500,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.gold}1a 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.greenGlow}14 0%, transparent 70%)`,
             display: "flex",
-          }}
-        />
-
-        {/* Vignette */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            background: `radial-gradient(ellipse at 50% 45%, transparent 40%, ${colors.bg} 85%)`,
           }}
         />
 
@@ -117,23 +104,17 @@ export default async function OGImage({
         >
           <div
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: `${colors.green}18`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               fontSize: 24,
+              display: "flex",
             }}
           >
             &#128214;
           </div>
           <div
             style={{
-              fontSize: 22,
+              fontSize: 24,
               fontWeight: 600,
-              color: colors.muted,
+              color: colors.gold,
               fontFamily: "Manrope",
               display: "flex",
             }}
@@ -149,20 +130,20 @@ export default async function OGImage({
             flexDirection: "column",
             flex: 1,
             justifyContent: "center",
-            gap: 16,
+            gap: 20,
             position: "relative",
           }}
         >
           <div
             style={{
-              fontSize: 56,
+              fontSize: 64,
               fontWeight: 600,
-              color: colors.deep,
+              color: colors.cream,
               letterSpacing: "-0.5px",
               lineHeight: 1.15,
               fontFamily: "Cormorant Garamond",
               display: "flex",
-              maxWidth: 900,
+              maxWidth: 960,
             }}
           >
             {eventName.length > 60
@@ -173,10 +154,10 @@ export default async function OGImage({
           {eventDescription ? (
             <div
               style={{
-                fontSize: 22,
-                color: colors.muted,
+                fontSize: 24,
+                color: colors.mutedLight,
                 lineHeight: 1.5,
-                maxWidth: 800,
+                maxWidth: 850,
                 fontFamily: "Manrope",
                 display: "flex",
               }}
@@ -190,10 +171,10 @@ export default async function OGImage({
           {/* Gold divider */}
           <div
             style={{
-              width: 64,
+              width: 80,
               height: 2,
               marginTop: 8,
-              background: `linear-gradient(90deg, ${colors.gold}99, ${colors.gold}33)`,
+              background: `linear-gradient(90deg, ${colors.gold}, ${colors.gold}44)`,
               borderRadius: 2,
               display: "flex",
             }}
@@ -211,8 +192,8 @@ export default async function OGImage({
         >
           <div
             style={{
-              fontSize: 17,
-              color: `${colors.muted}99`,
+              fontSize: 18,
+              color: colors.mutedLight,
               fontFamily: "Manrope",
               letterSpacing: "0.5px",
               display: "flex",
@@ -222,14 +203,14 @@ export default async function OGImage({
           </div>
           <div
             style={{
-              fontSize: 17,
-              color: colors.green,
+              fontSize: 18,
+              color: colors.gold,
               fontFamily: "Manrope",
               fontWeight: 600,
               display: "flex",
             }}
           >
-            Join this Khatm Circle
+            {`Join this Khatm Circle \u2192`}
           </div>
         </div>
       </div>

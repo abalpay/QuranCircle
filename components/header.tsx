@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Globe2,
   LogOut,
+  Settings,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -113,6 +114,12 @@ export default function Header() {
               >
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/account">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Account Settings
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => signOut()}
                   className="text-red-600 focus:bg-red-50 focus:text-red-700"
