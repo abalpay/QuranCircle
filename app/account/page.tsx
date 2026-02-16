@@ -145,6 +145,10 @@ export default function AccountPage() {
       toast.error("Failed to delete account", { description: error });
       return;
     }
+    // Clear client-side auth state (server action only clears server cookies)
+    const supabase = createClient();
+    await supabase.auth.signOut();
+
     toast.success("Account deleted");
     router.replace("/");
   };
