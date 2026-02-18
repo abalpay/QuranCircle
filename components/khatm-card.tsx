@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import JuzCard from "@/components/juz-card";
 import ClaimJuzDialog from "@/components/claim-juz-dialog";
 import FloatingClaimBar from "@/components/floating-claim-bar";
@@ -20,7 +21,13 @@ import {
 import type { JuzSnapshot, KhatmSnapshot } from "@/lib/types/events";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import { BookMarked, ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
+import {
+  BookMarked,
+  ChevronDown,
+  ChevronUp,
+  CircleCheck,
+  ExternalLink,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Juz = JuzSnapshot;
@@ -265,20 +272,27 @@ export default function KhatmCard({
                     {juz.status === "read" ? "Read" : "Claimed"}
                   </span>
                 </div>
-                {hasQuranLink && (
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {hasQuranLink && (
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="min-h-10 rounded-full bg-quran-green/10 px-3 py-2 text-xs font-semibold text-quran-deep hover:bg-quran-green/20 hover:text-quran-deep focus-visible:ring-quran-green/35"
+                >
                   <a
                     href={quranLinkHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`Open Juz ${juz.juz_number} on Quran.com (opens in new tab)`}
-                    className="mt-1 inline-flex text-xs font-medium text-quran-green underline decoration-quran-green/40 underline-offset-2 transition-colors hover:text-quran-deep"
                   >
-                    Read on Quran.com
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Open Quran.com
                   </a>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
+                </Button>
+              )}
               {juz.status === "claimed" && (
                 <button
                   className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
