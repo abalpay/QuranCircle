@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
 import InstallAppSheet from "@/components/install-app-sheet";
+import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { cn } from "@/lib/utils";
 import {
   type GlobalFilter,
@@ -35,7 +36,9 @@ import {
   getCreatorManageRows,
   getEventFilterCounts,
   isFilterSyncPending,
+  normalizeMineView,
   normalizeGlobalFilter,
+  withMineViewQuery,
   withGlobalFilterQuery,
 } from "@/lib/event-filters";
 import {
@@ -69,6 +72,8 @@ type Props = {
   shortCode: string;
 };
 
+type MineView = "mine" | "creator";
+
 export default function KhatimPageClient({
   event: initialEvent,
   shortCode,
@@ -86,6 +91,7 @@ export default function KhatimPageClient({
   const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
   const [, startFilterTransition] = useTransition();
   const [pendingFilter, setPendingFilter] = useState<GlobalFilter | null>(null);
+  const [pendingMineView, setPendingMineView] = useState<MineView | null>(null);
   const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
   const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
   const [isInstallPromptOpen, setIsInstallPromptOpen] = useState(false);
@@ -100,6 +106,11 @@ export default function KhatimPageClient({
   );
   const displayFilter = getDisplayFilter(urlFilter, pendingFilter);
   const filterSyncPending = isFilterSyncPending(urlFilter, pendingFilter);
+  const urlMineView = useMemo(
+    () => normalizeMineView(searchParams.get("mineView"), isCreator),
+    [isCreator, searchParams]
+  );
+  const displayMineView = pendingMineView ?? urlMineView;
   const filterCounts = useMemo(() => getEventFilterCounts(event), [event]);
   const creatorManageRows = useMemo(() => getCreatorManageRows(event), [event]);
 
@@ -131,12 +142,50 @@ export default function KhatimPageClient({
   }, [pendingFilter, urlFilter]);
 
   useEffect(() => {
+    if (pendingMineView === null) return;
+    if (pendingMineView !== urlMineView) return;
+    setPendingMineView(null);
+  }, [pendingMineView, urlMineView]);
+
+  useEffect(() => {
     if (!filterSyncPending) return;
     const timeoutId = window.setTimeout(() => {
       setPendingFilter(null);
     }, FILTER_SYNC_TIMEOUT_MS);
     return () => window.clearTimeout(timeoutId);
   }, [filterSyncPending]);
+
+  useEffect(() => {
+    if (displayFilter === "mine") return;
+    if (pendingMineView === null) return;
+    setPendingMineView(null);
+  }, [displayFilter, pendingMineView]);
+
+  useEffect(() => {
+    if (displayFilter !== "mine") return;
+
+    const rawMineView = searchParams.get("mineView");
+    const normalizedMineView = normalizeMineView(rawMineView, isCreator);
+    const canonicalMineView = normalizedMineView === "creator" ? "creator" : null;
+
+    if (rawMineView === canonicalMineView) return;
+
+    const href = withMineViewQuery(
+      pathname,
+      searchParams.toString(),
+      normalizedMineView
+    );
+    startFilterTransition(() => {
+      router.replace(href, { scroll: false });
+    });
+  }, [
+    displayFilter,
+    isCreator,
+    pathname,
+    router,
+    searchParams,
+    startFilterTransition,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -151,6 +200,9 @@ export default function KhatimPageClient({
       const nextFilter = normalizeGlobalFilter(nextFilterValue);
       if (nextFilter === displayFilter) return;
       setPendingFilter(nextFilter);
+      if (nextFilter !== "mine") {
+        setPendingMineView(null);
+      }
       const href = withGlobalFilterQuery(
         pathname,
         searchParams.toString(),
@@ -161,6 +213,32 @@ export default function KhatimPageClient({
       });
     },
     [displayFilter, pathname, router, searchParams, startFilterTransition]
+  );
+
+  const setMineView = useCallback(
+    (nextMineViewValue: string) => {
+      if (!isCreator || displayFilter !== "mine") return;
+      const nextMineView = normalizeMineView(nextMineViewValue, true) as MineView;
+      if (nextMineView === displayMineView) return;
+      setPendingMineView(nextMineView);
+      const href = withMineViewQuery(
+        pathname,
+        searchParams.toString(),
+        nextMineView
+      );
+      startFilterTransition(() => {
+        router.replace(href, { scroll: false });
+      });
+    },
+    [
+      displayFilter,
+      displayMineView,
+      isCreator,
+      pathname,
+      router,
+      searchParams,
+      startFilterTransition,
+    ]
   );
 
   const refreshEvent = useCallback(async () => {
@@ -565,6 +643,9 @@ export default function KhatimPageClient({
     router.push("/");
   };
 
+  const showMineViewTabs = isCreator && displayFilter === "mine";
+  const showCreatorQueue = showMineViewTabs && displayMineView === "creator";
+
   return (
     <>
       <div className="space-y-8 sm:space-y-10">
@@ -718,101 +799,69 @@ export default function KhatimPageClient({
         )}
       </section>
 
-      {isCreator && displayFilter === "mine" && creatorManageRows.length > 0 && (
-        <section className="quran-card p-6 sm:p-7">
-          <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
-            Creator Management
-          </h2>
-          <p className="mt-2 text-sm text-quran-muted">
-            Manage claimed juz across the full event, including other participants.
-          </p>
-          <div className="mt-5 space-y-2">
-            {creatorManageRows.map((row) => (
-              <div
-                key={row.juzId}
-                className={cn(
-                  "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3",
-                  row.status === "read"
-                    ? "border-emerald-200 bg-emerald-50/50"
-                    : "border-amber-200 bg-amber-50/50"
-                )}
+      {showMineViewTabs && (
+        <section className="quran-card p-4 sm:p-5">
+          <Tabs value={displayMineView} aria-label="My Juz views">
+            <TabsList className="w-full sm:w-auto">
+              <TabsTrigger value="mine" onClick={() => setMineView("mine")}>
+                My Juz
+              </TabsTrigger>
+              <TabsTrigger
+                value="creator"
+                onClick={() => setMineView("creator")}
               >
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-semibold text-quran-deep">
-                    Khatm #{row.khatmNumber} · Juz {row.juzNumber}
-                  </span>
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-[10px] font-medium",
-                      row.status === "read"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-amber-100 text-amber-700"
-                    )}
-                  >
-                    {row.status === "read" ? "Read" : "Claimed"}
-                  </span>
-                  <span className="text-quran-muted">
-                    {row.claimedByName ? `by ${row.claimedByName}` : "name unavailable"}
-                  </span>
-                  {row.isMine && (
-                    <span className="rounded-full bg-quran-green/10 px-2 py-0.5 text-[10px] font-medium text-quran-green">
-                      Yours
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  {row.status === "claimed" && (
-                    <button
-                      className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
-                      onClick={() => handleCreatorMarkRead(row.juzId)}
-                    >
-                      Mark Read
-                    </button>
-                  )}
-                  {row.status === "read" && (
-                    <button
-                      className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
-                      onClick={() => handleCreatorUnmarkRead(row.juzId)}
-                    >
-                      Undo
-                    </button>
-                  )}
-                  <button
-                    className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
-                    onClick={() => handleCreatorUnclaim(row.juzId)}
-                  >
-                    Unclaim
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                Creator Queue ({creatorManageRows.length})
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </section>
       )}
 
-      <div className="space-y-8">
-        {event.khatms.map((khatm, index) => {
-          const hasNewerKhatm = index < event.khatms.length - 1;
-          const isFullyClaimed = khatm.claimed_count === 30;
-          return (
-            <div
-              key={khatm.id}
-              id={`khatm-card-${khatm.id}`}
-              className="scroll-mt-24"
-            >
-              <KhatmCard
-                khatm={khatm}
-                shortCode={shortCode}
-                isReadOnly={event.is_archived}
-                onRefresh={refreshEvent}
-                activeFilter={displayFilter}
-                isCompleted={isFullyClaimed && hasNewerKhatm}
-                onClaimSuccess={handleClaimSuccess}
-              />
-            </div>
-          );
-        })}
-      </div>
+      {showCreatorQueue && creatorManageRows.length > 0 && (
+        <CreatorQueuePanel
+          rows={creatorManageRows}
+          onMarkRead={handleCreatorMarkRead}
+          onUndoRead={handleCreatorUnmarkRead}
+          onUnclaim={handleCreatorUnclaim}
+        />
+      )}
+
+      {showCreatorQueue && creatorManageRows.length === 0 && (
+        <section className="quran-card px-6 py-10 text-center sm:px-7">
+          <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
+            Creator Queue
+          </h2>
+          <p className="mt-2 text-sm text-quran-muted">
+            No claimed rows yet. Creator actions will appear here once people start claiming.
+          </p>
+        </section>
+      )}
+
+      {!showCreatorQueue && (
+        <div className="space-y-8">
+          {event.khatms.map((khatm, index) => {
+            const hasNewerKhatm = index < event.khatms.length - 1;
+            const isFullyClaimed = khatm.claimed_count === 30;
+            return (
+              <div
+                key={khatm.id}
+                id={`khatm-card-${khatm.id}`}
+                className="scroll-mt-24"
+              >
+                <KhatmCard
+                  khatm={khatm}
+                  shortCode={shortCode}
+                  isReadOnly={event.is_archived}
+                  onRefresh={refreshEvent}
+                  activeFilter={displayFilter}
+                  isCompleted={isFullyClaimed && hasNewerKhatm}
+                  onClaimSuccess={handleClaimSuccess}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
 
         <DeleteEventDialog
           isOpen={isDeleteDialogOpen}

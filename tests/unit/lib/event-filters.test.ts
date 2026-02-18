@@ -1,10 +1,15 @@
 import {
+  filterCreatorQueueRows,
   getDisplayFilter,
   getCreatorManageRows,
+  getCreatorQueueStats,
   getEventFilterCounts,
   getKhatmMatches,
+  normalizeMineView,
   isFilterSyncPending,
+  sortCreatorQueueRows,
   normalizeGlobalFilter,
+  withMineViewQuery,
   withGlobalFilterQuery,
 } from "@/lib/event-filters";
 import type { EventSnapshot } from "@/lib/types/events";
@@ -74,6 +79,13 @@ describe("event filter helpers", () => {
     expect(normalizeGlobalFilter(null)).toBe("all");
   });
 
+  it("normalizes mine view and gates creator-only view", () => {
+    expect(normalizeMineView("mine", true)).toBe("mine");
+    expect(normalizeMineView("creator", true)).toBe("creator");
+    expect(normalizeMineView("nope", true)).toBe("mine");
+    expect(normalizeMineView("creator", false)).toBe("mine");
+  });
+
   it("prefers pending filter when deriving display state", () => {
     expect(getDisplayFilter("all", null)).toBe("all");
     expect(getDisplayFilter("all", "available")).toBe("available");
@@ -91,6 +103,18 @@ describe("event filter helpers", () => {
     );
     expect(withGlobalFilterQuery("/s/E2ESMOKE1", "filter=all&foo=1", "available")).toBe(
       "/s/E2ESMOKE1?filter=available&foo=1"
+    );
+    expect(withGlobalFilterQuery("/s/E2ESMOKE1", "filter=mine&mineView=creator", "all")).toBe(
+      "/s/E2ESMOKE1?filter=all"
+    );
+  });
+
+  it("writes mine view query and defaults to mine when omitted", () => {
+    expect(withMineViewQuery("/s/E2ESMOKE1", "foo=1&filter=mine", "creator")).toBe(
+      "/s/E2ESMOKE1?foo=1&filter=mine&mineView=creator"
+    );
+    expect(withMineViewQuery("/s/E2ESMOKE1", "foo=1&filter=mine&mineView=creator", "mine")).toBe(
+      "/s/E2ESMOKE1?foo=1&filter=mine"
     );
   });
 
@@ -124,6 +148,65 @@ describe("event filter helpers", () => {
       khatmNumber: 2,
       status: "read",
       isMine: true,
+    });
+  });
+
+  it("filters and sorts creator queue rows for triage", () => {
+    const rows = getCreatorManageRows(EVENT_FIXTURE);
+
+    const filtered = filterCreatorQueueRows(rows, {
+      query: "mina",
+      status: "all",
+      khatm: "all",
+      onlyMine: false,
+    });
+    expect(filtered.map((row) => row.juzId)).toEqual(["k2-j1"]);
+
+    const mineOnly = filterCreatorQueueRows(rows, {
+      query: "",
+      status: "read",
+      khatm: 2,
+      onlyMine: true,
+    });
+    expect(mineOnly.map((row) => row.juzId)).toEqual(["k2-j2"]);
+
+    const sorted = sortCreatorQueueRows([
+      {
+        ...rows[2],
+        juzId: "read-row",
+        status: "read",
+        khatmNumber: 1,
+        juzNumber: 1,
+      },
+      {
+        ...rows[0],
+        juzId: "claimed-later-khatm",
+        status: "claimed",
+        khatmNumber: 2,
+        juzNumber: 1,
+      },
+      {
+        ...rows[1],
+        juzId: "claimed-earlier-khatm",
+        status: "claimed",
+        khatmNumber: 1,
+        juzNumber: 2,
+      },
+    ]);
+    expect(sorted.map((row) => row.juzId)).toEqual([
+      "claimed-earlier-khatm",
+      "claimed-later-khatm",
+      "read-row",
+    ]);
+  });
+
+  it("derives creator queue stats", () => {
+    const rows = getCreatorManageRows(EVENT_FIXTURE);
+    expect(getCreatorQueueStats(rows)).toEqual({
+      total: 3,
+      claimed: 2,
+      read: 1,
+      mine: 1,
     });
   });
 });
