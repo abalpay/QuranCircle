@@ -104,6 +104,52 @@ Run before staging sign-off:
 2. `npx tsc --noEmit`
 3. `npm run build`
 
+## Automated Regression Baseline (Unit + E2E)
+
+This project now includes:
+
+1. Unit tests with Vitest under `tests/unit/`
+2. Playwright smoke E2E tests under `tests/e2e/`
+3. Deterministic local seed fixtures in `supabase/seed.sql`
+4. PR test gate via GitHub Actions in `.github/workflows/test.yml`
+
+### Local Run (recommended flow)
+
+1. Start local Supabase:
+   - `supabase start`
+2. Reset DB with migrations + seed fixtures:
+   - `supabase db reset --local --yes`
+3. Load local Supabase env into your shell:
+   - `eval "$(supabase status -o env | sed 's/^/export /')"`
+4. Export app env variables:
+   - `export NEXT_PUBLIC_SUPABASE_URL="$API_URL"`
+   - `export NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY"`
+   - `export SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"`
+   - `export NEXT_PUBLIC_SITE_URL="http://127.0.0.1:3101"`
+   - `export NEXT_PUBLIC_ENABLE_ANONYMOUS_AUTH="true"`
+   - `export PLAYWRIGHT_PORT="3101"`
+   - `export AUTH_MERGE_COOKIE_SECRET="local-merge-cookie-secret"`
+5. Install Playwright browser once per machine:
+   - `npx playwright install --with-deps chromium`
+6. Run tests:
+   - Unit: `npm run test:unit`
+   - E2E smoke: `npm run test:e2e`
+   - Combined: `npm run test:ci`
+
+### Seeded E2E Fixtures
+
+Smoke tests target fixed circle short codes:
+
+1. `E2ESMOKE1` (open circle)
+2. `E2ELOCK1` (locked circle)
+3. `E2EARCH1` (archived circle)
+
+Override with env vars when needed:
+
+1. `E2E_SMOKE_SHORT_CODE`
+2. `E2E_LOCKED_SHORT_CODE`
+3. `E2E_ARCHIVED_SHORT_CODE`
+
 Build caveat:
 
 1. In restricted networks, Next.js Google Font fetches can fail even when app code is valid.
