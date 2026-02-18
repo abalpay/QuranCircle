@@ -39,3 +39,20 @@ export type PublicEventWithProgress = {
   claimed: number;
   total: number;
 };
+
+export type MyCircleWithProgress = {
+  id: string;
+  name: string;
+  description: string | null;
+  short_code: string;
+  is_public: boolean;
+  created_at: string;
+  is_archived: boolean;
+  archived_at: string | null;
+  relation: "creator" | "participant";
+  claimed: number;
+  total: number;
+  my_claimed: number;
+  my_read: number;
+  last_activity_at: string;
+};

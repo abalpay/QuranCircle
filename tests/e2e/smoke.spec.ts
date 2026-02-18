@@ -5,7 +5,7 @@ const archivedShortCode = process.env.E2E_ARCHIVED_SHORT_CODE ?? "E2EARCH1";
 
 test.describe.configure({ mode: "serial" });
 
-test("home and browse pages load without forced sign-in", async ({ page }) => {
+test("home, browse, and my circles pages load without forced sign-in", async ({ page }) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: /Complete the Quran/i })
@@ -15,6 +15,11 @@ test("home and browse pages load without forced sign-in", async ({ page }) => {
   await page.goto("/browse");
   await expect(
     page.getByRole("heading", { name: /Browse Community Khatms/i })
+  ).toBeVisible();
+
+  await page.goto("/my-circles");
+  await expect(
+    page.getByRole("heading", { name: "My Circles" })
   ).toBeVisible();
 });
 

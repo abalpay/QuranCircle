@@ -7,7 +7,11 @@ import {
   SHORT_CODE_REGEX,
 } from "@/lib/constants/short-code";
 import { generateShortCode } from "@/lib/utils";
-import type { EventSnapshot, PublicEventWithProgress } from "@/lib/types/events";
+import type {
+  EventSnapshot,
+  MyCircleWithProgress,
+  PublicEventWithProgress,
+} from "@/lib/types/events";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -106,6 +110,7 @@ export async function createEvent(formData: {
     if (!error && createdEvent) {
       revalidatePath("/");
       revalidatePath("/browse");
+      revalidatePath("/my-circles");
       return {
         data: {
           eventId: createdEvent.event_id,
@@ -250,6 +255,63 @@ export async function getUserEvents() {
   }));
 }
 
+export async function getMyCircles(): Promise<MyCircleWithProgress[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    console.error("[getMyCircles] auth.getUser failed", {
+      code: userError.code,
+      message: userError.message,
+    });
+    return [];
+  }
+
+  if (!user) return [];
+
+  const { data, error } = await supabase.rpc("list_my_circles_with_progress");
+
+  if (error) {
+    logUserEventsError("list_my_circles_with_progress", error, {
+      userId: user.id,
+      isAnonymous: isAnonymousUser(user),
+    });
+    return [];
+  }
+
+  if (!data) return [];
+
+  return (
+    data as Array<{
+      id: string;
+      name: string;
+      description: string | null;
+      short_code: string;
+      is_public: boolean;
+      created_at: string;
+      is_archived: boolean;
+      archived_at: string | null;
+      relation: "creator" | "participant";
+      claimed: number;
+      total: number;
+      my_claimed: number;
+      my_read: number;
+      last_activity_at: string;
+    }>
+  ).map((circle) => ({
+    ...circle,
+    relation: circle.relation === "creator" ? "creator" : "participant",
+    claimed: Number(circle.claimed ?? 0),
+    total: Number(circle.total ?? 30),
+    my_claimed: Number(circle.my_claimed ?? 0),
+    my_read: Number(circle.my_read ?? 0),
+    last_activity_at: circle.last_activity_at ?? circle.created_at,
+  }));
+}
+
 async function runEventMutation(
   shortCode: string,
   rpcName: "set_event_archive" | "delete_event_by_shortcode",
@@ -279,6 +341,7 @@ export async function archiveEvent(shortCode: string) {
   revalidatePath(`/s/${shortCode}`);
   revalidatePath("/");
   revalidatePath("/browse");
+  revalidatePath("/my-circles");
   return {};
 }
 
@@ -291,6 +354,7 @@ export async function unarchiveEvent(shortCode: string) {
   revalidatePath(`/s/${shortCode}`);
   revalidatePath("/");
   revalidatePath("/browse");
+  revalidatePath("/my-circles");
   return {};
 }
 
@@ -300,5 +364,6 @@ export async function deleteEvent(shortCode: string) {
 
   revalidatePath("/");
   revalidatePath("/browse");
+  revalidatePath("/my-circles");
   return {};
 }

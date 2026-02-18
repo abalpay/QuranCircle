@@ -4,12 +4,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   UserCircle,
   ChevronDown,
   Globe2,
   LogOut,
   Settings,
+  Layers3,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -23,6 +25,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 
 export default function Header() {
+  const pathname = usePathname();
   const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
 
@@ -47,6 +50,23 @@ export default function Header() {
             </span>
           </span>
         </Link>
+
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className={`
+            ml-4 hidden rounded-full border md:inline-flex
+            ${pathname === "/my-circles"
+              ? "border-quran-green/35 bg-quran-green/10 text-quran-green"
+              : "border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70"}
+          `}
+        >
+          <Link href="/my-circles">
+            <Layers3 className="mr-2 h-4 w-4" />
+            My Circles
+          </Link>
+        </Button>
 
         <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>
@@ -114,6 +134,12 @@ export default function Header() {
               >
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/my-circles">
+                    <Layers3 className="mr-2 h-4 w-4" />
+                    My Circles
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/account">
                     <Settings className="mr-2 h-4 w-4" />

@@ -92,6 +92,7 @@ describe("createEvent short-code retry behavior", () => {
     expect(rpc.mock.calls[1]?.[1]).toMatchObject({ p_short_code: "RECOVER22" });
     expect(revalidatePath).toHaveBeenCalledWith("/");
     expect(revalidatePath).toHaveBeenCalledWith("/browse");
+    expect(revalidatePath).toHaveBeenCalledWith("/my-circles");
   });
 
   it("does not retry for unrelated 23505 errors", async () => {

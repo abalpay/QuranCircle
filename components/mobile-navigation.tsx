@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PlusCircle, Compass, UserCircle, LogOut, Settings } from "lucide-react";
+import { Layers3, PlusCircle, Compass, UserCircle, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useState } from "react";
@@ -50,15 +50,15 @@ export default function MobileNavigation() {
       >
         <div className="safe-area-bottom mx-auto grid h-16 max-w-md grid-cols-4 items-center rounded-2xl border border-quran-border/85 bg-quran-card/94 shadow-[0_18px_42px_-22px_var(--color-quran-deep)] backdrop-blur-xl">
           <Link
-            href="/"
+            href="/my-circles"
             className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
-              pathname === "/"
+              pathname === "/my-circles"
                 ? "bg-quran-green/14 text-quran-green"
                 : "text-quran-muted"
             }`}
           >
-            <Home className="h-5 w-5" />
-            <span className="mt-1 text-[11px] font-medium">Home</span>
+            <Layers3 className="h-5 w-5" />
+            <span className="mt-1 text-[11px] font-medium">My Circles</span>
           </Link>
           <button
             onClick={handleCreate}

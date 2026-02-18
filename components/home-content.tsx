@@ -1,76 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import CreateKhatimDialog from "@/components/create-khatim-dialog";
-import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Layers3, BookOpenText, ChevronDown, Archive } from "lucide-react";
-import { getUserEvents } from "@/lib/actions/events";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import CreateKhatimDialog from "@/components/create-khatim-dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { getMyCircles } from "@/lib/actions/events";
+import { BookOpenText, Layers3, ArrowRight } from "lucide-react";
 
 const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
 
+type MyCircle = Awaited<ReturnType<typeof getMyCircles>>[number];
+
 export default function UserDashboard() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { isAuthenticatedUser, user } = useAuth();
-  type UserEvent = Awaited<ReturnType<typeof getUserEvents>>[number];
-  const [userEvents, setUserEvents] = useState<UserEvent[]>([]);
-  const [eventsLoading, setEventsLoading] = useState(false);
+  const [circles, setCircles] = useState<MyCircle[]>([]);
+  const [isLoadingCircles, setIsLoadingCircles] = useState(true);
+  const { user, isAuthenticatedUser, sessionReady } = useAuth();
 
   useEffect(() => {
     let isMounted = true;
 
-    const loadWithMountGuard = async () => {
-      if (!isAuthenticatedUser) {
-        if (isMounted) {
-          setUserEvents([]);
-          setEventsLoading(false);
-        }
-        return;
-      }
-
-      setEventsLoading(true);
+    const loadCircles = async () => {
+      if (!sessionReady) return;
+      setIsLoadingCircles(true);
       try {
-        const events = await getUserEvents();
+        if (!user?.id) {
+          if (!isMounted) return;
+          setCircles([]);
+          return;
+        }
+
+        const nextCircles = await getMyCircles();
         if (isMounted) {
-          setUserEvents(events);
+          setCircles(nextCircles);
         }
       } finally {
         if (isMounted) {
-          setEventsLoading(false);
+          setIsLoadingCircles(false);
         }
       }
     };
 
-    void loadWithMountGuard();
+    void loadCircles();
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticatedUser, user?.id]);
+  }, [sessionReady, user?.id]);
 
   useEffect(() => {
     let isMounted = true;
 
     const handleIdentityMerged = async () => {
-      if (!isAuthenticatedUser) return;
-
-      setEventsLoading(true);
-      try {
-        const events = await getUserEvents();
-        if (isMounted) {
-          setUserEvents(events);
-        }
-      } finally {
-        if (isMounted) {
-          setEventsLoading(false);
-        }
+      const nextCircles = await getMyCircles();
+      if (isMounted) {
+        setCircles(nextCircles);
       }
     };
 
@@ -79,85 +65,84 @@ export default function UserDashboard() {
       isMounted = false;
       window.removeEventListener(IDENTITY_MERGED_EVENT, handleIdentityMerged);
     };
-  }, [isAuthenticatedUser, user?.id]);
+  }, []);
 
-  if (!isAuthenticatedUser) return null;
+  const activeCircles = useMemo(
+    () => circles.filter((circle) => !circle.is_archived),
+    [circles]
+  );
+  const archivedCount = useMemo(
+    () => circles.filter((circle) => circle.is_archived).length,
+    [circles]
+  );
 
-  const activeEvents = userEvents.filter((e) => !e.is_archived);
-  const archivedEvents = userEvents.filter((e) => e.is_archived);
+  const previewCircles = activeCircles.slice(0, 3);
+  const shouldRenderSection = isAuthenticatedUser || circles.length > 0;
+
+  if (!shouldRenderSection) return null;
 
   return (
     <>
-      <section className="section-panel mt-16 animate-fade-rise border-t-2 border-t-quran-gold/20 [animation-delay:200ms]" style={{ animationFillMode: "both" }}>
+      <section
+        className="section-panel mt-16 animate-fade-rise border-t-2 border-t-quran-gold/20 [animation-delay:200ms]"
+        style={{ animationFillMode: "both" }}
+      >
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="font-heading text-3xl text-quran-deep">
-              Your Circles
-            </h2>
+            <h2 className="font-heading text-3xl text-quran-deep">My Circles</h2>
             <p className="mt-1 text-sm text-quran-muted">
-              Continue your active Khatm contributions.
+              Your active circles at a glance. Open the full page for complete history.
             </p>
           </div>
-          <span className="quran-badge">
-            <Layers3 className="mr-2 h-3.5 w-3.5" />
-            {activeEvents.length} Active
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="quran-badge">
+              <Layers3 className="mr-2 h-3.5 w-3.5" />
+              {activeCircles.length} Active
+            </span>
+            <Button asChild variant="outline" className="rounded-full border-quran-border bg-white/80">
+              <Link href="/my-circles">
+                View all
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
 
-        {eventsLoading ? (
+        {isLoadingCircles ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="quran-card p-5">
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <Skeleton className="h-8 w-3/4 bg-quran-border/20" />
-                  <Skeleton className="h-6 w-12 rounded-full bg-quran-border/20" />
-                </div>
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="quran-card p-5">
+                <Skeleton className="mb-3 h-8 w-3/4 bg-quran-border/20" />
                 <Skeleton className="h-2 w-full bg-quran-border/20" />
                 <Skeleton className="mt-3 h-4 w-1/2 bg-quran-border/20" />
               </div>
             ))}
           </div>
-        ) : activeEvents.length > 0 ? (
+        ) : previewCircles.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {activeEvents.map((ev: UserEvent) => (
+            {previewCircles.map((circle) => (
               <Link
-                key={ev.id}
-                href={`/s/${ev.short_code}`}
+                key={circle.id}
+                href={`/s/${circle.short_code}`}
                 className="quran-card group block p-5 transition-all hover:-translate-y-1"
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <h3 className="font-heading text-2xl leading-tight text-quran-deep group-hover:text-quran-green">
-                    {ev.name}
+                    {circle.name}
                   </h3>
                   <span className="rounded-full border border-quran-border bg-white/70 px-2.5 py-1 text-xs font-semibold text-quran-muted">
-                    {Math.round((ev.claimed / ev.total) * 100)}%
+                    {Math.round((circle.claimed / circle.total) * 100)}%
                   </span>
                 </div>
                 <Progress
-                  value={(ev.claimed / ev.total) * 100}
+                  value={(circle.claimed / circle.total) * 100}
                   className="h-2 bg-quran-border/50"
                 />
                 <p className="mt-3 text-sm text-quran-muted">
-                  {ev.claimed}/{ev.total} Juz claimed
+                  {circle.claimed}/{circle.total} Juz claimed
                 </p>
               </Link>
             ))}
-          </div>
-        ) : archivedEvents.length === 0 ? (
-          <div className="quran-card flex flex-col items-center justify-center p-10 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-quran-green/10 text-quran-green">
-              <BookOpenText className="h-7 w-7" />
-            </div>
-            <h3 className="font-heading text-xl text-quran-deep">No active circles</h3>
-            <p className="mt-2 max-w-xs text-sm text-quran-muted">
-              You haven&apos;t joined or created any circles yet. Start one to begin your journey.
-            </p>
-            <Button
-              className="mt-6 rounded-full px-6"
-              onClick={() => setIsCreateOpen(true)}
-            >
-              Create Your First Circle
-            </Button>
           </div>
         ) : (
           <div className="quran-card flex flex-col items-center justify-center p-10 text-center">
@@ -165,53 +150,28 @@ export default function UserDashboard() {
               <BookOpenText className="h-7 w-7" />
             </div>
             <h3 className="font-heading text-xl text-quran-deep">No active circles</h3>
-            <p className="mt-2 max-w-xs text-sm text-quran-muted">
-              All your circles are archived. Create a new one or unarchive an existing circle.
+            <p className="mt-2 max-w-sm text-sm text-quran-muted">
+              {isAuthenticatedUser
+                ? "Create a circle or join one to track your progress here."
+                : "Your activity in this session is archived only. Visit My Circles to review your history."}
             </p>
-            <Button
-              className="mt-6 rounded-full px-6"
-              onClick={() => setIsCreateOpen(true)}
-            >
-              Create a New Circle
-            </Button>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              {isAuthenticatedUser && (
+                <Button className="rounded-full px-6" onClick={() => setIsCreateOpen(true)}>
+                  Create a Circle
+                </Button>
+              )}
+              <Button asChild variant="outline" className="rounded-full border-quran-border bg-white/80">
+                <Link href="/my-circles">Open My Circles</Link>
+              </Button>
+            </div>
           </div>
         )}
 
-        {archivedEvents.length > 0 && (
-          <Collapsible className="mt-8">
-            <CollapsibleTrigger className="group flex w-full items-center gap-2 text-sm font-medium text-quran-muted hover:text-quran-deep">
-              <Archive className="h-4 w-4" />
-              <span>Archived ({archivedEvents.length})</span>
-              <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {archivedEvents.map((ev: UserEvent) => (
-                  <Link
-                    key={ev.id}
-                    href={`/s/${ev.short_code}`}
-                    className="quran-card group block p-5 opacity-60 transition-all hover:-translate-y-1 hover:opacity-80"
-                  >
-                    <div className="mb-3 flex items-start justify-between gap-3">
-                      <h3 className="font-heading text-2xl leading-tight text-quran-deep group-hover:text-quran-green">
-                        {ev.name}
-                      </h3>
-                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
-                        Archived
-                      </span>
-                    </div>
-                    <Progress
-                      value={(ev.claimed / ev.total) * 100}
-                      className="h-2 bg-quran-border/50"
-                    />
-                    <p className="mt-3 text-sm text-quran-muted">
-                      {ev.claimed}/{ev.total} Juz claimed
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+        {!isLoadingCircles && archivedCount > 0 && (
+          <p className="mt-6 text-sm text-quran-muted">
+            {archivedCount} archived {archivedCount === 1 ? "circle" : "circles"} in your history.
+          </p>
         )}
       </section>
 
