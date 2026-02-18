@@ -5,6 +5,8 @@ const archivedShortCode = process.env.E2E_ARCHIVED_SHORT_CODE ?? "E2EARCH1";
 
 test.describe.configure({ mode: "serial" });
 
+test.use({ viewport: { width: 390, height: 844 } });
+
 test("home, browse, and my circles pages load without forced sign-in", async ({ page }) => {
   await page.goto("/");
   await expect(
@@ -21,6 +23,16 @@ test("home, browse, and my circles pages load without forced sign-in", async ({ 
   await expect(
     page.getByRole("heading", { name: "My Circles" })
   ).toBeVisible();
+
+  await page.goto("/browse");
+  await page.getByRole("link", { name: "Home" }).click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/");
+
+  await page.getByRole("link", { name: "My Circles" }).click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/my-circles");
+
+  await page.getByRole("link", { name: "Browse" }).click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/browse");
 });
 
 test("anonymous user can claim and unclaim a juz", async ({ page }) => {

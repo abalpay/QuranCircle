@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Layers3, PlusCircle, Compass, UserCircle, LogOut, Settings } from "lucide-react";
+import { Home, Layers3, Compass, UserCircle, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useState } from "react";
-import CreateKhatimDialog from "@/components/create-khatim-dialog";
 import {
   Sheet,
   SheetContent,
@@ -19,21 +18,12 @@ export default function MobileNavigation() {
   const pathname = usePathname();
   const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const displayName =
     (isAuthenticatedUser && (user?.user_metadata?.username as string)) ||
     (isAuthenticatedUser && user?.email?.split("@")[0]) ||
     "User";
-
-  const handleCreate = () => {
-    if (isAuthenticatedUser) {
-      setIsCreateOpen(true);
-    } else {
-      openAuthModal("login", () => setIsCreateOpen(true));
-    }
-  };
 
   const handleProfileTap = () => {
     if (isAuthenticatedUser) {
@@ -46,9 +36,21 @@ export default function MobileNavigation() {
   return (
     <>
       <nav
+        aria-label="Mobile navigation"
         className="fixed inset-x-0 bottom-0 z-40 px-4 md:hidden"
       >
         <div className="safe-area-bottom mx-auto grid h-16 max-w-md grid-cols-4 items-center rounded-2xl border border-quran-border/85 bg-quran-card/94 shadow-[0_18px_42px_-22px_var(--color-quran-deep)] backdrop-blur-xl">
+          <Link
+            href="/"
+            className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
+              pathname === "/"
+                ? "bg-quran-green/14 text-quran-green"
+                : "text-quran-muted"
+            }`}
+          >
+            <Home className="h-5 w-5" />
+            <span className="mt-1 text-[11px] font-medium">Home</span>
+          </Link>
           <Link
             href="/my-circles"
             className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
@@ -58,17 +60,8 @@ export default function MobileNavigation() {
             }`}
           >
             <Layers3 className="h-5 w-5" />
-            <span className="mt-1 text-[11px] font-medium">My Circles</span>
+            <span className="mt-1 max-w-[68px] truncate text-[10px] font-medium">My Circles</span>
           </Link>
-          <button
-            onClick={handleCreate}
-            className="mx-1 flex flex-col items-center justify-center rounded-xl bg-quran-green py-2 text-white transition-transform active:scale-[0.96]"
-          >
-            <PlusCircle className="h-5 w-5" />
-            <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em]">
-              Create
-            </span>
-          </button>
           <Link
             href="/browse"
             className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
@@ -95,11 +88,6 @@ export default function MobileNavigation() {
           </button>
         </div>
       </nav>
-
-      <CreateKhatimDialog
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-      />
 
       <Sheet open={isProfileOpen} onOpenChange={setIsProfileOpen}>
         <SheetContent

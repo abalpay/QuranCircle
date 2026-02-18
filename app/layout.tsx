@@ -15,6 +15,7 @@ import MobileNavigation from "@/components/mobile-navigation";
 import Footer from "@/components/footer";
 import NavigationProgress from "@/components/navigation-progress";
 import AuthErrorToast from "@/components/auth-error-toast";
+import { Analytics } from "@vercel/analytics/next";
 
 const manrope = Manrope({
   variable: "--font-body",
@@ -112,6 +113,7 @@ export default function RootLayout({
               <AuthErrorToast />
             </Suspense>
             <Toaster />
+            <Analytics />
           </AuthModalProvider>
         </AuthProvider>
       </body>
