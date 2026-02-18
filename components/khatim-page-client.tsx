@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import type { EventSnapshot } from "@/lib/types/events";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +28,20 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import KhatmCard from "@/components/khatm-card";
+import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
+import { cn } from "@/lib/utils";
+import {
+  getCreatorManageRows,
+  getEventFilterCounts,
+  normalizeGlobalFilter,
+  withGlobalFilterQuery,
+} from "@/lib/event-filters";
+import {
+  markJuzAsRead,
+  unclaimJuz,
+  unmarkJuzAsRead,
+} from "@/lib/actions/juz";
 import {
   ensureEventMembershipForShortCode,
   lockEvent,
@@ -43,6 +56,7 @@ const SESSION_BOOTSTRAP_MAX_RETRIES = 4;
 const SESSION_BOOTSTRAP_BASE_DELAY_MS = 500;
 const REALTIME_RECOVERY_POLL_MS = 5_000;
 const REALTIME_SAFETY_POLL_MS = 60_000;
+const MY_JUZ_NUDGE_KEY = "qc_my_juz_nudge_seen_v1";
 
 type Props = {
   event: EventSnapshot;
@@ -54,6 +68,8 @@ export default function KhatimPageClient({
   shortCode,
 }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [supabase] = useState(() => createClient());
   const { ensureSession } = useAuth();
   const [event, setEvent] = useState(initialEvent);
@@ -63,26 +79,46 @@ export default function KhatimPageClient({
   const [isDeleting, setIsDeleting] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
   const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
+  const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
+  const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
+
+  const activeFilter = useMemo(
+    () => normalizeGlobalFilter(searchParams.get("filter")),
+    [searchParams]
+  );
+  const filterCounts = useMemo(() => getEventFilterCounts(event), [event]);
+  const creatorManageRows = useMemo(() => getCreatorManageRows(event), [event]);
 
   // Realtime recovery: bump epoch to force subscription teardown/recreate
   const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
 
-  // Re-establish realtime subscription when tab becomes visible or network reconnects
   useEffect(() => {
-    const onVisible = () => {
-      if (document.visibilityState === "visible") {
-        setSubscriptionEpoch((e) => e + 1);
-      }
-    };
-    const onOnline = () => setSubscriptionEpoch((e) => e + 1);
-
-    document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("online", onOnline);
-    return () => {
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("online", onOnline);
-    };
+    if (typeof window === "undefined") return;
+    setShouldNudgeMyJuz(window.localStorage.getItem(MY_JUZ_NUDGE_KEY) !== "1");
   }, []);
+
+  useEffect(() => {
+    if (activeFilter !== "mine") return;
+    if (showMyJuzNudge) setShowMyJuzNudge(false);
+    if (shouldNudgeMyJuz && typeof window !== "undefined") {
+      window.localStorage.setItem(MY_JUZ_NUDGE_KEY, "1");
+      setShouldNudgeMyJuz(false);
+    }
+  }, [activeFilter, shouldNudgeMyJuz, showMyJuzNudge]);
+
+  const setActiveFilter = useCallback(
+    (nextFilterValue: string) => {
+      const nextFilter = normalizeGlobalFilter(nextFilterValue);
+      if (nextFilter === activeFilter) return;
+      const href = withGlobalFilterQuery(
+        pathname,
+        searchParams.toString(),
+        nextFilter
+      );
+      router.replace(href, { scroll: false });
+    },
+    [activeFilter, pathname, router, searchParams]
+  );
 
   const refreshEvent = useCallback(async () => {
     try {
@@ -110,6 +146,131 @@ export default function KhatimPageClient({
       console.warn("[QuranCircle] Failed to refresh event:", err);
     }
   }, [shortCode]);
+
+  const jumpToLatestKhatm = useCallback(() => {
+    const latestKhatmId = event.khatms[event.khatms.length - 1]?.id;
+    if (!latestKhatmId) return;
+    const targetId = `khatm-card-${latestKhatmId}`;
+    let attempts = 0;
+
+    const tryScroll = () => {
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (attempts >= 5) return;
+      attempts += 1;
+      window.setTimeout(tryScroll, 120);
+    };
+
+    tryScroll();
+  }, [event.khatms]);
+
+  const ensureMutationSession = useCallback(async () => {
+    const sessionUser = await ensureSession();
+    if (!sessionUser) {
+      toast.error("Unable to start a session. Please refresh and try again.");
+      return false;
+    }
+    return true;
+  }, [ensureSession]);
+
+  const handleCreatorMarkRead = useCallback(
+    async (juzId: string) => {
+      if (!(await ensureMutationSession())) return;
+      const result = await markJuzAsRead(shortCode, juzId);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Juz marked as read");
+      await refreshEvent();
+    },
+    [ensureMutationSession, refreshEvent, shortCode]
+  );
+
+  const handleCreatorUnmarkRead = useCallback(
+    async (juzId: string) => {
+      if (!(await ensureMutationSession())) return;
+      const result = await unmarkJuzAsRead(shortCode, juzId);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Juz marked as unread");
+      await refreshEvent();
+    },
+    [ensureMutationSession, refreshEvent, shortCode]
+  );
+
+  const handleCreatorUnclaim = useCallback(
+    async (juzId: string) => {
+      if (!(await ensureMutationSession())) return;
+      const result = await unclaimJuz(shortCode, juzId);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Juz unclaimed");
+      await refreshEvent();
+    },
+    [ensureMutationSession, refreshEvent, shortCode]
+  );
+
+  const handleClaimSuccess = useCallback(
+    ({ claimedCount, newKhatmCreated }: ClaimSuccessPayload) => {
+      const successMessage = newKhatmCreated
+        ? "Juz claimed! A new Khatm cycle has started."
+        : claimedCount === 1
+          ? "Juz claimed successfully"
+          : `${claimedCount} Juz claimed successfully`;
+      const shouldGuideToMyJuz = shouldNudgeMyJuz && activeFilter !== "mine";
+      if (shouldGuideToMyJuz) {
+        setShowMyJuzNudge(true);
+      }
+
+      if (newKhatmCreated && activeFilter === "available") {
+        toast.success(successMessage, {
+          action: {
+            label: "Jump to new Khatm",
+            onClick: () => jumpToLatestKhatm(),
+          },
+        });
+        return;
+      }
+
+      if (shouldGuideToMyJuz) {
+        toast.success(successMessage, {
+          action: {
+            label: "Go to My Juz",
+            onClick: () => setActiveFilter("mine"),
+          },
+        });
+        return;
+      }
+
+      toast.success(successMessage);
+    },
+    [activeFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz]
+  );
+
+  // Re-establish realtime subscription when tab becomes visible or network reconnects
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        setSubscriptionEpoch((e) => e + 1);
+      }
+    };
+    const onOnline = () => setSubscriptionEpoch((e) => e + 1);
+
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", onOnline);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onOnline);
+    };
+  }, []);
 
   // Ensure we have an auth-backed identity (anonymous or full) for claim ownership.
   useEffect(() => {
@@ -243,16 +404,16 @@ export default function KhatimPageClient({
       supabase.removeChannel(channel);
     };
   }, [
+    ensureSession,
     event.id,
     event.is_creator,
     event.is_member,
     event.is_public,
-    ensureSession,
     refreshEvent,
     sessionInitialized,
     shortCode,
-    supabase,
     subscriptionEpoch,
+    supabase,
   ]);
 
   // Fallback polling: use faster polling only while realtime is degraded.
@@ -415,10 +576,7 @@ export default function KhatimPageClient({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={handleLockToggle}
-                    disabled={isLocking}
-                  >
+                  <DropdownMenuItem onClick={handleLockToggle} disabled={isLocking}>
                     {event.is_locked ? (
                       <>
                         <Unlock className="mr-2 h-4 w-4" />
@@ -479,20 +637,128 @@ export default function KhatimPageClient({
         </div>
       )}
 
+      <section className="quran-card p-4 sm:p-5">
+        <Tabs value={activeFilter}>
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="all" onClick={() => setActiveFilter("all")}>
+              All ({filterCounts.all})
+            </TabsTrigger>
+            <TabsTrigger
+              value="available"
+              onClick={() => setActiveFilter("available")}
+            >
+              Available ({filterCounts.available})
+            </TabsTrigger>
+            <TabsTrigger
+              value="mine"
+              onClick={() => setActiveFilter("mine")}
+              className={cn(showMyJuzNudge && "animate-pulse ring-2 ring-emerald-300")}
+            >
+              <span className="flex items-center gap-2">
+                <span>My Juz ({filterCounts.mine})</span>
+                {showMyJuzNudge && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                    New
+                  </span>
+                )}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </section>
+
+      {isCreator && activeFilter === "mine" && creatorManageRows.length > 0 && (
+        <section className="quran-card p-6 sm:p-7">
+          <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
+            Creator Management
+          </h2>
+          <p className="mt-2 text-sm text-quran-muted">
+            Manage claimed juz across the full event, including other participants.
+          </p>
+          <div className="mt-5 space-y-2">
+            {creatorManageRows.map((row) => (
+              <div
+                key={row.juzId}
+                className={cn(
+                  "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3",
+                  row.status === "read"
+                    ? "border-emerald-200 bg-emerald-50/50"
+                    : "border-amber-200 bg-amber-50/50"
+                )}
+              >
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-semibold text-quran-deep">
+                    Khatm #{row.khatmNumber} · Juz {row.juzNumber}
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      row.status === "read"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-700"
+                    )}
+                  >
+                    {row.status === "read" ? "Read" : "Claimed"}
+                  </span>
+                  <span className="text-quran-muted">
+                    {row.claimedByName ? `by ${row.claimedByName}` : "name unavailable"}
+                  </span>
+                  {row.isMine && (
+                    <span className="rounded-full bg-quran-green/10 px-2 py-0.5 text-[10px] font-medium text-quran-green">
+                      Yours
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {row.status === "claimed" && (
+                    <button
+                      className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
+                      onClick={() => handleCreatorMarkRead(row.juzId)}
+                    >
+                      Mark Read
+                    </button>
+                  )}
+                  {row.status === "read" && (
+                    <button
+                      className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
+                      onClick={() => handleCreatorUnmarkRead(row.juzId)}
+                    >
+                      Undo
+                    </button>
+                  )}
+                  <button
+                    className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
+                    onClick={() => handleCreatorUnclaim(row.juzId)}
+                  >
+                    Unclaim
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="space-y-8">
         {event.khatms.map((khatm, index) => {
           const hasNewerKhatm = index < event.khatms.length - 1;
           const isFullyClaimed = khatm.claimed_count === 30;
           return (
-            <KhatmCard
+            <div
               key={khatm.id}
-              khatm={khatm}
-              shortCode={shortCode}
-              isLocked={event.is_locked || event.is_archived}
-              isCreator={Boolean(isCreator)}
-              onRefresh={refreshEvent}
-              isCompleted={isFullyClaimed && hasNewerKhatm}
-            />
+              id={`khatm-card-${khatm.id}`}
+              className="scroll-mt-24"
+            >
+              <KhatmCard
+                khatm={khatm}
+                shortCode={shortCode}
+                isLocked={event.is_locked || event.is_archived}
+                onRefresh={refreshEvent}
+                activeFilter={activeFilter}
+                isCompleted={isFullyClaimed && hasNewerKhatm}
+                onClaimSuccess={handleClaimSuccess}
+              />
+            </div>
           );
         })}
       </div>

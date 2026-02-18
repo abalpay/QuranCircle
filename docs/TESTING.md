@@ -104,6 +104,23 @@ Run before staging sign-off:
 2. `npx tsc --noEmit`
 3. `npm run build`
 
+## Focused QA Checklist (Event-Level Filters + My Juz Flow)
+
+Use this quick checklist before shipping changes around filters, claiming, or status actions:
+
+1. Default filter on `/s/<shortCode>` is **Available**.
+2. Switching filters updates URL query (`?filter=all|available|mine`) and refresh preserves selection.
+3. Invalid filter query (example: `?filter=invalid`) gracefully falls back to **Available** UI.
+4. Claim guidance text appears above grids: `Tap Juz to select, then press Claim.`
+5. After first claim, a toast action appears: **Go to My Juz**.
+6. Opening **My Juz** clears the first-time nudge badge/highlight.
+7. In **All** and **Available**, tapping a claimed tile does **not** mark it read.
+8. In **My Juz**, claimed rows show **Mark Read** + **Unclaim**; read rows show **Undo** + **Unclaim**.
+9. Completed/non-matching khatms stay visible as collapsed stubs (not fully hidden).
+10. If a claim creates a new khatm, toast shows **Jump to new Khatm** and action scrolls correctly.
+11. Creator-only management section appears only for event creators.
+12. Lock/archive rules still block claim-state mutations as expected.
+
 ## Automated Regression Baseline (Unit + E2E)
 
 This project now includes:
