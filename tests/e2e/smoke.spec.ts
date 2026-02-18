@@ -47,7 +47,12 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
     page.getByRole("tab", { name: /All \(\d+\)/ })
   ).toHaveAttribute("data-state", "active");
 
-  await page.getByTitle("Tap to select Juz 1", { exact: true }).first().click();
+  const selectableJuz = page.locator('[title^="Tap to select Juz"]').first();
+  await expect(selectableJuz).toBeVisible();
+  const selectableTitle = await selectableJuz.getAttribute("title");
+  const selectedJuzNumber = Number(selectableTitle?.match(/Juz (\d+)/)?.[1] ?? 0);
+  expect(selectedJuzNumber).toBeGreaterThan(0);
+  await selectableJuz.click();
   await expect(page.getByText("1 Juz selected")).toBeVisible();
 
   await page.getByRole("button", { name: "Claim" }).click();
@@ -58,7 +63,7 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
     "data-state",
     "active"
   );
-  await expect(page.getByTitle(/Juz 1 .*Smoke/).first()).toBeVisible();
+  await expect(page.getByTitle(new RegExp(`Juz ${selectedJuzNumber} .*Smoke`)).first()).toBeVisible();
 
   await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
   await page.getByRole("button", { name: "Go to My Juz" }).click();
@@ -70,9 +75,16 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
     .poll(() => new URL(page.url()).searchParams.get("filter"))
     .toBe("mine");
 
-  const quranLink = page.getByRole("link", { name: "Read on Quran.com" });
+  const quranLink = page.getByRole("link", {
+    name: new RegExp(
+      `Open Juz ${selectedJuzNumber} on Quran\\.com \\(opens in new tab\\)`
+    ),
+  });
   await expect(quranLink).toBeVisible();
-  await expect(quranLink).toHaveAttribute("href", "https://quran.com/juz/1");
+  await expect(quranLink).toHaveAttribute(
+    "href",
+    `https://quran.com/juz/${selectedJuzNumber}`
+  );
   await expect(quranLink).toHaveAttribute("target", "_blank");
 
   await page.getByRole("button", { name: "Unclaim" }).click();
