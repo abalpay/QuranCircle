@@ -19,7 +19,6 @@ export type EventSnapshot = {
   name: string;
   description: string | null;
   short_code: string;
-  is_locked: boolean;
   is_public: boolean;
   is_archived: boolean;
   created_at: string;

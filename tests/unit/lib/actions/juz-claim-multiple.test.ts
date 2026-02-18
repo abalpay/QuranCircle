@@ -30,7 +30,7 @@ describe("claimMultipleJuz", () => {
   it("returns rpc error when claim_juz_batch fails", async () => {
     const rpc = mockClaimBatchRpc({
       data: null,
-      error: { message: "This Khatim is locked" },
+      error: { message: "This Khatim is archived" },
     });
 
     const result = await claimMultipleJuz(
@@ -40,7 +40,7 @@ describe("claimMultipleJuz", () => {
       "Smoke Tester"
     );
 
-    expect(result).toEqual({ error: "This Khatim is locked" });
+    expect(result).toEqual({ error: "This Khatim is archived" });
     expect(rpc).toHaveBeenCalledTimes(1);
     expect(revalidatePath).not.toHaveBeenCalled();
   });

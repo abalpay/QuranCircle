@@ -16,12 +16,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Share2,
-  Lock,
-  Unlock,
   Globe2,
   Link2,
   ShieldCheck,
-  ShieldAlert,
   Settings,
   Archive,
   ArchiveRestore,
@@ -47,8 +44,6 @@ import {
 } from "@/lib/actions/juz";
 import {
   ensureEventMembershipForShortCode,
-  lockEvent,
-  unlockEvent,
   archiveEvent,
   unarchiveEvent,
   deleteEvent,
@@ -78,7 +73,6 @@ export default function KhatimPageClient({
   const { ensureSession, user } = useAuth();
   const [event, setEvent] = useState(initialEvent);
   const [isCreator, setIsCreator] = useState(initialEvent.can_manage);
-  const [isLocking, setIsLocking] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
@@ -513,21 +507,6 @@ export default function KhatimPageClient({
     }
   };
 
-  const handleLockToggle = async () => {
-    setIsLocking(true);
-    const result = event.is_locked
-      ? await unlockEvent(shortCode)
-      : await lockEvent(shortCode);
-    setIsLocking(false);
-    const lockError = (result as { error?: string }).error;
-    if (lockError) {
-      toast.error(lockError);
-      return;
-    }
-    setEvent((current) => ({ ...current, is_locked: !current.is_locked }));
-    toast.success(event.is_locked ? "Khatim unlocked" : "Khatim locked");
-  };
-
   const handleArchiveToggle = async () => {
     const action = event.is_archived ? unarchiveEvent : archiveEvent;
     const result = await action(shortCode);
@@ -576,11 +555,6 @@ export default function KhatimPageClient({
                 <Archive className="mr-2 h-3.5 w-3.5" />
                 Archived
               </>
-            ) : event.is_locked ? (
-              <>
-                <ShieldAlert className="mr-2 h-3.5 w-3.5" />
-                Locked
-              </>
             ) : (
               <>
                 <ShieldCheck className="mr-2 h-3.5 w-3.5" />
@@ -623,19 +597,6 @@ export default function KhatimPageClient({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleLockToggle} disabled={isLocking}>
-                    {event.is_locked ? (
-                      <>
-                        <Unlock className="mr-2 h-4 w-4" />
-                        Unlock Khatim
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="mr-2 h-4 w-4" />
-                        Lock Khatim
-                      </>
-                    )}
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleArchiveToggle}>
                     {event.is_archived ? (
                       <>
@@ -808,7 +769,7 @@ export default function KhatimPageClient({
               <KhatmCard
                 khatm={khatm}
                 shortCode={shortCode}
-                isLocked={event.is_locked || event.is_archived}
+                isReadOnly={event.is_archived}
                 onRefresh={refreshEvent}
                 activeFilter={displayFilter}
                 isCompleted={isFullyClaimed && hasNewerKhatm}

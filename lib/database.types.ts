@@ -20,7 +20,6 @@ export interface Database {
           short_code: string;
           is_archived: boolean;
           archived_at: string | null;
-          is_locked: boolean;
           created_at: string;
         };
         Insert: {
@@ -33,7 +32,6 @@ export interface Database {
           short_code: string;
           is_archived?: boolean;
           archived_at?: string | null;
-          is_locked?: boolean;
           created_at?: string;
         };
         Update: {
@@ -46,7 +44,6 @@ export interface Database {
           short_code?: string;
           is_archived?: boolean;
           archived_at?: string | null;
-          is_locked?: boolean;
           created_at?: string;
         };
       };

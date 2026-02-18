@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CheckCircle2, Lock } from "lucide-react";
+import { Check, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Juz = {
@@ -13,18 +13,18 @@ type Juz = {
 type Props = {
   juz: Juz;
   onClaim: () => void;
-  isLocked: boolean;
+  isReadOnly: boolean;
   isSelected?: boolean;
 };
 
 export default function JuzCard({
   juz,
   onClaim,
-  isLocked,
+  isReadOnly,
   isSelected = false,
 }: Props) {
   const isUnclaimed = juz.status === "unclaimed";
-  const canClaim = isUnclaimed && !isLocked;
+  const canClaim = isUnclaimed && !isReadOnly;
   const isClaimed = juz.status === "claimed";
   const isRead = juz.status === "read";
   const isInteractive = canClaim;
@@ -39,7 +39,7 @@ export default function JuzCard({
           "border-quran-border/50 bg-white/70",
           canClaim &&
             "cursor-pointer hover:-translate-y-0.5 hover:border-t-quran-green hover:bg-white hover:shadow-md hover:shadow-quran-green/8",
-          isLocked && "opacity-60",
+          isReadOnly && "opacity-60",
         ],
         isSelected && [
           "cursor-pointer ring-2 ring-quran-green border-t-quran-green bg-quran-green/10 shadow-md -translate-y-0.5",
@@ -73,11 +73,6 @@ export default function JuzCard({
                 : `Juz ${juz.juz_number}`
       }
     >
-      {/* Locked icon */}
-      {isLocked && isUnclaimed && !isSelected && (
-        <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-quran-muted/40" />
-      )}
-
       {/* Selected checkmark */}
       {isSelected && (
         <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-quran-green text-white">

@@ -252,7 +252,7 @@ export async function getUserEvents() {
 
 async function runEventMutation(
   shortCode: string,
-  rpcName: "set_event_lock" | "set_event_archive" | "delete_event_by_shortcode",
+  rpcName: "set_event_archive" | "delete_event_by_shortcode",
   args: Record<string, unknown> = {}
 ) {
   if (!shortCodeSchema.safeParse(shortCode).success) return { error: "Invalid input" };
@@ -267,26 +267,6 @@ async function runEventMutation(
     return { error: error.message || "Request failed" };
   }
 
-  return {};
-}
-
-export async function lockEvent(shortCode: string) {
-  const result = await runEventMutation(shortCode, "set_event_lock", {
-    p_is_locked: true,
-  });
-  if (result.error) return result;
-
-  revalidatePath(`/s/${shortCode}`);
-  return {};
-}
-
-export async function unlockEvent(shortCode: string) {
-  const result = await runEventMutation(shortCode, "set_event_lock", {
-    p_is_locked: false,
-  });
-  if (result.error) return result;
-
-  revalidatePath(`/s/${shortCode}`);
   return {};
 }
 

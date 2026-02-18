@@ -11,23 +11,22 @@ Run these checks after schema/app updates:
 3. Anonymous visitor claims/unclaims/marks read on their own claims without opening auth modal.
 4. Anonymous visitor cannot create circles or access account settings.
 5. Authenticated non-anonymous user can create/manage circles and access account settings.
-6. Lock blocks new claims only (existing claim owners can still unclaim/mark read).
-7. Archive blocks all claim-state mutations.
-8. Anonymous-to-account upgrade preserves ownership:
+6. Archive blocks all claim-state mutations.
+7. Anonymous-to-account upgrade preserves ownership:
    - claim as anonymous
    - sign in/up
    - verify claimed Juz still appear in **My Juz**
-9. Tampered merge cookie/state does not merge a foreign anonymous identity.
-10. Account deletion is all-or-nothing:
+8. Tampered merge cookie/state does not merge a foreign anonymous identity.
+9. Account deletion is all-or-nothing:
    - cleanup RPC succeeds, then auth user deletion succeeds
    - on cleanup failure, no auth deletion occurs
-11. Private realtime channel behavior:
+10. Private realtime channel behavior:
    - members receive invalidation updates
    - non-members cannot subscribe to private event topics
-12. Auth precondition blocking:
+11. Auth precondition blocking:
    - if `POST /api/auth/prepare-merge` fails for an anonymous session, login/signup/OAuth is blocked with:
    - `Could not secure claim transfer, retry required.`
-13. Merge retryable failure behavior:
+12. Merge retryable failure behavior:
    - force a transient `merge_anonymous_identity` failure
    - `POST /auth/callback` returns `merge_retryable_error`
    - merge cookie is not cleared, and client retries until terminal status
@@ -119,7 +118,7 @@ Use this quick checklist before shipping changes around filters, claiming, or st
 9. Completed/non-matching khatms stay visible as collapsed stubs (not fully hidden).
 10. If a claim creates a new khatm, toast shows **Jump to new Khatm** and action scrolls correctly.
 11. Creator-only management section appears only for event creators.
-12. Lock/archive rules still block claim-state mutations as expected.
+12. Archive rules still block claim-state mutations as expected.
 
 ## Automated Regression Baseline (Unit + E2E)
 
@@ -158,14 +157,12 @@ This project now includes:
 Smoke tests target fixed circle short codes:
 
 1. `E2ESMOKE1` (open circle)
-2. `E2ELOCK1` (locked circle)
-3. `E2EARCH1` (archived circle)
+2. `E2EARCH1` (archived circle)
 
 Override with env vars when needed:
 
 1. `E2E_SMOKE_SHORT_CODE`
-2. `E2E_LOCKED_SHORT_CODE`
-3. `E2E_ARCHIVED_SHORT_CODE`
+2. `E2E_ARCHIVED_SHORT_CODE`
 
 Build caveat:
 

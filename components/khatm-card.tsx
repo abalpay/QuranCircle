@@ -34,7 +34,7 @@ export type ClaimSuccessPayload = {
 type Props = {
   khatm: Khatm;
   shortCode: string;
-  isLocked: boolean;
+  isReadOnly: boolean;
   onRefresh: () => Promise<void>;
   activeFilter: GlobalFilter;
   isCompleted?: boolean;
@@ -44,13 +44,13 @@ type Props = {
 export default function KhatmCard({
   khatm,
   shortCode,
-  isLocked,
+  isReadOnly,
   onRefresh,
   activeFilter,
   isCompleted = false,
   onClaimSuccess,
 }: Props) {
-  const selectionContextKey = `${isLocked ? "1" : "0"}:${activeFilter === "mine" ? "1" : "0"}`;
+  const selectionContextKey = `${isReadOnly ? "1" : "0"}:${activeFilter === "mine" ? "1" : "0"}`;
   const [selectionState, setSelectionState] = useState<{
     key: string;
     values: Set<number>;
@@ -136,8 +136,8 @@ export default function KhatmCard({
     khatm.juzs.filter((j) => j.status === "read").length;
 
   const handleClaimClick = (juz: Juz) => {
-    if (isLocked) {
-      toast.error("This Khatim is locked");
+    if (isReadOnly) {
+      toast.error("This Khatim is archived");
       return;
     }
     toggleJuzSelection(juz);
@@ -215,7 +215,7 @@ export default function KhatmCard({
           key={juz.id}
           juz={juz}
           onClaim={() => handleClaimClick(juz)}
-          isLocked={isLocked}
+          isReadOnly={isReadOnly}
           isSelected={activeSelection.has(juz.juz_number)}
         />
       ))}

@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const smokeShortCode = process.env.E2E_SMOKE_SHORT_CODE ?? "E2ESMOKE1";
-const lockedShortCode = process.env.E2E_LOCKED_SHORT_CODE ?? "E2ELOCK1";
 const archivedShortCode = process.env.E2E_ARCHIVED_SHORT_CODE ?? "E2EARCH1";
 
 test.describe.configure({ mode: "serial" });
@@ -133,12 +132,7 @@ test("anonymous users are blocked from account and create-circle management", as
   await expect(page.getByRole("tab", { name: "Login" })).toBeVisible();
 });
 
-test("locked and archived circles block claim interactions", async ({ page }) => {
-  await page.goto(`/s/${lockedShortCode}`);
-  await expect(page.getByText("Locked", { exact: true }).first()).toBeVisible();
-  await page.getByTitle("Juz 1", { exact: true }).first().click();
-  await expect(page.getByText("1 Juz selected")).toHaveCount(0);
-
+test("archived circles block claim interactions", async ({ page }) => {
   await page.goto(`/s/${archivedShortCode}`);
   await expect(
     page.getByRole("heading", { name: "E2E Archived Circle" })
