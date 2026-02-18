@@ -54,16 +54,44 @@ test("global filter persists in URL across reload", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}`);
   const allTab = page.getByRole("tab", { name: /All \(\d+\)/ });
   await allTab.click();
+  await expect(allTab).toHaveAttribute("data-state", "active", {
+    timeout: 500,
+  });
 
   await expect
     .poll(() => new URL(page.url()).searchParams.get("filter"))
     .toBe("all");
+  await expect(page.getByText("Updating...", { exact: true })).toHaveCount(0);
 
   await page.reload();
   await expect
     .poll(() => new URL(page.url()).searchParams.get("filter"))
     .toBe("all");
   await expect(allTab).toHaveAttribute("data-state", "active");
+});
+
+test("filter state follows URL during browser back and forward", async ({ page }) => {
+  await page.goto(`/s/${smokeShortCode}?filter=all`);
+  await expect(page.getByRole("tab", { name: /All \(\d+\)/ })).toHaveAttribute(
+    "data-state",
+    "active"
+  );
+
+  await page.goto(`/s/${smokeShortCode}?filter=mine`);
+  await expect(
+    page.getByRole("tab", { name: /My Juz \(\d+\)/ })
+  ).toHaveAttribute("data-state", "active");
+
+  await page.goBack();
+  await expect(page.getByRole("tab", { name: /All \(\d+\)/ })).toHaveAttribute(
+    "data-state",
+    "active"
+  );
+
+  await page.goForward();
+  await expect(
+    page.getByRole("tab", { name: /My Juz \(\d+\)/ })
+  ).toHaveAttribute("data-state", "active");
 });
 
 test("invalid filter query falls back to available view", async ({ page }) => {

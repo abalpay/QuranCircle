@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -32,8 +32,11 @@ import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
 import { cn } from "@/lib/utils";
 import {
+  type GlobalFilter,
+  getDisplayFilter,
   getCreatorManageRows,
   getEventFilterCounts,
+  isFilterSyncPending,
   normalizeGlobalFilter,
   withGlobalFilterQuery,
 } from "@/lib/event-filters";
@@ -57,6 +60,7 @@ const SESSION_BOOTSTRAP_BASE_DELAY_MS = 500;
 const REALTIME_RECOVERY_POLL_MS = 5_000;
 const REALTIME_SAFETY_POLL_MS = 60_000;
 const MY_JUZ_NUDGE_KEY = "qc_my_juz_nudge_seen_v1";
+const FILTER_SYNC_TIMEOUT_MS = 1_200;
 
 type Props = {
   event: EventSnapshot;
@@ -79,16 +83,20 @@ export default function KhatimPageClient({
   const [isDeleting, setIsDeleting] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
   const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
+  const [, startFilterTransition] = useTransition();
+  const [pendingFilter, setPendingFilter] = useState<GlobalFilter | null>(null);
   const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
   const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
   const latestKhatmIdRef = useRef<string | null>(
     initialEvent.khatms[initialEvent.khatms.length - 1]?.id ?? null
   );
 
-  const activeFilter = useMemo(
+  const urlFilter = useMemo(
     () => normalizeGlobalFilter(searchParams.get("filter")),
     [searchParams]
   );
+  const displayFilter = getDisplayFilter(urlFilter, pendingFilter);
+  const filterSyncPending = isFilterSyncPending(urlFilter, pendingFilter);
   const filterCounts = useMemo(() => getEventFilterCounts(event), [event]);
   const creatorManageRows = useMemo(() => getCreatorManageRows(event), [event]);
 
@@ -105,26 +113,43 @@ export default function KhatimPageClient({
   }, []);
 
   useEffect(() => {
-    if (activeFilter !== "mine") return;
+    if (displayFilter !== "mine") return;
     if (showMyJuzNudge) setShowMyJuzNudge(false);
     if (shouldNudgeMyJuz && typeof window !== "undefined") {
       window.localStorage.setItem(MY_JUZ_NUDGE_KEY, "1");
       setShouldNudgeMyJuz(false);
     }
-  }, [activeFilter, shouldNudgeMyJuz, showMyJuzNudge]);
+  }, [displayFilter, shouldNudgeMyJuz, showMyJuzNudge]);
+
+  useEffect(() => {
+    if (pendingFilter === null) return;
+    if (pendingFilter !== urlFilter) return;
+    setPendingFilter(null);
+  }, [pendingFilter, urlFilter]);
+
+  useEffect(() => {
+    if (!filterSyncPending) return;
+    const timeoutId = window.setTimeout(() => {
+      setPendingFilter(null);
+    }, FILTER_SYNC_TIMEOUT_MS);
+    return () => window.clearTimeout(timeoutId);
+  }, [filterSyncPending]);
 
   const setActiveFilter = useCallback(
     (nextFilterValue: string) => {
       const nextFilter = normalizeGlobalFilter(nextFilterValue);
-      if (nextFilter === activeFilter) return;
+      if (nextFilter === displayFilter) return;
+      setPendingFilter(nextFilter);
       const href = withGlobalFilterQuery(
         pathname,
         searchParams.toString(),
         nextFilter
       );
-      router.replace(href, { scroll: false });
+      startFilterTransition(() => {
+        router.replace(href, { scroll: false });
+      });
     },
-    [activeFilter, pathname, router, searchParams]
+    [displayFilter, pathname, router, searchParams, startFilterTransition]
   );
 
   const refreshEvent = useCallback(async () => {
@@ -235,12 +260,12 @@ export default function KhatimPageClient({
         : claimedCount === 1
           ? "Juz claimed successfully"
           : `${claimedCount} Juz claimed successfully`;
-      const shouldGuideToMyJuz = shouldNudgeMyJuz && activeFilter !== "mine";
+      const shouldGuideToMyJuz = shouldNudgeMyJuz && displayFilter !== "mine";
       if (shouldGuideToMyJuz) {
         setShowMyJuzNudge(true);
       }
 
-      if (newKhatmCreated && activeFilter === "available") {
+      if (newKhatmCreated && displayFilter === "available") {
         toast.success(successMessage, {
           action: {
             label: "Jump to new Khatm",
@@ -262,7 +287,7 @@ export default function KhatimPageClient({
 
       toast.success(successMessage);
     },
-    [activeFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz]
+    [displayFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz]
   );
 
   // Re-establish realtime subscription when tab becomes visible or network reconnects
@@ -648,7 +673,7 @@ export default function KhatimPageClient({
       )}
 
       <section className="quran-card p-4 sm:p-5">
-        <Tabs value={activeFilter}>
+        <Tabs value={displayFilter}>
           <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="all" onClick={() => setActiveFilter("all")}>
               All ({filterCounts.all})
@@ -675,9 +700,18 @@ export default function KhatimPageClient({
             </TabsTrigger>
           </TabsList>
         </Tabs>
+        {filterSyncPending && (
+          <p
+            className="mt-2 text-xs text-quran-muted"
+            role="status"
+            aria-live="polite"
+          >
+            Updating...
+          </p>
+        )}
       </section>
 
-      {isCreator && activeFilter === "mine" && creatorManageRows.length > 0 && (
+      {isCreator && displayFilter === "mine" && creatorManageRows.length > 0 && (
         <section className="quran-card p-6 sm:p-7">
           <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
             Creator Management
@@ -764,7 +798,7 @@ export default function KhatimPageClient({
                 shortCode={shortCode}
                 isLocked={event.is_locked || event.is_archived}
                 onRefresh={refreshEvent}
-                activeFilter={activeFilter}
+                activeFilter={displayFilter}
                 isCompleted={isFullyClaimed && hasNewerKhatm}
                 onClaimSuccess={handleClaimSuccess}
               />

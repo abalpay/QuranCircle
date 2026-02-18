@@ -1,7 +1,9 @@
 import {
+  getDisplayFilter,
   getCreatorManageRows,
   getEventFilterCounts,
   getKhatmMatches,
+  isFilterSyncPending,
   normalizeGlobalFilter,
   withGlobalFilterQuery,
 } from "@/lib/event-filters";
@@ -70,6 +72,17 @@ describe("event filter helpers", () => {
     expect(normalizeGlobalFilter("mine")).toBe("mine");
     expect(normalizeGlobalFilter("nope")).toBe("available");
     expect(normalizeGlobalFilter(null)).toBe("available");
+  });
+
+  it("prefers pending filter when deriving display state", () => {
+    expect(getDisplayFilter("available", null)).toBe("available");
+    expect(getDisplayFilter("available", "all")).toBe("all");
+  });
+
+  it("flags sync pending only while pending filter differs from URL filter", () => {
+    expect(isFilterSyncPending("available", null)).toBe(false);
+    expect(isFilterSyncPending("available", "available")).toBe(false);
+    expect(isFilterSyncPending("available", "mine")).toBe(true);
   });
 
   it("preserves other query params when writing filter", () => {

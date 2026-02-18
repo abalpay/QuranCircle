@@ -29,6 +29,20 @@ export function normalizeGlobalFilter(
   return "available";
 }
 
+export function getDisplayFilter(
+  urlFilter: GlobalFilter,
+  pendingFilter: GlobalFilter | null
+): GlobalFilter {
+  return pendingFilter ?? urlFilter;
+}
+
+export function isFilterSyncPending(
+  urlFilter: GlobalFilter,
+  pendingFilter: GlobalFilter | null
+): boolean {
+  return pendingFilter !== null && pendingFilter !== urlFilter;
+}
+
 export function withGlobalFilterQuery(
   pathname: string,
   queryString: string,
