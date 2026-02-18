@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Allow local host variants during development tooling (e.g., Playwright).
+  allowedDevOrigins: ["localhost", "127.0.0.1"],
   async headers() {
     return [
       {

@@ -8,6 +8,8 @@ test.describe.configure({ mode: "serial" });
 test.use({ viewport: { width: 390, height: 844 } });
 
 test("home, browse, and my circles pages load without forced sign-in", async ({ page }) => {
+  const mobileNav = page.getByRole("navigation", { name: "Mobile navigation" });
+
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: /Complete the Quran/i })
@@ -25,13 +27,13 @@ test("home, browse, and my circles pages load without forced sign-in", async ({ 
   ).toBeVisible();
 
   await page.goto("/browse");
-  await page.getByRole("link", { name: "Home" }).click();
+  await mobileNav.getByRole("link", { name: "Home" }).click();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/");
 
-  await page.getByRole("link", { name: "My Circles" }).click();
+  await mobileNav.getByRole("link", { name: "My Circles", exact: true }).click();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/my-circles");
 
-  await page.getByRole("link", { name: "Browse" }).click();
+  await mobileNav.getByRole("link", { name: "Browse", exact: true }).click();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/browse");
 });
 

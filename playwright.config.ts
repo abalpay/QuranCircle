@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const fallbackPort = process.env.PLAYWRIGHT_PORT ?? "3101";
 const baseURL =
-  process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${fallbackPort}`;
+  process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${fallbackPort}`;
 const serverPort = new URL(baseURL).port || fallbackPort;
 
 const requiredEnv = [
