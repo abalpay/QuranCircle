@@ -224,69 +224,87 @@ export default function KhatmCard({
 
   const renderMineRows = (juzs: Juz[]) => (
     <div className="space-y-2">
-      {juzs.map((juz) => (
-        <div
-          key={juz.id}
-          className={cn(
-            "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-colors",
-            juz.status === "read"
-              ? "border-emerald-200 bg-emerald-50/50"
-              : "border-amber-200 bg-amber-50/50"
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <span
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg font-heading text-lg font-bold",
-                juz.status === "read"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-amber-100 text-amber-700"
-              )}
-            >
-              {juz.juz_number}
-            </span>
-            <div>
-              <span className="text-sm font-medium text-quran-deep">
-                Juz {juz.juz_number}
-              </span>
+      {juzs.map((juz) => {
+        const hasQuranLink = juz.juz_number >= 1 && juz.juz_number <= 30;
+        const quranLinkHref = `https://quran.com/juz/${juz.juz_number}`;
+
+        return (
+          <div
+            key={juz.id}
+            className={cn(
+              "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-colors",
+              juz.status === "read"
+                ? "border-emerald-200 bg-emerald-50/50"
+                : "border-amber-200 bg-amber-50/50"
+            )}
+          >
+            <div className="flex items-center gap-3">
               <span
                 className={cn(
-                  "ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+                  "flex h-9 w-9 items-center justify-center rounded-lg font-heading text-lg font-bold",
                   juz.status === "read"
                     ? "bg-emerald-100 text-emerald-700"
                     : "bg-amber-100 text-amber-700"
                 )}
               >
-                {juz.status === "read" ? "Read" : "Claimed"}
+                {juz.juz_number}
               </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-quran-deep">
+                    Juz {juz.juz_number}
+                  </span>
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      juz.status === "read"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-700"
+                    )}
+                  >
+                    {juz.status === "read" ? "Read" : "Claimed"}
+                  </span>
+                </div>
+                {hasQuranLink && (
+                  <a
+                    href={quranLinkHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Open Juz ${juz.juz_number} on Quran.com (opens in new tab)`}
+                    className="mt-1 inline-flex text-xs font-medium text-quran-green underline decoration-quran-green/40 underline-offset-2 transition-colors hover:text-quran-deep"
+                  >
+                    Read on Quran.com
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {juz.status === "claimed" && (
+                <button
+                  className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
+                  onClick={() => handleMarkRead(juz.id)}
+                >
+                  Mark Read
+                </button>
+              )}
+              {juz.status === "read" && (
+                <button
+                  className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
+                  onClick={() => handleUnmarkRead(juz.id)}
+                >
+                  Undo
+                </button>
+              )}
+              <button
+                className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
+                onClick={() => handleUnclaim(juz.id)}
+              >
+                Unclaim
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {juz.status === "claimed" && (
-              <button
-                className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
-                onClick={() => handleMarkRead(juz.id)}
-              >
-                Mark Read
-              </button>
-            )}
-            {juz.status === "read" && (
-              <button
-                className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
-                onClick={() => handleUnmarkRead(juz.id)}
-              >
-                Undo
-              </button>
-            )}
-            <button
-              className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
-              onClick={() => handleUnclaim(juz.id)}
-            >
-              Unclaim
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 

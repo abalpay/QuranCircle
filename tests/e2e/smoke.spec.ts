@@ -70,6 +70,11 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
     .poll(() => new URL(page.url()).searchParams.get("filter"))
     .toBe("mine");
 
+  const quranLink = page.getByRole("link", { name: "Read on Quran.com" });
+  await expect(quranLink).toBeVisible();
+  await expect(quranLink).toHaveAttribute("href", "https://quran.com/juz/1");
+  await expect(quranLink).toHaveAttribute("target", "_blank");
+
   await page.getByRole("button", { name: "Unclaim" }).click();
   await expect(page.getByText("No My Juz in this khatm")).toBeVisible();
 });
@@ -150,6 +155,17 @@ test("invalid filter query falls back to all view", async ({ page }) => {
   await expect(
     page.getByRole("tab", { name: /All \(\d+\)/ })
   ).toHaveAttribute("data-state", "active");
+});
+
+test("non-creators ignore creator mineView query", async ({ page }) => {
+  await page.goto(`/s/${smokeShortCode}?filter=mine&mineView=creator`);
+  await expect(
+    page.getByRole("tab", { name: /My Juz \(\d+\)/ })
+  ).toHaveAttribute("data-state", "active");
+  await expect(page.getByRole("tab", { name: /^Creator Queue/ })).toHaveCount(0);
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("mineView"))
+    .toBeNull();
 });
 
 test("claimed tiles in grid do not mark juz as read", async ({ page }) => {
