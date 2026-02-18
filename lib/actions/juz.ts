@@ -32,15 +32,6 @@ function asNumberArray(value: unknown): number[] {
     .filter((item) => Number.isInteger(item) && item >= 1 && item <= 30);
 }
 
-export async function claimJuz(
-  shortCode: string,
-  khatmId: string,
-  juzNumber: number,
-  claimerName: string
-) {
-  return claimMultipleJuz(shortCode, khatmId, [juzNumber], claimerName);
-}
-
 export async function claimMultipleJuz(
   shortCode: string,
   khatmId: string,

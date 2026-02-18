@@ -12,6 +12,7 @@ import {
   unmarkJuzAsRead,
 } from "@/lib/actions/juz";
 import {
+  getKhatmMatches,
   getAvailableRows,
   getMineRows,
   type GlobalFilter,
@@ -60,12 +61,11 @@ export default function KhatmCard({
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const availableJuzs = useMemo(() => getAvailableRows(khatm), [khatm]);
   const myJuzs = useMemo(() => getMineRows(khatm), [khatm]);
-  const matchingCount =
-    activeFilter === "all"
-      ? khatm.juzs.length
-      : activeFilter === "available"
-        ? availableJuzs.length
-        : myJuzs.length;
+  const matchingJuzs = useMemo(
+    () => getKhatmMatches(khatm, activeFilter),
+    [activeFilter, khatm]
+  );
+  const matchingCount = matchingJuzs.length;
   const hasMatches = matchingCount > 0;
   const expansionKey = `${activeFilter}:${isCompleted ? "1" : "0"}:${hasMatches ? "1" : "0"}`;
   const defaultExpanded = activeFilter === "all" ? !isCompleted : hasMatches;
