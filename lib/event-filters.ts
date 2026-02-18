@@ -26,7 +26,7 @@ export function normalizeGlobalFilter(
   if (filter && VALID_FILTERS.has(filter as GlobalFilter)) {
     return filter as GlobalFilter;
   }
-  return "available";
+  return "all";
 }
 
 export function getDisplayFilter(

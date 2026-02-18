@@ -263,8 +263,8 @@ export default function KhatimPageClient({
       const successMessage = newKhatmCreated
         ? "Juz claimed! A new Khatm cycle has started."
         : claimedCount === 1
-          ? "Juz claimed successfully"
-          : `${claimedCount} Juz claimed successfully`;
+          ? "Juz claimed."
+          : `${claimedCount} Juz claimed.`;
       const shouldGuideToMyJuz = shouldNudgeMyJuz && displayFilter !== "mine";
       if (shouldGuideToMyJuz) {
         setShowMyJuzNudge(true);
@@ -282,7 +282,7 @@ export default function KhatimPageClient({
       }
 
       if (shouldGuideToMyJuz) {
-        toast.success(successMessage, {
+        toast.success("Juz claimed. Manage it in My Juz.", {
           action: {
             label: "Go to My Juz",
             onClick: () => setActiveFilter("mine"),

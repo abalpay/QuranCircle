@@ -44,7 +44,7 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
   ).toBeVisible();
 
   await expect(
-    page.getByRole("tab", { name: /Available \(\d+\)/ })
+    page.getByRole("tab", { name: /All \(\d+\)/ })
   ).toHaveAttribute("data-state", "active");
 
   await page.getByTitle("Tap to select Juz 1", { exact: true }).first().click();
@@ -53,6 +53,12 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
   await page.getByRole("button", { name: "Claim" }).click();
   await page.getByLabel("Your Name").fill("Smoke Tester");
   await page.getByRole("button", { name: "Claim Juz" }).click();
+
+  await expect(page.getByRole("tab", { name: /All \(\d+\)/ })).toHaveAttribute(
+    "data-state",
+    "active"
+  );
+  await expect(page.getByTitle(/Juz 1 .*Smoke/).first()).toBeVisible();
 
   await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
   await page.getByRole("button", { name: "Go to My Juz" }).click();
@@ -68,24 +74,51 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
   await expect(page.getByText("No My Juz in this khatm")).toBeVisible();
 });
 
+test("my juz onboarding CTA is not repeated after it has been seen", async ({ page }) => {
+  await page.goto(`/s/${smokeShortCode}`);
+
+  await page.getByTitle(/^Tap to select Juz \d+$/).first().click();
+  await page.getByRole("button", { name: "Claim" }).click();
+  await page.getByLabel("Your Name").fill("Smoke Tester");
+  await page.getByRole("button", { name: "Claim Juz" }).click();
+
+  await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
+  await page.getByRole("button", { name: "Go to My Juz" }).click();
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("filter"))
+    .toBe("mine");
+  await page.getByRole("button", { name: "Unclaim" }).click();
+
+  await page.getByRole("tab", { name: /All \(\d+\)/ }).click();
+  await page.getByTitle(/^Tap to select Juz \d+$/).first().click();
+  await page.getByRole("button", { name: "Claim" }).click();
+  await page.getByLabel("Your Name").fill("Smoke Tester");
+  await page.getByRole("button", { name: "Claim Juz" }).click();
+
+  await expect(page.getByRole("button", { name: "Go to My Juz" })).toHaveCount(0);
+
+  await page.getByRole("tab", { name: /My Juz \(1\)/ }).click();
+  await page.getByRole("button", { name: "Unclaim" }).click();
+});
+
 test("global filter persists in URL across reload", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}`);
-  const allTab = page.getByRole("tab", { name: /All \(\d+\)/ });
-  await allTab.click();
-  await expect(allTab).toHaveAttribute("data-state", "active", {
+  const availableTab = page.getByRole("tab", { name: /Available \(\d+\)/ });
+  await availableTab.click();
+  await expect(availableTab).toHaveAttribute("data-state", "active", {
     timeout: 500,
   });
 
   await expect
     .poll(() => new URL(page.url()).searchParams.get("filter"))
-    .toBe("all");
+    .toBe("available");
   await expect(page.getByText("Updating...", { exact: true })).toHaveCount(0);
 
   await page.reload();
   await expect
     .poll(() => new URL(page.url()).searchParams.get("filter"))
-    .toBe("all");
-  await expect(allTab).toHaveAttribute("data-state", "active");
+    .toBe("available");
+  await expect(availableTab).toHaveAttribute("data-state", "active");
 });
 
 test("filter state follows URL during browser back and forward", async ({ page }) => {
@@ -112,10 +145,10 @@ test("filter state follows URL during browser back and forward", async ({ page }
   ).toHaveAttribute("data-state", "active");
 });
 
-test("invalid filter query falls back to available view", async ({ page }) => {
+test("invalid filter query falls back to all view", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}?filter=invalid`);
   await expect(
-    page.getByRole("tab", { name: /Available \(\d+\)/ })
+    page.getByRole("tab", { name: /All \(\d+\)/ })
   ).toHaveAttribute("data-state", "active");
 });
 

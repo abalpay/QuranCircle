@@ -67,22 +67,22 @@ const EVENT_FIXTURE: Pick<EventSnapshot, "khatms"> = {
 };
 
 describe("event filter helpers", () => {
-  it("normalizes filter values with available as fallback", () => {
+  it("normalizes filter values with all as fallback", () => {
     expect(normalizeGlobalFilter("all")).toBe("all");
     expect(normalizeGlobalFilter("mine")).toBe("mine");
-    expect(normalizeGlobalFilter("nope")).toBe("available");
-    expect(normalizeGlobalFilter(null)).toBe("available");
+    expect(normalizeGlobalFilter("nope")).toBe("all");
+    expect(normalizeGlobalFilter(null)).toBe("all");
   });
 
   it("prefers pending filter when deriving display state", () => {
-    expect(getDisplayFilter("available", null)).toBe("available");
-    expect(getDisplayFilter("available", "all")).toBe("all");
+    expect(getDisplayFilter("all", null)).toBe("all");
+    expect(getDisplayFilter("all", "available")).toBe("available");
   });
 
   it("flags sync pending only while pending filter differs from URL filter", () => {
-    expect(isFilterSyncPending("available", null)).toBe(false);
-    expect(isFilterSyncPending("available", "available")).toBe(false);
-    expect(isFilterSyncPending("available", "mine")).toBe(true);
+    expect(isFilterSyncPending("all", null)).toBe(false);
+    expect(isFilterSyncPending("all", "all")).toBe(false);
+    expect(isFilterSyncPending("all", "mine")).toBe(true);
   });
 
   it("preserves other query params when writing filter", () => {
