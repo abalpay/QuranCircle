@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
+import InstallAppSheet from "@/components/install-app-sheet";
 import { cn } from "@/lib/utils";
 import {
   type GlobalFilter,
@@ -48,6 +49,11 @@ import {
   unarchiveEvent,
   deleteEvent,
 } from "@/lib/actions/events";
+import {
+  hasSeenClaimInstallPrompt,
+  isInstallPromptEnabled,
+  markClaimInstallPromptSeen,
+} from "@/hooks/use-pwa-install";
 
 const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
 const SESSION_BOOTSTRAP_MAX_RETRIES = 4;
@@ -56,6 +62,7 @@ const REALTIME_RECOVERY_POLL_MS = 5_000;
 const REALTIME_SAFETY_POLL_MS = 60_000;
 const MY_JUZ_NUDGE_KEY = "qc_my_juz_nudge_seen_v1";
 const FILTER_SYNC_TIMEOUT_MS = 1_200;
+const CLAIM_SUCCESS_INSTALL_PROMPT_DELAY_MS = 1_400;
 
 type Props = {
   event: EventSnapshot;
@@ -81,9 +88,11 @@ export default function KhatimPageClient({
   const [pendingFilter, setPendingFilter] = useState<GlobalFilter | null>(null);
   const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
   const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
+  const [isInstallPromptOpen, setIsInstallPromptOpen] = useState(false);
   const latestKhatmIdRef = useRef<string | null>(
     initialEvent.khatms[initialEvent.khatms.length - 1]?.id ?? null
   );
+  const installPromptTimerRef = useRef<number | null>(null);
 
   const urlFilter = useMemo(
     () => normalizeGlobalFilter(searchParams.get("filter")),
@@ -128,6 +137,14 @@ export default function KhatimPageClient({
     }, FILTER_SYNC_TIMEOUT_MS);
     return () => window.clearTimeout(timeoutId);
   }, [filterSyncPending]);
+
+  useEffect(() => {
+    return () => {
+      if (installPromptTimerRef.current) {
+        window.clearTimeout(installPromptTimerRef.current);
+      }
+    };
+  }, []);
 
   const setActiveFilter = useCallback(
     (nextFilterValue: string) => {
@@ -260,6 +277,19 @@ export default function KhatimPageClient({
 
   const handleClaimSuccess = useCallback(
     ({ claimedCount, newKhatmCreated }: ClaimSuccessPayload) => {
+      const queueInstallPrompt = () => {
+        if (typeof window === "undefined" || !isInstallPromptEnabled()) return;
+        if (hasSeenClaimInstallPrompt()) return;
+
+        markClaimInstallPromptSeen();
+        if (installPromptTimerRef.current) {
+          window.clearTimeout(installPromptTimerRef.current);
+        }
+        installPromptTimerRef.current = window.setTimeout(() => {
+          setIsInstallPromptOpen(true);
+        }, CLAIM_SUCCESS_INSTALL_PROMPT_DELAY_MS);
+      };
+
       const successMessage = newKhatmCreated
         ? "Juz claimed! A new Khatm cycle has started."
         : claimedCount === 1
@@ -278,6 +308,7 @@ export default function KhatimPageClient({
             onClick: () => jumpToLatestKhatm(baselineKhatmId),
           },
         });
+        queueInstallPrompt();
         return;
       }
 
@@ -288,10 +319,12 @@ export default function KhatimPageClient({
             onClick: () => setActiveFilter("mine"),
           },
         });
+        queueInstallPrompt();
         return;
       }
 
       toast.success(successMessage);
+      queueInstallPrompt();
     },
     [displayFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz]
   );
@@ -533,7 +566,8 @@ export default function KhatimPageClient({
   };
 
   return (
-    <div className="space-y-8 sm:space-y-10">
+    <>
+      <div className="space-y-8 sm:space-y-10">
       <section className="quran-card-primary p-6 sm:p-8">
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <span className="quran-badge">
@@ -780,13 +814,20 @@ export default function KhatimPageClient({
         })}
       </div>
 
-      <DeleteEventDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleDelete}
-        eventName={event.name}
-        isDeleting={isDeleting}
+        <DeleteEventDialog
+          isOpen={isDeleteDialogOpen}
+          onClose={() => setIsDeleteDialogOpen(false)}
+          onConfirm={handleDelete}
+          eventName={event.name}
+          isDeleting={isDeleting}
+        />
+      </div>
+      <InstallAppSheet
+        surface="claim-success"
+        open={isInstallPromptOpen}
+        onOpenChange={setIsInstallPromptOpen}
+        showDoneAction
       />
-    </div>
+    </>
   );
 }

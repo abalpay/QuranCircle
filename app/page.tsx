@@ -9,6 +9,7 @@ import {
 import UserDashboard from "@/components/home-content";
 import HeroActions from "@/components/hero-actions";
 import FeaturedCircles from "@/components/featured-circles";
+import HomeInstallPrompt from "@/components/home-install-prompt";
 import { getCommunityStats } from "@/lib/actions/stats";
 import { getPublicEvents } from "@/lib/actions/events";
 
@@ -214,6 +215,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <HomeInstallPrompt />
     </main>
   );
 }

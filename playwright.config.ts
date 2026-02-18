@@ -55,6 +55,8 @@ export default defineConfig({
       NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL ?? baseURL,
       NEXT_PUBLIC_ENABLE_ANONYMOUS_AUTH:
         process.env.NEXT_PUBLIC_ENABLE_ANONYMOUS_AUTH ?? "true",
+      NEXT_PUBLIC_ENABLE_INSTALL_PROMPT:
+        process.env.NEXT_PUBLIC_ENABLE_INSTALL_PROMPT ?? "true",
       AUTH_MERGE_COOKIE_SECRET:
         process.env.AUTH_MERGE_COOKIE_SECRET ??
         "local-e2e-merge-cookie-secret",
