@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -71,7 +71,7 @@ export default function KhatimPageClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [supabase] = useState(() => createClient());
-  const { ensureSession } = useAuth();
+  const { ensureSession, user } = useAuth();
   const [event, setEvent] = useState(initialEvent);
   const [isCreator, setIsCreator] = useState(initialEvent.can_manage);
   const [isLocking, setIsLocking] = useState(false);
@@ -81,6 +81,9 @@ export default function KhatimPageClient({
   const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
   const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
   const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
+  const latestKhatmIdRef = useRef<string | null>(
+    initialEvent.khatms[initialEvent.khatms.length - 1]?.id ?? null
+  );
 
   const activeFilter = useMemo(
     () => normalizeGlobalFilter(searchParams.get("filter")),
@@ -91,6 +94,10 @@ export default function KhatimPageClient({
 
   // Realtime recovery: bump epoch to force subscription teardown/recreate
   const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
+
+  useEffect(() => {
+    latestKhatmIdRef.current = event.khatms[event.khatms.length - 1]?.id ?? null;
+  }, [event.khatms]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -148,16 +155,19 @@ export default function KhatimPageClient({
   }, [shortCode]);
 
   const jumpToLatestKhatm = useCallback(() => {
-    const latestKhatmId = event.khatms[event.khatms.length - 1]?.id;
-    if (!latestKhatmId) return;
-    const targetId = `khatm-card-${latestKhatmId}`;
     let attempts = 0;
 
     const tryScroll = () => {
-      const target = document.getElementById(targetId);
+      const latestKhatmId = latestKhatmIdRef.current;
+      if (!latestKhatmId) return;
+
+      const target = document.getElementById(`khatm-card-${latestKhatmId}`);
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
+      }
+      if (attempts === 0) {
+        void refreshEvent();
       }
       if (attempts >= 5) return;
       attempts += 1;
@@ -165,7 +175,7 @@ export default function KhatimPageClient({
     };
 
     tryScroll();
-  }, [event.khatms]);
+  }, [refreshEvent]);
 
   const ensureMutationSession = useCallback(async () => {
     const sessionUser = await ensureSession();
@@ -318,7 +328,7 @@ export default function KhatimPageClient({
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [ensureSession, refreshEvent, shortCode]);
+  }, [ensureSession, refreshEvent, shortCode, user?.id]);
 
   // Private realtime subscription: listen for invalidation broadcasts only.
   useEffect(() => {
