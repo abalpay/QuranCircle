@@ -7,16 +7,30 @@ const INSTALL_KEYS = [
   "qc_install_prompt_installed_manual_v1",
   "qc_install_prompt_claim_surface_seen_v1",
 ] as const;
+const INSTALL_KEYS_RESET_GUARD = "qc_install_prompt_test_keys_cleared_v1";
 
 test.use({ ...devices["iPhone 13"] });
 
 test.describe("install prompt", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((keys: readonly string[]) => {
-      for (const key of keys) {
-        window.localStorage.removeItem(key);
-      }
-    }, INSTALL_KEYS);
+    await page.addInitScript(
+      ({
+        keys,
+        guardKey,
+      }: {
+        keys: readonly string[];
+        guardKey: string;
+      }) => {
+        if (window.sessionStorage.getItem(guardKey) === "1") {
+          return;
+        }
+        for (const key of keys) {
+          window.localStorage.removeItem(key);
+        }
+        window.sessionStorage.setItem(guardKey, "1");
+      },
+      { keys: INSTALL_KEYS, guardKey: INSTALL_KEYS_RESET_GUARD }
+    );
   });
 
   test("shows fallback install prompt on mobile home", async ({ page }) => {

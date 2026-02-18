@@ -204,7 +204,9 @@ test("creator sees queue sub-tabs and filters with URL sync", async ({ page }) =
     .toBeNull();
 
   await creatorQueueTab.click();
-  await expect(page.getByRole("heading", { name: "Creator Queue" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Creator Queue", exact: true })
+  ).toBeVisible();
   await expect
     .poll(() => new URL(page.url()).searchParams.get("mineView"))
     .toBe("creator");
@@ -216,9 +218,8 @@ test("creator sees queue sub-tabs and filters with URL sync", async ({ page }) =
   await page.getByRole("button", { name: "Clear filters" }).click();
   await expect(page.getByText("by Creator Owner").first()).toBeVisible();
 
-  const aminaRow = page.locator("div", { hasText: "by Amina" }).first();
-  await aminaRow.getByRole("button", { name: "Mark Read" }).click();
-  await expect(aminaRow.getByRole("button", { name: "Undo" })).toBeVisible();
+  await page.getByRole("button", { name: "Mark Read" }).first().click();
+  await expect(page.getByRole("button", { name: "Undo" }).first()).toBeVisible();
 
   await page.getByRole("tab", { name: /All \(\d+\)/ }).click();
   await expect
