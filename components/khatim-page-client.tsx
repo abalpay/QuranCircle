@@ -179,12 +179,23 @@ export default function KhatimPageClient({
     }
   }, [shortCode]);
 
-  const jumpToLatestKhatm = useCallback(() => {
+  const jumpToLatestKhatm = useCallback((baselineKhatmId: string | null = null) => {
     let attempts = 0;
 
     const tryScroll = () => {
       const latestKhatmId = latestKhatmIdRef.current;
       if (!latestKhatmId) return;
+
+      // Avoid jumping to a stale card captured before async refresh completed.
+      if (baselineKhatmId && latestKhatmId === baselineKhatmId) {
+        if (attempts === 0) {
+          void refreshEvent();
+        }
+        if (attempts >= 5) return;
+        attempts += 1;
+        window.setTimeout(tryScroll, 120);
+        return;
+      }
 
       const target = document.getElementById(`khatm-card-${latestKhatmId}`);
       if (target) {
@@ -266,10 +277,11 @@ export default function KhatimPageClient({
       }
 
       if (newKhatmCreated && displayFilter === "available") {
+        const baselineKhatmId = latestKhatmIdRef.current;
         toast.success(successMessage, {
           action: {
             label: "Jump to new Khatm",
-            onClick: () => jumpToLatestKhatm(),
+            onClick: () => jumpToLatestKhatm(baselineKhatmId),
           },
         });
         return;
