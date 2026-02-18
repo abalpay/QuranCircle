@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { useAuth } from "@/hooks/use-auth";
+import type { EventSnapshot } from "@/lib/types/events";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +28,22 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import KhatmCard from "@/components/khatm-card";
+import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
+import { cn } from "@/lib/utils";
 import {
+  getCreatorManageRows,
+  getEventFilterCounts,
+  normalizeGlobalFilter,
+  withGlobalFilterQuery,
+} from "@/lib/event-filters";
+import {
+  markJuzAsRead,
+  unclaimJuz,
+  unmarkJuzAsRead,
+} from "@/lib/actions/juz";
+import {
+  ensureEventMembershipForShortCode,
   lockEvent,
   unlockEvent,
   archiveEvent,
@@ -36,77 +51,219 @@ import {
   deleteEvent,
 } from "@/lib/actions/events";
 
-const DEVICE_TOKEN_KEY = "quran_circle_device_token";
-
-type EventData = {
-  id: string;
-  name: string;
-  description: string | null;
-  short_code: string;
-  is_locked: boolean;
-  is_public: boolean;
-  is_archived: boolean;
-  khatms: Array<{
-    id: string;
-    khatm_number: number;
-    juzs: Array<{
-      id: string;
-      juz_number: number;
-      status: string;
-      claimed_by_name: string | null;
-      claimed_by_user_id: string | null;
-      device_token: string | null;
-    }>;
-    claimed_count: number;
-    read_count: number;
-  }>;
-};
+const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
+const SESSION_BOOTSTRAP_MAX_RETRIES = 4;
+const SESSION_BOOTSTRAP_BASE_DELAY_MS = 500;
+const REALTIME_RECOVERY_POLL_MS = 5_000;
+const REALTIME_SAFETY_POLL_MS = 60_000;
+const MY_JUZ_NUDGE_KEY = "qc_my_juz_nudge_seen_v1";
 
 type Props = {
-  event: EventData;
+  event: EventSnapshot;
   shortCode: string;
-  deviceToken: string;
-  creatorToken?: string;
-  isCreator: boolean;
 };
 
 export default function KhatimPageClient({
   event: initialEvent,
   shortCode,
-  deviceToken: initialDeviceToken,
-  creatorToken,
-  isCreator: initialIsCreator,
 }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [supabase] = useState(() => createClient());
+  const { ensureSession, user } = useAuth();
   const [event, setEvent] = useState(initialEvent);
-  const [isCreator, setIsCreator] = useState(initialIsCreator);
+  const [isCreator, setIsCreator] = useState(initialEvent.can_manage);
   const [isLocking, setIsLocking] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deviceToken, setDeviceToken] = useState(initialDeviceToken);
+  const [sessionInitialized, setSessionInitialized] = useState(false);
+  const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
+  const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
+  const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
+  const latestKhatmIdRef = useRef<string | null>(
+    initialEvent.khatms[initialEvent.khatms.length - 1]?.id ?? null
+  );
 
-  // First-visit: generate device token after hydration if none exists
-  useEffect(() => {
-    if (deviceToken) return;
-    const token = crypto.randomUUID();
-    document.cookie = `${DEVICE_TOKEN_KEY}=${token}; path=/; max-age=31536000; SameSite=Lax; Secure`;
-    setDeviceToken(token);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Stabilize subscription dependencies: only resubscribe when khatm IDs actually change
-  const khatmIds = event.khatms.map((k) => k.id).join(",");
-  const khatmIdsRef = useRef(khatmIds);
-  const eventIdRef = useRef(event.id);
-  khatmIdsRef.current = khatmIds;
-  eventIdRef.current = event.id;
-  const [stableKhatmIds, setStableKhatmIds] = useState(khatmIds);
-  useEffect(() => {
-    if (khatmIds !== stableKhatmIds) setStableKhatmIds(khatmIds);
-  }, [khatmIds, stableKhatmIds]);
+  const activeFilter = useMemo(
+    () => normalizeGlobalFilter(searchParams.get("filter")),
+    [searchParams]
+  );
+  const filterCounts = useMemo(() => getEventFilterCounts(event), [event]);
+  const creatorManageRows = useMemo(() => getCreatorManageRows(event), [event]);
 
   // Realtime recovery: bump epoch to force subscription teardown/recreate
   const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
-  const channelInstanceRef = useRef(0);
+
+  useEffect(() => {
+    latestKhatmIdRef.current = event.khatms[event.khatms.length - 1]?.id ?? null;
+  }, [event.khatms]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setShouldNudgeMyJuz(window.localStorage.getItem(MY_JUZ_NUDGE_KEY) !== "1");
+  }, []);
+
+  useEffect(() => {
+    if (activeFilter !== "mine") return;
+    if (showMyJuzNudge) setShowMyJuzNudge(false);
+    if (shouldNudgeMyJuz && typeof window !== "undefined") {
+      window.localStorage.setItem(MY_JUZ_NUDGE_KEY, "1");
+      setShouldNudgeMyJuz(false);
+    }
+  }, [activeFilter, shouldNudgeMyJuz, showMyJuzNudge]);
+
+  const setActiveFilter = useCallback(
+    (nextFilterValue: string) => {
+      const nextFilter = normalizeGlobalFilter(nextFilterValue);
+      if (nextFilter === activeFilter) return;
+      const href = withGlobalFilterQuery(
+        pathname,
+        searchParams.toString(),
+        nextFilter
+      );
+      router.replace(href, { scroll: false });
+    },
+    [activeFilter, pathname, router, searchParams]
+  );
+
+  const refreshEvent = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/event?shortCode=${shortCode}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        console.warn("[QuranCircle] Failed to refresh event snapshot:", {
+          shortCode,
+          status: res.status,
+          statusText: res.statusText,
+        });
+        return;
+      }
+      const data = await res.json();
+      if (data && !data.error) {
+        setEvent(data as EventSnapshot);
+        setIsCreator(Boolean((data as EventSnapshot).can_manage));
+        return;
+      }
+      console.warn("[QuranCircle] Event snapshot payload was invalid:", {
+        shortCode,
+      });
+    } catch (err) {
+      console.warn("[QuranCircle] Failed to refresh event:", err);
+    }
+  }, [shortCode]);
+
+  const jumpToLatestKhatm = useCallback(() => {
+    let attempts = 0;
+
+    const tryScroll = () => {
+      const latestKhatmId = latestKhatmIdRef.current;
+      if (!latestKhatmId) return;
+
+      const target = document.getElementById(`khatm-card-${latestKhatmId}`);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (attempts === 0) {
+        void refreshEvent();
+      }
+      if (attempts >= 5) return;
+      attempts += 1;
+      window.setTimeout(tryScroll, 120);
+    };
+
+    tryScroll();
+  }, [refreshEvent]);
+
+  const ensureMutationSession = useCallback(async () => {
+    const sessionUser = await ensureSession();
+    if (!sessionUser) {
+      toast.error("Unable to start a session. Please refresh and try again.");
+      return false;
+    }
+    return true;
+  }, [ensureSession]);
+
+  const handleCreatorMarkRead = useCallback(
+    async (juzId: string) => {
+      if (!(await ensureMutationSession())) return;
+      const result = await markJuzAsRead(shortCode, juzId);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Juz marked as read");
+      await refreshEvent();
+    },
+    [ensureMutationSession, refreshEvent, shortCode]
+  );
+
+  const handleCreatorUnmarkRead = useCallback(
+    async (juzId: string) => {
+      if (!(await ensureMutationSession())) return;
+      const result = await unmarkJuzAsRead(shortCode, juzId);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Juz marked as unread");
+      await refreshEvent();
+    },
+    [ensureMutationSession, refreshEvent, shortCode]
+  );
+
+  const handleCreatorUnclaim = useCallback(
+    async (juzId: string) => {
+      if (!(await ensureMutationSession())) return;
+      const result = await unclaimJuz(shortCode, juzId);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Juz unclaimed");
+      await refreshEvent();
+    },
+    [ensureMutationSession, refreshEvent, shortCode]
+  );
+
+  const handleClaimSuccess = useCallback(
+    ({ claimedCount, newKhatmCreated }: ClaimSuccessPayload) => {
+      const successMessage = newKhatmCreated
+        ? "Juz claimed! A new Khatm cycle has started."
+        : claimedCount === 1
+          ? "Juz claimed successfully"
+          : `${claimedCount} Juz claimed successfully`;
+      const shouldGuideToMyJuz = shouldNudgeMyJuz && activeFilter !== "mine";
+      if (shouldGuideToMyJuz) {
+        setShowMyJuzNudge(true);
+      }
+
+      if (newKhatmCreated && activeFilter === "available") {
+        toast.success(successMessage, {
+          action: {
+            label: "Jump to new Khatm",
+            onClick: () => jumpToLatestKhatm(),
+          },
+        });
+        return;
+      }
+
+      if (shouldGuideToMyJuz) {
+        toast.success(successMessage, {
+          action: {
+            label: "Go to My Juz",
+            onClick: () => setActiveFilter("mine"),
+          },
+        });
+        return;
+      }
+
+      toast.success(successMessage);
+    },
+    [activeFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz]
+  );
 
   // Re-establish realtime subscription when tab becomes visible or network reconnects
   useEffect(() => {
@@ -125,148 +282,177 @@ export default function KhatimPageClient({
     };
   }, []);
 
-  const refreshEvent = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/event?shortCode=${shortCode}`);
-      const data = await res.json();
-      if (data && !data.error) {
-        const { isCreator: refreshedIsCreator, ...eventData } = data;
-        setEvent(eventData);
-        if (typeof refreshedIsCreator === "boolean") {
-          setIsCreator(refreshedIsCreator);
-        }
-      }
-    } catch (err) {
-      console.warn("[QuranCircle] Failed to refresh event:", err);
-    }
-  }, [shortCode]);
-
-  // Realtime subscription: use payload directly to update juz state
-  const batchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingUpdatesRef = useRef<Map<string, Record<string, unknown>>>(new Map());
-
-  const flushRealtimeUpdates = useCallback(() => {
-    const updates = new Map(pendingUpdatesRef.current);
-    pendingUpdatesRef.current.clear();
-    batchTimerRef.current = null;
-
-    if (updates.size === 0) return;
-
-    setEvent((prev) => ({
-      ...prev,
-      khatms: prev.khatms.map((khatm) => {
-        let changed = false;
-        const updatedJuzs = khatm.juzs.map((juz) => {
-          const update = updates.get(juz.id);
-          if (!update) return juz;
-          changed = true;
-          return {
-            id: juz.id,
-            juz_number: juz.juz_number,
-            status: update.status as string,
-            claimed_by_name: update.claimed_by_name as string | null,
-            claimed_by_user_id: update.claimed_by_user_id as string | null,
-            device_token: update.device_token as string | null,
-          };
-        });
-        if (!changed) return khatm;
-        return {
-          ...khatm,
-          juzs: updatedJuzs,
-          claimed_count: updatedJuzs.filter((j) => j.status !== "unclaimed").length,
-        };
-      }),
-    }));
-  }, []);
-
+  // Ensure we have an auth-backed identity (anonymous or full) for claim ownership.
   useEffect(() => {
-    if (!stableKhatmIds) return;
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const supabase = createClient();
+    const bootstrapSession = async (attempt: number) => {
+      const sessionUser = await ensureSession();
+      if (cancelled) return;
+
+      if (!sessionUser) {
+        setSessionInitialized(false);
+
+        if (attempt >= SESSION_BOOTSTRAP_MAX_RETRIES) {
+          console.warn("[QuranCircle] Failed to initialize session for realtime.");
+          return;
+        }
+
+        const delay = Math.min(
+          SESSION_BOOTSTRAP_BASE_DELAY_MS * 2 ** attempt,
+          5_000
+        );
+        retryTimer = setTimeout(() => {
+          void bootstrapSession(attempt + 1);
+        }, delay);
+        return;
+      }
+
+      const membershipResult = await ensureEventMembershipForShortCode(shortCode);
+      if (cancelled) return;
+      if (membershipResult.error) {
+        console.warn(
+          "[QuranCircle] Failed to ensure event membership:",
+          membershipResult.error
+        );
+      }
+
+      setSessionInitialized(true);
+      await refreshEvent();
+    };
+
+    void bootstrapSession(0);
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [ensureSession, refreshEvent, shortCode, user?.id]);
+
+  // Private realtime subscription: listen for invalidation broadcasts only.
+  useEffect(() => {
+    if (!sessionInitialized) return;
+
+    const canSubscribe = event.is_public || event.is_member || event.is_creator;
+    if (!canSubscribe) return;
+
+    const topic = `event:${event.id}`;
     let disposed = false;
     let retryCount = 0;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
-    // Unique channel names prevent collisions with dying channels from prior effect cycles
-    const instanceId = ++channelInstanceRef.current;
-    const juzChannelName = `juzs-${shortCode}-${instanceId}`;
-    const khatmChannelName = `khatms-${shortCode}-${instanceId}`;
+    const markRealtimeDegraded = (status: string, err?: unknown) => {
+      setIsRealtimeDegraded((prev) => {
+        if (!prev) {
+          console.warn("[QuranCircle] Realtime degraded:", status, err ?? "");
+        }
+        return true;
+      });
+    };
 
     const channel = supabase
-      .channel(juzChannelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "juzs",
-          filter: `khatm_id=in.(${stableKhatmIds})`,
-        },
-        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
-          if (disposed) return;
-          if (payload.eventType === "DELETE") {
-            refreshEvent();
-            return;
-          }
-          const row = payload.new as Record<string, unknown>;
-          if (row && typeof row.id === "string") {
-            pendingUpdatesRef.current.set(row.id, row);
-            if (!batchTimerRef.current) {
-              batchTimerRef.current = setTimeout(flushRealtimeUpdates, 100);
-            }
-          }
+      .channel(topic, {
+        config: { private: true },
+      })
+      .on("broadcast", { event: "invalidate" }, () => {
+        if (!disposed) {
+          void refreshEvent();
         }
-      )
+      })
       .subscribe((status, err) => {
         if (disposed) return;
+
         if (status === "SUBSCRIBED") {
           retryCount = 0;
-          // Catch up on any changes missed during reconnection
-          refreshEvent();
+          setIsRealtimeDegraded((prev) => {
+            if (prev) {
+              console.info("[QuranCircle] Realtime recovered.");
+            }
+            return false;
+          });
+          void refreshEvent();
+          return;
         }
+
         if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-          console.warn("[QuranCircle] Realtime", status, err ?? "");
-          // Uncapped retries with backoff capped at 30s
+          markRealtimeDegraded(status, err);
+          void refreshEvent();
+
           const delay = Math.min(2000 * 2 ** retryCount, 30_000);
           retryCount++;
+
+          if (retryTimer) {
+            clearTimeout(retryTimer);
+          }
           retryTimer = setTimeout(() => {
-            if (!disposed) channel.subscribe();
+            if (!disposed) {
+              void (async () => {
+                const sessionUser = await ensureSession();
+                if (disposed || !sessionUser) return;
+
+                const membershipResult =
+                  await ensureEventMembershipForShortCode(shortCode);
+                if (disposed) return;
+                if (membershipResult.error) {
+                  console.warn(
+                    "[QuranCircle] Failed to ensure event membership before realtime rejoin:",
+                    membershipResult.error
+                  );
+                }
+
+                setSubscriptionEpoch((epoch) => epoch + 1);
+              })();
+            }
           }, delay);
         }
       });
 
-    // Listen for new khatms being auto-created
-    const khatmsChannel = supabase
-      .channel(khatmChannelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "khatms",
-          filter: `event_id=eq.${eventIdRef.current}`,
-        },
-        () => {
-          if (!disposed) refreshEvent();
-        }
-      )
-      .subscribe();
-
-    // Safety-net: full refresh every 60s to catch any missed events
-    const safetyInterval = setInterval(refreshEvent, 60_000);
-
     return () => {
       disposed = true;
-      supabase.removeChannel(channel);
-      supabase.removeChannel(khatmsChannel);
-      clearInterval(safetyInterval);
       if (retryTimer) clearTimeout(retryTimer);
-      if (batchTimerRef.current) {
-        clearTimeout(batchTimerRef.current);
-        batchTimerRef.current = null;
-      }
+      supabase.removeChannel(channel);
     };
-  }, [shortCode, stableKhatmIds, subscriptionEpoch, refreshEvent, flushRealtimeUpdates]);
+  }, [
+    ensureSession,
+    event.id,
+    event.is_creator,
+    event.is_member,
+    event.is_public,
+    refreshEvent,
+    sessionInitialized,
+    shortCode,
+    subscriptionEpoch,
+    supabase,
+  ]);
+
+  // Fallback polling: use faster polling only while realtime is degraded.
+  useEffect(() => {
+    if (!sessionInitialized) return;
+
+    const intervalMs = isRealtimeDegraded
+      ? REALTIME_RECOVERY_POLL_MS
+      : REALTIME_SAFETY_POLL_MS;
+
+    const safetyInterval = setInterval(() => {
+      void refreshEvent();
+    }, intervalMs);
+
+    return () => clearInterval(safetyInterval);
+  }, [isRealtimeDegraded, refreshEvent, sessionInitialized]);
+
+  // Merge completion can happen outside the realtime payload path.
+  // Refresh immediately so "My Juz" reflects transferred ownership.
+  useEffect(() => {
+    const handleMerged = () => {
+      void refreshEvent();
+    };
+
+    window.addEventListener(IDENTITY_MERGED_EVENT, handleMerged);
+    return () => {
+      window.removeEventListener(IDENTITY_MERGED_EVENT, handleMerged);
+    };
+  }, [refreshEvent]);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/s/${shortCode}`;
@@ -293,34 +479,37 @@ export default function KhatimPageClient({
   const handleLockToggle = async () => {
     setIsLocking(true);
     const result = event.is_locked
-      ? await unlockEvent(shortCode, creatorToken)
-      : await lockEvent(shortCode, creatorToken);
+      ? await unlockEvent(shortCode)
+      : await lockEvent(shortCode);
     setIsLocking(false);
-    if (result.error) {
-      toast.error(result.error);
+    const lockError = (result as { error?: string }).error;
+    if (lockError) {
+      toast.error(lockError);
       return;
     }
-    setEvent((e) => ({ ...e, is_locked: !e.is_locked }));
+    setEvent((current) => ({ ...current, is_locked: !current.is_locked }));
     toast.success(event.is_locked ? "Khatim unlocked" : "Khatim locked");
   };
 
   const handleArchiveToggle = async () => {
     const action = event.is_archived ? unarchiveEvent : archiveEvent;
-    const result = await action(shortCode, creatorToken);
-    if (result.error) {
-      toast.error(result.error);
+    const result = await action(shortCode);
+    const archiveError = (result as { error?: string }).error;
+    if (archiveError) {
+      toast.error(archiveError);
       return;
     }
-    setEvent((e) => ({ ...e, is_archived: !e.is_archived }));
+    setEvent((current) => ({ ...current, is_archived: !current.is_archived }));
     toast.success(event.is_archived ? "Khatim unarchived" : "Khatim archived");
   };
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const result = await deleteEvent(shortCode, creatorToken);
+    const result = await deleteEvent(shortCode);
     setIsDeleting(false);
-    if (result.error) {
-      toast.error(result.error);
+    const deleteError = (result as { error?: string }).error;
+    if (deleteError) {
+      toast.error(deleteError);
       return;
     }
     toast.success("Khatim deleted");
@@ -397,10 +586,7 @@ export default function KhatimPageClient({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={handleLockToggle}
-                    disabled={isLocking}
-                  >
+                  <DropdownMenuItem onClick={handleLockToggle} disabled={isLocking}>
                     {event.is_locked ? (
                       <>
                         <Unlock className="mr-2 h-4 w-4" />
@@ -461,22 +647,128 @@ export default function KhatimPageClient({
         </div>
       )}
 
+      <section className="quran-card p-4 sm:p-5">
+        <Tabs value={activeFilter}>
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="all" onClick={() => setActiveFilter("all")}>
+              All ({filterCounts.all})
+            </TabsTrigger>
+            <TabsTrigger
+              value="available"
+              onClick={() => setActiveFilter("available")}
+            >
+              Available ({filterCounts.available})
+            </TabsTrigger>
+            <TabsTrigger
+              value="mine"
+              onClick={() => setActiveFilter("mine")}
+              className={cn(showMyJuzNudge && "animate-pulse ring-2 ring-emerald-300")}
+            >
+              <span className="flex items-center gap-2">
+                <span>My Juz ({filterCounts.mine})</span>
+                {showMyJuzNudge && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                    New
+                  </span>
+                )}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </section>
+
+      {isCreator && activeFilter === "mine" && creatorManageRows.length > 0 && (
+        <section className="quran-card p-6 sm:p-7">
+          <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
+            Creator Management
+          </h2>
+          <p className="mt-2 text-sm text-quran-muted">
+            Manage claimed juz across the full event, including other participants.
+          </p>
+          <div className="mt-5 space-y-2">
+            {creatorManageRows.map((row) => (
+              <div
+                key={row.juzId}
+                className={cn(
+                  "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3",
+                  row.status === "read"
+                    ? "border-emerald-200 bg-emerald-50/50"
+                    : "border-amber-200 bg-amber-50/50"
+                )}
+              >
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-semibold text-quran-deep">
+                    Khatm #{row.khatmNumber} · Juz {row.juzNumber}
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      row.status === "read"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-700"
+                    )}
+                  >
+                    {row.status === "read" ? "Read" : "Claimed"}
+                  </span>
+                  <span className="text-quran-muted">
+                    {row.claimedByName ? `by ${row.claimedByName}` : "name unavailable"}
+                  </span>
+                  {row.isMine && (
+                    <span className="rounded-full bg-quran-green/10 px-2 py-0.5 text-[10px] font-medium text-quran-green">
+                      Yours
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {row.status === "claimed" && (
+                    <button
+                      className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
+                      onClick={() => handleCreatorMarkRead(row.juzId)}
+                    >
+                      Mark Read
+                    </button>
+                  )}
+                  {row.status === "read" && (
+                    <button
+                      className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
+                      onClick={() => handleCreatorUnmarkRead(row.juzId)}
+                    >
+                      Undo
+                    </button>
+                  )}
+                  <button
+                    className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
+                    onClick={() => handleCreatorUnclaim(row.juzId)}
+                  >
+                    Unclaim
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="space-y-8">
         {event.khatms.map((khatm, index) => {
           const hasNewerKhatm = index < event.khatms.length - 1;
           const isFullyClaimed = khatm.claimed_count === 30;
           return (
-            <KhatmCard
+            <div
               key={khatm.id}
-              khatm={khatm}
-              shortCode={shortCode}
-              isLocked={event.is_locked || event.is_archived}
-              deviceToken={deviceToken}
-              creatorToken={creatorToken}
-              isCreator={Boolean(isCreator)}
-              onRefresh={refreshEvent}
-              isCompleted={isFullyClaimed && hasNewerKhatm}
-            />
+              id={`khatm-card-${khatm.id}`}
+              className="scroll-mt-24"
+            >
+              <KhatmCard
+                khatm={khatm}
+                shortCode={shortCode}
+                isLocked={event.is_locked || event.is_archived}
+                onRefresh={refreshEvent}
+                activeFilter={activeFilter}
+                isCompleted={isFullyClaimed && hasNewerKhatm}
+                onClaimSuccess={handleClaimSuccess}
+              />
+            </div>
           );
         })}
       </div>

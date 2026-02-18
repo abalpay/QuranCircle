@@ -204,7 +204,7 @@ export default async function HomePage() {
             <Button
               asChild
               size="lg"
-              className="group h-14 w-full rounded-full border-2 border-white bg-white px-10 text-base font-semibold text-quran-green shadow-[0_16px_40px_-16px_hsl(0_0%_0%/0.3)] transition-all hover:scale-105 hover:shadow-[0_20px_50px_-16px_hsl(0_0%_0%/0.4)] active:scale-95 sm:w-auto"
+              className="group h-14 w-full rounded-full border-2 border-white bg-white px-10 text-base font-semibold text-quran-green shadow-[0_16px_40px_-16px_hsl(0_0%_0%/0.3)] transition-all hover:bg-white hover:text-quran-green hover:scale-105 hover:shadow-[0_20px_50px_-16px_hsl(0_0%_0%/0.4)] active:scale-95 sm:w-auto"
             >
               <Link href="/browse">
                 <Compass className="mr-2 h-5 w-5 transition-transform group-hover:rotate-45" />

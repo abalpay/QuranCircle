@@ -1,0 +1,74 @@
+name: Test
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Reset local database with deterministic seed
+        run: supabase db reset --local --yes
+
+      - name: Export app env from local Supabase
+        shell: bash
+        run: |
+          eval "$(supabase status -o env | sed 's/^/export /')"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+            echo "NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3101"
+            echo "NEXT_PUBLIC_ENABLE_ANONYMOUS_AUTH=true"
+            echo "PLAYWRIGHT_PORT=3101"
+            echo "AUTH_MERGE_COOKIE_SECRET=ci-merge-cookie-secret"
+            echo "E2E_SMOKE_SHORT_CODE=E2ESMOKE1"
+            echo "E2E_LOCKED_SHORT_CODE=E2ELOCK1"
+            echo "E2E_ARCHIVED_SHORT_CODE=E2EARCH1"
+          } >> "$GITHUB_ENV"
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run E2E smoke tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop

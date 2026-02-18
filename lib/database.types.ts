@@ -17,7 +17,6 @@ export interface Database {
           is_public: boolean;
           deadline: string | null;
           created_by: string | null;
-          creator_token: string | null;
           short_code: string;
           is_archived: boolean;
           archived_at: string | null;
@@ -31,7 +30,6 @@ export interface Database {
           is_public?: boolean;
           deadline?: string | null;
           created_by?: string | null;
-          creator_token?: string | null;
           short_code: string;
           is_archived?: boolean;
           archived_at?: string | null;
@@ -45,7 +43,6 @@ export interface Database {
           is_public?: boolean;
           deadline?: string | null;
           created_by?: string | null;
-          creator_token?: string | null;
           short_code?: string;
           is_archived?: boolean;
           archived_at?: string | null;
@@ -92,7 +89,6 @@ export interface Database {
           juz_number: number;
           claimed_by_name: string | null;
           claimed_by_user_id: string | null;
-          device_token: string | null;
           status: "unclaimed" | "claimed" | "read";
           claimed_at: string | null;
           read_at: string | null;
@@ -103,7 +99,6 @@ export interface Database {
           juz_number: number;
           claimed_by_name?: string | null;
           claimed_by_user_id?: string | null;
-          device_token?: string | null;
           status?: "unclaimed" | "claimed" | "read";
           claimed_at?: string | null;
           read_at?: string | null;
@@ -114,10 +109,32 @@ export interface Database {
           juz_number?: number;
           claimed_by_name?: string | null;
           claimed_by_user_id?: string | null;
-          device_token?: string | null;
           status?: "unclaimed" | "claimed" | "read";
           claimed_at?: string | null;
           read_at?: string | null;
+        };
+      };
+      event_members: {
+        Row: {
+          id: string;
+          event_id: string;
+          user_id: string;
+          role: "creator" | "participant";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          user_id: string;
+          role?: "creator" | "participant";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          user_id?: string;
+          role?: "creator" | "participant";
+          created_at?: string;
         };
       };
       bookmarks: {
@@ -147,11 +164,12 @@ export interface Database {
 export type Event = Database["public"]["Tables"]["events"]["Row"];
 export type Khatm = Database["public"]["Tables"]["khatms"]["Row"];
 export type Juz = Database["public"]["Tables"]["juzs"]["Row"];
+export type EventMember = Database["public"]["Tables"]["event_members"]["Row"];
 export type Bookmark = Database["public"]["Tables"]["bookmarks"]["Row"];
 
 export type EventWithKhatms = Event & {
   khatms: (Khatm & {
-    juzs: Juz[];
+    juzs: (Juz & { is_mine?: boolean })[];
     claimed_count: number;
     read_count: number;
   })[];

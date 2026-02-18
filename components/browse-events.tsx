@@ -16,7 +16,7 @@ import {
 type Event = {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   short_code: string;
   claimed: number;
   total: number;

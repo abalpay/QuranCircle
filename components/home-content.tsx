@@ -15,9 +15,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
+
 export default function UserDashboard() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { user } = useAuth();
+  const { isAuthenticatedUser, user } = useAuth();
   type UserEvent = Awaited<ReturnType<typeof getUserEvents>>[number];
   const [userEvents, setUserEvents] = useState<UserEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
@@ -25,8 +27,8 @@ export default function UserDashboard() {
   useEffect(() => {
     let isMounted = true;
 
-    const loadUserEvents = async () => {
-      if (!user) {
+    const loadWithMountGuard = async () => {
+      if (!isAuthenticatedUser) {
         if (isMounted) {
           setUserEvents([]);
           setEventsLoading(false);
@@ -47,13 +49,39 @@ export default function UserDashboard() {
       }
     };
 
-    loadUserEvents();
+    void loadWithMountGuard();
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [isAuthenticatedUser, user?.id]);
 
-  if (!user) return null;
+  useEffect(() => {
+    let isMounted = true;
+
+    const handleIdentityMerged = async () => {
+      if (!isAuthenticatedUser) return;
+
+      setEventsLoading(true);
+      try {
+        const events = await getUserEvents();
+        if (isMounted) {
+          setUserEvents(events);
+        }
+      } finally {
+        if (isMounted) {
+          setEventsLoading(false);
+        }
+      }
+    };
+
+    window.addEventListener(IDENTITY_MERGED_EVENT, handleIdentityMerged);
+    return () => {
+      isMounted = false;
+      window.removeEventListener(IDENTITY_MERGED_EVENT, handleIdentityMerged);
+    };
+  }, [isAuthenticatedUser, user?.id]);
+
+  if (!isAuthenticatedUser) return null;
 
   const activeEvents = userEvents.filter((e) => !e.is_archived);
   const archivedEvents = userEvents.filter((e) => e.is_archived);

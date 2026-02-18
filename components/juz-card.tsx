@@ -13,26 +13,21 @@ type Juz = {
 type Props = {
   juz: Juz;
   onClaim: () => void;
-  onMarkRead?: () => void;
   isLocked: boolean;
-  isOwner: boolean;
   isSelected?: boolean;
 };
 
 export default function JuzCard({
   juz,
   onClaim,
-  onMarkRead,
   isLocked,
-  isOwner,
   isSelected = false,
 }: Props) {
   const isUnclaimed = juz.status === "unclaimed";
+  const canClaim = isUnclaimed && !isLocked;
   const isClaimed = juz.status === "claimed";
   const isRead = juz.status === "read";
-  const canClaim = isUnclaimed && !isLocked;
-  const canMarkRead = isClaimed && isOwner && !!onMarkRead;
-  const isInteractive = canClaim || canMarkRead;
+  const isInteractive = canClaim;
   const firstName = juz.claimed_by_name?.split(" ")[0] || "";
 
   return (
@@ -51,21 +46,17 @@ export default function JuzCard({
         ],
         isClaimed && [
           "border-t-amber-400 bg-linear-to-b from-amber-50/80 to-amber-50/30",
-          canMarkRead &&
-            "cursor-pointer hover:-translate-y-0.5 hover:border-t-emerald-400 hover:shadow-md hover:shadow-emerald-500/8",
         ],
         isRead &&
           "border-t-emerald-500 bg-linear-to-b from-emerald-50/80 to-emerald-50/30"
       )}
       onClick={() => {
         if (canClaim) onClaim();
-        else if (canMarkRead) onMarkRead();
       }}
       onKeyDown={(e) => {
         if (isInteractive && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
           if (canClaim) onClaim();
-          else if (canMarkRead) onMarkRead();
         }
       }}
       role={isInteractive ? "button" : undefined}
@@ -74,14 +65,12 @@ export default function JuzCard({
         isSelected
           ? `Juz ${juz.juz_number} selected — tap to deselect`
           : canClaim
-            ? `Tap to claim Juz ${juz.juz_number}`
-            : canMarkRead
-              ? `Tap to mark Juz ${juz.juz_number} as read`
-              : isClaimed
-                ? `Juz ${juz.juz_number} — ${firstName}`
-                : isRead
-                  ? `Juz ${juz.juz_number} — completed`
-                  : `Juz ${juz.juz_number}`
+            ? `Tap to select Juz ${juz.juz_number}`
+            : isClaimed
+              ? `Juz ${juz.juz_number} — ${firstName}`
+              : isRead
+                ? `Juz ${juz.juz_number} — completed`
+                : `Juz ${juz.juz_number}`
       }
     >
       {/* Locked icon */}

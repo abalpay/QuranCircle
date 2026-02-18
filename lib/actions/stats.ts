@@ -5,24 +5,26 @@ import { createClient } from "@/lib/supabase/server";
 export async function getCommunityStats() {
   const supabase = await createClient();
 
-  const [eventsResult, juzResult, khatmsResult] = await Promise.all([
-    supabase
-      .from("events")
-      .select("*", { count: "exact", head: true })
-      .eq("is_archived", false),
-    supabase
-      .from("juzs")
-      .select("*", { count: "exact", head: true })
-      .neq("status", "unclaimed"),
-    supabase
-      .from("khatms")
-      .select("*", { count: "exact", head: true })
-      .eq("is_deleted", false),
-  ]);
+  const { data, error } = await supabase.rpc("get_community_stats").single();
+  const stats = data as
+    | {
+        total_circles: number;
+        total_juz_claimed: number;
+        active_khatms: number;
+      }
+    | null;
+
+  if (error || !stats) {
+    return {
+      totalCircles: 0,
+      totalJuzClaimed: 0,
+      activeKhatms: 0,
+    };
+  }
 
   return {
-    totalCircles: eventsResult.count ?? 0,
-    totalJuzClaimed: juzResult.count ?? 0,
-    activeKhatms: khatmsResult.count ?? 0,
+    totalCircles: Number(stats.total_circles ?? 0),
+    totalJuzClaimed: Number(stats.total_juz_claimed ?? 0),
+    activeKhatms: Number(stats.active_khatms ?? 0),
   };
 }

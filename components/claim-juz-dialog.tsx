@@ -31,14 +31,14 @@ export default function ClaimJuzDialog({
   onSubmit,
 }: ClaimJuzDialogProps) {
   const isMultiple = juzNumbers.length > 1;
-  const { user } = useAuth();
+  const { user, isAuthenticatedUser } = useAuth();
 
   const getSavedName = () => {
     if (typeof window === "undefined") return "";
-    if (user) {
+    if (isAuthenticatedUser) {
       return (
-        (user.user_metadata?.username as string) ||
-        user.email?.split("@")[0] ||
+        (user?.user_metadata?.username as string) ||
+        user?.email?.split("@")[0] ||
         ""
       );
     }
@@ -51,7 +51,7 @@ export default function ClaimJuzDialog({
     const name = (formData.get("claimerName") as string | null)?.trim();
 
     if (name) {
-      if (!user && typeof window !== "undefined") {
+      if (!isAuthenticatedUser && typeof window !== "undefined") {
         localStorage.setItem(CLAIMER_NAME_KEY, name);
       }
       onSubmit(name, juzNumbers);
@@ -77,7 +77,7 @@ export default function ClaimJuzDialog({
         </DialogHeader>
 
         <form
-          key={`${juzNumbers.join("-")}-${isOpen ? "open" : "closed"}-${user?.id ?? "guest"}`}
+          key={`${juzNumbers.join("-")}-${isOpen ? "open" : "closed"}-${isAuthenticatedUser ? user?.id : "guest"}`}
           onSubmit={handleSubmit}
           className="mt-2"
         >
@@ -91,7 +91,7 @@ export default function ClaimJuzDialog({
               required
               className="mt-1 rounded-xl border-quran-border bg-white/85"
             />
-            {user && (
+            {isAuthenticatedUser && (
               <p className="text-xs text-muted-foreground mt-1">
                 You can use a different name if you prefer.
               </p>

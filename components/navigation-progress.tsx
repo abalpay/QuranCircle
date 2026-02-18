@@ -19,6 +19,21 @@ export default function NavigationProgress() {
     clearTimeout(timeoutRef.current);
   }, []);
 
+  const complete = useCallback(() => {
+    if (!navigatingRef.current) return;
+    cleanup();
+    navigatingRef.current = false;
+
+    setProgress(100);
+
+    // Keep visible for minimum duration then fade out
+    timerRef.current = setTimeout(() => {
+      setVisible(false);
+      // Reset after fade animation completes
+      setTimeout(() => setProgress(0), 300);
+    }, 300);
+  }, [cleanup]);
+
   const start = useCallback(() => {
     if (navigatingRef.current) return;
     navigatingRef.current = true;
@@ -42,29 +57,17 @@ export default function NavigationProgress() {
     timeoutRef.current = setTimeout(() => {
       complete();
     }, 10_000);
-  }, [cleanup]);
-
-  const complete = useCallback(() => {
-    if (!navigatingRef.current) return;
-    cleanup();
-    navigatingRef.current = false;
-
-    setProgress(100);
-
-    // Keep visible for minimum duration then fade out
-    timerRef.current = setTimeout(() => {
-      setVisible(false);
-      // Reset after fade animation completes
-      setTimeout(() => setProgress(0), 300);
-    }, 300);
-  }, [cleanup]);
+  }, [cleanup, complete]);
 
   // Detect navigation completion via pathname change
   useEffect(() => {
     if (currentPathRef.current !== pathname) {
       currentPathRef.current = pathname;
       if (navigatingRef.current) {
-        complete();
+        const completeTimer = setTimeout(() => {
+          complete();
+        }, 0);
+        return () => clearTimeout(completeTimer);
       }
     }
   }, [pathname, complete]);

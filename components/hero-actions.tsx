@@ -10,11 +10,11 @@ import { useAuthModal } from "@/hooks/use-auth-modal";
 
 export default function HeroActions() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { user } = useAuth();
+  const { isAuthenticatedUser } = useAuth();
   const { openAuthModal } = useAuthModal();
 
   const handleCreate = () => {
-    if (user) {
+    if (isAuthenticatedUser) {
       setIsCreateOpen(true);
     } else {
       openAuthModal("login", () => setIsCreateOpen(true));

@@ -63,7 +63,7 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticatedUser } = useAuth();
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -96,10 +96,10 @@ export default function AccountPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && !isAuthenticatedUser) {
       router.replace("/");
     }
-  }, [user, isLoading, router]);
+  }, [isAuthenticatedUser, isLoading, router]);
 
   const onSaveProfile = async (data: ProfileFormValues) => {
     setIsSavingProfile(true);
@@ -153,7 +153,7 @@ export default function AccountPage() {
     router.replace("/");
   };
 
-  if (isLoading || !user) {
+  if (isLoading || !isAuthenticatedUser || !user) {
     return (
       <main className="page-shell grow flex items-center justify-center">
         <div className="quran-card p-10 text-center">
