@@ -27,6 +27,17 @@ import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
+const MERGE_PREPARATION_BLOCK_MESSAGE =
+  "Could not secure claim transfer, retry required.";
+
+function isMergePreparationError(error: Error | null | undefined) {
+  return Boolean(
+    error &&
+      (error.name === "MergePreparationError" ||
+        error.message === MERGE_PREPARATION_BLOCK_MESSAGE)
+  );
+}
+
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -59,8 +70,14 @@ const GoogleSignInButton = () => {
   const handleGoogleSignIn = async () => {
     const { error } = await signInWithGoogle();
     if (error) {
+      if (isMergePreparationError(error)) {
+        toast.error("Google sign-in paused", {
+          description: MERGE_PREPARATION_BLOCK_MESSAGE,
+        });
+        return;
+      }
       toast.error("Google sign-in failed", {
-        description: error.message,
+        description: formatAuthError(error.message),
       });
     }
   };
@@ -142,29 +159,55 @@ export default function AuthModal({
   });
 
   const onLoginSubmit = async (data: LoginFormValues) => {
-    const { error } = await signInWithPassword(data.email, data.password);
-    if (error) {
+    try {
+      const { error } = await signInWithPassword(data.email, data.password);
+      if (error) {
+        if (isMergePreparationError(error)) {
+          toast.error("Login paused", {
+            description: MERGE_PREPARATION_BLOCK_MESSAGE,
+          });
+          return;
+        }
+        toast.error("Login failed", {
+          description: formatAuthError(error.message),
+        });
+        return;
+      }
+      toast.success("Login successful");
+      closeAndReset();
+      onSuccess?.();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unexpected login error";
       toast.error("Login failed", {
-        description: formatAuthError(error.message),
+        description: formatAuthError(message),
       });
-      return;
     }
-    toast.success("Login successful");
-    closeAndReset();
-    onSuccess?.();
   };
 
   const onRegisterSubmit = async (data: RegisterFormValues) => {
-    const { error } = await signUp(data.email, data.password, data.username);
-    if (error) {
+    try {
+      const { error } = await signUp(data.email, data.password, data.username);
+      if (error) {
+        if (isMergePreparationError(error)) {
+          toast.error("Registration paused", {
+            description: MERGE_PREPARATION_BLOCK_MESSAGE,
+          });
+          return;
+        }
+        toast.error("Registration failed", {
+          description: formatAuthError(error.message),
+        });
+        return;
+      }
+      toast.success("Account created successfully");
+      closeAndReset();
+      onSuccess?.();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unexpected registration error";
       toast.error("Registration failed", {
-        description: formatAuthError(error.message),
+        description: formatAuthError(message),
       });
-      return;
     }
-    toast.success("Account created successfully");
-    closeAndReset();
-    onSuccess?.();
   };
 
   const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {

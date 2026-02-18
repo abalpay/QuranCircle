@@ -17,18 +17,18 @@ import {
 
 export default function MobileNavigation() {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const displayName =
-    (user?.user_metadata?.username as string) ||
-    user?.email?.split("@")[0] ||
+    (isAuthenticatedUser && (user?.user_metadata?.username as string)) ||
+    (isAuthenticatedUser && user?.email?.split("@")[0]) ||
     "User";
 
   const handleCreate = () => {
-    if (user) {
+    if (isAuthenticatedUser) {
       setIsCreateOpen(true);
     } else {
       openAuthModal("login", () => setIsCreateOpen(true));
@@ -36,7 +36,7 @@ export default function MobileNavigation() {
   };
 
   const handleProfileTap = () => {
-    if (user) {
+    if (isAuthenticatedUser) {
       setIsProfileOpen(true);
     } else {
       openAuthModal("login");
@@ -90,7 +90,7 @@ export default function MobileNavigation() {
           >
             <UserCircle className="h-5 w-5" />
             <span className="mt-1 max-w-[64px] truncate text-[11px] font-medium">
-              {user ? displayName : "Sign In"}
+              {isAuthenticatedUser ? displayName : "Sign In"}
             </span>
           </button>
         </div>
@@ -111,7 +111,7 @@ export default function MobileNavigation() {
             <SheetTitle className="text-quran-deep">
               Salam, {displayName}
             </SheetTitle>
-            {user?.email && (
+            {isAuthenticatedUser && user?.email && (
               <SheetDescription className="text-quran-muted">
                 {user.email}
               </SheetDescription>

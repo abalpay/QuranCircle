@@ -1,18 +1,60 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import {
+  SHORT_CODE_MAX_LENGTH,
+  SHORT_CODE_MIN_LENGTH,
+  SHORT_CODE_REGEX,
+} from "@/lib/constants/short-code";
 import { generateShortCode } from "@/lib/utils";
+import type { EventSnapshot, PublicEventWithProgress } from "@/lib/types/events";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-const shortCodeSchema = z.string().min(1).max(20).regex(/^[A-Za-z0-9]+$/);
-const tokenSchema = z.string().max(255).optional();
+const shortCodeSchema = z
+  .string()
+  .min(SHORT_CODE_MIN_LENGTH)
+  .max(SHORT_CODE_MAX_LENGTH)
+  .regex(SHORT_CODE_REGEX);
 
 const createEventSchema = z.object({
   name: z.string().min(1).max(200).trim(),
   description: z.string().max(2000).trim().optional(),
   isPublic: z.boolean().optional(),
 });
+
+function isAnonymousUser(user: { is_anonymous?: boolean } | null | undefined) {
+  return Boolean(user?.is_anonymous);
+}
+
+function isShortCodeCollision(error: { code?: string; message?: string } | null) {
+  if (!error) return false;
+  return (
+    error.code === "23505" ||
+    (error.message ?? "").toLowerCase().includes("short_code")
+  );
+}
+
+function logUserEventsError(
+  step: string,
+  error: {
+    code?: string;
+    message?: string;
+    details?: string | null;
+    hint?: string | null;
+  } | null,
+  context: Record<string, unknown> = {}
+) {
+  if (!error) return;
+  console.error("[getUserEvents] query failed", {
+    step,
+    code: error.code,
+    message: error.message,
+    details: error.details ?? null,
+    hint: error.hint ?? null,
+    ...context,
+  });
+}
 
 export async function createEvent(formData: {
   name: string;
@@ -27,348 +69,224 @@ export async function createEvent(formData: {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Sign in required to create a circle." };
 
-  let shortCode = generateShortCode(6);
-  let attempts = 0;
+  if (!user || isAnonymousUser(user)) {
+    return { error: "Sign in required to create a circle." };
+  }
+
   const maxAttempts = 10;
+  let shortCode = generateShortCode(8);
 
-  while (attempts < maxAttempts) {
-    const { data: existing } = await supabase
-      .from("events")
-      .select("id")
-      .eq("short_code", shortCode)
+  for (let attempts = 0; attempts < maxAttempts; attempts++) {
+    const { data, error } = await supabase
+      .rpc("create_event_with_initial_khatm", {
+        p_name: name,
+        p_description: description || null,
+        p_is_public: isPublic ?? false,
+        p_short_code: shortCode,
+      })
       .single();
-    if (!existing) break;
-    shortCode = generateShortCode(6);
-    attempts++;
+
+    const createdEvent = data as { event_id: string; short_code: string } | null;
+
+    if (!error && createdEvent) {
+      revalidatePath("/");
+      revalidatePath("/browse");
+      return {
+        data: {
+          eventId: createdEvent.event_id,
+          shortCode: createdEvent.short_code,
+        },
+      };
+    }
+
+    if (isShortCodeCollision(error)) {
+      shortCode = generateShortCode(8);
+      continue;
+    }
+
+    return { error: error?.message ?? "Failed to create event. Please try again." };
   }
 
-  const { data: event, error: eventError } = await supabase
-    .from("events")
-    .insert({
-      name,
-      description: description || null,
-      is_public: isPublic ?? false,
-      created_by: user.id,
-      creator_token: null,
-      short_code: shortCode,
-    })
-    .select()
-    .single();
-
-  if (eventError) {
-    return { error: "Failed to create event. Please try again." };
-  }
-
-  const { data: khatm, error: khatmError } = await supabase
-    .from("khatms")
-    .insert({
-      event_id: event.id,
-      khatm_number: 1,
-    })
-    .select()
-    .single();
-
-  if (khatmError) {
-    return { error: "Failed to initialize reading circle. Please try again." };
-  }
-
-  const juzInserts = Array.from({ length: 30 }, (_, i) => ({
-    khatm_id: khatm.id,
-    juz_number: i + 1,
-  }));
-
-  const { error: juzError } = await supabase.from("juzs").insert(juzInserts);
-
-  if (juzError) {
-    return { error: "Failed to set up juz sections. Please try again." };
-  }
-
-  revalidatePath("/");
-  revalidatePath("/browse");
-  return { data: { event, shortCode } };
+  return { error: "Failed to create a unique link. Please try again." };
 }
 
-export async function getEventByShortCode(shortCode: string) {
+export async function getEventByShortCode(shortCode: string): Promise<EventSnapshot | null> {
   if (!shortCodeSchema.safeParse(shortCode).success) return null;
 
   const supabase = await createClient();
-  const { data: event, error } = await supabase
-    .from("events")
-    .select("*")
-    .eq("short_code", shortCode)
-    .single();
+  const { data, error } = await supabase.rpc("get_event_snapshot_by_shortcode", {
+    p_short_code: shortCode,
+  });
 
-  if (error || !event) {
+  if (error || !data) {
     return null;
   }
 
-  const { data: khatms } = await supabase
-    .from("khatms")
-    .select("*")
-    .eq("event_id", event.id)
-    .eq("is_deleted", false)
-    .order("khatm_number", { ascending: true });
-
-  if (!khatms?.length) {
-    return { ...event, khatms: [] };
-  }
-
-  const khatmsWithJuzs = await Promise.all(
-    khatms.map(async (k) => {
-      const { data: juzs } = await supabase
-        .from("juzs")
-        .select("*")
-        .eq("khatm_id", k.id)
-        .order("juz_number", { ascending: true });
-      const claimedCount = juzs?.filter((j) => j.status !== "unclaimed").length ?? 0;
-      const readCount = juzs?.filter((j) => j.status === "read").length ?? 0;
-      return {
-        ...k,
-        juzs: juzs ?? [],
-        claimed_count: claimedCount,
-        read_count: readCount,
-      };
-    })
-  );
-
-  return { ...event, khatms: khatmsWithJuzs };
+  return data as EventSnapshot;
 }
 
-export async function getPublicEvents() {
-  const supabase = await createClient();
-  const { data: events } = await supabase
-    .from("events")
-    .select("id, name, description, short_code, deadline, is_public, created_at")
-    .eq("is_public", true)
-    .eq("is_archived", false)
-    .order("created_at", { ascending: false })
-    .limit(50);
+export async function ensureEventMembershipForShortCode(shortCode: string) {
+  if (!shortCodeSchema.safeParse(shortCode).success) {
+    return { error: "Invalid input" };
+  }
 
-  if (!events?.length) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Active session required" };
+  }
+
+  const { data, error } = await supabase.rpc("ensure_event_membership", {
+    p_short_code: shortCode,
+  });
+
+  if (error) {
+    return { error: error.message || "Failed to initialize event membership" };
+  }
+
+  if (!data) {
+    return { error: "Event not found" };
+  }
+
+  return {};
+}
+
+export async function getPublicEvents(): Promise<PublicEventWithProgress[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("list_public_events_with_progress", {
+    p_limit: 50,
+  });
+
+  if (error || !data) {
     return [];
   }
 
-  const withProgress = await Promise.all(
-    events.map(async (e) => {
-      const { data: khatms } = await supabase
-        .from("khatms")
-        .select("id")
-        .eq("event_id", e.id)
-        .eq("is_deleted", false);
-      let claimed = 0;
-      let total = 0;
-      if (khatms) {
-        for (const k of khatms) {
-          const { count } = await supabase
-            .from("juzs")
-            .select("*", { count: "exact", head: true })
-            .eq("khatm_id", k.id);
-          const { count: claimedCount } = await supabase
-            .from("juzs")
-            .select("*", { count: "exact", head: true })
-            .eq("khatm_id", k.id)
-            .neq("status", "unclaimed");
-          total += count ?? 0;
-          claimed += claimedCount ?? 0;
-        }
-      }
-      return { ...e, claimed, total: total || 30 };
-    })
-  );
-
-  return withProgress;
+  return (data as PublicEventWithProgress[]).map((event) => ({
+    ...event,
+    claimed: Number(event.claimed ?? 0),
+    total: Number(event.total ?? 30),
+  }));
 }
 
 export async function getUserEvents() {
   const supabase = await createClient();
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
-  if (!user) return [];
 
-  const { data: events } = await supabase
-    .from("events")
-    .select("id, name, description, short_code, deadline, is_public, created_at, is_archived")
-    .eq("created_by", user.id)
-    .order("created_at", { ascending: false });
-
-  if (!events?.length) return [];
-
-  const withProgress = await Promise.all(
-    events.map(async (e) => {
-      const { data: khatms } = await supabase
-        .from("khatms")
-        .select("id")
-        .eq("event_id", e.id)
-        .eq("is_deleted", false);
-      let claimed = 0;
-      let total = 0;
-      if (khatms) {
-        for (const k of khatms) {
-          const { count } = await supabase
-            .from("juzs")
-            .select("*", { count: "exact", head: true })
-            .eq("khatm_id", k.id);
-          const { count: claimedCount } = await supabase
-            .from("juzs")
-            .select("*", { count: "exact", head: true })
-            .eq("khatm_id", k.id)
-            .neq("status", "unclaimed");
-          total += count ?? 0;
-          claimed += claimedCount ?? 0;
-        }
-      }
-      return { ...e, claimed, total: total || 30 };
-    })
-  );
-
-  return withProgress;
-}
-
-export async function lockEvent(shortCode: string, creatorToken?: string) {
-  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
-  if (!parsed.success) return { error: "Invalid input" };
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, created_by, creator_token")
-    .eq("short_code", shortCode)
-    .single();
-
-  if (!event) return { error: "Event not found" };
-  const isCreator =
-    user?.id === event.created_by ||
-    (creatorToken && event.creator_token === creatorToken);
-  if (!isCreator) return { error: "Unauthorized" };
-
-  await supabase
-    .from("events")
-    .update({ is_locked: true })
-    .eq("id", event.id);
-
-  revalidatePath(`/s/${shortCode}`);
-  return {};
-}
-
-export async function unlockEvent(shortCode: string, creatorToken?: string) {
-  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
-  if (!parsed.success) return { error: "Invalid input" };
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, created_by, creator_token")
-    .eq("short_code", shortCode)
-    .single();
-
-  if (!event) return { error: "Event not found" };
-  const isCreator =
-    user?.id === event.created_by ||
-    (creatorToken && event.creator_token === creatorToken);
-  if (!isCreator) return { error: "Unauthorized" };
-
-  await supabase
-    .from("events")
-    .update({ is_locked: false })
-    .eq("id", event.id);
-
-  revalidatePath(`/s/${shortCode}`);
-  return {};
-}
-
-export async function archiveEvent(shortCode: string, creatorToken?: string) {
-  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
-  if (!parsed.success) return { error: "Invalid input" };
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, created_by, creator_token")
-    .eq("short_code", shortCode)
-    .single();
-
-  if (!event) return { error: "Event not found" };
-  const isCreator =
-    user?.id === event.created_by ||
-    (creatorToken && event.creator_token === creatorToken);
-  if (!isCreator) return { error: "Unauthorized" };
-
-  await supabase
-    .from("events")
-    .update({ is_archived: true, archived_at: new Date().toISOString() })
-    .eq("id", event.id);
-
-  revalidatePath(`/s/${shortCode}`);
-  revalidatePath("/");
-  return {};
-}
-
-export async function unarchiveEvent(shortCode: string, creatorToken?: string) {
-  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
-  if (!parsed.success) return { error: "Invalid input" };
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, created_by, creator_token")
-    .eq("short_code", shortCode)
-    .single();
-
-  if (!event) return { error: "Event not found" };
-  const isCreator =
-    user?.id === event.created_by ||
-    (creatorToken && event.creator_token === creatorToken);
-  if (!isCreator) return { error: "Unauthorized" };
-
-  await supabase
-    .from("events")
-    .update({ is_archived: false, archived_at: null })
-    .eq("id", event.id);
-
-  revalidatePath(`/s/${shortCode}`);
-  revalidatePath("/");
-  return {};
-}
-
-export async function deleteEvent(shortCode: string, creatorToken?: string) {
-  const parsed = z.object({ shortCode: shortCodeSchema, creatorToken: tokenSchema }).safeParse({ shortCode, creatorToken });
-  if (!parsed.success) return { error: "Invalid input" };
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, created_by, creator_token")
-    .eq("short_code", shortCode)
-    .single();
-
-  if (!event) return { error: "Event not found" };
-  const isCreator =
-    user?.id === event.created_by ||
-    (creatorToken && event.creator_token === creatorToken);
-  if (!isCreator) return { error: "Unauthorized" };
-
-  // Delete in FK-safe order
-  const { data: khatms } = await supabase
-    .from("khatms")
-    .select("id")
-    .eq("event_id", event.id);
-
-  if (khatms && khatms.length > 0) {
-    const khatmIds = khatms.map((k) => k.id);
-    await supabase.from("juzs").delete().in("khatm_id", khatmIds);
-    await supabase.from("khatms").delete().eq("event_id", event.id);
+  if (userError) {
+    console.error("[getUserEvents] auth.getUser failed", {
+      code: userError.code,
+      message: userError.message,
+    });
+    return [];
   }
 
-  await supabase.from("bookmarks").delete().eq("event_id", event.id);
-  await supabase.from("events").delete().eq("id", event.id);
+  if (!user || isAnonymousUser(user)) return [];
+
+  const { data, error } = await supabase.rpc("list_user_events_with_progress");
+
+  if (error) {
+    logUserEventsError("list_user_events_with_progress", error, {
+      userId: user.id,
+    });
+    return [];
+  }
+
+  if (!data) return [];
+
+  return (
+    data as Array<{
+      id: string;
+      name: string;
+      description: string | null;
+      short_code: string;
+      deadline: string | null;
+      is_public: boolean;
+      created_at: string;
+      is_archived: boolean;
+      claimed: number;
+      total: number;
+    }>
+  ).map((event) => ({
+    ...event,
+    claimed: Number(event.claimed ?? 0),
+    total: Number(event.total ?? 30),
+  }));
+}
+
+async function runEventMutation(
+  shortCode: string,
+  rpcName: "set_event_lock" | "set_event_archive" | "delete_event_by_shortcode",
+  args: Record<string, unknown> = {}
+) {
+  if (!shortCodeSchema.safeParse(shortCode).success) return { error: "Invalid input" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc(rpcName, {
+    p_short_code: shortCode,
+    ...args,
+  });
+
+  if (error) {
+    return { error: error.message || "Request failed" };
+  }
+
+  return {};
+}
+
+export async function lockEvent(shortCode: string) {
+  const result = await runEventMutation(shortCode, "set_event_lock", {
+    p_is_locked: true,
+  });
+  if (result.error) return result;
+
+  revalidatePath(`/s/${shortCode}`);
+  return {};
+}
+
+export async function unlockEvent(shortCode: string) {
+  const result = await runEventMutation(shortCode, "set_event_lock", {
+    p_is_locked: false,
+  });
+  if (result.error) return result;
+
+  revalidatePath(`/s/${shortCode}`);
+  return {};
+}
+
+export async function archiveEvent(shortCode: string) {
+  const result = await runEventMutation(shortCode, "set_event_archive", {
+    p_is_archived: true,
+  });
+  if (result.error) return result;
+
+  revalidatePath(`/s/${shortCode}`);
+  revalidatePath("/");
+  revalidatePath("/browse");
+  return {};
+}
+
+export async function unarchiveEvent(shortCode: string) {
+  const result = await runEventMutation(shortCode, "set_event_archive", {
+    p_is_archived: false,
+  });
+  if (result.error) return result;
+
+  revalidatePath(`/s/${shortCode}`);
+  revalidatePath("/");
+  revalidatePath("/browse");
+  return {};
+}
+
+export async function deleteEvent(shortCode: string) {
+  const result = await runEventMutation(shortCode, "delete_event_by_shortcode");
+  if (result.error) return result;
 
   revalidatePath("/");
   revalidatePath("/browse");

@@ -20,13 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const supabase = await createClient();
-  const { data: events } = await supabase
-    .from("events")
-    .select("short_code, created_at")
-    .eq("is_public", true)
-    .eq("is_archived", false);
+  const { data: events } = await supabase.rpc("list_public_events_for_sitemap");
 
-  const eventPages: MetadataRoute.Sitemap = (events ?? []).map((event) => ({
+  const eventPages: MetadataRoute.Sitemap = (events ?? []).map((event: { short_code: string; created_at: string }) => ({
     url: `${baseUrl}/s/${event.short_code}`,
     lastModified: new Date(event.created_at),
     changeFrequency: "daily" as const,

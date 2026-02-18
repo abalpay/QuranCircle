@@ -6,7 +6,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import JuzCard from "@/components/juz-card";
 import ClaimJuzDialog from "@/components/claim-juz-dialog";
 import FloatingClaimBar from "@/components/floating-claim-bar";
-import { claimMultipleJuz, unclaimJuz, markJuzAsRead, unmarkJuzAsRead } from "@/lib/actions/juz";
+import {
+  claimMultipleJuz,
+  unclaimJuz,
+  markJuzAsRead,
+  unmarkJuzAsRead,
+} from "@/lib/actions/juz";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { BookMarked, ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
@@ -17,8 +22,7 @@ type Juz = {
   juz_number: number;
   status: string;
   claimed_by_name: string | null;
-  claimed_by_user_id: string | null;
-  device_token: string | null;
+  is_mine: boolean;
 };
 
 type Khatm = {
@@ -33,8 +37,6 @@ type Props = {
   khatm: Khatm;
   shortCode: string;
   isLocked: boolean;
-  deviceToken: string;
-  creatorToken?: string;
   isCreator: boolean;
   onRefresh: () => Promise<void>;
   isCompleted?: boolean;
@@ -44,8 +46,6 @@ export default function KhatmCard({
   khatm,
   shortCode,
   isLocked,
-  deviceToken,
-  creatorToken,
   isCreator,
   onRefresh,
   isCompleted = false,
@@ -53,7 +53,7 @@ export default function KhatmCard({
   const [selectedJuzNumbers, setSelectedJuzNumbers] = useState<Set<number>>(new Set());
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(!isCompleted);
-  const { user } = useAuth();
+  const { ensureSession } = useAuth();
 
   // Auto-collapse when khatm becomes completed (render-time adjustment)
   const [prevIsCompleted, setPrevIsCompleted] = useState(isCompleted);
@@ -98,21 +98,22 @@ export default function KhatmCard({
     setIsClaimDialogOpen(true);
   }, [activeSelection]);
 
+  const ensureClaimSession = useCallback(async () => {
+    const sessionUser = await ensureSession();
+    if (!sessionUser) {
+      toast.error("Unable to start a session. Please refresh and try again.");
+      return false;
+    }
+    return true;
+  }, [ensureSession]);
+
   const claimProgress = Math.round((khatm.claimed_count / 30) * 100);
   const readCount = khatm.read_count ?? khatm.juzs.filter((j) => j.status === "read").length;
 
-  const isJuzOwner = (juz: Juz) =>
-    isCreator ||
-    (!!user?.id && user.id === juz.claimed_by_user_id) ||
-    (!!deviceToken && !!juz.device_token && deviceToken === juz.device_token);
+  const isJuzOwner = (juz: Juz) => isCreator || juz.is_mine;
 
   const availableJuzs = khatm.juzs.filter((j) => j.status === "unclaimed");
-  const myJuzs = khatm.juzs.filter(
-    (j) =>
-      j.status !== "unclaimed" &&
-      ((!!user?.id && user.id === j.claimed_by_user_id) ||
-        (!!deviceToken && !!j.device_token && deviceToken === j.device_token))
-  );
+  const myJuzs = khatm.juzs.filter((j) => j.status !== "unclaimed" && j.is_mine);
 
   const handleClaimClick = (juz: Juz) => {
     if (isLocked) {
@@ -126,12 +127,13 @@ export default function KhatmCard({
     claimerName: string,
     juzNumbers: number[]
   ) => {
+    if (!(await ensureClaimSession())) return;
+
     const result = await claimMultipleJuz(
       shortCode,
       khatm.id,
       juzNumbers,
-      claimerName,
-      deviceToken
+      claimerName
     );
     if (result.error) {
       toast.error(result.error);
@@ -154,7 +156,9 @@ export default function KhatmCard({
   };
 
   const handleUnclaim = async (juzId: string) => {
-    const result = await unclaimJuz(shortCode, juzId, deviceToken, creatorToken);
+    if (!(await ensureClaimSession())) return;
+
+    const result = await unclaimJuz(shortCode, juzId);
     if (result.error) {
       toast.error(result.error);
       return;
@@ -164,7 +168,9 @@ export default function KhatmCard({
   };
 
   const handleMarkRead = async (juzId: string) => {
-    const result = await markJuzAsRead(shortCode, juzId, deviceToken, creatorToken);
+    if (!(await ensureClaimSession())) return;
+
+    const result = await markJuzAsRead(shortCode, juzId);
     if (result.error) {
       toast.error(result.error);
       return;
@@ -174,7 +180,9 @@ export default function KhatmCard({
   };
 
   const handleUnmarkRead = async (juzId: string) => {
-    const result = await unmarkJuzAsRead(shortCode, juzId, deviceToken, creatorToken);
+    if (!(await ensureClaimSession())) return;
+
+    const result = await unmarkJuzAsRead(shortCode, juzId);
     if (result.error) {
       toast.error(result.error);
       return;

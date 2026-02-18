@@ -23,12 +23,12 @@ import Image from "next/image";
 import { toast } from "sonner";
 
 export default function Header() {
-  const { user, signOut } = useAuth();
+  const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
 
   const displayName =
-    (user?.user_metadata?.username as string) ||
-    user?.email?.split("@")[0] ||
+    (isAuthenticatedUser && (user?.user_metadata?.username as string)) ||
+    (isAuthenticatedUser && user?.email?.split("@")[0]) ||
     "User";
 
   return (
@@ -95,7 +95,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-          {user ? (
+          {isAuthenticatedUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

@@ -28,14 +28,13 @@ export default async function OGImage({
 
   try {
     const supabase = createAnonClient();
-    const { data: event } = await supabase
-      .from("events")
-      .select("name, description")
-      .eq("short_code", shortCode)
-      .single();
+    const { data } = await supabase.rpc("get_event_snapshot_by_shortcode", {
+      p_short_code: shortCode,
+    });
 
-    if (event) {
-      eventName = event.name;
+    if (data && typeof data === "object") {
+      const event = data as { name?: string; description?: string | null };
+      eventName = event.name || eventName;
       eventDescription = event.description || "";
     }
   } catch {

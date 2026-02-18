@@ -35,7 +35,7 @@ type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticatedUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ResetPasswordFormValues>({
@@ -44,10 +44,10 @@ export default function ResetPasswordPage() {
   });
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && !isAuthenticatedUser) {
       router.replace("/?error=auth");
     }
-  }, [user, isLoading, router]);
+  }, [isAuthenticatedUser, isLoading, router]);
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
     setIsSubmitting(true);
@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
     router.replace("/");
   };
 
-  if (isLoading || !user) {
+  if (isLoading || !isAuthenticatedUser || !user) {
     return (
       <main className="page-shell grow flex items-center justify-center">
         <div className="quran-card p-10 text-center">

@@ -34,7 +34,7 @@ export default function CreateKhatimDialog({
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
+  const { isAuthenticatedUser } = useAuth();
   const { openAuthModal } = useAuthModal();
   const router = useRouter();
 
@@ -51,7 +51,7 @@ export default function CreateKhatimDialog({
       return;
     }
 
-    if (!user) {
+    if (!isAuthenticatedUser) {
       toast.error("Sign in to create a Khatm circle");
       openAuthModal("login");
       return;
