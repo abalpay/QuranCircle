@@ -151,10 +151,17 @@ export default function KhatmCard({
       toast.error(result.error);
       return;
     }
+    const count = result.claimed?.length ?? juzNumbers.length;
+    if (count === 0) {
+      toast.error("All selected juz were already claimed by someone else");
+      setIsClaimDialogOpen(false);
+      clearSelection();
+      await onRefresh();
+      return;
+    }
     if (result.partialError) {
       toast.warning(result.partialError);
     }
-    const count = result.claimed?.length ?? juzNumbers.length;
 
     setIsClaimDialogOpen(false);
     clearSelection();

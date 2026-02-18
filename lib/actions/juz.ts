@@ -76,6 +76,10 @@ export async function claimMultipleJuz(
 
   revalidatePath(`/s/${shortCode}`);
 
+  if (failed.length > 0 && claimed.length === 0) {
+    return { error: "All selected juz were already claimed by someone else" };
+  }
+
   if (failed.length > 0) {
     return {
       claimed,
