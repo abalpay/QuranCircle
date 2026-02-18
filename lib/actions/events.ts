@@ -27,11 +27,24 @@ function isAnonymousUser(user: { is_anonymous?: boolean } | null | undefined) {
   return Boolean(user?.is_anonymous);
 }
 
-function isShortCodeCollision(error: { code?: string; message?: string } | null) {
-  if (!error) return false;
+type RpcErrorLike = {
+  code?: string;
+  message?: string;
+  details?: string | null;
+  hint?: string | null;
+};
+
+function isShortCodeCollision(error: RpcErrorLike | null) {
+  if (!error || error.code !== "23505") return false;
+
+  const fingerprint = `${error.message ?? ""} ${error.details ?? ""} ${
+    error.hint ?? ""
+  }`.toLowerCase();
+
   return (
-    error.code === "23505" ||
-    (error.message ?? "").toLowerCase().includes("short_code")
+    fingerprint.includes("short_code") ||
+    fingerprint.includes("events_short_code") ||
+    fingerprint.includes("events_short_code_key")
   );
 }
 
@@ -76,6 +89,7 @@ export async function createEvent(formData: {
 
   const maxAttempts = 10;
   let shortCode = generateShortCode(8);
+  let lastShortCodeError: RpcErrorLike | null = null;
 
   for (let attempts = 0; attempts < maxAttempts; attempts++) {
     const { data, error } = await supabase
@@ -101,13 +115,29 @@ export async function createEvent(formData: {
     }
 
     if (isShortCodeCollision(error)) {
+      lastShortCodeError = error;
       shortCode = generateShortCode(8);
       continue;
     }
 
+    if (error) {
+      console.error("[createEvent] create_event_with_initial_khatm failed", {
+        code: error.code,
+        message: error.message,
+        details: error.details ?? null,
+        hint: error.hint ?? null,
+      });
+    }
     return { error: error?.message ?? "Failed to create event. Please try again." };
   }
 
+  console.error("[createEvent] exhausted short-code retries", {
+    attempts: maxAttempts,
+    code: lastShortCodeError?.code,
+    message: lastShortCodeError?.message,
+    details: lastShortCodeError?.details ?? null,
+    hint: lastShortCodeError?.hint ?? null,
+  });
   return { error: "Failed to create a unique link. Please try again." };
 }
 
