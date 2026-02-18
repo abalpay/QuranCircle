@@ -68,9 +68,9 @@ BEGIN
         TO authenticated
         USING (
           CASE
-            WHEN split_part(topic, '':'', 1) = ''event''
-             AND split_part(topic, '':'', 2) ~* ''^[0-9a-f-]{36}$''
-            THEN public.can_access_event((split_part(topic, '':'', 2))::uuid)
+            WHEN split_part(topic, ':', 1) = 'event'
+             AND split_part(topic, ':', 2) ~* '^[0-9a-f-]{36}$'
+            THEN public.can_access_event((split_part(topic, ':', 2))::uuid)
             ELSE false
           END
         )
