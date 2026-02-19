@@ -56,6 +56,9 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+      - name: Run merge security regression tests
+        run: npx playwright test tests/e2e/merge-security.spec.ts --config playwright.config.ts
+
       - name: Run E2E smoke tests
         run: npm run test:e2e
 

@@ -498,6 +498,11 @@
   .install-step-chip {
     @apply rounded-xl border border-quran-border/60 bg-white/75 px-2 py-2;
   }
+
+  .bg-quran-green-soft {
+    /* Stable fallback for browsers without color-mix support. */
+    background-color: rgba(23, 99, 81, 0.14);
+  }
 }
 
 @keyframes nav-progress-complete {

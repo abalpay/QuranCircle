@@ -16,6 +16,9 @@ import Footer from "@/components/footer";
 import NavigationProgress from "@/components/navigation-progress";
 import AuthErrorToast from "@/components/auth-error-toast";
 import { Analytics } from "@vercel/analytics/next";
+import { getSiteUrl } from "@/lib/site-url";
+
+const siteUrl = getSiteUrl();
 
 const manrope = Manrope({
   variable: "--font-body",
@@ -47,7 +50,7 @@ const amiri = Amiri({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://qurancircle.io"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "QuranCircle - Read & Complete the Quran Together",
     template: "%s - QuranCircle",
@@ -58,7 +61,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://qurancircle.io",
+    url: siteUrl,
     siteName: "QuranCircle",
     title: "QuranCircle - Read & Complete the Quran Together",
     description:
@@ -75,7 +78,6 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: "cover" as const,
   themeColor: "#0f5f52",
 };

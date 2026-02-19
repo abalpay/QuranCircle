@@ -184,4 +184,28 @@ describe("usePwaInstall", () => {
     );
     expect(hasSeenClaimInstallPrompt()).toBe(true);
   });
+
+  it("synchronizes dismissal state changes from other tabs via storage events", async () => {
+    const { result } = renderHook(() => usePwaInstall());
+
+    await waitFor(() => {
+      expect(result.current.isEligible).toBe(true);
+    });
+
+    act(() => {
+      const storageEvent = new Event("storage") as StorageEvent;
+      Object.defineProperty(storageEvent, "key", {
+        value: INSTALL_PROMPT_DISMISSED_KEY,
+      });
+      Object.defineProperty(storageEvent, "newValue", { value: "1" });
+      Object.defineProperty(storageEvent, "storageArea", {
+        value: window.localStorage,
+      });
+      window.dispatchEvent(
+        storageEvent
+      );
+    });
+
+    expect(result.current.isEligible).toBe(false);
+  });
 });

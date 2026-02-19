@@ -27,6 +27,57 @@ const createEventSchema = z.object({
   isPublic: z.boolean().optional(),
 });
 
+const EVENT_SNAPSHOT_DEFAULT_KHATM_LIMIT = 3;
+const EVENT_SNAPSHOT_MAX_KHATM_LIMIT = 20;
+const DEFAULT_PUBLIC_EVENTS_PAGE_SIZE = 24;
+const MAX_PUBLIC_EVENTS_PAGE_SIZE = 100;
+
+export type EventLookupErrorCode =
+  | "invalid_short_code"
+  | "invalid_cursor"
+  | "not_found"
+  | "upstream_error";
+
+export type EventLookupResult =
+  | { ok: true; data: EventSnapshot }
+  | {
+      ok: false;
+      code: EventLookupErrorCode;
+      message: string;
+      status: number;
+    };
+
+export type EventSnapshotQuery = {
+  khatmLimit?: number | null;
+  beforeKhatmNumber?: number | null;
+};
+
+export type PublicEventsCursor = {
+  createdAt: string;
+  id: string;
+};
+
+export type PublicEventsPage = {
+  events: PublicEventWithProgress[];
+  hasMore: boolean;
+  nextCursor: PublicEventsCursor | null;
+};
+
+function normalizeKhatmLimit(limit: number | null | undefined) {
+  if (limit === null) return null;
+  if (typeof limit !== "number" || !Number.isFinite(limit)) {
+    return EVENT_SNAPSHOT_DEFAULT_KHATM_LIMIT;
+  }
+  return Math.max(1, Math.min(EVENT_SNAPSHOT_MAX_KHATM_LIMIT, Math.trunc(limit)));
+}
+
+function normalizePublicEventsLimit(limit: number | null | undefined) {
+  if (typeof limit !== "number" || !Number.isFinite(limit)) {
+    return DEFAULT_PUBLIC_EVENTS_PAGE_SIZE;
+  }
+  return Math.max(1, Math.min(MAX_PUBLIC_EVENTS_PAGE_SIZE, Math.trunc(limit)));
+}
+
 function isAnonymousUser(user: { is_anonymous?: boolean } | null | undefined) {
   return Boolean(user?.is_anonymous);
 }
@@ -146,19 +197,82 @@ export async function createEvent(formData: {
   return { error: "Failed to create a unique link. Please try again." };
 }
 
-export async function getEventByShortCode(shortCode: string): Promise<EventSnapshot | null> {
-  if (!shortCodeSchema.safeParse(shortCode).success) return null;
-
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("get_event_snapshot_by_shortcode", {
-    p_short_code: shortCode,
-  });
-
-  if (error || !data) {
-    return null;
+export async function getEventByShortCodeResult(
+  shortCode: string,
+  query: EventSnapshotQuery = {}
+): Promise<EventLookupResult> {
+  if (!shortCodeSchema.safeParse(shortCode).success) {
+    return {
+      ok: false,
+      code: "invalid_short_code",
+      message: "Invalid shortCode",
+      status: 400,
+    };
   }
 
-  return data as EventSnapshot;
+  const beforeKhatmNumber =
+    query.beforeKhatmNumber === null || query.beforeKhatmNumber === undefined
+      ? null
+      : Math.trunc(query.beforeKhatmNumber);
+  if (beforeKhatmNumber !== null && beforeKhatmNumber < 1) {
+    return {
+      ok: false,
+      code: "invalid_cursor",
+      message: "Invalid beforeKhatmNumber",
+      status: 400,
+    };
+  }
+
+  const khatmLimit = normalizeKhatmLimit(query.khatmLimit);
+  const supabase = await createClient();
+  const rpcParams: Record<string, unknown> = {
+    p_short_code: shortCode,
+    p_khatm_limit: khatmLimit,
+  };
+  if (beforeKhatmNumber !== null) {
+    rpcParams.p_before_khatm_number = beforeKhatmNumber;
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_event_snapshot_by_shortcode",
+    rpcParams
+  );
+
+  if (error) {
+    console.error("[getEventByShortCodeResult] snapshot lookup failed", {
+      shortCode,
+      code: error.code,
+      message: error.message,
+      details: error.details ?? null,
+      hint: error.hint ?? null,
+    });
+    return {
+      ok: false,
+      code: "upstream_error",
+      message: "Failed to load event snapshot",
+      status: 502,
+    };
+  }
+
+  if (!data) {
+    return {
+      ok: false,
+      code: "not_found",
+      message: "Event not found",
+      status: 404,
+    };
+  }
+
+  return { ok: true, data: data as EventSnapshot };
+}
+
+export async function getEventByShortCode(
+  shortCode: string,
+  query: EventSnapshotQuery = {}
+): Promise<EventSnapshot | null> {
+  const result = await getEventByShortCodeResult(shortCode, query);
+  if (!result.ok) return null;
+  return result.data;
 }
 
 export async function ensureEventMembershipForShortCode(shortCode: string) {
@@ -190,21 +304,65 @@ export async function ensureEventMembershipForShortCode(shortCode: string) {
   return {};
 }
 
-export async function getPublicEvents(): Promise<PublicEventWithProgress[]> {
+export async function getPublicEventsPage({
+  limit = DEFAULT_PUBLIC_EVENTS_PAGE_SIZE,
+  cursor = null,
+}: {
+  limit?: number;
+  cursor?: PublicEventsCursor | null;
+} = {}): Promise<PublicEventsPage> {
+  const normalizedLimit = normalizePublicEventsLimit(limit);
+  const queryLimit = normalizedLimit + 1;
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("list_public_events_with_progress", {
-    p_limit: 50,
-  });
 
-  if (error || !data) {
-    return [];
+  const rpcParams: Record<string, unknown> = {
+    p_limit: queryLimit,
+  };
+  if (cursor) {
+    rpcParams.p_before_created_at = cursor.createdAt;
+    rpcParams.p_before_id = cursor.id;
   }
 
-  return (data as PublicEventWithProgress[]).map((event) => ({
+  const { data, error } = await supabase.rpc(
+    "list_public_events_with_progress",
+    rpcParams
+  );
+
+  if (error || !data) {
+    if (error) {
+      console.error("[getPublicEventsPage] list_public_events_with_progress failed", {
+        code: error.code,
+        message: error.message,
+        details: error.details ?? null,
+        hint: error.hint ?? null,
+      });
+    }
+    return { events: [], hasMore: false, nextCursor: null };
+  }
+
+  const mapped = (data as PublicEventWithProgress[]).map((event) => ({
     ...event,
     claimed: Number(event.claimed ?? 0),
     total: Number(event.total ?? 30),
   }));
+
+  const hasMore = mapped.length > normalizedLimit;
+  const events = hasMore ? mapped.slice(0, normalizedLimit) : mapped;
+  const lastEvent = hasMore ? events[events.length - 1] : null;
+
+  return {
+    events,
+    hasMore,
+    nextCursor:
+      hasMore && lastEvent
+        ? { createdAt: lastEvent.created_at, id: lastEvent.id }
+        : null,
+  };
+}
+
+export async function getPublicEvents(limit = 50): Promise<PublicEventWithProgress[]> {
+  const page = await getPublicEventsPage({ limit });
+  return page.events;
 }
 
 export async function getUserEvents() {

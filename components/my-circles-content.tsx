@@ -115,6 +115,11 @@ export default function MyCirclesContent() {
         if (isMounted) {
           setCircles(nextCircles);
         }
+      } catch (error) {
+        console.error("[MyCircles] Failed to load circles:", error);
+        if (isMounted) {
+          setCircles([]);
+        }
       } finally {
         if (isMounted) {
           setIsLoadingCircles(false);
@@ -132,9 +137,13 @@ export default function MyCirclesContent() {
     let isMounted = true;
 
     const refreshOnMerge = async () => {
-      const nextCircles = await getMyCircles();
-      if (isMounted) {
-        setCircles(nextCircles);
+      try {
+        const nextCircles = await getMyCircles();
+        if (isMounted) {
+          setCircles(nextCircles);
+        }
+      } catch (error) {
+        console.error("[MyCircles] Failed to refresh circles after merge:", error);
       }
     };
 

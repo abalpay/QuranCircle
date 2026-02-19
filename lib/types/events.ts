@@ -26,6 +26,10 @@ export type EventSnapshot = {
   is_member: boolean;
   can_manage: boolean;
   khatms: KhatmSnapshot[];
+  loaded_khatms: number;
+  total_khatms: number;
+  has_more_khatms: boolean;
+  next_before_khatm_number: number | null;
 };
 
 export type PublicEventWithProgress = {

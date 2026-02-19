@@ -149,6 +149,32 @@ export function usePwaInstall() {
     };
   }, [featureEnabled, markInstalled]);
 
+  useEffect(() => {
+    if (!featureEnabled) return;
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.storageArea !== window.localStorage) return;
+      if (!event.key) return;
+
+      if (event.key === INSTALL_PROMPT_DISMISSED_KEY) {
+        setIsDismissed(event.newValue === "1");
+      }
+
+      if (event.key === INSTALL_PROMPT_INSTALLED_MANUAL_KEY) {
+        const installed = event.newValue === "1";
+        setIsManuallyInstalled(installed);
+        if (installed) {
+          setDeferredPrompt(null);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [featureEnabled]);
+
   const isEligible = useMemo(() => {
     return featureEnabled && !isStandalone && !isDismissed && !isManuallyInstalled;
   }, [featureEnabled, isDismissed, isManuallyInstalled, isStandalone]);

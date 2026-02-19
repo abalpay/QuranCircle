@@ -1,9 +1,9 @@
-import { getPublicEvents } from "@/lib/actions/events";
+import { getPublicEventsPage } from "@/lib/actions/events";
 import { Globe2 } from "lucide-react";
 import BrowseEvents from "@/components/browse-events";
 
 export default async function BrowsePage() {
-  const events = await getPublicEvents();
+  const initialPage = await getPublicEventsPage();
 
   return (
     <main className="page-shell grow">
@@ -23,7 +23,7 @@ export default async function BrowsePage() {
         </div>
       </section>
 
-      <BrowseEvents initialEvents={events} />
+      <BrowseEvents initialPage={initialPage} />
     </main>
   );
 }

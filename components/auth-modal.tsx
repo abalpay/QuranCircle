@@ -296,12 +296,13 @@ export default function AuthModal({
                 >
                   {forgotPasswordSubmitting ? "Sending..." : "Send Reset Link"}
                 </Button>
-                <div
-                  className="text-sm text-center mt-4 text-primary hover:underline cursor-pointer"
+                <button
+                  type="button"
+                  className="mt-4 w-full text-center text-sm text-primary hover:underline"
                   onClick={() => setActiveTab("login")}
                 >
                   Back to Login
-                </div>
+                </button>
               </form>
             </Form>
           )
@@ -384,12 +385,13 @@ export default function AuthModal({
                         </FormItem>
                       )}
                     />
-                    <div
-                      className="text-sm text-primary hover:underline cursor-pointer"
+                    <button
+                      type="button"
+                      className="text-left text-sm text-primary hover:underline"
                       onClick={() => setActiveTab("forgot-password")}
                     >
                       Forgot password?
-                    </div>
+                    </button>
                     <Button
                       type="submit"
                       className="w-full rounded-full"

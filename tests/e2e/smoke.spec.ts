@@ -248,3 +248,34 @@ test("archived circles block claim interactions", async ({ page }) => {
   await page.getByTitle("Juz 1", { exact: true }).first().click();
   await expect(page.getByText("1 Juz selected")).toHaveCount(0);
 });
+
+test("event API returns structured 400 and 404 error payloads", async ({ request }) => {
+  const missingShortCode = await request.get("/api/event");
+  expect(missingShortCode.status()).toBe(400);
+  await expect(missingShortCode.json()).resolves.toEqual({
+    error: { code: "missing_short_code", message: "Missing shortCode" },
+  });
+
+  const notFound = await request.get("/api/event?shortCode=NOPE0001");
+  expect(notFound.status()).toBe(404);
+  await expect(notFound.json()).resolves.toEqual({
+    error: { code: "not_found", message: "Event not found" },
+  });
+});
+
+test("snapshot refresh recovers after transient offline period", async ({ page, context }) => {
+  await page.goto(`/s/${smokeShortCode}`);
+  await expect(
+    page.getByRole("heading", { name: "E2E Smoke Circle" })
+  ).toBeVisible();
+
+  await context.setOffline(true);
+  await page.waitForTimeout(800);
+  await context.setOffline(false);
+
+  await expect(page.getByTitle(/^Tap to select Juz \d+$/).first()).toBeVisible();
+  await page.getByRole("tab", { name: /Available \(\d+\)/ }).click();
+  await expect(
+    page.getByRole("tab", { name: /Available \(\d+\)/ })
+  ).toHaveAttribute("data-state", "active");
+});

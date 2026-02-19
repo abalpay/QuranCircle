@@ -103,6 +103,64 @@ Run before staging sign-off:
 2. `npx tsc --noEmit`
 3. `npm run build`
 
+## Production Hardening Release Gates
+
+Use these explicit gates for phased rollout sign-off.
+
+### Phase 0 (Baseline) Gate
+
+Pass:
+1. `supabase db reset --local --yes` succeeds.
+2. `npm run lint` passes.
+3. `npx tsc --noEmit` passes.
+4. `npm run test:unit` passes.
+5. `npm run test:e2e` passes with local Supabase env exported.
+
+Fail:
+1. Any command above fails.
+2. Any migration fails to apply locally.
+
+### Phase 1 (Merge Security) Gate
+
+Pass:
+1. Migration `00027_harden_merge_rpc_permissions.sql` applies successfully.
+2. Authenticated or anonymous client calls to `merge_anonymous_identity(UUID)` fail with permission denied.
+3. `/auth/callback` merge path succeeds for valid anonymous-to-auth upgrade flow.
+4. `tests/e2e/merge-security.spec.ts` passes.
+
+Fail:
+1. Legacy merge RPC is still callable by non-service roles.
+2. Legitimate merge flow regresses.
+
+### Phase 2 (Snapshot + Realtime Reliability) Gate
+
+Pass:
+1. Migration `00028_snapshot_windowed_read_rpc.sql` applies successfully.
+2. Circle page loads with bounded khatm window and supports loading older cycles.
+3. Realtime bootstrap for private circles requires successful membership initialization.
+4. `tests/e2e/smoke.spec.ts` realtime and event API assertions pass.
+
+Fail:
+1. Snapshot responses remain unbounded at default path.
+2. Private realtime marks ready without membership success.
+3. Async handlers leave loading states stuck.
+
+### Phase 3 (Correctness + A11y + Config) Gate
+
+Pass:
+1. Migration `00029_public_events_cursor_pagination.sql` applies successfully.
+2. `/api/event` returns structured error payloads with correct status classes.
+3. Browse supports loading beyond initial page via cursor pagination.
+4. Site URLs resolve from `NEXT_PUBLIC_SITE_URL` rather than hardcoded host values.
+5. Auth modal forgotten-password/back actions are keyboard accessible.
+6. Cross-tab install prompt state stays synchronized via `storage` events.
+7. `tests/e2e/browse-pagination.spec.ts` and updated install prompt tests pass.
+
+Fail:
+1. API still conflates not-found and upstream failures.
+2. Browse remains capped to initial fixed dataset.
+3. A11y or install sync regressions are observed in automated tests.
+
 ## Focused QA Checklist (Event-Level Filters + My Juz Flow)
 
 Use this quick checklist before shipping changes around filters, claiming, or status actions:

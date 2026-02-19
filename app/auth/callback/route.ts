@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { getSafeNextPath } from "@/lib/supabase/auth-urls";
 import { cookies } from "next/headers";
@@ -47,12 +48,21 @@ async function finalizePendingMerge({
     return { status: "invalid_merge_state", shouldClearCookie: true };
   }
 
-  const { data, error } = await supabase.rpc("merge_anonymous_identity", {
-    p_source_user_id: sourceUserId,
-  });
+  let data: unknown = null;
+  try {
+    const admin = createAdminClient();
+    const response = await admin.rpc("merge_anonymous_identity_for_target", {
+      p_source_user_id: sourceUserId,
+      p_target_user_id: user.id,
+    });
+    data = response.data;
 
-  if (error) {
-    console.error("Auth callback merge failed (retryable):", error.message);
+    if (response.error) {
+      console.error("Auth callback merge failed (retryable):", response.error.message);
+      return { status: "merge_retryable_error", shouldClearCookie: false };
+    }
+  } catch (error) {
+    console.error("Auth callback merge failed (retryable):", error);
     return { status: "merge_retryable_error", shouldClearCookie: false };
   }
 

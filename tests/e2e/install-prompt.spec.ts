@@ -132,4 +132,24 @@ test.describe("install prompt", () => {
       page.getByRole("heading", { name: /Browse Community Khatms/i })
     ).toBeVisible();
   });
+
+  test("dismissal synchronizes across tabs via storage events", async ({
+    page,
+    context,
+  }) => {
+    const secondPage = await context.newPage();
+    await page.goto("/");
+    await secondPage.goto("/");
+
+    await expect(
+      secondPage.getByRole("heading", { name: "Install QuranCircle" })
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Not now" }).click();
+    await expect(
+      secondPage.getByRole("heading", { name: "Install QuranCircle" })
+    ).toHaveCount(0);
+
+    await secondPage.close();
+  });
 });

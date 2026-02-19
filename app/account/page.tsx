@@ -103,54 +103,81 @@ export default function AccountPage() {
 
   const onSaveProfile = async (data: ProfileFormValues) => {
     setIsSavingProfile(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({
-      data: { username: data.username },
-    });
-    setIsSavingProfile(false);
-
-    if (error) {
-      toast.error("Failed to update profile", {
-        description: formatAuthError(error.message),
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({
+        data: { username: data.username },
       });
-      return;
+
+      if (error) {
+        toast.error("Failed to update profile", {
+          description: formatAuthError(error.message),
+        });
+        return;
+      }
+      toast.success("Profile updated");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unexpected profile update error";
+      toast.error("Failed to update profile", {
+        description: formatAuthError(message),
+      });
+    } finally {
+      setIsSavingProfile(false);
     }
-    toast.success("Profile updated");
   };
 
   const onChangePassword = async (data: PasswordFormValues) => {
     setIsSavingPassword(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({
-      password: data.newPassword,
-    });
-    setIsSavingPassword(false);
-
-    if (error) {
-      toast.error("Failed to update password", {
-        description: formatAuthError(error.message),
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({
+        password: data.newPassword,
       });
-      return;
+
+      if (error) {
+        toast.error("Failed to update password", {
+          description: formatAuthError(error.message),
+        });
+        return;
+      }
+      toast.success("Password updated");
+      passwordForm.reset();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unexpected password update error";
+      toast.error("Failed to update password", {
+        description: formatAuthError(message),
+      });
+    } finally {
+      setIsSavingPassword(false);
     }
-    toast.success("Password updated");
-    passwordForm.reset();
   };
 
   const onDeleteAccount = async () => {
     setIsDeleting(true);
-    const { error } = await deleteAccount();
-    setIsDeleting(false);
+    try {
+      const { error } = await deleteAccount();
 
-    if (error) {
-      toast.error("Failed to delete account", { description: error });
-      return;
+      if (error) {
+        toast.error("Failed to delete account", { description: error });
+        return;
+      }
+      // Clear client-side auth state (server action only clears server cookies)
+      const supabase = createClient();
+      await supabase.auth.signOut();
+
+      toast.success("Account deleted");
+      router.replace("/");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unexpected account deletion error";
+      toast.error("Failed to delete account", {
+        description: formatAuthError(message),
+      });
+    } finally {
+      setIsDeleting(false);
     }
-    // Clear client-side auth state (server action only clears server cookies)
-    const supabase = createClient();
-    await supabase.auth.signOut();
-
-    toast.success("Account deleted");
-    router.replace("/");
   };
 
   if (isLoading || !isAuthenticatedUser || !user) {

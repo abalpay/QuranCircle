@@ -37,6 +37,11 @@ export default function UserDashboard() {
         if (isMounted) {
           setCircles(nextCircles);
         }
+      } catch (error) {
+        console.error("[UserDashboard] Failed to load circles:", error);
+        if (isMounted) {
+          setCircles([]);
+        }
       } finally {
         if (isMounted) {
           setIsLoadingCircles(false);
@@ -54,9 +59,13 @@ export default function UserDashboard() {
     let isMounted = true;
 
     const handleIdentityMerged = async () => {
-      const nextCircles = await getMyCircles();
-      if (isMounted) {
-        setCircles(nextCircles);
+      try {
+        const nextCircles = await getMyCircles();
+        if (isMounted) {
+          setCircles(nextCircles);
+        }
+      } catch (error) {
+        console.error("[UserDashboard] Failed to refresh circles after merge:", error);
       }
     };
 

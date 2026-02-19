@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getEventByShortCode } from "@/lib/actions/events";
 import KhatimPageClient from "@/components/khatim-page-client";
+import { toAbsoluteUrl } from "@/lib/site-url";
+
+const SNAPSHOT_WINDOW_KHATM_LIMIT = 3;
 
 type PageProps = {
   params: Promise<{ shortCode: string }>;
@@ -9,16 +12,20 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { shortCode } = await params;
-  const event = await getEventByShortCode(shortCode);
+  const event = await getEventByShortCode(shortCode, {
+    khatmLimit: SNAPSHOT_WINDOW_KHATM_LIMIT,
+  });
   if (!event) {
     return { title: "Circle Not Found" };
   }
 
   const description =
     event.description || `Join the ${event.name} Khatm circle on QuranCircle`;
-  const url = `https://qurancircle.io/s/${shortCode}`;
+  const url = toAbsoluteUrl(`/s/${shortCode}`);
   const ogVersion = new Date(event.created_at).getTime().toString(36);
-  const ogImageUrl = `https://qurancircle.io/s/${shortCode}/opengraph-image?v=${ogVersion}`;
+  const ogImageUrl = toAbsoluteUrl(
+    `/s/${shortCode}/opengraph-image?v=${ogVersion}`
+  );
 
   return {
     title: event.name,
@@ -45,7 +52,9 @@ export default async function KhatimPage({
   params: Promise<{ shortCode: string }>;
 }) {
   const { shortCode } = await params;
-  const event = await getEventByShortCode(shortCode);
+  const event = await getEventByShortCode(shortCode, {
+    khatmLimit: SNAPSHOT_WINDOW_KHATM_LIMIT,
+  });
 
   if (!event) {
     notFound();

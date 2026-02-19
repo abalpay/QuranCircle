@@ -66,6 +66,8 @@ const REALTIME_SAFETY_POLL_MS = 60_000;
 const MY_JUZ_NUDGE_KEY = "qc_my_juz_nudge_seen_v1";
 const FILTER_SYNC_TIMEOUT_MS = 1_200;
 const CLAIM_SUCCESS_INSTALL_PROMPT_DELAY_MS = 1_400;
+const SNAPSHOT_WINDOW_KHATM_LIMIT = 3;
+const SNAPSHOT_WINDOW_MAX_KHATM_LIMIT = 20;
 
 type Props = {
   event: EventSnapshot;
@@ -95,8 +97,12 @@ export default function KhatimPageClient({
   const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
   const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
   const [isInstallPromptOpen, setIsInstallPromptOpen] = useState(false);
+  const [isLoadingOlderKhatms, setIsLoadingOlderKhatms] = useState(false);
   const latestKhatmIdRef = useRef<string | null>(
     initialEvent.khatms[initialEvent.khatms.length - 1]?.id ?? null
+  );
+  const loadedKhatmCountRef = useRef<number>(
+    initialEvent.khatms.length || SNAPSHOT_WINDOW_KHATM_LIMIT
   );
   const installPromptTimerRef = useRef<number | null>(null);
 
@@ -120,6 +126,11 @@ export default function KhatimPageClient({
   useEffect(() => {
     latestKhatmIdRef.current = event.khatms[event.khatms.length - 1]?.id ?? null;
   }, [event.khatms]);
+
+  useEffect(() => {
+    loadedKhatmCountRef.current =
+      event.khatms.length || SNAPSHOT_WINDOW_KHATM_LIMIT;
+  }, [event.khatms.length]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -241,32 +252,119 @@ export default function KhatimPageClient({
     ]
   );
 
-  const refreshEvent = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/event?shortCode=${shortCode}`, {
-        cache: "no-store",
-      });
-      if (!res.ok) {
-        console.warn("[QuranCircle] Failed to refresh event snapshot:", {
+  const refreshEvent = useCallback(
+    async ({
+      mode = "replace",
+      beforeKhatmNumber = null,
+      khatmLimit = null,
+    }: {
+      mode?: "replace" | "prepend";
+      beforeKhatmNumber?: number | null;
+      khatmLimit?: number | null;
+    } = {}) => {
+      try {
+        const resolvedKhatmLimit =
+          khatmLimit ??
+          Math.max(
+            SNAPSHOT_WINDOW_KHATM_LIMIT,
+            Math.min(
+              loadedKhatmCountRef.current || SNAPSHOT_WINDOW_KHATM_LIMIT,
+              SNAPSHOT_WINDOW_MAX_KHATM_LIMIT
+            )
+          );
+
+        const params = new URLSearchParams({
           shortCode,
-          status: res.status,
-          statusText: res.statusText,
+          khatmLimit: String(resolvedKhatmLimit),
         });
-        return;
+        if (beforeKhatmNumber !== null) {
+          params.set("beforeKhatmNumber", String(beforeKhatmNumber));
+        }
+
+        const res = await fetch(`/api/event?${params.toString()}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          console.warn("[QuranCircle] Failed to refresh event snapshot:", {
+            shortCode,
+            status: res.status,
+            statusText: res.statusText,
+          });
+          return false;
+        }
+        const data = (await res.json()) as
+          | EventSnapshot
+          | {
+              error?: {
+                code?: string;
+                message?: string;
+              };
+            };
+
+        if (data && typeof data === "object" && !("error" in data)) {
+          const nextEvent = data as EventSnapshot;
+          setEvent((current) => {
+            if (mode !== "prepend") {
+              return nextEvent;
+            }
+
+            const mergedById = new Map(
+              current.khatms.map((khatm) => [khatm.id, khatm] as const)
+            );
+            for (const khatm of nextEvent.khatms) {
+              if (!mergedById.has(khatm.id)) {
+                mergedById.set(khatm.id, khatm);
+              }
+            }
+            const mergedKhatms = Array.from(mergedById.values()).sort(
+              (a, b) => a.khatm_number - b.khatm_number
+            );
+
+            return {
+              ...current,
+              ...nextEvent,
+              khatms: mergedKhatms,
+              loaded_khatms: mergedKhatms.length,
+            };
+          });
+          setIsCreator(Boolean(nextEvent.can_manage));
+          return true;
+        }
+
+        console.warn("[QuranCircle] Event snapshot payload was invalid:", {
+          shortCode,
+          error:
+            data && typeof data === "object" && "error" in data
+              ? data.error
+              : null,
+        });
+        return false;
+      } catch (err) {
+        console.warn("[QuranCircle] Failed to refresh event:", err);
+        return false;
       }
-      const data = await res.json();
-      if (data && !data.error) {
-        setEvent(data as EventSnapshot);
-        setIsCreator(Boolean((data as EventSnapshot).can_manage));
-        return;
-      }
-      console.warn("[QuranCircle] Event snapshot payload was invalid:", {
-        shortCode,
+    },
+    [shortCode]
+  );
+
+  const loadOlderKhatms = useCallback(async () => {
+    if (!event.has_more_khatms || !event.next_before_khatm_number) return;
+
+    setIsLoadingOlderKhatms(true);
+    try {
+      const loaded = await refreshEvent({
+        mode: "prepend",
+        beforeKhatmNumber: event.next_before_khatm_number,
+        khatmLimit: SNAPSHOT_WINDOW_KHATM_LIMIT,
       });
-    } catch (err) {
-      console.warn("[QuranCircle] Failed to refresh event:", err);
+
+      if (!loaded) {
+        toast.error("Failed to load older Khatm cycles. Please try again.");
+      }
+    } finally {
+      setIsLoadingOlderKhatms(false);
     }
-  }, [shortCode]);
+  }, [event.has_more_khatms, event.next_before_khatm_number, refreshEvent]);
 
   const jumpToLatestKhatm = useCallback((baselineKhatmId: string | null = null) => {
     let attempts = 0;
@@ -313,42 +411,57 @@ export default function KhatimPageClient({
 
   const handleCreatorMarkRead = useCallback(
     async (juzId: string) => {
-      if (!(await ensureMutationSession())) return;
-      const result = await markJuzAsRead(shortCode, juzId);
-      if (result.error) {
-        toast.error(result.error);
-        return;
+      try {
+        if (!(await ensureMutationSession())) return;
+        const result = await markJuzAsRead(shortCode, juzId);
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
+        toast.success("Juz marked as read");
+        await refreshEvent();
+      } catch (error) {
+        console.error("[QuranCircle] Failed to mark juz as read:", error);
+        toast.error("Unable to mark this Juz as read. Please try again.");
       }
-      toast.success("Juz marked as read");
-      await refreshEvent();
     },
     [ensureMutationSession, refreshEvent, shortCode]
   );
 
   const handleCreatorUnmarkRead = useCallback(
     async (juzId: string) => {
-      if (!(await ensureMutationSession())) return;
-      const result = await unmarkJuzAsRead(shortCode, juzId);
-      if (result.error) {
-        toast.error(result.error);
-        return;
+      try {
+        if (!(await ensureMutationSession())) return;
+        const result = await unmarkJuzAsRead(shortCode, juzId);
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
+        toast.success("Juz marked as unread");
+        await refreshEvent();
+      } catch (error) {
+        console.error("[QuranCircle] Failed to unmark juz as read:", error);
+        toast.error("Unable to update this Juz. Please try again.");
       }
-      toast.success("Juz marked as unread");
-      await refreshEvent();
     },
     [ensureMutationSession, refreshEvent, shortCode]
   );
 
   const handleCreatorUnclaim = useCallback(
     async (juzId: string) => {
-      if (!(await ensureMutationSession())) return;
-      const result = await unclaimJuz(shortCode, juzId);
-      if (result.error) {
-        toast.error(result.error);
-        return;
+      try {
+        if (!(await ensureMutationSession())) return;
+        const result = await unclaimJuz(shortCode, juzId);
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
+        toast.success("Juz unclaimed");
+        await refreshEvent();
+      } catch (error) {
+        console.error("[QuranCircle] Failed to unclaim juz:", error);
+        toast.error("Unable to unclaim this Juz. Please try again.");
       }
-      toast.success("Juz unclaimed");
-      await refreshEvent();
     },
     [ensureMutationSession, refreshEvent, shortCode]
   );
@@ -430,7 +543,12 @@ export default function KhatimPageClient({
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
     const bootstrapSession = async (attempt: number) => {
-      const sessionUser = await ensureSession();
+      let sessionUser = null;
+      try {
+        sessionUser = await ensureSession();
+      } catch (error) {
+        console.warn("[QuranCircle] Session bootstrap failed:", error);
+      }
       if (cancelled) return;
 
       if (!sessionUser) {
@@ -451,13 +569,35 @@ export default function KhatimPageClient({
         return;
       }
 
-      const membershipResult = await ensureEventMembershipForShortCode(shortCode);
-      if (cancelled) return;
-      if (membershipResult.error) {
-        console.warn(
-          "[QuranCircle] Failed to ensure event membership:",
-          membershipResult.error
-        );
+      if (!event.is_public) {
+        let membershipResult: { error?: string } = {};
+        try {
+          membershipResult = await ensureEventMembershipForShortCode(shortCode);
+        } catch (error) {
+          membershipResult = { error: "membership_request_failed" };
+          console.warn("[QuranCircle] Event membership bootstrap failed:", error);
+        }
+        if (cancelled) return;
+
+        if (membershipResult.error) {
+          setSessionInitialized(false);
+          if (attempt >= SESSION_BOOTSTRAP_MAX_RETRIES) {
+            console.warn(
+              "[QuranCircle] Failed to ensure private event membership:",
+              membershipResult.error
+            );
+            return;
+          }
+
+          const delay = Math.min(
+            SESSION_BOOTSTRAP_BASE_DELAY_MS * 2 ** attempt,
+            5_000
+          );
+          retryTimer = setTimeout(() => {
+            void bootstrapSession(attempt + 1);
+          }, delay);
+          return;
+        }
       }
 
       setSessionInitialized(true);
@@ -470,7 +610,7 @@ export default function KhatimPageClient({
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [ensureSession, refreshEvent, shortCode, user?.id]);
+  }, [ensureSession, event.is_public, refreshEvent, shortCode, user?.id]);
 
   // Private realtime subscription: listen for invalidation broadcasts only.
   useEffect(() => {
@@ -536,9 +676,16 @@ export default function KhatimPageClient({
                 const membershipResult =
                   await ensureEventMembershipForShortCode(shortCode);
                 if (disposed) return;
-                if (membershipResult.error) {
+                if (!event.is_public && membershipResult.error) {
                   console.warn(
                     "[QuranCircle] Failed to ensure event membership before realtime rejoin:",
+                    membershipResult.error
+                  );
+                  return;
+                }
+                if (membershipResult.error) {
+                  console.warn(
+                    "[QuranCircle] Membership refresh warning before realtime rejoin:",
                     membershipResult.error
                   );
                 }
@@ -619,28 +766,39 @@ export default function KhatimPageClient({
   };
 
   const handleArchiveToggle = async () => {
-    const action = event.is_archived ? unarchiveEvent : archiveEvent;
-    const result = await action(shortCode);
-    const archiveError = (result as { error?: string }).error;
-    if (archiveError) {
-      toast.error(archiveError);
-      return;
+    try {
+      const action = event.is_archived ? unarchiveEvent : archiveEvent;
+      const result = await action(shortCode);
+      const archiveError = (result as { error?: string }).error;
+      if (archiveError) {
+        toast.error(archiveError);
+        return;
+      }
+      setEvent((current) => ({ ...current, is_archived: !current.is_archived }));
+      toast.success(event.is_archived ? "Khatim unarchived" : "Khatim archived");
+    } catch (error) {
+      console.error("[QuranCircle] Failed to toggle archive state:", error);
+      toast.error("Unable to update archive state. Please try again.");
     }
-    setEvent((current) => ({ ...current, is_archived: !current.is_archived }));
-    toast.success(event.is_archived ? "Khatim unarchived" : "Khatim archived");
   };
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const result = await deleteEvent(shortCode);
-    setIsDeleting(false);
-    const deleteError = (result as { error?: string }).error;
-    if (deleteError) {
-      toast.error(deleteError);
-      return;
+    try {
+      const result = await deleteEvent(shortCode);
+      const deleteError = (result as { error?: string }).error;
+      if (deleteError) {
+        toast.error(deleteError);
+        return;
+      }
+      toast.success("Khatim deleted");
+      router.push("/");
+    } catch (error) {
+      console.error("[QuranCircle] Failed to delete khatim:", error);
+      toast.error("Unable to delete this Khatim. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
-    toast.success("Khatim deleted");
-    router.push("/");
   };
 
   const showMineViewTabs = isCreator && displayFilter === "mine";
@@ -852,14 +1010,31 @@ export default function KhatimPageClient({
                   khatm={khatm}
                   shortCode={shortCode}
                   isReadOnly={event.is_archived}
-                  onRefresh={refreshEvent}
+                  onRefresh={async () => {
+                    await refreshEvent();
+                  }}
                   activeFilter={displayFilter}
                   isCompleted={isFullyClaimed && hasNewerKhatm}
                   onClaimSuccess={handleClaimSuccess}
                 />
               </div>
-            );
+              );
           })}
+          {event.has_more_khatms && (
+            <div className="flex flex-col items-center gap-3 pt-2">
+              <Button
+                variant="outline"
+                className="rounded-full border-quran-border bg-white/80"
+                onClick={() => void loadOlderKhatms()}
+                disabled={isLoadingOlderKhatms}
+              >
+                {isLoadingOlderKhatms ? "Loading older cycles..." : "Load older cycles"}
+              </Button>
+              <p className="text-xs text-quran-muted">
+                Showing {event.khatms.length} of {event.total_khatms} Khatm cycles
+              </p>
+            </div>
+          )}
         </div>
       )}
 
