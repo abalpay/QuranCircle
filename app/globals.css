@@ -460,6 +460,51 @@
     transform: translate(-50%, -50%) rotate(45deg);
   }
 
+  .home-install-pill-anchor {
+    @apply pointer-events-none absolute inset-x-0 z-20 flex justify-center px-3;
+    top: calc(max(0.55rem, env(safe-area-inset-top)));
+  }
+
+  .home-install-pill {
+    @apply pointer-events-auto inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-quran-deep;
+    border-color: hsl(var(--quran-border) / 0.8);
+    background:
+      linear-gradient(
+        145deg,
+        hsl(0 0% 100% / 0.95),
+        hsl(44 42% 95% / 0.95)
+      );
+    box-shadow:
+      0 16px 30px -24px hsl(var(--quran-deep) / 0.55),
+      inset 0 1px 0 hsl(0 0% 100% / 0.95);
+    transition-property: transform, box-shadow, background-color;
+    transition-duration: 180ms;
+    transition-timing-function: ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    animation: install-pill-drop 260ms cubic-bezier(0.2, 0.9, 0.28, 1) both;
+  }
+
+  .home-install-pill svg {
+    color: hsl(var(--quran-green) / 0.9);
+  }
+
+  .home-install-pill:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 20px 32px -22px hsl(var(--quran-deep) / 0.62),
+      inset 0 1px 0 hsl(0 0% 100% / 0.95);
+  }
+
+  .home-install-pill:active {
+    transform: translateY(0);
+  }
+
+  .home-install-pill:focus-visible {
+    outline: 2px solid hsl(var(--quran-green) / 0.62);
+    outline-offset: 2px;
+  }
+
   .install-sheet-anchor {
     bottom: calc(4.4rem + max(0.6rem, env(safe-area-inset-bottom)));
   }
@@ -498,11 +543,54 @@
   .install-step-chip {
     @apply rounded-xl border border-quran-border/60 bg-white/75 px-2 py-2;
   }
+}
 
-  .bg-quran-green-soft {
-    /* Stable fallback for browsers without color-mix support. */
-    background-color: rgba(23, 99, 81, 0.14);
-  }
+@supports not (color: color-mix(in lab, red, red)) {
+  /* Fallback alpha colors for browsers without color-mix support (e.g. older Android Chrome/WebView). */
+  .bg-quran-bg\/92 { background-color: rgba(247, 245, 237, 0.92); }
+  .bg-quran-card\/94 { background-color: rgba(253, 251, 247, 0.94); }
+  .bg-quran-card\/80 { background-color: rgba(253, 251, 247, 0.8); }
+  .bg-quran-card\/50 { background-color: rgba(253, 251, 247, 0.5); }
+
+  .bg-quran-border\/20 { background-color: rgba(212, 204, 185, 0.2); }
+  .bg-quran-border\/25 { background-color: rgba(212, 204, 185, 0.25); }
+  .bg-quran-border\/30 { background-color: rgba(212, 204, 185, 0.3); }
+  .bg-quran-border\/40 { background-color: rgba(212, 204, 185, 0.4); }
+  .bg-quran-border\/50 { background-color: rgba(212, 204, 185, 0.5); }
+
+  .bg-quran-green\/5 { background-color: rgba(23, 99, 81, 0.05); }
+  .bg-quran-green\/10 { background-color: rgba(23, 99, 81, 0.1); }
+  .bg-quran-green\/14 { background-color: rgba(23, 99, 81, 0.14); }
+  .bg-quran-green\/15 { background-color: rgba(23, 99, 81, 0.15); }
+  .bg-quran-green\/20 { background-color: rgba(23, 99, 81, 0.2); }
+
+  .bg-quran-gold\/10 { background-color: rgba(165, 124, 49, 0.1); }
+  .bg-quran-gold\/20 { background-color: rgba(165, 124, 49, 0.2); }
+
+  .border-quran-border\/30 { border-color: rgba(212, 204, 185, 0.3); }
+  .border-quran-border\/40 { border-color: rgba(212, 204, 185, 0.4); }
+  .border-quran-border\/50 { border-color: rgba(212, 204, 185, 0.5); }
+  .border-quran-border\/60 { border-color: rgba(212, 204, 185, 0.6); }
+  .border-quran-border\/65 { border-color: rgba(212, 204, 185, 0.65); }
+  .border-quran-border\/70 { border-color: rgba(212, 204, 185, 0.7); }
+  .border-quran-border\/80 { border-color: rgba(212, 204, 185, 0.8); }
+  .border-quran-border\/85 { border-color: rgba(212, 204, 185, 0.85); }
+  .border-quran-green\/30 { border-color: rgba(23, 99, 81, 0.3); }
+  .border-quran-green\/35 { border-color: rgba(23, 99, 81, 0.35); }
+
+  .text-quran-muted\/70 { color: rgba(82, 107, 99, 0.7); }
+  .text-quran-muted\/80 { color: rgba(82, 107, 99, 0.8); }
+
+  .ring-quran-green\/35 { --tw-ring-color: rgba(23, 99, 81, 0.35); }
+  .focus-visible\:ring-quran-green\/35:focus-visible { --tw-ring-color: rgba(23, 99, 81, 0.35); }
+
+  .shadow-quran-green\/8 { --tw-shadow-color: rgba(23, 99, 81, 0.08); }
+  .hover\:shadow-quran-green\/8:hover { --tw-shadow-color: rgba(23, 99, 81, 0.08); }
+
+  .hover\:bg-quran-border\/20:hover { background-color: rgba(212, 204, 185, 0.2); }
+  .hover\:bg-quran-border\/30:hover { background-color: rgba(212, 204, 185, 0.3); }
+  .hover\:bg-quran-green\/20:hover { background-color: rgba(23, 99, 81, 0.2); }
+  .hover\:bg-quran-card\/80:hover { background-color: rgba(253, 251, 247, 0.8); }
 }
 
 @keyframes nav-progress-complete {
@@ -532,6 +620,18 @@
   from {
     opacity: 0;
     transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes install-pill-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 
   to {

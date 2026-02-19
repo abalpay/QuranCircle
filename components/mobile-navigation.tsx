@@ -44,7 +44,7 @@ export default function MobileNavigation() {
             href="/"
             className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
               pathname === "/"
-                ? "bg-quran-green-soft text-quran-green"
+                ? "bg-quran-green/14 text-quran-green"
                 : "text-quran-muted"
             }`}
           >
@@ -55,7 +55,7 @@ export default function MobileNavigation() {
             href="/my-circles"
             className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
               pathname === "/my-circles"
-                ? "bg-quran-green-soft text-quran-green"
+                ? "bg-quran-green/14 text-quran-green"
                 : "text-quran-muted"
             }`}
           >
@@ -66,7 +66,7 @@ export default function MobileNavigation() {
             href="/browse"
             className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
               pathname === "/browse"
-                ? "bg-quran-green-soft text-quran-green"
+                ? "bg-quran-green/14 text-quran-green"
                 : "text-quran-muted"
             }`}
           >
@@ -77,7 +77,7 @@ export default function MobileNavigation() {
             onClick={handleProfileTap}
             className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
               isProfileOpen
-                ? "bg-quran-green-soft text-quran-green"
+                ? "bg-quran-green/14 text-quran-green"
                 : "text-quran-muted"
             }`}
           >
