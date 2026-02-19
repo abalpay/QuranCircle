@@ -33,8 +33,9 @@ export default function InstallAppSheet({
     canNativePrompt,
     promptNativeInstall,
     dismissForever,
+    snoozeForDays,
     markInstalledManually,
-  } = usePwaInstall();
+  } = usePwaInstall(surface);
 
   useEffect(() => {
     if (!isEligible && open) {
@@ -59,7 +60,11 @@ export default function InstallAppSheet({
       : "Get quick access from your home screen with an app-like experience.";
 
   const handleDismiss = () => {
-    dismissForever();
+    if (surface === "home") {
+      snoozeForDays(7);
+    } else {
+      dismissForever();
+    }
     onOpenChange(false);
   };
 

@@ -46,6 +46,8 @@ export default async function HomePage() {
     <main className="page-shell grow">
       {/* ── Hero Section ── */}
       <section className="hero-pattern relative flex flex-col items-center justify-center py-20 text-center sm:py-28 lg:py-36">
+        <HomeInstallPrompt />
+
         <p className="bismillah-decoration mb-6 animate-fade-rise">
           بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
         </p>
@@ -215,8 +217,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <HomeInstallPrompt />
     </main>
   );
 }
