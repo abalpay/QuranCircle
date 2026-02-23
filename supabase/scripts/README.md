@@ -9,5 +9,6 @@ Utility scripts for QuranCircle development and testing.
 | `verify-membership-hardening.sql` | Verifies direct `event_members` inserts are blocked while `ensure_event_membership(short_code)` still works. |
 | `verify-merge-rpc-hardening.sql` | Verifies legacy merge RPC is blocked for client roles and privileged merge RPC is service-role only. |
 | `verify-snapshot-pagination.sql` | Verifies `get_event_snapshot_by_shortcode` windowing metadata and pagination cursor behavior. |
+| `verify-rpc-grants-and-indexes.sql` | Verifies Phase 1 privilege tightening and safe index hardening from migration `00030`. |
 
 **How to run:** Copy the SQL into [Supabase Dashboard → SQL Editor](https://supabase.com/dashboard) and execute.
