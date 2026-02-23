@@ -30,6 +30,7 @@ import DeleteEventDialog from "@/components/delete-event-dialog";
 import InstallAppSheet from "@/components/install-app-sheet";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { cn } from "@/lib/utils";
+import { shareCircleInvite } from "@/lib/share-invite";
 import {
   type GlobalFilter,
   getDisplayFilter,
@@ -745,24 +746,22 @@ export default function KhatimPageClient({
 
   const handleShare = async () => {
     const url = `${window.location.origin}/s/${shortCode}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: event.name,
-          text: `Join our Khatim circle: ${event.name}`,
-          url,
-        });
-      } catch {
-        // User cancellation is expected in native share sheets.
+    await shareCircleInvite(
+      {
+        name: event.name,
+        isPublic: event.is_public,
+        url,
+      },
+      {
+        title: event.name,
+        onCopySuccess: () => {
+          toast.success("Invite copied to clipboard");
+        },
+        onCopyError: () => {
+          toast.error("Failed to copy invite");
+        },
       }
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard");
-      } catch {
-        toast.error("Failed to copy link");
-      }
-    }
+    );
   };
 
   const handleArchiveToggle = async () => {
