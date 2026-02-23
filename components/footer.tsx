@@ -1,27 +1,9 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 export default function Footer() {
-  const pathname = usePathname();
-  const hideOnMobile =
-    pathname === "/" ||
-    pathname === "/browse" ||
-    pathname === "/my-circles" ||
-    pathname === "/account" ||
-    pathname === "/reset-password" ||
-    pathname.startsWith("/s/");
-
   return (
-    <footer
-      className={cn(
-        "mt-auto border-t border-quran-border/60 bg-white/40 backdrop-blur-sm",
-        hideOnMobile && "hidden md:block"
-      )}
-    >
+    <footer className="mt-auto border-t border-quran-border/60 bg-white/40 backdrop-blur-sm">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-2">
@@ -31,11 +13,15 @@ export default function Footer() {
             <span className="font-heading text-xl text-quran-deep">QuranCircle</span>
           </div>
           
-          <nav className="flex gap-8 text-sm font-medium text-quran-muted">
+          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium text-quran-muted">
             <Link href="/" className="hover:text-quran-green transition-colors">Home</Link>
             <Link href="/browse" className="hover:text-quran-green transition-colors">Browse</Link>
             <Link href="/my-circles" className="hover:text-quran-green transition-colors">My Circles</Link>
-            <button type="button" disabled aria-disabled="true" className="transition-colors cursor-not-allowed opacity-60">About</button>
+            <Link href="/khatm-coordination" className="hover:text-quran-green transition-colors">Khatm Guide</Link>
+            <Link href="/about" className="hover:text-quran-green transition-colors">About</Link>
+            <Link href="/contact" className="hover:text-quran-green transition-colors">Contact</Link>
+            <Link href="/privacy" className="hover:text-quran-green transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-quran-green transition-colors">Terms</Link>
           </nav>
           
           <p className="text-xs text-quran-muted/80">

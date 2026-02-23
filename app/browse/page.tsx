@@ -1,9 +1,34 @@
+import type { Metadata } from "next";
 import { getPublicEventsPage } from "@/lib/actions/events";
 import { Globe2 } from "lucide-react";
 import BrowseEvents from "@/components/browse-events";
 
+const INITIAL_PUBLIC_CIRCLES_LIMIT = 12;
+
+const browseDescription =
+  "Discover active public Quran Khatm circles, join a group, and claim your Juz to contribute to completion together.";
+
+export const metadata: Metadata = {
+  title: "Browse Community Khatms",
+  description: browseDescription,
+  alternates: {
+    canonical: "/browse",
+  },
+  openGraph: {
+    title: "Browse Community Khatms - QuranCircle",
+    description: browseDescription,
+    url: "/browse",
+  },
+  twitter: {
+    title: "Browse Community Khatms - QuranCircle",
+    description: browseDescription,
+  },
+};
+
 export default async function BrowsePage() {
-  const initialPage = await getPublicEventsPage();
+  const initialPage = await getPublicEventsPage({
+    limit: INITIAL_PUBLIC_CIRCLES_LIMIT,
+  });
 
   return (
     <main className="page-shell grow">

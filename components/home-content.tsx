@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import CreateKhatimDialog from "@/components/create-khatim-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { getMyCircles } from "@/lib/actions/events";
 import { BookOpenText, Layers3, ArrowRight } from "lucide-react";
+
+const CreateKhatimDialog = dynamic(
+  () => import("@/components/create-khatim-dialog"),
+  { ssr: false }
+);
 
 const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
 
@@ -184,10 +189,12 @@ export default function UserDashboard() {
         )}
       </section>
 
-      <CreateKhatimDialog
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-      />
+      {isCreateOpen ? (
+        <CreateKhatimDialog
+          isOpen={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
+        />
+      ) : null}
     </>
   );
 }

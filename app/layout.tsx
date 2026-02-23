@@ -16,9 +16,10 @@ import Footer from "@/components/footer";
 import NavigationProgress from "@/components/navigation-progress";
 import AuthErrorToast from "@/components/auth-error-toast";
 import { Analytics } from "@vercel/analytics/next";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, toAbsoluteUrl } from "@/lib/site-url";
 
 const siteUrl = getSiteUrl();
+const socialImageUrl = toAbsoluteUrl("/quran-icon.png");
 
 const manrope = Manrope({
   variable: "--font-body",
@@ -66,12 +67,21 @@ export const metadata: Metadata = {
     title: "QuranCircle - Read & Complete the Quran Together",
     description:
       "Join collaborative Quran readings with your community. Create or join a Khatm circle, claim your Juz, and complete the Quran together.",
+    images: [
+      {
+        url: socialImageUrl,
+        width: 512,
+        height: 512,
+        alt: "QuranCircle",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "QuranCircle - Read & Complete the Quran Together",
     description:
       "Join collaborative Quran readings with your community. Create or join a Khatm circle, claim your Juz, and complete the Quran together.",
+    images: [socialImageUrl],
   },
 };
 

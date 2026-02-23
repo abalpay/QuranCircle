@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Plus, Compass } from "lucide-react";
 import Link from "next/link";
-import CreateKhatimDialog from "@/components/create-khatim-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
+
+const CreateKhatimDialog = dynamic(
+  () => import("@/components/create-khatim-dialog"),
+  { ssr: false }
+);
 
 export default function HeroActions() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -45,10 +50,12 @@ export default function HeroActions() {
         </Button>
       </div>
 
-      <CreateKhatimDialog
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-      />
+      {isCreateOpen ? (
+        <CreateKhatimDialog
+          isOpen={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
+        />
+      ) : null}
     </>
   );
 }

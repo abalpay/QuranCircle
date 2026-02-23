@@ -18,6 +18,8 @@ import {
   type PublicEventsPage,
 } from "@/lib/actions/events";
 
+const BROWSE_PAGE_SIZE = 12;
+
 type Props = {
   initialPage: PublicEventsPage;
 };
@@ -35,7 +37,10 @@ export default function BrowseEvents({ initialPage }: Props) {
 
     setIsLoadingMore(true);
     try {
-      const nextPage = await getPublicEventsPage({ cursor: nextCursor });
+      const nextPage = await getPublicEventsPage({
+        cursor: nextCursor,
+        limit: BROWSE_PAGE_SIZE,
+      });
       setEvents((current) => {
         const merged = new Map(current.map((event) => [event.id, event] as const));
         for (const event of nextPage.events) {
@@ -132,10 +137,10 @@ export default function BrowseEvents({ initialPage }: Props) {
               <Link
                 key={ev.id}
                 href={`/s/${ev.short_code}`}
-                className="quran-card-interactive group block h-full p-5 bg-white/60"
+                className="quran-card-interactive group flex h-full flex-col bg-white/60 p-5"
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
-                  <h2 className="font-heading text-2xl leading-tight text-quran-deep group-hover:text-quran-green transition-colors">
+                  <h2 className="min-h-[3.5rem] font-heading text-2xl leading-tight text-quran-deep transition-colors group-hover:text-quran-green">
                     {ev.name}
                   </h2>
                   <span className="rounded-full border border-quran-border bg-white/70 px-2.5 py-1 text-xs font-semibold text-quran-muted">
@@ -143,11 +148,14 @@ export default function BrowseEvents({ initialPage }: Props) {
                   </span>
                 </div>
 
-                {ev.description && (
-                  <p className="mb-4 line-clamp-2 text-sm text-quran-muted">
-                    {ev.description}
-                  </p>
-                )}
+                <p
+                  className={`mb-4 min-h-10 line-clamp-2 text-sm ${
+                    ev.description ? "text-quran-muted" : "opacity-0"
+                  }`}
+                  aria-hidden={!ev.description}
+                >
+                  {ev.description ?? "No description provided."}
+                </p>
 
                 <div className="mt-auto">
                   <Progress

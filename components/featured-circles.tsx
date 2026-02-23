@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { Users2 } from "lucide-react";
@@ -26,10 +24,10 @@ export default function FeaturedCircles({ events }: Props) {
         <Link
           key={ev.id}
           href={`/s/${ev.short_code}`}
-          className="quran-card-interactive group block h-full bg-white/60 p-5"
+          className="quran-card-interactive group flex h-full flex-col bg-white/60 p-5"
         >
           <div className="mb-3 flex items-start justify-between gap-2">
-            <h3 className="font-heading text-xl leading-tight text-quran-deep transition-colors group-hover:text-quran-green sm:text-2xl">
+            <h3 className="min-h-[3.25rem] font-heading text-xl leading-tight text-quran-deep transition-colors group-hover:text-quran-green sm:text-2xl">
               {ev.name}
             </h3>
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-quran-green/10 px-2.5 py-1 text-xs font-semibold text-quran-green">
@@ -38,11 +36,14 @@ export default function FeaturedCircles({ events }: Props) {
             </span>
           </div>
 
-          {ev.description && (
-            <p className="mb-4 line-clamp-2 text-sm text-quran-muted">
-              {ev.description}
-            </p>
-          )}
+          <p
+            className={`mb-4 min-h-10 line-clamp-2 text-sm ${
+              ev.description ? "text-quran-muted" : "opacity-0"
+            }`}
+            aria-hidden={!ev.description}
+          >
+            {ev.description ?? "No description provided."}
+          </p>
 
           <div className="mt-auto">
             <Progress

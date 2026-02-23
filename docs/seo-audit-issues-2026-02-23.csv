@@ -1,0 +1,14 @@
+id,category,impact,priority,effort,url_or_file,recommendation
+QC-SEO-001,canonicalization,H,P1,S,https://www.qurancircle.io/; /Users/ahmet/Documents/Alpaylabs/QuranCircle/lib/site-url.ts,Set canonical site URL to https://www.qurancircle.io and align all metadata/sitemap/robots outputs.
+QC-SEO-002,canonicalization,H,P1,S,https://www.qurancircle.io/; https://www.qurancircle.io/browse,Add explicit <link rel="canonical"> (Next metadata alternates.canonical) on all indexable routes.
+QC-SEO-003,indexation,H,P1,M,https://www.qurancircle.io/account; https://www.qurancircle.io/reset-password,Move auth gating server-side and add noindex/nofollow for auth/private routes.
+QC-SEO-004,indexation,H,P1,M,https://www.qurancircle.io/s/INVALID1,Ensure invalid short-code pages return real HTTP 404 (not 200 fallback) to avoid soft-404 behavior.
+QC-SEO-005,on-page,M,P2,S,https://www.qurancircle.io/browse,Create route-specific title/description and OG/Twitter metadata for browse intent.
+QC-SEO-006,social-metadata,M,P2,S,/Users/ahmet/Documents/Alpaylabs/QuranCircle/app/layout.tsx,Align og:url and social image URLs to canonical www host.
+QC-SEO-007,sitemap,M,P2,S,https://www.qurancircle.io/sitemap.xml,Use stable lastmod values for static URLs instead of new Date() per request.
+QC-SEO-008,trust-eeat,M,P2,M,https://www.qurancircle.io/privacy; /terms; /contact; /about,Publish legal/trust pages and link them in footer navigation.
+QC-SEO-009,structured-data,L,P3,S,https://www.qurancircle.io/,Add JSON-LD for Organization/WebSite and relevant page-level schema.
+QC-SEO-010,core-web-vitals,M,P2,M,https://www.qurancircle.io/,Reduce mobile LCP from 4.11s to <2.5s by cutting above-the-fold JS/CSS work.
+QC-SEO-011,core-web-vitals,M,P2,S,https://www.qurancircle.io/browse,Fix mobile CLS from 0.11 to <0.10 by reserving layout space and stabilizing dynamic blocks.
+QC-SEO-012,performance,L,P3,M,https://www.qurancircle.io/; https://www.qurancircle.io/browse,Reduce ~126 KiB unused JS via code-splitting/defer of non-critical bundles.
+QC-SEO-013,content-coverage,M,P2,M,https://www.qurancircle.io/sitemap.xml,Expand indexable footprint with intent-driven evergreen pages for khatm coordination queries.

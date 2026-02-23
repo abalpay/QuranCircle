@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -5,13 +6,20 @@ import {
   CheckCircle2,
   Compass,
   HandHeart,
+  BookOpenCheck,
 } from "lucide-react";
 import UserDashboard from "@/components/home-content";
-import HeroActions from "@/components/hero-actions";
 import FeaturedCircles from "@/components/featured-circles";
+import HeroActions from "@/components/hero-actions";
 import HomeInstallPrompt from "@/components/home-install-prompt";
 import { getCommunityStats } from "@/lib/actions/stats";
 import { getPublicEvents } from "@/lib/actions/events";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 const steps = [
   {
@@ -48,23 +56,23 @@ export default async function HomePage() {
       <section className="hero-pattern relative flex flex-col items-center justify-center py-20 text-center sm:py-28 lg:py-36">
         <HomeInstallPrompt />
 
-        <p className="bismillah-decoration mb-6 animate-fade-rise">
+        <p className="bismillah-decoration mb-6">
           بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
         </p>
 
-        <h1 className="font-heading max-w-4xl animate-fade-rise text-4xl leading-[1.1] text-quran-deep [animation-delay:100ms] sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="font-heading max-w-4xl text-4xl leading-[1.1] text-quran-deep sm:text-5xl md:text-6xl lg:text-7xl">
           Complete the Quran
           <br />
           <span className="hero-gradient-text">together.</span>
         </h1>
 
-        <p className="mt-6 max-w-2xl animate-fade-rise text-base leading-relaxed text-quran-muted [animation-delay:200ms] sm:text-lg md:text-xl">
+        <p className="mt-6 max-w-2xl text-base leading-relaxed text-quran-muted sm:text-lg md:text-xl">
           QuranCircle helps families, masjids, and groups coordinate meaningful
           recitation. Create a circle, let people claim their portion, and
           finish your collective Khatm with clarity.
         </p>
 
-        <div className="w-full max-w-md animate-fade-rise px-2 [animation-delay:300ms] sm:w-auto sm:max-w-none sm:px-0">
+        <div className="w-full max-w-md px-2 sm:w-auto sm:max-w-none sm:px-0">
           <HeroActions />
         </div>
 
@@ -72,7 +80,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Community Stats Bar ── */}
-      <div className="stats-bar animate-fade-rise [animation-delay:400ms]">
+      <div className="stats-bar">
         <div className="grid grid-cols-3 gap-4">
           <div className="stats-bar-item">
             <span className="stats-value">{stats.totalCircles}</span>
@@ -153,6 +161,34 @@ export default async function HomePage() {
               </p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="section-panel mt-12">
+        <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <span className="quran-badge mb-4">
+              <BookOpenCheck className="mr-2 h-3.5 w-3.5" />
+              Planning Resource
+            </span>
+            <h2 className="font-heading text-3xl text-quran-deep sm:text-4xl">
+              Need a Khatm coordination plan?
+            </h2>
+            <p className="mt-3 max-w-2xl text-quran-muted">
+              Follow a practical step-by-step guide to launch, manage, and
+              complete collaborative Khatm circles with your community.
+            </p>
+          </div>
+          <Button
+            asChild
+            variant="outline"
+            className="rounded-full border-quran-border bg-white/60 px-6 hover:bg-white/90"
+          >
+            <Link href="/khatm-coordination">
+              <BookOpenCheck className="mr-2 h-4 w-4" />
+              Read The Guide
+            </Link>
+          </Button>
         </div>
       </section>
 

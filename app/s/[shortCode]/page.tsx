@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     khatmLimit: SNAPSHOT_WINDOW_KHATM_LIMIT,
   });
   if (!event) {
-    return { title: "Circle Not Found" };
+    notFound();
   }
 
   const description =
@@ -30,6 +30,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: event.name,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: `${event.name} - QuranCircle`,
       description,
