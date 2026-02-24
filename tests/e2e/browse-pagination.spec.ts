@@ -57,7 +57,7 @@ test("browse page loads additional cursor pages", async ({ page }) => {
   const fixtureCards = page.locator("h2", {
     hasText: new RegExp(`Browse Pagination ${fixtureToken}`),
   });
-  await expect(fixtureCards).toHaveCount(24);
+  await expect(fixtureCards).toHaveCount(12);
 
   await page.getByRole("button", { name: "Load more circles" }).click();
   await expect(fixtureCards).toHaveCount(FIXTURE_EVENT_COUNT);
