@@ -7,6 +7,7 @@ import { Plus, Compass } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
+import { useTranslations } from "next-intl";
 
 const CreateKhatimDialog = dynamic(
   () => import("@/components/create-khatim-dialog"),
@@ -15,6 +16,7 @@ const CreateKhatimDialog = dynamic(
 
 export default function HeroActions() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const t = useTranslations("HeroActions");
   const { isAuthenticatedUser } = useAuth();
   const { openAuthModal } = useAuthModal();
 
@@ -35,7 +37,7 @@ export default function HeroActions() {
           onClick={handleCreate}
         >
           <Plus className="mr-2 h-5 w-5" />
-          Start A Khatm Circle
+          {t("startAKhatm")}
         </Button>
         <Button
           asChild
@@ -45,7 +47,7 @@ export default function HeroActions() {
         >
           <Link href="/browse">
             <Compass className="mr-2 h-5 w-5" />
-            Explore Public Circles
+            {t("explorePublic")}
           </Link>
         </Button>
       </div>

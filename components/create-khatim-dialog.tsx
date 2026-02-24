@@ -20,6 +20,7 @@ import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useRouter } from "next/navigation";
 import { Loader2, CirclePlus, Globe2, Link2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type CreateKhatimDialogProps = {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export default function CreateKhatimDialog({
   isOpen,
   onClose,
 }: CreateKhatimDialogProps) {
+  const t = useTranslations("CreateKhatim");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
@@ -47,12 +49,12 @@ export default function CreateKhatimDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error("Circle name required");
+      toast.error(t("circleNameRequired"));
       return;
     }
 
     if (!isAuthenticatedUser) {
-      toast.error("Sign in to create a Khatm circle");
+      toast.error(t("signInToCreate"));
       openAuthModal("login");
       return;
     }
@@ -66,11 +68,11 @@ export default function CreateKhatimDialog({
 
     setIsSubmitting(false);
     if (result.error) {
-      toast.error("Failed to create circle", { description: result.error });
+      toast.error(t("failedToCreate"), { description: result.error });
       return;
     }
 
-    toast.success("Circle created");
+    toast.success(t("circleCreated"));
     resetForm();
     onClose();
     router.push(`/s/${result.data!.shortCode}`);
@@ -84,20 +86,20 @@ export default function CreateKhatimDialog({
             <CirclePlus className="h-5 w-5" />
           </div>
           <DialogTitle className="font-heading text-3xl text-quran-deep">
-            Create New Khatm Circle
+            {t("createCircle")}
           </DialogTitle>
           <DialogDescription>
-            Start a new Quran reading circle and invite others to join
+            {t("createCircleDesc")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="circleName">Circle Name</Label>
+              <Label htmlFor="circleName">{t("circleName")}</Label>
               <Input
                 id="circleName"
-                placeholder="e.g., Ramadan Nights"
+                placeholder={t("circleNamePlaceholder")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -106,10 +108,10 @@ export default function CreateKhatimDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="circleDescription">Description (Optional)</Label>
+              <Label htmlFor="circleDescription">{t("description")} {t("descriptionOptional")}</Label>
               <Textarea
                 id="circleDescription"
-                placeholder="Briefly describe the purpose of this circle"
+                placeholder={t("descriptionPlaceholder")}
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -120,10 +122,10 @@ export default function CreateKhatimDialog({
             <div className="flex items-center justify-between rounded-2xl border border-quran-border bg-white/80 p-4">
               <div>
                 <Label htmlFor="isPublic" className="font-medium">
-                  Public
+                  {t("makePublic")}
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  List on Browse page for anyone to discover
+                  {t("makePublicDesc")}
                 </p>
               </div>
               <Switch
@@ -132,20 +134,6 @@ export default function CreateKhatimDialog({
                 onCheckedChange={setIsPublic}
               />
             </div>
-
-            {!isPublic && (
-              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <Link2 className="h-4 w-4" />
-                Link only: Share with those you want to invite.
-              </p>
-            )}
-
-            {isPublic && (
-              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <Globe2 className="h-4 w-4" />
-                Public circles are visible to everyone on Browse.
-              </p>
-            )}
           </div>
 
           <DialogFooter className="mt-4">
@@ -155,16 +143,16 @@ export default function CreateKhatimDialog({
               className="rounded-full"
               onClick={onClose}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting} className="rounded-full">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  {t("creating")}
                 </>
               ) : (
-                "Create Circle"
+                t("create")
               )}
             </Button>
           </DialogFooter>

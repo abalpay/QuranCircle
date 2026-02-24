@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { BookOpen } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslations } from "next-intl";
 
 const CLAIMER_NAME_KEY = "quranCircleClaimerName";
 
@@ -30,6 +31,7 @@ export default function ClaimJuzDialog({
   juzNumbers,
   onSubmit,
 }: ClaimJuzDialogProps) {
+  const t = useTranslations("ClaimDialog");
   const isMultiple = juzNumbers.length > 1;
   const { user, isAuthenticatedUser } = useAuth();
 
@@ -67,12 +69,12 @@ export default function ClaimJuzDialog({
             <BookOpen className="h-6 w-6 text-quran-green" />
           </div>
           <DialogTitle className="font-heading text-3xl text-quran-deep">
-            {isMultiple ? `Claim ${juzNumbers.length} Juz` : `Claim Juz ${juzNumbers[0]}`}
+            {isMultiple ? `${t("claim")} ${juzNumbers.length} ${t("juz")}` : `${t("claim")} ${t("juz")} ${juzNumbers[0]}`}
           </DialogTitle>
           <DialogDescription>
             {isMultiple
-              ? `Juz ${juzNumbers.join(", ")} — enter your name to claim`
-              : "Enter your name to claim this portion of the Quran"}
+              ? `${t("juz")} ${juzNumbers.join(", ")} — ${t("enterName")}`
+              : t("enterNameDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -82,18 +84,18 @@ export default function ClaimJuzDialog({
           className="mt-2"
         >
           <div className="mb-6">
-            <Label htmlFor="claimerName">Your Name</Label>
+            <Label htmlFor="claimerName">{t("yourName")}</Label>
             <Input
               id="claimerName"
               name="claimerName"
               defaultValue={getSavedName()}
-              placeholder="Enter your name"
+              placeholder={t("enterYourName")}
               required
               className="mt-1 rounded-xl border-quran-border bg-white/85"
             />
             {isAuthenticatedUser && (
               <p className="text-xs text-muted-foreground mt-1">
-                You can use a different name if you prefer.
+                {t("useDifferentName")}
               </p>
             )}
           </div>
@@ -105,10 +107,10 @@ export default function ClaimJuzDialog({
               className="rounded-full"
               onClick={onClose}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" className="rounded-full">
-              {isMultiple ? `Claim ${juzNumbers.length} Juz` : "Claim Juz"}
+              {isMultiple ? `${t("claimButton")} ${juzNumbers.length} ${t("juz")}` : t("claimButton")}
             </Button>
           </DialogFooter>
         </form>

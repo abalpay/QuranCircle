@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { getMyCircles } from "@/lib/actions/events";
 import { BookOpenText, Layers3, ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const CreateKhatimDialog = dynamic(
   () => import("@/components/create-khatim-dialog"),
@@ -20,6 +21,7 @@ const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
 type MyCircle = Awaited<ReturnType<typeof getMyCircles>>[number];
 
 export default function UserDashboard() {
+  const t = useTranslations("Home");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [circles, setCircles] = useState<MyCircle[]>([]);
   const [isLoadingCircles, setIsLoadingCircles] = useState(true);
@@ -103,19 +105,19 @@ export default function UserDashboard() {
       >
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="font-heading text-3xl text-quran-deep">My Circles</h2>
+            <h2 className="font-heading text-3xl text-quran-deep">{t("title")}</h2>
             <p className="mt-1 text-sm text-quran-muted">
-              Your active circles at a glance. Open the full page for complete history.
+              {t("subtitle")}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="quran-badge">
               <Layers3 className="mr-2 h-3.5 w-3.5" />
-              {activeCircles.length} Active
+              {activeCircles.length} {t("active")}
             </span>
             <Button asChild variant="outline" className="rounded-full border-quran-border bg-white/80">
               <Link href="/my-circles">
-                View all
+                {t("viewAll")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -153,7 +155,7 @@ export default function UserDashboard() {
                   className="h-2 bg-quran-border/50"
                 />
                 <p className="mt-3 text-sm text-quran-muted">
-                  {circle.claimed}/{circle.total} Juz claimed
+                  {circle.claimed}/{circle.total} {t("juzClaimed")}
                 </p>
               </Link>
             ))}
@@ -163,20 +165,20 @@ export default function UserDashboard() {
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-quran-green/10 text-quran-green">
               <BookOpenText className="h-7 w-7" />
             </div>
-            <h3 className="font-heading text-xl text-quran-deep">No active circles</h3>
+            <h3 className="font-heading text-xl text-quran-deep">{t("noActiveCircles")}</h3>
             <p className="mt-2 max-w-sm text-sm text-quran-muted">
               {isAuthenticatedUser
-                ? "Create a circle or join one to track your progress here."
-                : "Your activity in this session is archived only. Visit My Circles to review your history."}
+                ? t("noActiveCirclesDesc")
+                : t("noActiveCirclesDescGuest")}
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {isAuthenticatedUser && (
                 <Button className="rounded-full px-6" onClick={() => setIsCreateOpen(true)}>
-                  Create a Circle
+                  {t("createACircle")}
                 </Button>
               )}
               <Button asChild variant="outline" className="rounded-full border-quran-border bg-white/80">
-                <Link href="/my-circles">Open My Circles</Link>
+                <Link href="/my-circles">{t("openMyCircles")}</Link>
               </Button>
             </div>
           </div>
@@ -184,7 +186,7 @@ export default function UserDashboard() {
 
         {!isLoadingCircles && archivedCount > 0 && (
           <p className="mt-6 text-sm text-quran-muted">
-            {archivedCount} archived {archivedCount === 1 ? "circle" : "circles"} in your history.
+            {archivedCount} {t("archivedCircles")} {archivedCount === 1 ? t("circle") : t("circles")} {t("inYourHistory")}
           </p>
         )}
       </section>
