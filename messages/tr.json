@@ -288,7 +288,35 @@
     "unarchiveKhatim": "Hatimi Arşivden Çıkar",
     "unarchive": "Arşivden Çıkar",
     "deleteKhatim": "Hatimi Sil",
-    "circleArchivedReadOnly": "Bu halka arşivlenmiştir ve salt okunurdur."
+    "circleArchivedReadOnly": "Bu halka arşivlenmiştir ve salt okunurdur.",
+    "publicCircle": "Açık Halka",
+    "linkOnlyCircle": "Yalnızca Bağlantılı Halka",
+    "inviteCopied": "Davet panoya kopyalandı",
+    "inviteCopyFailed": "Davet kopyalanamadı",
+    "khatimArchived": "Hatim arşivlendi",
+    "khatimUnarchived": "Hatim arşivden çıkarıldı",
+    "archiveUpdateFailed": "Arşiv durumu güncellenemedi. Lütfen tekrar deneyin.",
+    "khatimDeleted": "Hatim silindi",
+    "deleteFailed": "Bu Hatim silinemedi. Lütfen tekrar deneyin.",
+    "failedToLoadOlder": "Eski Hatim döngüleri yüklenemedi. Lütfen tekrar deneyin.",
+    "sessionError": "Oturum başlatılamıyor. Lütfen sayfayı yenileyin ve tekrar deneyin.",
+    "juzMarkedRead": "Cüz okundu olarak işaretlendi",
+    "markReadFailed": "Bu Cüz okundu olarak işaretlenemedi. Lütfen tekrar deneyin.",
+    "juzMarkedUnread": "Cüz okunmadı olarak işaretlendi",
+    "unmarkReadFailed": "Bu Cüz güncellenemedi. Lütfen tekrar deneyin.",
+    "juzUnclaimed": "Cüz sahipliği bırakıldı",
+    "unclaimFailed": "Bu Cüz'ün sahipliği bırakılamadı. Lütfen tekrar deneyin.",
+    "juzClaimedNewKhatm": "Cüz üstlenildi! Yeni bir Hatim döngüsü başladı.",
+    "juzClaimedSingle": "Cüz üstlenildi.",
+    "juzClaimedMultiple": "{count} Cüz üstlenildi.",
+    "jumpToNewKhatm": "Yeni Hatim'e git",
+    "juzClaimedManage": "Cüz üstlenildi. Cüzlerim'de yönetin.",
+    "goToMyJuz": "Cüzlerim'e git",
+    "creatorQueueTitle": "Yönetim Paneli",
+    "creatorQueueEmpty": "Henüz üstlenilmiş satır yok. İnsanlar üstlenmeye başladığında yönetim işlemleri burada görünecek.",
+    "loadingOlderCycles": "Eski döngüler yükleniyor...",
+    "loadOlderCycles": "Eski döngüleri yükle",
+    "showingKhatms": "{loaded} / {total} Hatim döngüsü gösteriliyor"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Hatimi Sil?",
@@ -296,5 +324,9 @@
     "cancel": "İptal",
     "deleting": "Siliniyor...",
     "deletePermanently": "Kalıcı Olarak Sil"
+  },
+  "Auth": {
+    "authFailed": "Kimlik doğrulama başarısız",
+    "authFailedDesc": "Kimlik doğrulama sırasında bir şeyler ters gitti. Bağlantının süresi dolmuş veya zaten kullanılmış olabilir. Lütfen tekrar deneyin."
   }
 }

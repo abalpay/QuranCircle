@@ -1,0 +1,18 @@
+Translate all remaining hardcoded English strings in components/khatim-page-client.tsx and components/auth-error-toast.tsx to support Turkish via next-intl. There are about 20 toast messages and a few labels still in English. Add keys to the CirclePage namespace in messages/en.json and messages/tr.json. The file already has tPage = useTranslations(CirclePage) declared. For auth-error-toast.tsx create an Auth namespace. Turkish must be natural: use ustlen for claim, hatim for khatm, cuz for juz, halka for circle. Do NOT modify existing translated keys. Run npm run test:unit before pushing.
+
+BEFORE YOU START:
+1. Read CLAUDE.md for project conventions (especially i18n and testing rules).
+2. Read .clawdbot/lessons.md for past mistakes to avoid.
+3. Plan your approach — list the files you'll change and why.
+
+WHEN YOU ARE DONE WITH ALL CHANGES:
+4. Run 'npm run lint' and fix any lint errors.
+5. Run 'npm run test:unit' and fix ALL failures. If you added useTranslations() to any component, check if tests exist for it (grep -r 'ComponentName' tests/). If they do, wrap renders with IntlWrapper from tests/helpers/intl-wrapper.tsx.
+6. If you added translation keys, verify BOTH en.json and tr.json have the same keys.
+7. If you changed ANY UI component, take a screenshot by describing the visual changes in the PR description (before/after).
+8. Stage all changes: git add -A
+9. Write a clear, conventional commit message: git commit -m "feat: <description>" (or fix:, refactor:, etc.)
+10. Push the branch: git push origin feat/i18n-toasts
+11. Create a pull request: gh pr create --repo abalpay/QuranCircle --base main --head feat/i18n-toasts --fill --body "## Changes\n<describe what changed>\n\n## UI Changes\n<describe visual changes if any, or N/A>"
+
+Do NOT skip steps 4-6. Do NOT push if tests fail. The task is not complete until the PR exists with passing tests.
