@@ -29,6 +29,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type Juz = JuzSnapshot;
 type Khatm = KhatmSnapshot;
@@ -57,6 +58,7 @@ export default function KhatmCard({
   isCompleted = false,
   onClaimSuccess,
 }: Props) {
+  const t = useTranslations("KhatmCard");
   const selectionContextKey = `${isReadOnly ? "1" : "0"}:${activeFilter === "mine" ? "1" : "0"}`;
   const [selectionState, setSelectionState] = useState<{
     key: string;
@@ -131,11 +133,11 @@ export default function KhatmCard({
   const ensureClaimSession = useCallback(async () => {
     const sessionUser = await ensureSession();
     if (!sessionUser) {
-      toast.error("Unable to start a session. Please refresh and try again.");
+      toast.error(t("sessionError"));
       return false;
     }
     return true;
-  }, [ensureSession]);
+  }, [ensureSession, t]);
 
   const claimProgress = Math.round((khatm.claimed_count / 30) * 100);
   const readCount =
@@ -144,7 +146,7 @@ export default function KhatmCard({
 
   const handleClaimClick = (juz: Juz) => {
     if (isReadOnly) {
-      toast.error("This Khatim is archived");
+      toast.error(t("khatmArchived"));
       return;
     }
     toggleJuzSelection(juz);
@@ -160,7 +162,7 @@ export default function KhatmCard({
     }
     const count = result.claimed?.length ?? juzNumbers.length;
     if (count === 0) {
-      toast.error("All selected juz were already claimed by someone else");
+      toast.error(t("allClaimedError"));
       setIsClaimDialogOpen(false);
       clearSelection();
       await onRefresh();
@@ -187,7 +189,7 @@ export default function KhatmCard({
       toast.error(result.error);
       return;
     }
-    toast.success("Juz unclaimed");
+    toast.success(t("juzUnclaimed"));
     await onRefresh();
   };
 
@@ -199,7 +201,7 @@ export default function KhatmCard({
       toast.error(result.error);
       return;
     }
-    toast.success("Juz marked as read");
+    toast.success(t("juzMarkedRead"));
     await onRefresh();
   };
 
@@ -211,7 +213,7 @@ export default function KhatmCard({
       toast.error(result.error);
       return;
     }
-    toast.success("Juz marked as unread");
+    toast.success(t("juzMarkedUnread"));
     await onRefresh();
   };
 
@@ -259,7 +261,7 @@ export default function KhatmCard({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-quran-deep">
-                    Juz {juz.juz_number}
+                    {t("juzLabel", { number: juz.juz_number })}
                   </span>
                   <span
                     className={cn(
@@ -269,7 +271,7 @@ export default function KhatmCard({
                         : "bg-amber-100 text-amber-700"
                     )}
                   >
-                    {juz.status === "read" ? "Read" : "Claimed"}
+                    {juz.status === "read" ? t("read") : t("claimedStatus")}
                   </span>
                 </div>
               </div>
@@ -289,7 +291,7 @@ export default function KhatmCard({
                     aria-label={`Open Juz ${juz.juz_number} on Quran.com (opens in new tab)`}
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
-                    Open Quran.com
+                    {t("openQuran")}
                   </a>
                 </Button>
               )}
@@ -298,7 +300,7 @@ export default function KhatmCard({
                   className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
                   onClick={() => handleMarkRead(juz.id)}
                 >
-                  Mark Read
+                  {t("markRead")}
                 </button>
               )}
               {juz.status === "read" && (
@@ -306,14 +308,14 @@ export default function KhatmCard({
                   className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
                   onClick={() => handleUnmarkRead(juz.id)}
                 >
-                  Undo
+                  {t("undo")}
                 </button>
               )}
               <button
                 className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
                 onClick={() => handleUnclaim(juz.id)}
               >
-                Unclaim
+                {t("unclaim")}
               </button>
             </div>
           </div>
@@ -335,17 +337,17 @@ export default function KhatmCard({
           </div>
           <div>
             <span className="text-sm font-semibold text-quran-deep">
-              Khatm #{khatm.khatm_number}
+              {t("khatmNumber", { number: khatm.khatm_number })}
             </span>
             <span className="ml-2 text-xs text-quran-muted">
-              {activeFilter === "mine" && !hasMatches && "No My Juz in this khatm"}
-              {activeFilter === "mine" && hasMatches && `${matchingCount} in My Juz`}
-              {activeFilter === "available" && !hasMatches && "No available juz in this khatm"}
-              {activeFilter === "available" && hasMatches && `${matchingCount} Available`}
+              {activeFilter === "mine" && !hasMatches && t("noMyJuzInKhatm")}
+              {activeFilter === "mine" && hasMatches && t("myJuzCount", { count: matchingCount })}
+              {activeFilter === "available" && !hasMatches && t("noAvailableInKhatm")}
+              {activeFilter === "available" && hasMatches && t("availableCount", { count: matchingCount })}
               {activeFilter === "all" && (
                 <>
-                  {khatm.claimed_count}/30 Claimed
-                  {readCount > 0 && <> · {readCount} Read</>}
+                  {t("claimedWithRead", { claimed: khatm.claimed_count })}
+                  {readCount > 0 && <> · {t("readCount", { count: readCount })}</>}
                 </>
               )}
             </span>
@@ -363,10 +365,10 @@ export default function KhatmCard({
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-quran-green/10 px-3 py-1 text-xs font-medium text-quran-green">
               <BookMarked className="h-3.5 w-3.5" />
-              <span>Khatm #{khatm.khatm_number}</span>
+              <span>{t("khatmNumber", { number: khatm.khatm_number })}</span>
             </div>
             <h2 className="font-heading text-3xl text-quran-deep sm:text-4xl">
-              Progress Tracker
+              {t("progressTracker")}
             </h2>
           </div>
           <div className="flex items-center gap-3">
@@ -374,7 +376,7 @@ export default function KhatmCard({
               type="button"
               onClick={() => setExpanded(false)}
               className="rounded-full p-1.5 text-quran-muted transition-colors hover:bg-quran-border/30"
-              aria-label="Collapse khatm"
+              aria-label={t("collapseKhatm")}
             >
               <ChevronUp className="h-5 w-5" />
             </button>
@@ -383,7 +385,7 @@ export default function KhatmCard({
                 {claimProgress}%
               </span>
               <span className="text-xs font-medium uppercase tracking-wider text-quran-muted">
-                Claimed
+                {t("claimed")}
               </span>
             </div>
           </div>
@@ -393,10 +395,10 @@ export default function KhatmCard({
           <Progress value={claimProgress} className="h-3 bg-quran-border/30" />
           <div className="mt-2 flex justify-between text-xs text-quran-muted">
             <span>
-              {khatm.claimed_count} Claimed
-              {readCount > 0 && <> · {readCount} Read</>}
+              {t("claimedCount", { count: khatm.claimed_count })}
+              {readCount > 0 && <> · {t("readCount", { count: readCount })}</>}
             </span>
-            <span>30 Juz</span>
+            <span>{t("juzCount")}</span>
           </div>
         </div>
       </div>
@@ -404,7 +406,7 @@ export default function KhatmCard({
       <div className="bg-white/40 p-6 sm:p-8">
         {activeFilter !== "mine" && (
           <p className="mb-4 rounded-lg border border-quran-border/50 bg-white/70 px-3 py-2 text-xs text-quran-muted sm:text-sm">
-            Tap Juz to select, then press Claim.
+            {t("tapToSelect")}
           </p>
         )}
 
@@ -412,7 +414,7 @@ export default function KhatmCard({
 
         {activeFilter === "mine" && !hasMatches && (
           <div className="rounded-xl border border-quran-border/40 bg-white/60 py-8 text-center">
-            <p className="text-sm text-quran-muted">You haven&apos;t claimed any juz in this khatm.</p>
+            <p className="text-sm text-quran-muted">{t("noMyJuz")}</p>
           </div>
         )}
 
@@ -423,10 +425,10 @@ export default function KhatmCard({
         {activeFilter === "available" && !hasMatches && (
           <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 py-8 text-center">
             <CircleCheck className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
-            <p className="text-sm font-medium text-emerald-700">No available juz in this khatm.</p>
+            <p className="text-sm font-medium text-emerald-700">{t("noAvailableJuz")}</p>
             {isCompleted && (
               <p className="mt-1 text-xs text-emerald-600/70">
-                Check the next khatm for newly available juz.
+                {t("checkNextKhatm")}
               </p>
             )}
           </div>

@@ -34,35 +34,13 @@ import { deleteAccount } from "@/lib/actions/account";
 import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { ArrowLeft, Trash2 } from "lucide-react";
-
-// --- Schemas ---
-
-const profileSchema = z.object({
-  username: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be at most 50 characters")
-    .transform((v) => v.trim()),
-});
-type ProfileFormValues = z.infer<typeof profileSchema>;
-
-const passwordSchema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Please confirm your password"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-type PasswordFormValues = z.infer<typeof passwordSchema>;
+import { useTranslations } from "next-intl";
 
 // --- Component ---
 
 export default function AccountPageClient() {
   const router = useRouter();
+  const t = useTranslations("AccountPage");
   const { user, isLoading, isAuthenticatedUser } = useAuth();
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -71,6 +49,28 @@ export default function AccountPageClient() {
 
   const provider = user?.app_metadata?.provider ?? "email";
   const isEmailProvider = provider === "email";
+
+  const profileSchema = z.object({
+    username: z
+      .string()
+      .min(2, t("nameMinLength"))
+      .max(50, t("nameMaxLength"))
+      .transform((v) => v.trim()),
+  });
+  type ProfileFormValues = z.infer<typeof profileSchema>;
+
+  const passwordSchema = z
+    .object({
+      newPassword: z
+        .string()
+        .min(8, t("passwordMinLength")),
+      confirmPassword: z.string().min(8, t("confirmPasswordRequired")),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t("passwordsMustMatch"),
+      path: ["confirmPassword"],
+    });
+  type PasswordFormValues = z.infer<typeof passwordSchema>;
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -110,16 +110,16 @@ export default function AccountPageClient() {
       });
 
       if (error) {
-        toast.error("Failed to update profile", {
+        toast.error(t("failedToUpdateProfile"), {
           description: formatAuthError(error.message),
         });
         return;
       }
-      toast.success("Profile updated");
+      toast.success(t("profileUpdated"));
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unexpected profile update error";
-      toast.error("Failed to update profile", {
+      toast.error(t("failedToUpdateProfile"), {
         description: formatAuthError(message),
       });
     } finally {
@@ -136,17 +136,17 @@ export default function AccountPageClient() {
       });
 
       if (error) {
-        toast.error("Failed to update password", {
+        toast.error(t("failedToUpdatePassword"), {
           description: formatAuthError(error.message),
         });
         return;
       }
-      toast.success("Password updated");
+      toast.success(t("passwordUpdated"));
       passwordForm.reset();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unexpected password update error";
-      toast.error("Failed to update password", {
+      toast.error(t("failedToUpdatePassword"), {
         description: formatAuthError(message),
       });
     } finally {
@@ -160,19 +160,19 @@ export default function AccountPageClient() {
       const { error } = await deleteAccount();
 
       if (error) {
-        toast.error("Failed to delete account", { description: error });
+        toast.error(t("failedToDeleteAccount"), { description: error });
         return;
       }
       // Clear client-side auth state (server action only clears server cookies)
       const supabase = createClient();
       await supabase.auth.signOut();
 
-      toast.success("Account deleted");
+      toast.success(t("accountDeleted"));
       router.replace("/");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unexpected account deletion error";
-      toast.error("Failed to delete account", {
+      toast.error(t("failedToDeleteAccount"), {
         description: formatAuthError(message),
       });
     } finally {
@@ -184,7 +184,7 @@ export default function AccountPageClient() {
     return (
       <main className="page-shell grow flex items-center justify-center">
         <div className="quran-card p-10 text-center">
-          <p className="text-quran-muted">Loading...</p>
+          <p className="text-quran-muted">{t("loading")}</p>
         </div>
       </main>
     );
@@ -205,17 +205,17 @@ export default function AccountPageClient() {
           className="inline-flex items-center gap-1 text-sm text-quran-muted hover:text-quran-deep transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to home
+          {t("backToHome")}
         </Link>
 
         <h1 className="font-heading text-2xl font-semibold text-quran-deep sm:text-3xl">
-          Account Settings
+          {t("accountSettings")}
         </h1>
 
         {/* ── Profile Section ── */}
         <section className="quran-card-primary rounded-3xl border border-quran-border p-6 sm:p-8 shadow-lg space-y-6">
           <h2 className="font-heading text-lg font-semibold text-quran-deep">
-            Profile
+            {t("profile")}
           </h2>
 
           <Form {...profileForm}>
@@ -228,10 +228,10 @@ export default function AccountPageClient() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Display name</FormLabel>
+                    <FormLabel>{t("displayName")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Your name"
+                        placeholder={t("yourName")}
                         {...field}
                         className="rounded-xl border-quran-border bg-white/85"
                       />
@@ -243,7 +243,7 @@ export default function AccountPageClient() {
 
               <div>
                 <label className="text-sm font-medium leading-none">
-                  Email
+                  {t("email")}
                 </label>
                 <div className="mt-2 flex items-center gap-2">
                   <Input
@@ -252,13 +252,13 @@ export default function AccountPageClient() {
                     className="rounded-xl border-quran-border bg-white/50"
                   />
                   <Badge variant="secondary" className="shrink-0 capitalize">
-                    {provider === "email" ? "Email" : "Google"}
+                    {provider === "email" ? t("emailProvider") : t("googleProvider")}
                   </Badge>
                 </div>
               </div>
 
               <p className="text-xs text-quran-muted">
-                Member since {memberSince}
+                {t("memberSince")} {memberSince}
               </p>
 
               <Button
@@ -266,7 +266,7 @@ export default function AccountPageClient() {
                 className="rounded-full"
                 disabled={isSavingProfile}
               >
-                {isSavingProfile ? "Saving..." : "Save profile"}
+                {isSavingProfile ? t("saving") : t("saveProfile")}
               </Button>
             </form>
           </Form>
@@ -276,7 +276,7 @@ export default function AccountPageClient() {
         {isEmailProvider && (
           <section className="quran-card-primary rounded-3xl border border-quran-border p-6 sm:p-8 shadow-lg space-y-6">
             <h2 className="font-heading text-lg font-semibold text-quran-deep">
-              Security
+              {t("security")}
             </h2>
 
             <Form {...passwordForm}>
@@ -289,11 +289,11 @@ export default function AccountPageClient() {
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New password</FormLabel>
+                      <FormLabel>{t("newPassword")}</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="Enter new password"
+                          placeholder={t("enterNewPassword")}
                           {...field}
                           autoComplete="new-password"
                           className="rounded-xl border-quran-border bg-white/85"
@@ -308,11 +308,11 @@ export default function AccountPageClient() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm password</FormLabel>
+                      <FormLabel>{t("confirmPassword")}</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="Confirm new password"
+                          placeholder={t("confirmNewPassword")}
                           {...field}
                           autoComplete="new-password"
                           className="rounded-xl border-quran-border bg-white/85"
@@ -327,7 +327,7 @@ export default function AccountPageClient() {
                   className="rounded-full"
                   disabled={isSavingPassword}
                 >
-                  {isSavingPassword ? "Updating..." : "Update password"}
+                  {isSavingPassword ? t("updating") : t("updatePassword")}
                 </Button>
               </form>
             </Form>
@@ -337,11 +337,10 @@ export default function AccountPageClient() {
         {/* ── Danger Zone ── */}
         <section className="rounded-3xl border border-red-200 bg-red-50/60 p-6 sm:p-8 shadow-lg space-y-4">
           <h2 className="font-heading text-lg font-semibold text-red-700">
-            Danger Zone
+            {t("dangerZone")}
           </h2>
           <p className="text-sm text-red-600/80">
-            Permanently delete your account and all associated data. This action
-            cannot be undone.
+            {t("dangerZoneDesc")}
           </p>
 
           <AlertDialog
@@ -352,31 +351,29 @@ export default function AccountPageClient() {
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="rounded-full">
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete account
+                {t("deleteAccount")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                <AlertDialogTitle>{t("deleteYourAccount")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete your account, unclaim all your
-                  juz selections, and remove your bookmarks. This action cannot
-                  be undone.
+                  {t("deleteAccountDesc")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  Type <span className="font-bold">DELETE</span> to confirm
+                  {t("typeDelete")} <span className="font-bold">DELETE</span> {t("toConfirm")}
                 </label>
                 <Input
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  placeholder="DELETE"
+                  placeholder={t("deletePlaceholder")}
                   className="rounded-xl border-quran-border"
                 />
               </div>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
                 <AlertDialogAction
                   disabled={deleteConfirmation !== "DELETE" || isDeleting}
                   onClick={(e) => {
@@ -385,7 +382,7 @@ export default function AccountPageClient() {
                   }}
                   className="bg-destructive text-white hover:bg-destructive/90"
                 >
-                  {isDeleting ? "Deleting..." : "Delete account"}
+                  {isDeleting ? t("deleting") : t("deleteAccount")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

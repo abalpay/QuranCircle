@@ -17,6 +17,8 @@ import NavigationProgress from "@/components/navigation-progress";
 import AuthErrorToast from "@/components/auth-error-toast";
 import { Analytics } from "@vercel/analytics/next";
 import { getSiteUrl, toAbsoluteUrl } from "@/lib/site-url";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 const siteUrl = getSiteUrl();
 const socialImageUrl = toAbsoluteUrl("/quran-icon.png");
@@ -92,19 +94,23 @@ export const viewport = {
   themeColor: "#0f5f52",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${manrope.variable} ${cormorantGaramond.variable} ${notoNaskhArabic.variable} ${amiri.variable} font-sans antialiased`}
       >
-        <NavigationProgress />
-        <AuthProvider>
-          <AuthModalProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <NavigationProgress />
+          <AuthProvider>
+            <AuthModalProvider>
             <div className="relative min-h-screen overflow-x-clip bg-quran-bg">
               <div
                 aria-hidden
@@ -127,7 +133,8 @@ export default function RootLayout({
             <Toaster />
             <Analytics />
           </AuthModalProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

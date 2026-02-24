@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
-export default function Footer() {
+export default async function Footer() {
+  const t = await getTranslations("Footer");
   return (
     <footer className="mt-auto border-t border-quran-border/60 bg-white/40 backdrop-blur-sm">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
@@ -14,18 +16,18 @@ export default function Footer() {
           </div>
           
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium text-quran-muted">
-            <Link href="/" className="hover:text-quran-green transition-colors">Home</Link>
-            <Link href="/browse" className="hover:text-quran-green transition-colors">Browse</Link>
-            <Link href="/my-circles" className="hover:text-quran-green transition-colors">My Circles</Link>
-            <Link href="/khatm-coordination" className="hover:text-quran-green transition-colors">Khatm Guide</Link>
-            <Link href="/about" className="hover:text-quran-green transition-colors">About</Link>
-            <Link href="/contact" className="hover:text-quran-green transition-colors">Contact</Link>
-            <Link href="/privacy" className="hover:text-quran-green transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-quran-green transition-colors">Terms</Link>
+            <Link href="/" className="hover:text-quran-green transition-colors">{t("home")}</Link>
+            <Link href="/browse" className="hover:text-quran-green transition-colors">{t("browse")}</Link>
+            <Link href="/my-circles" className="hover:text-quran-green transition-colors">{t("myCircles")}</Link>
+            <Link href="/khatm-coordination" className="hover:text-quran-green transition-colors">{t("khatmGuide")}</Link>
+            <Link href="/about" className="hover:text-quran-green transition-colors">{t("about")}</Link>
+            <Link href="/contact" className="hover:text-quran-green transition-colors">{t("contact")}</Link>
+            <Link href="/privacy" className="hover:text-quran-green transition-colors">{t("privacy")}</Link>
+            <Link href="/terms" className="hover:text-quran-green transition-colors">{t("terms")}</Link>
           </nav>
           
           <p className="text-xs text-quran-muted/80">
-            © {new Date().getFullYear()} QuranCircle. All rights reserved.
+            © {new Date().getFullYear()} QuranCircle. {t("allRightsReserved")}
           </p>
         </div>
       </div>

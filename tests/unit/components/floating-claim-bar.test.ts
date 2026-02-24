@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { act, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FloatingClaimBar from "@/components/floating-claim-bar";
+import { IntlWrapper } from "../../helpers/intl-wrapper";
 
 const MULTI_SELECT_HINT_SEEN_KEY = "qc_multi_select_hint_seen_v1";
 
@@ -32,7 +33,8 @@ function renderFloatingClaimBar(selectedCount: number) {
       selectedCount,
       onClaim: () => {},
       onClear: () => {},
-    })
+    }),
+    { wrapper: IntlWrapper }
   );
 }
 

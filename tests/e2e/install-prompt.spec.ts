@@ -204,7 +204,7 @@ test.describe("install prompt", () => {
       page.getByRole("button", { name: "Open install instructions" })
     ).toBeVisible();
 
-    await page.locator("nav").getByRole("link", { name: "Browse" }).click();
+    await page.getByLabel("Mobile navigation").getByRole("link", { name: "Browse" }).click();
 
     await expect(page).toHaveURL(/\/browse$/);
     await expect(

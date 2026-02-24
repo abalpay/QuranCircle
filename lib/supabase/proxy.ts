@@ -39,6 +39,16 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  // Handle locale cookie
+  const locale = request.cookies.get("NEXT_LOCALE")?.value || "en";
+  if (!request.cookies.get("NEXT_LOCALE")) {
+    supabaseResponse.cookies.set("NEXT_LOCALE", locale, {
+      path: "/",
+      maxAge: 31536000, // 1 year
+      sameSite: "lax",
+    });
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
 

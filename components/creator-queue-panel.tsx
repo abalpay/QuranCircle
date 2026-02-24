@@ -22,6 +22,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const INITIAL_VISIBLE_ROWS = 60;
 const LOAD_MORE_STEP = 60;
@@ -39,6 +40,7 @@ export default function CreatorQueuePanel({
   onUndoRead,
   onUnclaim,
 }: Props) {
+  const t = useTranslations("CreatorQueue");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<CreatorQueueFilters["status"]>("all");
   const [khatm, setKhatm] = useState<CreatorQueueFilters["khatm"]>("all");
@@ -83,10 +85,10 @@ export default function CreatorQueuePanel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
-            Creator Queue
+            {t("title")}
           </h2>
           <p className="mt-2 text-sm text-quran-muted">
-            Triage event-wide claims while keeping your personal My Juz flow separate.
+            {t("subtitle")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -94,25 +96,25 @@ export default function CreatorQueuePanel({
             variant="outline"
             className="border-quran-border bg-white/70 px-3 py-1 text-quran-deep"
           >
-            Total {queueStats.total}
+            {t("total", { count: queueStats.total })}
           </Badge>
           <Badge
             variant="outline"
             className="border-amber-200 bg-amber-50 px-3 py-1 text-amber-700"
           >
-            Claimed {queueStats.claimed}
+            {t("claimed", { count: queueStats.claimed })}
           </Badge>
           <Badge
             variant="outline"
             className="border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700"
           >
-            Read {queueStats.read}
+            {t("read", { count: queueStats.read })}
           </Badge>
           <Badge
             variant="outline"
             className="border-quran-green/30 bg-quran-green/10 px-3 py-1 text-quran-green"
           >
-            Yours {queueStats.mine}
+            {t("yours", { count: queueStats.mine })}
           </Badge>
         </div>
       </div>
@@ -124,7 +126,7 @@ export default function CreatorQueuePanel({
               htmlFor="creator-queue-search"
               className="sr-only"
             >
-              Search creator queue rows
+              {t("searchLabel")}
             </label>
             <div className="relative">
               <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-quran-muted" />
@@ -136,12 +138,12 @@ export default function CreatorQueuePanel({
                   setVisibleRows(INITIAL_VISIBLE_ROWS);
                 }}
                 className="pl-9"
-                placeholder="Search name, khatm, or juz"
+                placeholder={t("searchPlaceholder")}
               />
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-xs font-medium text-quran-muted">Status</span>
+            <span className="text-xs font-medium text-quran-muted">{t("status")}</span>
             <Select
               value={status}
               onValueChange={(value) => {
@@ -150,17 +152,17 @@ export default function CreatorQueuePanel({
               }}
             >
               <SelectTrigger className="w-full bg-white/90 md:w-[140px]">
-                <SelectValue placeholder="All statuses" />
+                <SelectValue placeholder={t("allStatuses")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="claimed">Claimed</SelectItem>
-                <SelectItem value="read">Read</SelectItem>
+                <SelectItem value="all">{t("all")}</SelectItem>
+                <SelectItem value="claimed">{t("claimedStatus")}</SelectItem>
+                <SelectItem value="read">{t("readStatus")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
-            <span className="text-xs font-medium text-quran-muted">Khatm</span>
+            <span className="text-xs font-medium text-quran-muted">{t("khatm")}</span>
             <Select
               value={khatm === "all" ? "all" : String(khatm)}
               onValueChange={(value) => {
@@ -177,13 +179,13 @@ export default function CreatorQueuePanel({
               }}
             >
               <SelectTrigger className="w-full bg-white/90 md:w-[140px]">
-                <SelectValue placeholder="All khatms" />
+                <SelectValue placeholder={t("allKhatms")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="all">{t("all")}</SelectItem>
                 {khatmOptions.map((khatmNumber) => (
                   <SelectItem key={khatmNumber} value={String(khatmNumber)}>
-                    Khatm {khatmNumber}
+                    {t("khatmNumber", { number: khatmNumber })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -203,7 +205,7 @@ export default function CreatorQueuePanel({
                 }}
                 size="default"
               />
-              Only mine
+              {t("onlyMine")}
             </label>
             <Button
               type="button"
@@ -212,23 +214,23 @@ export default function CreatorQueuePanel({
               onClick={clearFilters}
             >
               <SlidersHorizontal className="mr-2 h-4 w-4" />
-              Clear filters
+              {t("clearFilters")}
             </Button>
           </div>
         </div>
       </div>
 
       <p className="mt-4 text-xs text-quran-muted">
-        Showing {displayedRows.length} of {filteredRows.length} matching rows.
+        {t("showingRows", { displayed: displayedRows.length, total: filteredRows.length })}
       </p>
       <p className="sr-only" role="status" aria-live="polite">
-        {filteredRows.length} creator queue rows shown.
+        {t("rowsShown", { count: filteredRows.length })}
       </p>
 
       {filteredRows.length === 0 ? (
         <div className="mt-4 rounded-xl border border-quran-border/60 bg-white/60 py-10 text-center">
           <p className="text-sm text-quran-muted">
-            No rows match your current filters.
+            {t("noMatches")}
           </p>
         </div>
       ) : (
@@ -246,7 +248,7 @@ export default function CreatorQueuePanel({
               >
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="font-semibold text-quran-deep">
-                    Khatm #{row.khatmNumber} · Juz {row.juzNumber}
+                    {t("khatmJuz", { khatm: row.khatmNumber, juz: row.juzNumber })}
                   </span>
                   <span
                     className={cn(
@@ -256,14 +258,14 @@ export default function CreatorQueuePanel({
                         : "bg-amber-100 text-amber-700"
                     )}
                   >
-                    {row.status === "read" ? "Read" : "Claimed"}
+                    {row.status === "read" ? t("readStatus") : t("claimedStatus")}
                   </span>
                   <span className="text-quran-muted">
-                    {row.claimedByName ? `by ${row.claimedByName}` : "name unavailable"}
+                    {row.claimedByName ? t("by", { name: row.claimedByName }) : t("nameUnavailable")}
                   </span>
                   {row.isMine && (
                     <span className="rounded-full bg-quran-green/10 px-2 py-0.5 text-[10px] font-medium text-quran-green">
-                      Yours
+                      {t("yours", { count: 1 })}
                     </span>
                   )}
                 </div>
@@ -274,7 +276,7 @@ export default function CreatorQueuePanel({
                       className="min-h-10 rounded-full bg-emerald-100 px-3 py-2 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
                       onClick={() => onMarkRead(row.juzId)}
                     >
-                      Mark Read
+                      {t("markRead")}
                     </button>
                   )}
                   {row.status === "read" && (
@@ -283,7 +285,7 @@ export default function CreatorQueuePanel({
                       className="min-h-10 rounded-full bg-amber-100 px-3 py-2 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
                       onClick={() => onUndoRead(row.juzId)}
                     >
-                      Undo
+                      {t("undo")}
                     </button>
                   )}
                   <button
@@ -291,7 +293,7 @@ export default function CreatorQueuePanel({
                     className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
                     onClick={() => onUnclaim(row.juzId)}
                   >
-                    Unclaim
+                    {t("unclaim")}
                   </button>
                 </div>
               </div>
@@ -308,7 +310,7 @@ export default function CreatorQueuePanel({
             className="rounded-full border-quran-border bg-white/90 px-5"
             onClick={() => setVisibleRows((current) => current + LOAD_MORE_STEP)}
           >
-            Load more
+            {t("loadMore")}
           </Button>
         </div>
       )}

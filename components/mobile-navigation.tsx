@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, Layers3, Compass, UserCircle, LogOut, Settings } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, Layers3, Compass, UserCircle, LogOut, Settings, Globe2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useState } from "react";
@@ -13,12 +13,22 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function MobileNavigation() {
   const pathname = usePathname();
+  const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("MobileNav");
   const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const handleLanguageSwitch = () => {
+    const newLocale = locale === "en" ? "tr" : "en";
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
+    router.refresh();
+  };
 
   const displayName =
     (isAuthenticatedUser && (user?.user_metadata?.username as string)) ||
@@ -49,7 +59,7 @@ export default function MobileNavigation() {
             }`}
           >
             <Home className="h-5 w-5" />
-            <span className="mt-1 text-[11px] font-medium">Home</span>
+            <span className="mt-1 text-[11px] font-medium">{t("home")}</span>
           </Link>
           <Link
             href="/my-circles"
@@ -60,7 +70,7 @@ export default function MobileNavigation() {
             }`}
           >
             <Layers3 className="h-5 w-5" />
-            <span className="mt-1 max-w-[68px] truncate text-[10px] font-medium">My Circles</span>
+            <span className="mt-1 max-w-[68px] truncate text-[10px] font-medium">{t("myCircles")}</span>
           </Link>
           <Link
             href="/browse"
@@ -71,7 +81,7 @@ export default function MobileNavigation() {
             }`}
           >
             <Compass className="h-5 w-5" />
-            <span className="mt-1 text-[11px] font-medium">Browse</span>
+            <span className="mt-1 text-[11px] font-medium">{t("browse")}</span>
           </Link>
           <button
             onClick={handleProfileTap}
@@ -83,7 +93,7 @@ export default function MobileNavigation() {
           >
             <UserCircle className="h-5 w-5" />
             <span className="mt-1 max-w-[64px] truncate text-[11px] font-medium">
-              {isAuthenticatedUser ? displayName : "Sign In"}
+              {isAuthenticatedUser ? displayName : t("signIn")}
             </span>
           </button>
         </div>
@@ -97,7 +107,7 @@ export default function MobileNavigation() {
         >
           <SheetHeader>
             <SheetTitle className="text-quran-deep">
-              Salam, {displayName}
+              {t("salam")}, {displayName}
             </SheetTitle>
             {isAuthenticatedUser && user?.email && (
               <SheetDescription className="text-quran-muted">
@@ -112,8 +122,15 @@ export default function MobileNavigation() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/70 border border-quran-border px-4 py-3 text-sm font-medium text-quran-deep transition-colors active:bg-white"
             >
               <Settings className="h-4 w-4" />
-              Account Settings
+              {t("accountSettings")}
             </Link>
+            <button
+              onClick={handleLanguageSwitch}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/70 border border-quran-border px-4 py-3 text-sm font-medium text-quran-deep transition-colors active:bg-white"
+            >
+              <Globe2 className="h-4 w-4" />
+              {t("language")}: {locale === "en" ? t("english") : t("turkish")}
+            </button>
             <button
               onClick={() => {
                 setIsProfileOpen(false);
@@ -122,7 +139,7 @@ export default function MobileNavigation() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600 transition-colors active:bg-red-100"
             >
               <LogOut className="h-4 w-4" />
-              Log out
+              {t("logOut")}
             </button>
           </div>
         </SheetContent>

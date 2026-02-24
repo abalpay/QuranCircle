@@ -20,23 +20,25 @@ import { useAuth } from "@/hooks/use-auth";
 import { createClient } from "@/lib/supabase/client";
 import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
-
-const resetPasswordSchema = z
-  .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+import { useTranslations } from "next-intl";
 
 export default function ResetPasswordPageClient() {
   const router = useRouter();
+  const t = useTranslations("ResetPassword");
   const { user, isLoading, isAuthenticatedUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const resetPasswordSchema = z
+    .object({
+      password: z.string().min(8, t("passwordMinLength")),
+      confirmPassword: z.string().min(8, t("confirmPasswordRequired")),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("passwordsDoNotMatch"),
+      path: ["confirmPassword"],
+    });
+
+  type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -56,13 +58,13 @@ export default function ResetPasswordPageClient() {
     setIsSubmitting(false);
 
     if (error) {
-      toast.error("Failed to update password", {
+      toast.error(t("failedToUpdatePassword"), {
         description: formatAuthError(error.message),
       });
       return;
     }
 
-    toast.success("Password updated successfully");
+    toast.success(t("passwordUpdated"));
     router.replace("/");
   };
 
@@ -70,7 +72,7 @@ export default function ResetPasswordPageClient() {
     return (
       <main className="page-shell grow flex items-center justify-center">
         <div className="quran-card p-10 text-center">
-          <p className="text-quran-muted">Loading...</p>
+          <p className="text-quran-muted">{t("loading")}</p>
         </div>
       </main>
     );
@@ -82,11 +84,10 @@ export default function ResetPasswordPageClient() {
         <div className="space-y-6">
           <div className="text-center sm:text-left">
             <h1 className="font-heading text-2xl font-semibold text-quran-deep sm:text-3xl">
-              Set new password
+              {t("setNewPassword")}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Enter your new password below. Make sure it&apos;s at least 8
-              characters.
+              {t("setNewPasswordDesc")}
             </p>
           </div>
 
@@ -100,11 +101,11 @@ export default function ResetPasswordPageClient() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New password</FormLabel>
+                    <FormLabel>{t("newPassword")}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Enter new password"
+                        placeholder={t("enterNewPassword")}
                         {...field}
                         required
                         aria-required="true"
@@ -121,11 +122,11 @@ export default function ResetPasswordPageClient() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm password</FormLabel>
+                    <FormLabel>{t("confirmPassword")}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Confirm new password"
+                        placeholder={t("confirmNewPassword")}
                         {...field}
                         required
                         aria-required="true"
@@ -142,7 +143,7 @@ export default function ResetPasswordPageClient() {
                 className="w-full rounded-full"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Updating..." : "Update password"}
+                {isSubmitting ? t("updating") : t("updatePassword")}
               </Button>
             </form>
           </Form>
@@ -152,7 +153,7 @@ export default function ResetPasswordPageClient() {
               href="/"
               className="text-primary hover:underline"
             >
-              Back to home
+              {t("backToHome")}
             </Link>
           </p>
         </div>

@@ -17,6 +17,7 @@ import {
   getPublicEventsPage,
   type PublicEventsPage,
 } from "@/lib/actions/events";
+import { useTranslations } from "next-intl";
 
 const BROWSE_PAGE_SIZE = 12;
 
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export default function BrowseEvents({ initialPage }: Props) {
+  const t = useTranslations("Browse");
   const [events, setEvents] = useState(initialPage.events);
   const [hasMore, setHasMore] = useState(initialPage.hasMore);
   const [nextCursor, setNextCursor] = useState(initialPage.nextCursor);
@@ -52,7 +54,7 @@ export default function BrowseEvents({ initialPage }: Props) {
       setNextCursor(nextPage.nextCursor);
     } catch (error) {
       console.error("[BrowseEvents] failed to load next page:", error);
-      toast.error("Unable to load more circles right now.");
+      toast.error(t("unableToLoad"));
     } finally {
       setIsLoadingMore(false);
     }
@@ -94,7 +96,7 @@ export default function BrowseEvents({ initialPage }: Props) {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search circles..."
+            placeholder={t("searchCircles")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 rounded-full border-quran-border bg-white/80"
@@ -104,13 +106,13 @@ export default function BrowseEvents({ initialPage }: Props) {
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="rounded-full border-quran-border bg-white/80 gap-2">
               <ArrowUpDown className="h-4 w-4" />
-              Sort by: {sortBy === "newest" ? "Newest" : sortBy === "oldest" ? "Oldest" : "Progress"}
+              {t("sortBy")} {sortBy === "newest" ? t("newest") : sortBy === "oldest" ? t("oldest") : t("progress")}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="rounded-xl border-quran-border bg-quran-card">
-            <DropdownMenuItem onClick={() => setSortBy("newest")}>Newest First</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy("oldest")}>Oldest First</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy("progress")}>Most Progress</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortBy("newest")}>{t("newestFirst")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortBy("oldest")}>{t("oldestFirst")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortBy("progress")}>{t("mostProgress")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -120,13 +122,13 @@ export default function BrowseEvents({ initialPage }: Props) {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-quran-green/10 text-quran-green">
             <Compass className="h-7 w-7" />
           </div>
-          <h3 className="font-heading text-xl text-quran-deep">No circles found</h3>
+          <h3 className="font-heading text-xl text-quran-deep">{t("noCirclesFound")}</h3>
           <p className="mt-2 text-quran-muted">
-            {searchQuery ? "Try adjusting your search terms." : "Be the first to create a public circle."}
+            {searchQuery ? t("adjustSearch") : t("beTheFirst")}
           </p>
           {!searchQuery && (
             <Button asChild className="mt-6 rounded-full px-6">
-              <Link href="/">Create A Circle</Link>
+              <Link href="/">{t("createACircle")}</Link>
             </Button>
           )}
         </div>
@@ -154,7 +156,7 @@ export default function BrowseEvents({ initialPage }: Props) {
                   }`}
                   aria-hidden={!ev.description}
                 >
-                  {ev.description ?? "No description provided."}
+                  {ev.description ?? t("noDescription")}
                 </p>
 
                 <div className="mt-auto">
@@ -163,10 +165,10 @@ export default function BrowseEvents({ initialPage }: Props) {
                     className="h-2 bg-quran-border/50"
                   />
                   <div className="mt-3 flex items-center justify-between text-xs text-quran-muted">
-                    <span>{ev.claimed}/{ev.total} Juz claimed</span>
+                    <span>{ev.claimed}/{ev.total} {t("juzClaimed")}</span>
                     <span className="inline-flex items-center gap-1 rounded-full bg-quran-green/5 px-2 py-0.5 text-quran-green">
                       <Users2 className="h-3 w-3" />
-                      Open
+                      {t("open")}
                     </span>
                   </div>
                 </div>
@@ -183,7 +185,7 @@ export default function BrowseEvents({ initialPage }: Props) {
                 disabled={isLoadingMore}
                 onClick={() => void loadMoreEvents()}
               >
-                {isLoadingMore ? "Loading..." : "Load more circles"}
+                {isLoadingMore ? t("loading") : t("loadMore")}
               </Button>
             </div>
           )}
