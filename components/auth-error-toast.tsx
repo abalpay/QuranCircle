@@ -3,23 +3,24 @@
 import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export default function AuthErrorToast() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations("Auth");
 
   useEffect(() => {
     if (searchParams.get("error") === "auth") {
-      toast.error("Authentication failed", {
-        description:
-          "Something went wrong during authentication. The link may have expired or was already used. Please try again.",
+      toast.error(t("authFailed"), {
+        description: t("authFailedDesc"),
       });
 
       const url = new URL(window.location.href);
       url.searchParams.delete("error");
       router.replace(url.pathname + url.search, { scroll: false });
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, t]);
 
   return null;
 }

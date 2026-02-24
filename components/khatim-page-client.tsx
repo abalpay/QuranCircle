@@ -363,12 +363,12 @@ export default function KhatimPageClient({
       });
 
       if (!loaded) {
-        toast.error("Failed to load older Khatm cycles. Please try again.");
+        toast.error(tPage("failedToLoadOlder"));
       }
     } finally {
       setIsLoadingOlderKhatms(false);
     }
-  }, [event.has_more_khatms, event.next_before_khatm_number, refreshEvent]);
+  }, [event.has_more_khatms, event.next_before_khatm_number, refreshEvent, tPage]);
 
   const jumpToLatestKhatm = useCallback((baselineKhatmId: string | null = null) => {
     let attempts = 0;
@@ -407,11 +407,11 @@ export default function KhatimPageClient({
   const ensureMutationSession = useCallback(async () => {
     const sessionUser = await ensureSession();
     if (!sessionUser) {
-      toast.error("Unable to start a session. Please refresh and try again.");
+      toast.error(tPage("sessionError"));
       return false;
     }
     return true;
-  }, [ensureSession]);
+  }, [ensureSession, tPage]);
 
   const handleCreatorMarkRead = useCallback(
     async (juzId: string) => {
@@ -422,14 +422,14 @@ export default function KhatimPageClient({
           toast.error(result.error);
           return;
         }
-        toast.success("Juz marked as read");
+        toast.success(tPage("juzMarkedRead"));
         await refreshEvent();
       } catch (error) {
         console.error("[QuranCircle] Failed to mark juz as read:", error);
-        toast.error("Unable to mark this Juz as read. Please try again.");
+        toast.error(tPage("markReadFailed"));
       }
     },
-    [ensureMutationSession, refreshEvent, shortCode]
+    [ensureMutationSession, refreshEvent, shortCode, tPage]
   );
 
   const handleCreatorUnmarkRead = useCallback(
@@ -441,14 +441,14 @@ export default function KhatimPageClient({
           toast.error(result.error);
           return;
         }
-        toast.success("Juz marked as unread");
+        toast.success(tPage("juzMarkedUnread"));
         await refreshEvent();
       } catch (error) {
         console.error("[QuranCircle] Failed to unmark juz as read:", error);
-        toast.error("Unable to update this Juz. Please try again.");
+        toast.error(tPage("unmarkReadFailed"));
       }
     },
-    [ensureMutationSession, refreshEvent, shortCode]
+    [ensureMutationSession, refreshEvent, shortCode, tPage]
   );
 
   const handleCreatorUnclaim = useCallback(
@@ -460,14 +460,14 @@ export default function KhatimPageClient({
           toast.error(result.error);
           return;
         }
-        toast.success("Juz unclaimed");
+        toast.success(tPage("juzUnclaimed"));
         await refreshEvent();
       } catch (error) {
         console.error("[QuranCircle] Failed to unclaim juz:", error);
-        toast.error("Unable to unclaim this Juz. Please try again.");
+        toast.error(tPage("unclaimFailed"));
       }
     },
-    [ensureMutationSession, refreshEvent, shortCode]
+    [ensureMutationSession, refreshEvent, shortCode, tPage]
   );
 
   const handleClaimSuccess = useCallback(
@@ -486,10 +486,10 @@ export default function KhatimPageClient({
       };
 
       const successMessage = newKhatmCreated
-        ? "Juz claimed! A new Khatm cycle has started."
+        ? tPage("juzClaimedNewKhatm")
         : claimedCount === 1
-          ? "Juz claimed."
-          : `${claimedCount} Juz claimed.`;
+          ? tPage("juzClaimedSingle")
+          : tPage("juzClaimedMultiple", { count: claimedCount });
       const shouldGuideToMyJuz = shouldNudgeMyJuz && displayFilter !== "mine";
       if (shouldGuideToMyJuz) {
         setShowMyJuzNudge(true);
@@ -499,7 +499,7 @@ export default function KhatimPageClient({
         const baselineKhatmId = latestKhatmIdRef.current;
         toast.success(successMessage, {
           action: {
-            label: "Jump to new Khatm",
+            label: tPage("jumpToNewKhatm"),
             onClick: () => jumpToLatestKhatm(baselineKhatmId),
           },
         });
@@ -508,9 +508,9 @@ export default function KhatimPageClient({
       }
 
       if (shouldGuideToMyJuz) {
-        toast.success("Juz claimed. Manage it in My Juz.", {
+        toast.success(tPage("juzClaimedManage"), {
           action: {
-            label: "Go to My Juz",
+            label: tPage("goToMyJuz"),
             onClick: () => setActiveFilter("mine"),
           },
         });
@@ -521,7 +521,7 @@ export default function KhatimPageClient({
       toast.success(successMessage);
       queueInstallPrompt();
     },
-    [displayFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz]
+    [displayFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz, tPage]
   );
 
   // Re-establish realtime subscription when tab becomes visible or network reconnects
@@ -758,10 +758,10 @@ export default function KhatimPageClient({
       {
         title: event.name,
         onCopySuccess: () => {
-          toast.success("Invite copied to clipboard");
+          toast.success(tPage("inviteCopied"));
         },
         onCopyError: () => {
-          toast.error("Failed to copy invite");
+          toast.error(tPage("inviteCopyFailed"));
         },
       }
     );
@@ -777,10 +777,10 @@ export default function KhatimPageClient({
         return;
       }
       setEvent((current) => ({ ...current, is_archived: !current.is_archived }));
-      toast.success(event.is_archived ? "Khatim unarchived" : "Khatim archived");
+      toast.success(event.is_archived ? tPage("khatimUnarchived") : tPage("khatimArchived"));
     } catch (error) {
       console.error("[QuranCircle] Failed to toggle archive state:", error);
-      toast.error("Unable to update archive state. Please try again.");
+      toast.error(tPage("archiveUpdateFailed"));
     }
   };
 
@@ -793,11 +793,11 @@ export default function KhatimPageClient({
         toast.error(deleteError);
         return;
       }
-      toast.success("Khatim deleted");
+      toast.success(tPage("khatimDeleted"));
       router.push("/");
     } catch (error) {
       console.error("[QuranCircle] Failed to delete khatim:", error);
-      toast.error("Unable to delete this Khatim. Please try again.");
+      toast.error(tPage("deleteFailed"));
     } finally {
       setIsDeleting(false);
     }
@@ -815,12 +815,12 @@ export default function KhatimPageClient({
             {event.is_public ? (
               <>
                 <Globe2 className="mr-2 h-3.5 w-3.5" />
-                Public Circle
+                {tPage("publicCircle")}
               </>
             ) : (
               <>
                 <Link2 className="mr-2 h-3.5 w-3.5" />
-                Link-Only Circle
+                {tPage("linkOnlyCircle")}
               </>
             )}
           </span>
@@ -989,10 +989,10 @@ export default function KhatimPageClient({
       {showCreatorQueue && creatorManageRows.length === 0 && (
         <section className="quran-card px-6 py-10 text-center sm:px-7">
           <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
-            Creator Queue
+            {tPage("creatorQueueTitle")}
           </h2>
           <p className="mt-2 text-sm text-quran-muted">
-            No claimed rows yet. Creator actions will appear here once people start claiming.
+            {tPage("creatorQueueEmpty")}
           </p>
         </section>
       )}
@@ -1030,10 +1030,10 @@ export default function KhatimPageClient({
                 onClick={() => void loadOlderKhatms()}
                 disabled={isLoadingOlderKhatms}
               >
-                {isLoadingOlderKhatms ? "Loading older cycles..." : "Load older cycles"}
+                {isLoadingOlderKhatms ? tPage("loadingOlderCycles") : tPage("loadOlderCycles")}
               </Button>
               <p className="text-xs text-quran-muted">
-                Showing {event.khatms.length} of {event.total_khatms} Khatm cycles
+                {tPage("showingKhatms", { loaded: event.khatms.length, total: event.total_khatms })}
               </p>
             </div>
           )}

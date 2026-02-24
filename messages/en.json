@@ -288,7 +288,35 @@
     "unarchiveKhatim": "Unarchive Khatim",
     "unarchive": "Unarchive",
     "deleteKhatim": "Delete Khatim",
-    "circleArchivedReadOnly": "This circle is archived and read-only."
+    "circleArchivedReadOnly": "This circle is archived and read-only.",
+    "publicCircle": "Public Circle",
+    "linkOnlyCircle": "Link-Only Circle",
+    "inviteCopied": "Invite copied to clipboard",
+    "inviteCopyFailed": "Failed to copy invite",
+    "khatimArchived": "Khatim archived",
+    "khatimUnarchived": "Khatim unarchived",
+    "archiveUpdateFailed": "Unable to update archive state. Please try again.",
+    "khatimDeleted": "Khatim deleted",
+    "deleteFailed": "Unable to delete this Khatim. Please try again.",
+    "failedToLoadOlder": "Failed to load older Khatm cycles. Please try again.",
+    "sessionError": "Unable to start a session. Please refresh and try again.",
+    "juzMarkedRead": "Juz marked as read",
+    "markReadFailed": "Unable to mark this Juz as read. Please try again.",
+    "juzMarkedUnread": "Juz marked as unread",
+    "unmarkReadFailed": "Unable to update this Juz. Please try again.",
+    "juzUnclaimed": "Juz unclaimed",
+    "unclaimFailed": "Unable to unclaim this Juz. Please try again.",
+    "juzClaimedNewKhatm": "Juz claimed! A new Khatm cycle has started.",
+    "juzClaimedSingle": "Juz claimed.",
+    "juzClaimedMultiple": "{count} Juz claimed.",
+    "jumpToNewKhatm": "Jump to new Khatm",
+    "juzClaimedManage": "Juz claimed. Manage it in My Juz.",
+    "goToMyJuz": "Go to My Juz",
+    "creatorQueueTitle": "Creator Queue",
+    "creatorQueueEmpty": "No claimed rows yet. Creator actions will appear here once people start claiming.",
+    "loadingOlderCycles": "Loading older cycles...",
+    "loadOlderCycles": "Load older cycles",
+    "showingKhatms": "Showing {loaded} of {total} Khatm cycles"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Delete Khatim?",
@@ -296,5 +324,9 @@
     "cancel": "Cancel",
     "deleting": "Deleting...",
     "deletePermanently": "Delete Permanently"
+  },
+  "Auth": {
+    "authFailed": "Authentication failed",
+    "authFailedDesc": "Something went wrong during authentication. The link may have expired or was already used. Please try again."
   }
 }
