@@ -279,5 +279,22 @@
     "creatorQueue": "Yönetim Paneli ({count})",
     "new": "Yeni",
     "updating": "Güncelleniyor..."
+  },
+  "CirclePage": {
+    "share": "Paylaş",
+    "archived": "Arşivlendi",
+    "openForClaims": "Üstlenmeye Açık",
+    "archiveKhatim": "Hatimi Arşivle",
+    "unarchiveKhatim": "Hatimi Arşivden Çıkar",
+    "unarchive": "Arşivden Çıkar",
+    "deleteKhatim": "Hatimi Sil",
+    "circleArchivedReadOnly": "Bu halka arşivlenmiştir ve salt okunurdur."
+  },
+  "DeleteDialog": {
+    "deleteKhatimTitle": "Hatimi Sil?",
+    "deleteKhatimDesc": "{eventName} ve tüm verileri kalıcı olarak silinecek. Paylaşılan bağlantıya sahip kişiler artık erişemeyecek. Bu işlem geri alınamaz.",
+    "cancel": "İptal",
+    "deleting": "Siliniyor...",
+    "deletePermanently": "Kalıcı Olarak Sil"
   }
 }

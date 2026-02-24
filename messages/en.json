@@ -279,5 +279,22 @@
     "creatorQueue": "Creator Queue ({count})",
     "new": "New",
     "updating": "Updating..."
+  },
+  "CirclePage": {
+    "share": "Share",
+    "archived": "Archived",
+    "openForClaims": "Open For Claims",
+    "archiveKhatim": "Archive Khatim",
+    "unarchiveKhatim": "Unarchive Khatim",
+    "unarchive": "Unarchive",
+    "deleteKhatim": "Delete Khatim",
+    "circleArchivedReadOnly": "This circle is archived and read-only."
+  },
+  "DeleteDialog": {
+    "deleteKhatimTitle": "Delete Khatim?",
+    "deleteKhatimDesc": "This will permanently delete {eventName} and all its data. Anyone with the shared link will no longer be able to access it. This action cannot be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting...",
+    "deletePermanently": "Delete Permanently"
   }
 }

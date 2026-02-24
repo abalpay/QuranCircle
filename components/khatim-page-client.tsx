@@ -88,6 +88,7 @@ export default function KhatimPageClient({
   const [supabase] = useState(() => createClient());
   const { ensureSession, user } = useAuth();
   const t = useTranslations("Filters");
+  const tPage = useTranslations("CirclePage");
   const [event, setEvent] = useState(initialEvent);
   const [isCreator, setIsCreator] = useState(initialEvent.can_manage);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -827,12 +828,12 @@ export default function KhatimPageClient({
             {event.is_archived ? (
               <>
                 <Archive className="mr-2 h-3.5 w-3.5" />
-                Archived
+                {tPage("archived")}
               </>
             ) : (
               <>
                 <ShieldCheck className="mr-2 h-3.5 w-3.5" />
-                Open For Claims
+                {tPage("openForClaims")}
               </>
             )}
           </span>
@@ -857,7 +858,7 @@ export default function KhatimPageClient({
               onClick={handleShare}
             >
               <Share2 className="mr-2 h-4 w-4" />
-              Share
+              {tPage("share")}
             </Button>
             {isCreator && (
               <DropdownMenu>
@@ -875,12 +876,12 @@ export default function KhatimPageClient({
                     {event.is_archived ? (
                       <>
                         <ArchiveRestore className="mr-2 h-4 w-4" />
-                        Unarchive Khatim
+                        {tPage("unarchiveKhatim")}
                       </>
                     ) : (
                       <>
                         <Archive className="mr-2 h-4 w-4" />
-                        Archive Khatim
+                        {tPage("archiveKhatim")}
                       </>
                     )}
                   </DropdownMenuItem>
@@ -890,7 +891,7 @@ export default function KhatimPageClient({
                     onClick={() => setIsDeleteDialogOpen(true)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Khatim
+                    {tPage("deleteKhatim")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -903,7 +904,7 @@ export default function KhatimPageClient({
         <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
           <div className="flex items-center gap-3 text-sm text-amber-800">
             <Archive className="h-5 w-5 shrink-0 text-amber-600" />
-            <span>This circle is archived and read-only.</span>
+            <span>{tPage("circleArchivedReadOnly")}</span>
           </div>
           {isCreator && (
             <Button
@@ -913,7 +914,7 @@ export default function KhatimPageClient({
               onClick={handleArchiveToggle}
             >
               <ArchiveRestore className="mr-2 h-4 w-4" />
-              Unarchive
+              {tPage("unarchive")}
             </Button>
           )}
         </div>
