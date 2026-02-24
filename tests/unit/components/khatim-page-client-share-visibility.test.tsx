@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import KhatimPageClient from "@/components/khatim-page-client";
+import { IntlWrapper } from "../../helpers/intl-wrapper";
 import type { EventSnapshot } from "@/lib/types/events";
 
 const { replaceMock } = vi.hoisted(() => ({
@@ -115,7 +116,8 @@ describe("KhatimPageClient share/settings visibility", () => {
 
   it("shows Share for non-creators and hides creator settings", () => {
     const { container } = render(
-      <KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />
+      <KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />,
+      { wrapper: IntlWrapper }
     );
 
     expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
@@ -130,7 +132,8 @@ describe("KhatimPageClient share/settings visibility", () => {
           can_manage: true,
         })}
         shortCode="ABCDEFGH"
-      />
+      />,
+      { wrapper: IntlWrapper }
     );
 
     expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
