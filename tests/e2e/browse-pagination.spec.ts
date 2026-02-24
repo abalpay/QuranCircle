@@ -59,7 +59,12 @@ test("browse page loads additional cursor pages", async ({ page }) => {
   });
   await expect(fixtureCards).toHaveCount(12);
 
-  await page.getByRole("button", { name: "Load more circles" }).click();
+  // Page size is 12, total fixtures is 30. Need to click "Load more" until all are loaded.
+  while (await page.getByRole("button", { name: "Load more circles" }).isVisible()) {
+    await page.getByRole("button", { name: "Load more circles" }).click();
+    // Wait for new items to load
+    await page.waitForTimeout(1000);
+  }
   await expect(fixtureCards).toHaveCount(FIXTURE_EVENT_COUNT);
   await expect(
     page.getByRole("button", { name: "Load more circles" })
