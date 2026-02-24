@@ -186,7 +186,7 @@ export default function UserDashboard() {
 
         {!isLoadingCircles && archivedCount > 0 && (
           <p className="mt-6 text-sm text-quran-muted">
-            {archivedCount} {t("archivedCircles")} {archivedCount === 1 ? t("circle") : t("circles")} {t("inYourHistory")}
+            {t("archivedHistory", { count: archivedCount })}
           </p>
         )}
       </section>

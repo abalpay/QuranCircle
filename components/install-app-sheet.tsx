@@ -13,6 +13,7 @@ import {
   Smartphone,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Props = {
   surface: "home" | "claim-success";
@@ -27,6 +28,7 @@ export default function InstallAppSheet({
   onOpenChange,
   showDoneAction = false,
 }: Props) {
+  const t = useTranslations("InstallApp");
   const {
     platform,
     isEligible,
@@ -52,12 +54,12 @@ export default function InstallAppSheet({
 
   const title =
     surface === "claim-success"
-      ? "Keep your circle one tap away"
-      : "Install QuranCircle";
+      ? t("claimSuccessTitle")
+      : t("homeTitle");
   const description =
     surface === "claim-success"
-      ? "Add this app to your phone so you can return to your Khatm in seconds."
-      : "Get quick access from your home screen with an app-like experience.";
+      ? t("claimSuccessDesc")
+      : t("homeDesc");
 
   const handleDismiss = () => {
     if (surface === "home") {
@@ -92,7 +94,7 @@ export default function InstallAppSheet({
           type="button"
           onClick={handleDismiss}
           className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
-          aria-label="Close install prompt"
+          aria-label={t("close")}
         >
           <X className="h-4 w-4" />
         </button>
@@ -100,7 +102,7 @@ export default function InstallAppSheet({
         <div className="pr-8">
           <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-quran-border/70 bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-quran-muted">
             <Smartphone className="h-3.5 w-3.5" />
-            Install App
+            {t("installApp")}
           </div>
           <h2 className="font-heading text-2xl leading-tight text-quran-deep">
             {title}
@@ -112,40 +114,39 @@ export default function InstallAppSheet({
           {isIOS ? (
             <div className="rounded-2xl border border-quran-border/65 bg-white/65 p-3">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-quran-muted">
-                iPhone & iPad Steps
+                {t("iosSteps")}
               </p>
               <div className="mt-2 grid grid-cols-3 gap-2 text-center text-[11px] font-medium text-quran-deep">
                 <div className="install-step-chip">
                   <Share2 className="mx-auto mb-1 h-4 w-4" />
-                  Share
+                  {t("share")}
                 </div>
                 <div className="install-step-chip">
                   <PlusSquare className="mx-auto mb-1 h-4 w-4" />
-                  Add to Home
+                  {t("addToHome")}
                 </div>
                 <div className="install-step-chip">
                   <CheckCircle2 className="mx-auto mb-1 h-4 w-4" />
-                  Add
+                  {t("add")}
                 </div>
               </div>
               <p className="mt-2 text-xs leading-relaxed text-quran-muted">
-                If you don&apos;t see this option, open this page in Safari and try again.
+                {t("safariNote")}
               </p>
             </div>
           ) : (
             <div className="rounded-2xl border border-quran-border/65 bg-white/65 p-3">
               {canNativePrompt ? (
                 <p className="text-xs leading-relaxed text-quran-muted">
-                  Tap install to add QuranCircle to your home screen.
+                  {t("tapToInstall")}
                 </p>
               ) : (
                 <>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-quran-muted">
-                    Manual Install
+                    {t("manualInstall")}
                   </p>
                   <p className="mt-2 text-xs leading-relaxed text-quran-muted">
-                    Open your browser menu <EllipsisVertical className="mx-0.5 inline h-3.5 w-3.5" /> and
-                    choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.
+                    {t("manualInstallDesc")}
                   </p>
                 </>
               )}
@@ -161,7 +162,7 @@ export default function InstallAppSheet({
               onClick={handleNativeInstall}
             >
               <Download className="mr-2 h-4 w-4" />
-              Install App
+              {t("installButton")}
             </Button>
           )}
 
@@ -173,7 +174,7 @@ export default function InstallAppSheet({
               onClick={handleManualDone}
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              I Added It
+              {t("iAddedIt")}
             </Button>
           )}
 
@@ -183,7 +184,7 @@ export default function InstallAppSheet({
             className="h-10 rounded-full px-4 text-sm text-quran-muted hover:bg-quran-border/20 hover:text-quran-deep"
             onClick={handleDismiss}
           >
-            Not now
+            {t("notNow")}
           </Button>
         </div>
       </section>

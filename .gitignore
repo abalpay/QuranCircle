@@ -66,3 +66,6 @@ Desktop.ini
 # AI / agent configs (local-only)
 .agents/
 .claude/
+
+# Agent swarm
+.clawdbot/active-tasks.json

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { Users2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 type FeaturedEvent = {
   id: string;
@@ -15,7 +16,8 @@ type Props = {
   events: FeaturedEvent[];
 };
 
-export default function FeaturedCircles({ events }: Props) {
+export default async function FeaturedCircles({ events }: Props) {
+  const t = await getTranslations("FeaturedCircles");
   if (events.length === 0) return null;
 
   return (
@@ -32,7 +34,7 @@ export default function FeaturedCircles({ events }: Props) {
             </h3>
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-quran-green/10 px-2.5 py-1 text-xs font-semibold text-quran-green">
               <Users2 className="h-3 w-3" />
-              Join
+              {t("join")}
             </span>
           </div>
 
@@ -42,7 +44,7 @@ export default function FeaturedCircles({ events }: Props) {
             }`}
             aria-hidden={!ev.description}
           >
-            {ev.description ?? "No description provided."}
+            {ev.description ?? t("noDescription")}
           </p>
 
           <div className="mt-auto">
@@ -51,7 +53,7 @@ export default function FeaturedCircles({ events }: Props) {
               className="h-2 bg-quran-border/50"
             />
             <p className="mt-3 text-xs text-quran-muted">
-              {ev.claimed}/{ev.total} Juz claimed
+              {t("juzClaimed", { claimed: ev.claimed, total: ev.total })}
             </p>
           </div>
         </Link>

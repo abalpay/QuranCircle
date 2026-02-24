@@ -127,6 +127,15 @@ export default function CreateKhatimDialog({
                 <p className="text-sm text-muted-foreground">
                   {t("makePublicDesc")}
                 </p>
+                {isPublic ? (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {t("publicVisible")}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {t("linkOnly")}
+                  </p>
+                )}
               </div>
               <Switch
                 id="isPublic"

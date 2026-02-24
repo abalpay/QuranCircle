@@ -2,6 +2,7 @@
 
 import { Check, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type Juz = {
   id: string;
@@ -23,6 +24,7 @@ export default function JuzCard({
   isReadOnly,
   isSelected = false,
 }: Props) {
+  const t = useTranslations("JuzCard");
   const isUnclaimed = juz.status === "unclaimed";
   const canClaim = isUnclaimed && !isReadOnly;
   const isClaimed = juz.status === "claimed";
@@ -63,14 +65,14 @@ export default function JuzCard({
       tabIndex={isInteractive ? 0 : -1}
       title={
         isSelected
-          ? `Juz ${juz.juz_number} selected — tap to deselect`
+          ? t("selected", { number: juz.juz_number })
           : canClaim
-            ? `Tap to select Juz ${juz.juz_number}`
+            ? t("selectJuz", { number: juz.juz_number })
             : isClaimed
-              ? `Juz ${juz.juz_number} — ${firstName}`
+              ? t("claimedBy", { number: juz.juz_number, name: firstName })
               : isRead
-                ? `Juz ${juz.juz_number} — completed`
-                : `Juz ${juz.juz_number}`
+                ? t("completed", { number: juz.juz_number })
+                : t("juzNumber", { number: juz.juz_number })
       }
     >
       {/* Selected checkmark */}

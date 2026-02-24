@@ -1,11 +1,9 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function Footer() {
-  const t = useTranslations("Footer");
+export default async function Footer() {
+  const t = await getTranslations("Footer");
   return (
     <footer className="mt-auto border-t border-quran-border/60 bg-white/40 backdrop-blur-sm">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">

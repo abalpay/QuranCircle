@@ -10,6 +10,7 @@ import {
 } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const MULTI_SELECT_HINT_SEEN_KEY = "qc_multi_select_hint_seen_v1";
 const MULTI_SELECT_HINT_AUTO_HIDE_MS = 2500;
@@ -46,6 +47,7 @@ export default function FloatingClaimBar({
   onClaim,
   onClear,
 }: FloatingClaimBarProps) {
+  const t = useTranslations("FloatingClaimBar");
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [showMultiSelectHint, setShowMultiSelectHint] = useState(false);
   const hintTimerRef = useRef<number | null>(null);
@@ -105,7 +107,7 @@ export default function FloatingClaimBar({
             : "invisible -translate-y-1 opacity-0"
         }`}
       >
-        Tip: Tap more to select multiple
+        {t("tipMultiSelect")}
       </div>
 
       <div
@@ -121,19 +123,19 @@ export default function FloatingClaimBar({
           type="button"
           onClick={onClear}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
-          aria-label="Clear selection"
+          aria-label={t("clearSelection")}
         >
           <X className="h-4 w-4" />
         </button>
 
         <div>
           <span className="text-sm font-semibold text-quran-deep">
-            {selectedCount} Juz selected
+            {t("juzSelected", { count: selectedCount })}
           </span>
         </div>
 
         <Button size="sm" className="ml-1 rounded-full" onClick={onClaim}>
-          Claim
+          {t("claim")}
         </Button>
       </div>
     </div>,
