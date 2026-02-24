@@ -110,7 +110,7 @@ export default function ClaimJuzDialog({
               {t("cancel")}
             </Button>
             <Button type="submit" className="rounded-full">
-              {isMultiple ? `${t("claimButton")} ${juzNumbers.length} ${t("juz")}` : t("claimButton")}
+              {isMultiple ? `${t("claimButton")} ${juzNumbers.length} ${t("juz")}` : `${t("claimButton")} ${t("juz")}`}
             </Button>
           </DialogFooter>
         </form>

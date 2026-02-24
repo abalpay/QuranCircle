@@ -270,5 +270,14 @@
     "undo": "Undo",
     "unclaim": "Unclaim",
     "loadMore": "Load more"
+  },
+  "Filters": {
+    "all": "All ({count})",
+    "available": "Available ({count})",
+    "myJuz": "My Juz ({count})",
+    "myJuzTab": "My Juz",
+    "creatorQueue": "Creator Queue ({count})",
+    "new": "New",
+    "updating": "Updating..."
   }
 }

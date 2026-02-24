@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
 import InstallAppSheet from "@/components/install-app-sheet";
+import { useTranslations } from "next-intl";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { cn } from "@/lib/utils";
 import { shareCircleInvite } from "@/lib/share-invite";
@@ -86,6 +87,7 @@ export default function KhatimPageClient({
   const searchParams = useSearchParams();
   const [supabase] = useState(() => createClient());
   const { ensureSession, user } = useAuth();
+  const t = useTranslations("Filters");
   const [event, setEvent] = useState(initialEvent);
   const [isCreator, setIsCreator] = useState(initialEvent.can_manage);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -921,13 +923,13 @@ export default function KhatimPageClient({
         <Tabs value={displayFilter}>
           <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="all" onClick={() => setActiveFilter("all")}>
-              All ({filterCounts.all})
+              {t("all", { count: filterCounts.all })}
             </TabsTrigger>
             <TabsTrigger
               value="available"
               onClick={() => setActiveFilter("available")}
             >
-              Available ({filterCounts.available})
+              {t("available", { count: filterCounts.available })}
             </TabsTrigger>
             <TabsTrigger
               value="mine"
@@ -935,10 +937,10 @@ export default function KhatimPageClient({
               className={cn(showMyJuzNudge && "animate-pulse ring-2 ring-emerald-300")}
             >
               <span className="flex items-center gap-2">
-                <span>My Juz ({filterCounts.mine})</span>
+                <span>{t("myJuz", { count: filterCounts.mine })}</span>
                 {showMyJuzNudge && (
                   <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                    New
+                    {t("new")}
                   </span>
                 )}
               </span>
@@ -951,7 +953,7 @@ export default function KhatimPageClient({
             role="status"
             aria-live="polite"
           >
-            Updating...
+            {t("updating")}
           </p>
         )}
       </section>
@@ -961,13 +963,13 @@ export default function KhatimPageClient({
           <Tabs value={displayMineView} aria-label="My Juz views">
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="mine" onClick={() => setMineView("mine")}>
-                My Juz
+                {t("myJuzTab")}
               </TabsTrigger>
               <TabsTrigger
                 value="creator"
                 onClick={() => setMineView("creator")}
               >
-                Creator Queue ({creatorManageRows.length})
+                {t("creatorQueue", { count: creatorManageRows.length })}
               </TabsTrigger>
             </TabsList>
           </Tabs>
