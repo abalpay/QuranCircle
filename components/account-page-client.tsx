@@ -67,7 +67,7 @@ export default function AccountPageClient() {
       confirmPassword: z.string().min(8, t("confirmPasswordRequired")),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
-      message: t("passwordsDoNotMatch"),
+      message: t("passwordsMustMatch"),
       path: ["confirmPassword"],
     });
   type PasswordFormValues = z.infer<typeof passwordSchema>;

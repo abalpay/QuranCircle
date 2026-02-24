@@ -151,7 +151,7 @@
     "nameMaxLength": "Ad en fazla 50 karakter olmalıdır",
     "passwordMinLength": "Şifre en az 8 karakter olmalıdır",
     "confirmPasswordRequired": "Lütfen şifrenizi onaylayın",
-    "passwordsDoNotMatch": "Şifreler eşleşmiyor",
+    "passwordsMustMatch": "Şifreler eşleşmiyor",
     "emailProvider": "E-posta",
     "googleProvider": "Google"
   },

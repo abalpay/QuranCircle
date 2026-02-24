@@ -151,7 +151,7 @@
     "nameMaxLength": "Name must be at most 50 characters",
     "passwordMinLength": "Password must be at least 8 characters",
     "confirmPasswordRequired": "Please confirm your password",
-    "passwordsDoNotMatch": "Passwords do not match",
+    "passwordsMustMatch": "Passwords do not match",
     "emailProvider": "Email",
     "googleProvider": "Google"
   },
