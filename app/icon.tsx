@@ -21,11 +21,15 @@ export default function Icon() {
       >
         <div
           style={{
-            fontSize: 20,
+            fontSize: 22,
+            fontWeight: 700,
+            color: "white",
             display: "flex",
+            fontFamily: "sans-serif",
+            letterSpacing: "-0.02em",
           }}
         >
-          &#128214;
+          Q
         </div>
       </div>
     ),
