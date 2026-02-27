@@ -42,6 +42,12 @@ describe("claimMultipleJuz", () => {
 
     expect(result).toEqual({ error: "This Khatim is archived" });
     expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("claim_juz_batch", {
+      p_short_code: "E2ESMOKE1",
+      p_khatm_id: "11111111-1111-4111-8111-111111111111",
+      p_juz_numbers: [1, 2],
+      p_claimer_name: "Smoke Tester",
+    });
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
@@ -69,6 +75,12 @@ describe("claimMultipleJuz", () => {
       partialError: "Juz 3 already claimed by someone else",
     });
     expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("claim_juz_batch", {
+      p_short_code: "E2ESMOKE1",
+      p_khatm_id: "11111111-1111-4111-8111-111111111111",
+      p_juz_numbers: [1, 2, 3],
+      p_claimer_name: "Smoke Tester",
+    });
     expect(revalidatePath).toHaveBeenCalledWith("/s/E2ESMOKE1");
   });
 
@@ -93,6 +105,12 @@ describe("claimMultipleJuz", () => {
       error: "All selected juz were already claimed by someone else",
     });
     expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("claim_juz_batch", {
+      p_short_code: "E2ESMOKE1",
+      p_khatm_id: "11111111-1111-4111-8111-111111111111",
+      p_juz_numbers: [1, 2],
+      p_claimer_name: "Smoke Tester",
+    });
     expect(revalidatePath).toHaveBeenCalledWith("/s/E2ESMOKE1");
   });
 
@@ -118,6 +136,25 @@ describe("claimMultipleJuz", () => {
       newKhatmCreated: true,
     });
     expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("claim_juz_batch", {
+      p_short_code: "E2ESMOKE1",
+      p_khatm_id: "11111111-1111-4111-8111-111111111111",
+      p_juz_numbers: [4, 5],
+      p_claimer_name: "Smoke Tester",
+    });
     expect(revalidatePath).toHaveBeenCalledWith("/s/E2ESMOKE1");
+  });
+
+  it("returns invalid input when payload fails schema validation", async () => {
+    const result = await claimMultipleJuz(
+      "bad short code!",
+      "not-a-uuid",
+      [0, 31],
+      ""
+    );
+
+    expect(result).toEqual({ error: "Invalid input" });
+    expect(createClient).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

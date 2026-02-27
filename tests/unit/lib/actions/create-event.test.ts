@@ -33,6 +33,19 @@ type RpcResponse = {
 };
 
 function mockCreateEventRpcSequence(responses: RpcResponse[]) {
+  return mockCreateEventContext({
+    responses,
+    user: { id: "user-1", is_anonymous: false },
+  });
+}
+
+function mockCreateEventContext({
+  responses,
+  user,
+}: {
+  responses: RpcResponse[];
+  user: { id: string; is_anonymous: boolean } | null;
+}) {
   const single = vi.fn();
   for (const response of responses) {
     single.mockResolvedValueOnce(response);
@@ -43,7 +56,7 @@ function mockCreateEventRpcSequence(responses: RpcResponse[]) {
   vi.mocked(createClient).mockResolvedValue({
     auth: {
       getUser: vi.fn().mockResolvedValue({
-        data: { user: { id: "user-1", is_anonymous: false } },
+        data: { user },
       }),
     },
     rpc,
@@ -88,8 +101,18 @@ describe("createEvent short-code retry behavior", () => {
       data: { eventId: "event-123", shortCode: "RECOVER22" },
     });
     expect(rpc).toHaveBeenCalledTimes(2);
-    expect(rpc.mock.calls[0]?.[1]).toMatchObject({ p_short_code: "COLLIDE1" });
-    expect(rpc.mock.calls[1]?.[1]).toMatchObject({ p_short_code: "RECOVER22" });
+    expect(rpc.mock.calls[0]?.[1]).toEqual({
+      p_name: "Smoke Circle",
+      p_description: "retry path",
+      p_is_public: false,
+      p_short_code: "COLLIDE1",
+    });
+    expect(rpc.mock.calls[1]?.[1]).toEqual({
+      p_name: "Smoke Circle",
+      p_description: "retry path",
+      p_is_public: false,
+      p_short_code: "RECOVER22",
+    });
     expect(revalidatePath).toHaveBeenCalledWith("/");
     expect(revalidatePath).toHaveBeenCalledWith("/browse");
     expect(revalidatePath).toHaveBeenCalledWith("/my-circles");
@@ -148,5 +171,58 @@ describe("createEvent short-code retry behavior", () => {
     expect(rpc).toHaveBeenCalledTimes(10);
     expect(generateShortCode).toHaveBeenCalledTimes(11);
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid payload before touching supabase", async () => {
+    const result = await createEvent({
+      name: "",
+      description: "x",
+    });
+
+    expect(result).toEqual({ error: "Invalid input" });
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("requires a non-anonymous authenticated user", async () => {
+    vi.mocked(generateShortCode).mockReturnValue("AUTHREQ1");
+
+    mockCreateEventContext({
+      responses: [],
+      user: null,
+    });
+    expect(
+      await createEvent({ name: "Private Circle", description: "desc" })
+    ).toEqual({ error: "Sign in required to create a circle." });
+
+    mockCreateEventContext({
+      responses: [],
+      user: { id: "anon-user", is_anonymous: true },
+    });
+    expect(
+      await createEvent({ name: "Private Circle", description: "desc" })
+    ).toEqual({ error: "Sign in required to create a circle." });
+  });
+
+  it("uses default values and fallback error when rpc returns empty data", async () => {
+    vi.mocked(generateShortCode).mockReturnValue("DEFAULT01");
+
+    const { rpc } = mockCreateEventContext({
+      responses: [{ data: null, error: null }],
+      user: { id: "user-1", is_anonymous: false },
+    });
+
+    const result = await createEvent({
+      name: "Default Circle",
+    });
+
+    expect(result).toEqual({
+      error: "Failed to create event. Please try again.",
+    });
+    expect(rpc).toHaveBeenCalledWith("create_event_with_initial_khatm", {
+      p_name: "Default Circle",
+      p_description: null,
+      p_is_public: false,
+      p_short_code: "DEFAULT01",
+    });
   });
 });

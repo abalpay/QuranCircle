@@ -207,8 +207,11 @@ This project now includes:
    - `npx playwright install --with-deps chromium`
 6. Run tests:
    - Unit: `npm run test:unit`
+   - Unit + coverage gates: `npm run test:unit:coverage`
+   - DB/RPC contract checks: `npm run test:contracts`
    - E2E smoke: `npm run test:e2e`
    - Combined: `npm run test:ci`
+   - Mutation suite (nightly/opt-in): `npm run test:mutation`
 
 ### Seeded E2E Fixtures
 
