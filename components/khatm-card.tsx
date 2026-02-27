@@ -297,7 +297,7 @@ export default function KhatmCard({
               )}
               {juz.status === "claimed" && (
                 <button
-                  className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
+                  className="rounded-full bg-emerald-100 min-h-10 px-3 py-2 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-200"
                   onClick={() => handleMarkRead(juz.id)}
                 >
                   {t("markRead")}
@@ -305,14 +305,14 @@ export default function KhatmCard({
               )}
               {juz.status === "read" && (
                 <button
-                  className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
+                  className="rounded-full bg-amber-100 min-h-10 px-3 py-2 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-200"
                   onClick={() => handleUnmarkRead(juz.id)}
                 >
                   {t("undo")}
                 </button>
               )}
               <button
-                className="rounded-full px-3 py-1 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
+                className="rounded-full bg-red-50 min-h-10 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 hover:text-red-600"
                 onClick={() => handleUnclaim(juz.id)}
               >
                 {t("unclaim")}
