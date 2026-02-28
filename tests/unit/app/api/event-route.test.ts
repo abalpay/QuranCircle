@@ -103,6 +103,105 @@ describe("GET /api/event", () => {
     });
   });
 
+  it("accepts valid khatmLimit=1 as boundary value", async () => {
+    vi.mocked(getEventByShortCodeResult).mockResolvedValue({
+      ok: true,
+      data: {
+        id: "event-1",
+        short_code: "VALID123",
+        name: "Event",
+        description: null,
+        can_manage: false,
+        is_public: true,
+        is_archived: false,
+        created_at: "2026-01-01T00:00:00.000Z",
+        is_creator: false,
+        is_member: false,
+        khatms: [],
+        loaded_khatms: 1,
+        total_khatms: 1,
+        has_more_khatms: false,
+        next_before_khatm_number: null,
+      } as never,
+    });
+
+    const response = await GET(
+      new Request("https://example.com/api/event?shortCode=VALID123&khatmLimit=1")
+    );
+
+    expect(response.status).toBe(200);
+    expect(getEventByShortCodeResult).toHaveBeenCalledWith("VALID123", {
+      khatmLimit: 1,
+      beforeKhatmNumber: undefined,
+    });
+  });
+
+  it("accepts valid beforeKhatmNumber=1 as boundary value", async () => {
+    vi.mocked(getEventByShortCodeResult).mockResolvedValue({
+      ok: true,
+      data: {
+        id: "event-1",
+        short_code: "VALID123",
+        name: "Event",
+        description: null,
+        can_manage: false,
+        is_public: true,
+        is_archived: false,
+        created_at: "2026-01-01T00:00:00.000Z",
+        is_creator: false,
+        is_member: false,
+        khatms: [],
+        loaded_khatms: 0,
+        total_khatms: 1,
+        has_more_khatms: false,
+        next_before_khatm_number: null,
+      } as never,
+    });
+
+    const response = await GET(
+      new Request("https://example.com/api/event?shortCode=VALID123&beforeKhatmNumber=1")
+    );
+
+    expect(response.status).toBe(200);
+    expect(getEventByShortCodeResult).toHaveBeenCalledWith("VALID123", {
+      khatmLimit: undefined,
+      beforeKhatmNumber: 1,
+    });
+  });
+
+  it("passes undefined for omitted optional params", async () => {
+    vi.mocked(getEventByShortCodeResult).mockResolvedValue({
+      ok: true,
+      data: {
+        id: "event-1",
+        short_code: "VALID123",
+        name: "Event",
+        description: null,
+        can_manage: false,
+        is_public: true,
+        is_archived: false,
+        created_at: "2026-01-01T00:00:00.000Z",
+        is_creator: false,
+        is_member: false,
+        khatms: [],
+        loaded_khatms: 0,
+        total_khatms: 0,
+        has_more_khatms: false,
+        next_before_khatm_number: null,
+      } as never,
+    });
+
+    const response = await GET(
+      new Request("https://example.com/api/event?shortCode=VALID123")
+    );
+
+    expect(response.status).toBe(200);
+    expect(getEventByShortCodeResult).toHaveBeenCalledWith("VALID123", {
+      khatmLimit: undefined,
+      beforeKhatmNumber: undefined,
+    });
+  });
+
   it("maps lookup errors to structured error payload", async () => {
     vi.mocked(getEventByShortCodeResult).mockResolvedValue({
       ok: false,

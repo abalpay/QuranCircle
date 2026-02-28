@@ -145,6 +145,48 @@ describe("claimMultipleJuz", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/s/E2ESMOKE1");
   });
 
+  it("handles boundary juz numbers (1 and 30) and strips out-of-range values from result", async () => {
+    const rpc = mockClaimBatchRpc({
+      data: {
+        claimed: [1, 30],
+        failed: [0, 31, "not-a-number"],
+        new_khatm_created: false,
+      },
+      error: null,
+    });
+
+    const result = await claimMultipleJuz(
+      "E2ESMOKE1",
+      "11111111-1111-4111-8111-111111111111",
+      [1, 30],
+      "Smoke Tester"
+    );
+
+    // claimed should contain boundary values; failed should strip out invalid entries
+    expect(result).toEqual({
+      claimed: [1, 30],
+      newKhatmCreated: false,
+    });
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(revalidatePath).toHaveBeenCalledWith("/s/E2ESMOKE1");
+  });
+
+  it("returns fallback error when rpc error has no message", async () => {
+    mockClaimBatchRpc({
+      data: null,
+      error: {},
+    });
+
+    const result = await claimMultipleJuz(
+      "E2ESMOKE1",
+      "11111111-1111-4111-8111-111111111111",
+      [1],
+      "Smoke Tester"
+    );
+
+    expect(result).toEqual({ error: "Failed to claim juz. Please try again." });
+  });
+
   it("returns invalid input when payload fails schema validation", async () => {
     const result = await claimMultipleJuz(
       "bad short code!",

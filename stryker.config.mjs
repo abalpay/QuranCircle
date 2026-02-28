@@ -33,7 +33,8 @@ const config = {
   disableTypeChecks: true,
   concurrency: 2,
   timeoutMS: 60_000,
-  coverageAnalysis: "off",
+  coverageAnalysis: "perTest",
+  ignoreStatic: true,
 };
 
 export default config;

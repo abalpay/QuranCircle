@@ -75,6 +75,24 @@ describe("ensureEventMembershipForShortCode", () => {
     });
   });
 
+  it("returns fallback error when rpc error message is empty", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "" },
+    });
+    mockSupabaseClient({
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: { id: "user-1", is_anonymous: false } },
+        error: null,
+      }),
+      rpc,
+    });
+
+    const result = await ensureEventMembershipForShortCode("VALID123");
+
+    expect(result).toEqual({ error: "Failed to initialize event membership" });
+  });
+
   it("returns not-found when rpc returns empty payload", async () => {
     const rpc = vi.fn().mockResolvedValue({
       data: null,

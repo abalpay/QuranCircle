@@ -46,6 +46,9 @@ describe("/auth/callback merge finalization", () => {
     expect(getUser).not.toHaveBeenCalled();
     expect(adminRpc).not.toHaveBeenCalled();
     expect(response.headers.get("set-cookie")).toBeNull();
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.headers.get("Expires")).toBe("0");
   });
 
   it("POST returns pending_auth when target user is anonymous", async () => {
