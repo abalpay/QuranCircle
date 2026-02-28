@@ -11,12 +11,14 @@ const requiredEnv = [
   "SUPABASE_SERVICE_ROLE_KEY",
 ];
 
-for (const key of requiredEnv) {
-  if (!process.env[key]) {
-    throw new Error(
-      `Missing ${key}. Load local Supabase env before running Playwright.`
-    );
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+
+if (missingEnv.length > 0) {
+  const msg = `Missing ${missingEnv.join(", ")}. Load local Supabase env before running Playwright.`;
+  if (process.env.CI) {
+    throw new Error(msg);
   }
+  console.warn(`⚠ ${msg}`);
 }
 
 export default defineConfig({
