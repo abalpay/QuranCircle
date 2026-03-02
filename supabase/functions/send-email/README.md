@@ -7,7 +7,7 @@ This Edge Function sends branded QuranCircle auth emails (signup confirmation, p
 **Deployed.** The function is live at:
 
 ```
-https://vbxdcuucynuneqanrquw.supabase.co/functions/v1/send-email
+https://<your-project-ref>.supabase.co/functions/v1/send-email
 ```
 
 ## Manual Setup Required
@@ -16,7 +16,7 @@ To activate the hook, complete these steps in the Supabase Dashboard.
 
 ### 1. Set Edge Function Secrets
 
-Go to [Supabase Dashboard > Project Settings > Edge Functions](https://supabase.com/dashboard/project/vbxdcuucynuneqanrquw/settings/functions) and add:
+Go to [Supabase Dashboard > Project Settings > Edge Functions](https://supabase.com/dashboard/project/<your-project-ref>/settings/functions) and add:
 
 | Secret | Description |
 |--------|-------------|
@@ -28,13 +28,13 @@ Go to [Supabase Dashboard > Project Settings > Edge Functions](https://supabase.
 
 ### 2. Configure the Auth Hook
 
-1. Go to [Auth > Hooks](https://supabase.com/dashboard/project/vbxdcuucynuneqanrquw/auth/hooks)
+1. Go to [Auth > Hooks](https://supabase.com/dashboard/project/<your-project-ref>/auth/hooks)
 2. Click **Create hook**
 3. Select **Send Email** as the hook type
 4. Set **Type** to **HTTPS**
 5. Set **URL** to:
    ```
-   https://vbxdcuucynuneqanrquw.supabase.co/functions/v1/send-email
+   https://<your-project-ref>.supabase.co/functions/v1/send-email
    ```
 6. Click **Generate secret** and copy the value
 7. Add that value as `SEND_EMAIL_HOOK_SECRET` in Project Settings > Edge Functions (step 1)
