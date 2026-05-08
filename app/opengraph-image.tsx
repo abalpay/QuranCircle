@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export const alt = "QuranCircle - Read & Complete the Quran Together";
 export const size = { width: 1200, height: 630 };
@@ -17,15 +17,6 @@ const colors = {
 };
 
 export default async function OGImage() {
-  const [cormorantData, manropeData] = await Promise.all([
-    fetch(new URL("./fonts/CormorantGaramond-SemiBold.ttf", import.meta.url)).then(
-      (res) => res.arrayBuffer()
-    ),
-    fetch(new URL("./fonts/Manrope-Regular.ttf", import.meta.url)).then(
-      (res) => res.arrayBuffer()
-    ),
-  ]);
-
   return new ImageResponse(
     (
       <div
@@ -91,33 +82,20 @@ export default async function OGImage() {
             position: "relative",
           }}
         >
-          {/* Bismillah */}
-          <div
-            style={{
-              fontSize: 36,
-              color: `${colors.gold}99`,
-              marginBottom: 12,
-              display: "flex",
-            }}
-          >
-            بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
-          </div>
-
           {/* Main heading */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              fontFamily: "Cormorant Garamond",
+              fontFamily: "sans-serif",
             }}
           >
             <div
               style={{
                 fontSize: 72,
-                fontWeight: 600,
+                fontWeight: 400,
                 color: colors.deep,
-                letterSpacing: "-1px",
                 lineHeight: 1.1,
                 display: "flex",
               }}
@@ -127,8 +105,7 @@ export default async function OGImage() {
             <div
               style={{
                 fontSize: 72,
-                fontWeight: 600,
-                letterSpacing: "-1px",
+                fontWeight: 400,
                 lineHeight: 1.1,
                 display: "flex",
                 color: colors.green,
@@ -147,7 +124,7 @@ export default async function OGImage() {
               textAlign: "center",
               lineHeight: 1.5,
               marginTop: 16,
-              fontFamily: "Manrope",
+              fontFamily: "sans-serif",
               display: "flex",
             }}
           >
@@ -173,7 +150,7 @@ export default async function OGImage() {
               fontSize: 17,
               color: colors.muted,
               marginTop: 16,
-              fontFamily: "Manrope",
+              fontFamily: "sans-serif",
               letterSpacing: "0.5px",
               display: "flex",
             }}
@@ -183,22 +160,6 @@ export default async function OGImage() {
         </div>
       </div>
     ),
-    {
-      ...size,
-      fonts: [
-        {
-          name: "Cormorant Garamond",
-          data: cormorantData,
-          style: "normal",
-          weight: 600,
-        },
-        {
-          name: "Manrope",
-          data: manropeData,
-          style: "normal",
-          weight: 400,
-        },
-      ],
-    }
+    size
   );
 }

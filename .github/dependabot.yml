@@ -3,5 +3,31 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Australia/Melbourne"
+    open-pull-requests-limit: 3
+    groups:
+      next-react:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "eslint-config-next"
+      supabase:
+        patterns:
+          - "@supabase/*"
+      test-tooling:
+        dependency-type: "development"
+        patterns:
+          - "typescript"
+          - "vitest"
+          - "@vitest/*"
+          - "playwright"
+          - "@playwright/*"
+          - "jsdom"
+      production-dependencies:
+        dependency-type: "production"
+        patterns:
+          - "*"

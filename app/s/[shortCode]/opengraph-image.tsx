@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { createAnonClient } from "@/lib/supabase/anon";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export const alt = "QuranCircle Khatm Circle";
 export const size = { width: 1200, height: 630 };
@@ -40,15 +40,6 @@ export default async function OGImage({
   } catch {
     // Fallback to defaults
   }
-
-  const [cormorantData, manropeData] = await Promise.all([
-    fetch(
-      new URL("../../fonts/CormorantGaramond-SemiBold.ttf", import.meta.url)
-    ).then((res) => res.arrayBuffer()),
-    fetch(
-      new URL("../../fonts/Manrope-Regular.ttf", import.meta.url)
-    ).then((res) => res.arrayBuffer()),
-  ]);
 
   return new ImageResponse(
     (
@@ -114,7 +105,7 @@ export default async function OGImage({
               fontSize: 24,
               fontWeight: 600,
               color: colors.gold,
-              fontFamily: "Manrope",
+              fontFamily: "sans-serif",
               display: "flex",
             }}
           >
@@ -136,11 +127,10 @@ export default async function OGImage({
           <div
             style={{
               fontSize: 64,
-              fontWeight: 600,
+              fontWeight: 400,
               color: colors.cream,
-              letterSpacing: "-0.5px",
               lineHeight: 1.15,
-              fontFamily: "Cormorant Garamond",
+              fontFamily: "sans-serif",
               display: "flex",
               maxWidth: 960,
             }}
@@ -157,7 +147,7 @@ export default async function OGImage({
                 color: colors.mutedLight,
                 lineHeight: 1.5,
                 maxWidth: 850,
-                fontFamily: "Manrope",
+                fontFamily: "sans-serif",
                 display: "flex",
               }}
             >
@@ -193,7 +183,7 @@ export default async function OGImage({
             style={{
               fontSize: 18,
               color: colors.mutedLight,
-              fontFamily: "Manrope",
+              fontFamily: "sans-serif",
               letterSpacing: "0.5px",
               display: "flex",
             }}
@@ -204,7 +194,7 @@ export default async function OGImage({
             style={{
               fontSize: 18,
               color: colors.gold,
-              fontFamily: "Manrope",
+              fontFamily: "sans-serif",
               fontWeight: 600,
               display: "flex",
             }}
@@ -214,22 +204,6 @@ export default async function OGImage({
         </div>
       </div>
     ),
-    {
-      ...size,
-      fonts: [
-        {
-          name: "Cormorant Garamond",
-          data: cormorantData,
-          style: "normal",
-          weight: 600,
-        },
-        {
-          name: "Manrope",
-          data: manropeData,
-          style: "normal",
-          weight: 400,
-        },
-      ],
-    }
+    size
   );
 }
