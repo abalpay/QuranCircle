@@ -1,7 +1,11 @@
-import { createElement } from "react";
+import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../messages/en.json";
 
-export function IntlWrapper({ children }: { children: React.ReactNode }) {
-  return createElement(NextIntlClientProvider, { locale: "en", messages, children });
+export function IntlWrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
 }

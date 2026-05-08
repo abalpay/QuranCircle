@@ -53,6 +53,7 @@ export default function FloatingClaimBar({
   const hintTimerRef = useRef<number | null>(null);
 
   const visible = selectedCount > 0;
+  const coachmarkVisible = selectedCount === 1 && showMultiSelectHint;
 
   const clearHintTimer = useCallback(() => {
     if (hintTimerRef.current === null) return;
@@ -66,23 +67,19 @@ export default function FloatingClaimBar({
 
     clearHintTimer();
 
-    if (selectedCount !== 1) {
-      setShowMultiSelectHint(false);
-      return;
-    }
+    if (selectedCount !== 1) return;
 
-    if (readStoredFlag(MULTI_SELECT_HINT_SEEN_KEY)) {
-      setShowMultiSelectHint(false);
-      return;
-    }
-
-    setShowMultiSelectHint(true);
+    if (readStoredFlag(MULTI_SELECT_HINT_SEEN_KEY)) return;
 
     hintTimerRef.current = window.setTimeout(() => {
-      writeStoredFlag(MULTI_SELECT_HINT_SEEN_KEY);
-      setShowMultiSelectHint(false);
-      hintTimerRef.current = null;
-    }, MULTI_SELECT_HINT_AUTO_HIDE_MS);
+      setShowMultiSelectHint(true);
+
+      hintTimerRef.current = window.setTimeout(() => {
+        writeStoredFlag(MULTI_SELECT_HINT_SEEN_KEY);
+        setShowMultiSelectHint(false);
+        hintTimerRef.current = null;
+      }, MULTI_SELECT_HINT_AUTO_HIDE_MS);
+    }, 0);
 
     return clearHintTimer;
   }, [clearHintTimer, mounted, selectedCount]);
@@ -99,10 +96,10 @@ export default function FloatingClaimBar({
     <div className="fixed bottom-20 left-1/2 z-[45] -translate-x-1/2 md:bottom-6">
       <div
         data-testid="multi-select-coachmark"
-        data-state={showMultiSelectHint ? "visible" : "hidden"}
-        aria-hidden={!showMultiSelectHint}
+        data-state={coachmarkVisible ? "visible" : "hidden"}
+        aria-hidden={!coachmarkVisible}
         className={`pointer-events-none absolute -top-10 left-1/2 w-max -translate-x-1/2 whitespace-nowrap rounded-full border border-quran-border/70 bg-white px-3 py-1 text-[11px] font-medium text-quran-muted shadow-sm transition-all duration-200 ${
-          showMultiSelectHint
+          coachmarkVisible
             ? "visible translate-y-0 opacity-100"
             : "invisible -translate-y-1 opacity-0"
         }`}

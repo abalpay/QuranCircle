@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 export type InstallPlatform = "android" | "ios" | "other";
 export type InstallPromptOutcome = "accepted" | "dismissed" | "unavailable";
@@ -17,6 +23,7 @@ export const INSTALL_PROMPT_HOME_SNOOZE_UNTIL_KEY =
 const INSTALL_PROMPT_PILL_MIGRATION_KEY = "qc_install_prompt_reset_for_pill_v1";
 const INSTALL_PROMPT_SYNC_EVENT = "qc:install-prompt-sync";
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const emptySubscribe = () => () => {};
 
 type InstallPromptSyncDetail = {
   key: string;
@@ -130,6 +137,32 @@ function isStandaloneContext() {
   return displayModeStandalone || iOSStandalone;
 }
 
+function subscribeStandaloneContext(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  const mediaQuery = window.matchMedia
+    ? window.matchMedia("(display-mode: standalone)")
+    : null;
+
+  if (mediaQuery?.addEventListener) {
+    mediaQuery.addEventListener("change", onStoreChange);
+  } else if (mediaQuery?.addListener) {
+    mediaQuery.addListener(onStoreChange);
+  }
+
+  window.addEventListener("appinstalled", onStoreChange);
+
+  return () => {
+    if (mediaQuery?.removeEventListener) {
+      mediaQuery.removeEventListener("change", onStoreChange);
+    } else if (mediaQuery?.removeListener) {
+      mediaQuery.removeListener(onStoreChange);
+    }
+
+    window.removeEventListener("appinstalled", onStoreChange);
+  };
+}
+
 export function isInstallPromptEnabled() {
   return process.env.NEXT_PUBLIC_ENABLE_INSTALL_PROMPT === "true";
 }
@@ -143,8 +176,13 @@ export function markClaimInstallPromptSeen() {
 }
 
 export function usePwaInstall(surface: InstallSurface = "claim-success") {
-  const [platform] = useState<InstallPlatform>(() => detectPlatform());
-  const [isStandalone, setIsStandalone] = useState(() => isStandaloneContext());
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const platform = mounted ? detectPlatform() : "other";
+  const isStandalone = useSyncExternalStore(
+    subscribeStandaloneContext,
+    isStandaloneContext,
+    () => false
+  );
   const [isDismissed, setIsDismissed] = useState(() =>
     readStoredFlag(INSTALL_PROMPT_DISMISSED_KEY)
   );
@@ -186,6 +224,8 @@ export function usePwaInstall(surface: InstallSurface = "claim-success") {
   useEffect(() => {
     if (!featureEnabled || surface !== "home") return;
 
+    let shouldResetDismissed = false;
+
     try {
       if (window.localStorage.getItem(INSTALL_PROMPT_PILL_MIGRATION_KEY) === "1") {
         return;
@@ -193,21 +233,27 @@ export function usePwaInstall(surface: InstallSurface = "claim-success") {
 
       if (window.localStorage.getItem(INSTALL_PROMPT_DISMISSED_KEY) === "1") {
         window.localStorage.removeItem(INSTALL_PROMPT_DISMISSED_KEY);
-        setIsDismissed(false);
+        shouldResetDismissed = true;
       }
 
       window.localStorage.setItem(INSTALL_PROMPT_PILL_MIGRATION_KEY, "1");
     } catch {
       // noop: storage may be unavailable in private modes.
     }
+
+    if (!shouldResetDismissed) return;
+
+    const resetDismissedTimer = window.setTimeout(() => {
+      setIsDismissed(false);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(resetDismissedTimer);
+    };
   }, [featureEnabled, surface]);
 
   useEffect(() => {
     if (!featureEnabled) return;
-
-    const handleDisplayModeChange = () => {
-      setIsStandalone(isStandaloneContext());
-    };
 
     const handleBeforeInstallPrompt = (event: Event) => {
       const promptEvent = event as BeforeInstallPromptEvent;
@@ -219,16 +265,6 @@ export function usePwaInstall(surface: InstallSurface = "claim-success") {
       markInstalled();
     };
 
-    const mediaQuery = window.matchMedia
-      ? window.matchMedia("(display-mode: standalone)")
-      : null;
-
-    if (mediaQuery?.addEventListener) {
-      mediaQuery.addEventListener("change", handleDisplayModeChange);
-    } else if (mediaQuery?.addListener) {
-      mediaQuery.addListener(handleDisplayModeChange);
-    }
-
     window.addEventListener(
       "beforeinstallprompt",
       handleBeforeInstallPrompt as EventListener
@@ -236,12 +272,6 @@ export function usePwaInstall(surface: InstallSurface = "claim-success") {
     window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
-      if (mediaQuery?.removeEventListener) {
-        mediaQuery.removeEventListener("change", handleDisplayModeChange);
-      } else if (mediaQuery?.removeListener) {
-        mediaQuery.removeListener(handleDisplayModeChange);
-      }
-
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt as EventListener
@@ -293,18 +323,23 @@ export function usePwaInstall(surface: InstallSurface = "claim-success") {
 
   useEffect(() => {
     if (homeSnoozeUntil === null) return;
-    if (homeSnoozeUntil > Date.now()) return;
 
-    removeStoredKey(INSTALL_PROMPT_HOME_SNOOZE_UNTIL_KEY);
-    setHomeSnoozeUntil(null);
+    const expireDelay = Math.max(0, homeSnoozeUntil - Date.now());
+    const expireTimer = window.setTimeout(() => {
+      removeStoredKey(INSTALL_PROMPT_HOME_SNOOZE_UNTIL_KEY);
+      setHomeSnoozeUntil(null);
+    }, expireDelay);
+
+    return () => {
+      window.clearTimeout(expireTimer);
+    };
   }, [homeSnoozeUntil]);
 
-  const isHomeSnoozed = useMemo(() => {
-    return homeSnoozeUntil !== null && homeSnoozeUntil > Date.now();
-  }, [homeSnoozeUntil]);
+  const isHomeSnoozed = homeSnoozeUntil !== null;
 
   const isEligible = useMemo(() => {
-    const baseEligible = featureEnabled && !isStandalone && !isManuallyInstalled;
+    const baseEligible =
+      mounted && featureEnabled && !isStandalone && !isManuallyInstalled;
     if (!baseEligible) return false;
 
     if (surface === "home") {
@@ -318,6 +353,7 @@ export function usePwaInstall(surface: InstallSurface = "claim-success") {
     isHomeSnoozed,
     isManuallyInstalled,
     isStandalone,
+    mounted,
     surface,
   ]);
 

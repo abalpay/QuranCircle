@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import { act, render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FloatingClaimBar from "@/components/floating-claim-bar";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
@@ -57,17 +57,19 @@ describe("FloatingClaimBar", () => {
     );
   });
 
-  it("shows coachmark when first single selection happens", () => {
+  it("shows coachmark when first single selection happens", async () => {
     renderFloatingClaimBar(1);
 
     expect(screen.getByTestId("floating-claim-bar")).toHaveAttribute(
       "data-state",
       "visible"
     );
-    expect(screen.getByTestId("multi-select-coachmark")).toHaveAttribute(
-      "data-state",
-      "visible"
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId("multi-select-coachmark")).toHaveAttribute(
+        "data-state",
+        "visible"
+      );
+    });
   });
 
   it("auto-hides coachmark after 2.5s and persists seen key", () => {
@@ -75,6 +77,10 @@ describe("FloatingClaimBar", () => {
     renderFloatingClaimBar(1);
 
     const coachmark = screen.getByTestId("multi-select-coachmark");
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
+
     expect(coachmark).toHaveAttribute("data-state", "visible");
 
     act(() => {
@@ -99,6 +105,10 @@ describe("FloatingClaimBar", () => {
   it("hides coachmark immediately when selection changes from 1 to 2", () => {
     vi.useFakeTimers();
     const { rerender } = renderFloatingClaimBar(1);
+
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
 
     expect(screen.getByTestId("multi-select-coachmark")).toHaveAttribute(
       "data-state",

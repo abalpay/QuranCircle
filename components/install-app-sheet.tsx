@@ -7,7 +7,6 @@ import { usePwaInstall } from "@/hooks/use-pwa-install";
 import {
   CheckCircle2,
   Download,
-  EllipsisVertical,
   PlusSquare,
   Share2,
   Smartphone,

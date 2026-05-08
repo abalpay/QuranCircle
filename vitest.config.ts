@@ -25,6 +25,7 @@ export default defineConfig({
         "lib/auth/merge-state.ts",
         "lib/constants/short-code.ts",
         "lib/event-filters.ts",
+        "lib/supabase/proxy.ts",
         "lib/utils.ts",
       ],
       thresholds: {

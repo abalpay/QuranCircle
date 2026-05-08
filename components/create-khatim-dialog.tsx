@@ -18,7 +18,7 @@ import { createEvent } from "@/lib/actions/events";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useRouter } from "next/navigation";
-import { Loader2, CirclePlus, Globe2, Link2 } from "lucide-react";
+import { Loader2, CirclePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 

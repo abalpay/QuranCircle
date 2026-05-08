@@ -1,8 +1,9 @@
 import {
   act,
-  render,
+  renderHook,
   waitFor,
 } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockCreateClient = vi.fn();
@@ -24,6 +25,14 @@ vi.mock("@/lib/supabase/auth-urls", () => ({
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 
 type MockUser = { id: string; is_anonymous: boolean };
+
+function renderAuthHook() {
+  return renderHook(() => useAuth(), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <AuthProvider>{children}</AuthProvider>
+    ),
+  });
+}
 
 let authStateChangeHandler:
   | ((event: string, session: { user: MockUser } | null) => void)
@@ -133,25 +142,15 @@ describe("useAuth", () => {
     const { supabase, signInAnonymously } = createSupabaseMock();
     mockCreateClient.mockReturnValue(supabase);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     let ensuredUser: MockUser | null | undefined;
     await act(async () => {
-      ensuredUser = (await latestAuth?.ensureSession()) as MockUser | null;
+      ensuredUser = (await auth.result.current.ensureSession()) as MockUser | null;
     });
 
     expect(ensuredUser).toEqual({
@@ -170,23 +169,13 @@ describe("useAuth", () => {
       buildJsonResponse({ prepared: false }, { status: 500 })
     );
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    const result = await latestAuth?.signInWithPassword(
+    const result = await auth.result.current.signInWithPassword(
       "user@example.com",
       "Password!123"
     );
@@ -210,23 +199,13 @@ describe("useAuth", () => {
       .mockResolvedValueOnce(buildJsonResponse({ prepared: true }))
       .mockResolvedValueOnce(buildJsonResponse({ status: "merged" }));
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    const result = await latestAuth?.signInWithPassword(
+    const result = await auth.result.current.signInWithPassword(
       "user@example.com",
       "Password!123"
     );
@@ -257,23 +236,13 @@ describe("useAuth", () => {
 
     window.history.replaceState({}, "", "/s/E2ESMOKE1?filter=mine");
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    const result = await latestAuth?.signInWithGoogle();
+    const result = await auth.result.current.signInWithGoogle();
 
     expect(result?.error).toBeNull();
     expect(mockGetAuthCallbackUrl).toHaveBeenCalledWith("/s/E2ESMOKE1?filter=mine");
@@ -298,20 +267,10 @@ describe("useAuth", () => {
     const mergedListener = vi.fn();
     window.addEventListener("quran-circle:identity-merged", mergedListener as EventListener);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     vi.useFakeTimers();
@@ -352,20 +311,10 @@ describe("useAuth", () => {
       .mockResolvedValueOnce(buildJsonResponse({}, { status: 500 }))
       .mockResolvedValueOnce(buildJsonResponse({ status: "merged" }));
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     vi.useFakeTimers();
@@ -393,20 +342,10 @@ describe("useAuth", () => {
     const mergedListener = vi.fn();
     window.addEventListener("quran-circle:identity-merged", mergedListener as EventListener);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     vi.useFakeTimers();
@@ -434,20 +373,10 @@ describe("useAuth", () => {
       .mockRejectedValueOnce(new Error("network error"))
       .mockResolvedValueOnce(buildJsonResponse({ status: "merged" }));
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     vi.useFakeTimers();
@@ -475,20 +404,10 @@ describe("useAuth", () => {
     const mergedListener = vi.fn();
     window.addEventListener("quran-circle:identity-merged", mergedListener as EventListener);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     act(() => {
@@ -516,20 +435,10 @@ describe("useAuth", () => {
     const mergedListener = vi.fn();
     window.addEventListener("quran-circle:identity-merged", mergedListener as EventListener);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     act(() => {
@@ -557,23 +466,13 @@ describe("useAuth", () => {
     mockCreateClient.mockReturnValue(supabase);
     vi.mocked(fetch).mockRejectedValueOnce(new Error("network down"));
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    const result = await latestAuth?.signInWithPassword(
+    const result = await auth.result.current.signInWithPassword(
       "user@example.com",
       "Password!123"
     );
@@ -590,25 +489,15 @@ describe("useAuth", () => {
     });
     mockCreateClient.mockReturnValue(supabase);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     let ensuredUser: MockUser | null | undefined;
     await act(async () => {
-      ensuredUser = (await latestAuth?.ensureSession()) as MockUser | null;
+      ensuredUser = (await auth.result.current.ensureSession()) as MockUser | null;
     });
 
     expect(ensuredUser).toBeNull();
@@ -631,23 +520,13 @@ describe("useAuth", () => {
       .mockResolvedValueOnce(buildJsonResponse({ prepared: true }))
       .mockResolvedValueOnce(buildJsonResponse({ status: "merged" }));
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    const result = await latestAuth?.signUp(
+    const result = await auth.result.current.signUp(
       "user@example.com",
       "Password!123",
       "testuser"
@@ -680,28 +559,18 @@ describe("useAuth", () => {
     });
     mockCreateClient.mockReturnValue(supabase);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
-      expect(latestAuth?.user).not.toBeNull();
+      expect(auth.result.current.sessionReady).toBe(true);
+      expect(auth.result.current.user).not.toBeNull();
     });
 
     await act(async () => {
-      await latestAuth?.signOut();
+      await auth.result.current.signOut();
     });
 
-    expect(latestAuth?.user).toBeNull();
+    expect(auth.result.current.user).toBeNull();
     expect(supabase.auth.signOut).toHaveBeenCalled();
   });
 
@@ -709,23 +578,13 @@ describe("useAuth", () => {
     const { supabase } = createSupabaseMock();
     mockCreateClient.mockReturnValue(supabase);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    const result = await latestAuth?.resetPassword("user@example.com");
+    const result = await auth.result.current.resetPassword("user@example.com");
 
     expect(result?.error).toBeNull();
     expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
@@ -740,20 +599,10 @@ describe("useAuth", () => {
     const { supabase } = createSupabaseMock({ initialSessionUser: null });
     mockCreateClient.mockReturnValue(supabase);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     act(() => {
@@ -770,20 +619,10 @@ describe("useAuth", () => {
     const { supabase } = createSupabaseMock({ initialSessionUser: null });
     mockCreateClient.mockReturnValue(supabase);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     act(() => {
@@ -805,20 +644,10 @@ describe("useAuth", () => {
     const mergedListener = vi.fn();
     window.addEventListener("quran-circle:identity-merged", mergedListener as EventListener);
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
     vi.useFakeTimers();
@@ -850,23 +679,13 @@ describe("useAuth", () => {
       Promise.resolve(buildJsonResponse({ status: "no_pending_merge" }))
     );
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    const result = await latestAuth?.signInWithPassword(
+    const result = await auth.result.current.signInWithPassword(
       "user@example.com",
       "Password!123"
     );
@@ -888,23 +707,13 @@ describe("useAuth", () => {
     mockCreateClient.mockReturnValue(supabase);
     vi.mocked(fetch).mockResolvedValueOnce(buildJsonResponse({ prepared: true }));
 
-    let latestAuth: ReturnType<typeof useAuth> | null = null;
-    function CaptureAuth() {
-      latestAuth = useAuth();
-      return null;
-    }
-
-    render(
-      <AuthProvider>
-        <CaptureAuth />
-      </AuthProvider>
-    );
+    const auth = renderAuthHook();
 
     await waitFor(() => {
-      expect(latestAuth?.sessionReady).toBe(true);
+      expect(auth.result.current.sessionReady).toBe(true);
     });
 
-    await latestAuth?.signUp("john@example.com", "Password!123");
+    await auth.result.current.signUp("john@example.com", "Password!123");
 
     expect(supabase.auth.signUp).toHaveBeenCalledWith({
       email: "john@example.com",
