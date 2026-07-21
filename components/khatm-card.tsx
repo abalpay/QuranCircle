@@ -392,7 +392,13 @@ export default function KhatmCard({
         </div>
 
         <div className="mt-6">
-          <Progress value={claimProgress} className="h-3 bg-quran-border/30" />
+          <Progress
+            value={claimProgress}
+            aria-label={`${t("khatmNumber", {
+              number: khatm.khatm_number,
+            })}: ${t("claimedWithRead", { claimed: khatm.claimed_count })}`}
+            className="h-3 bg-quran-border/30"
+          />
           <div className="mt-2 flex justify-between text-xs text-quran-muted">
             <span>
               {t("claimedCount", { count: khatm.claimed_count })}

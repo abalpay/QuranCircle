@@ -93,15 +93,27 @@ export default function BrowseEvents({ initialPage }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1 max-w-md">
+        <form
+          role="search"
+          className="relative flex-1 max-w-md"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          <label htmlFor="circle-search" className="sr-only">
+            {t("searchLabel")}
+          </label>
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
+            id="circle-search"
+            name="circle-search"
+            type="search"
+            autoComplete="off"
+            enterKeyHint="search"
             placeholder={t("searchCircles")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 rounded-full border-quran-border bg-white/80"
           />
-        </div>
+        </form>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="rounded-full border-quran-border bg-white/80 gap-2">
@@ -162,6 +174,7 @@ export default function BrowseEvents({ initialPage }: Props) {
                 <div className="mt-auto">
                   <Progress
                     value={(ev.claimed / ev.total) * 100}
+                    aria-label={`${ev.name}: ${ev.claimed}/${ev.total} ${t("juzClaimed")}`}
                     className="h-2 bg-quran-border/50"
                   />
                   <div className="mt-3 flex items-center justify-between text-xs text-quran-muted">

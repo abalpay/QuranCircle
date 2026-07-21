@@ -57,8 +57,8 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
   ).toBeVisible();
 
   await expect(
-    page.getByRole("tab", { name: /All \(\d+\)/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /All \(\d+\)/ })
+  ).toHaveAttribute("aria-pressed", "true");
 
   const selectableJuz = page.locator('[title^="Tap to select Juz"]').first();
   await expect(selectableJuz).toBeVisible();
@@ -72,18 +72,18 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
   await page.getByLabel("Your Name").fill("Smoke Tester");
   await page.getByRole("button", { name: "Claim Juz" }).click();
 
-  await expect(page.getByRole("tab", { name: /All \(\d+\)/ })).toHaveAttribute(
-    "data-state",
-    "active"
+  await expect(page.getByRole("button", { name: /All \(\d+\)/ })).toHaveAttribute(
+    "aria-pressed",
+    "true"
   );
   await expect(page.getByTitle(new RegExp(`Juz ${selectedJuzNumber} .*Smoke`)).first()).toBeVisible();
 
   await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
   await page.getByRole("button", { name: "Go to My Juz" }).click();
 
-  const myJuzTab = page.getByRole("tab", { name: /My Juz \(1\)/ });
+  const myJuzTab = page.getByRole("button", { name: /My Juz \(1\)/ });
   await expect(myJuzTab).toBeVisible();
-  await expect(myJuzTab).toHaveAttribute("data-state", "active");
+  await expect(myJuzTab).toHaveAttribute("aria-pressed", "true");
   await expect
     .poll(() => new URL(page.url()).searchParams.get("filter"))
     .toBe("mine");
@@ -122,7 +122,7 @@ test("my juz onboarding CTA is not repeated after it has been seen", async ({ pa
   await dismissInstallPromptIfVisible(page);
   await page.getByRole("button", { name: "Unclaim" }).click();
 
-  await page.getByRole("tab", { name: /All \(\d+\)/ }).click();
+  await page.getByRole("button", { name: /All \(\d+\)/ }).click();
   await page.getByTitle(/^Tap to select Juz \d+$/).first().click();
   await page.getByRole("button", { name: "Claim" }).click();
   await page.getByLabel("Your Name").fill("Smoke Tester");
@@ -131,16 +131,16 @@ test("my juz onboarding CTA is not repeated after it has been seen", async ({ pa
   await dismissInstallPromptIfVisible(page);
   await expect(page.getByRole("button", { name: "Go to My Juz" })).toHaveCount(0);
 
-  await page.getByRole("tab", { name: /My Juz \(1\)/ }).click();
+  await page.getByRole("button", { name: /My Juz \(1\)/ }).click();
   await dismissInstallPromptIfVisible(page);
   await page.getByRole("button", { name: "Unclaim" }).click();
 });
 
 test("global filter persists in URL across reload", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}`);
-  const availableTab = page.getByRole("tab", { name: /Available \(\d+\)/ });
+  const availableTab = page.getByRole("button", { name: /Available \(\d+\)/ });
   await availableTab.click();
-  await expect(availableTab).toHaveAttribute("data-state", "active", {
+  await expect(availableTab).toHaveAttribute("aria-pressed", "true", {
     timeout: 500,
   });
 
@@ -153,46 +153,46 @@ test("global filter persists in URL across reload", async ({ page }) => {
   await expect
     .poll(() => new URL(page.url()).searchParams.get("filter"))
     .toBe("available");
-  await expect(availableTab).toHaveAttribute("data-state", "active");
+  await expect(availableTab).toHaveAttribute("aria-pressed", "true");
 });
 
 test("filter state follows URL during browser back and forward", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}?filter=all`);
-  await expect(page.getByRole("tab", { name: /All \(\d+\)/ })).toHaveAttribute(
-    "data-state",
-    "active"
+  await expect(page.getByRole("button", { name: /All \(\d+\)/ })).toHaveAttribute(
+    "aria-pressed",
+    "true"
   );
 
   await page.goto(`/s/${smokeShortCode}?filter=mine`);
   await expect(
-    page.getByRole("tab", { name: /My Juz \(\d+\)/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /My Juz \(\d+\)/ })
+  ).toHaveAttribute("aria-pressed", "true");
 
   await page.goBack();
-  await expect(page.getByRole("tab", { name: /All \(\d+\)/ })).toHaveAttribute(
-    "data-state",
-    "active"
+  await expect(page.getByRole("button", { name: /All \(\d+\)/ })).toHaveAttribute(
+    "aria-pressed",
+    "true"
   );
 
   await page.goForward();
   await expect(
-    page.getByRole("tab", { name: /My Juz \(\d+\)/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /My Juz \(\d+\)/ })
+  ).toHaveAttribute("aria-pressed", "true");
 });
 
 test("invalid filter query falls back to all view", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}?filter=invalid`);
   await expect(
-    page.getByRole("tab", { name: /All \(\d+\)/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /All \(\d+\)/ })
+  ).toHaveAttribute("aria-pressed", "true");
 });
 
 test("non-creators ignore creator mineView query", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}?filter=mine&mineView=creator`);
   await expect(
-    page.getByRole("tab", { name: /My Juz \(\d+\)/ })
-  ).toHaveAttribute("data-state", "active");
-  await expect(page.getByRole("tab", { name: /^Creator Queue/ })).toHaveCount(0);
+    page.getByRole("button", { name: /My Juz \(\d+\)/ })
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Creator Queue/ })).toHaveCount(0);
   await expect
     .poll(() => new URL(page.url()).searchParams.get("mineView"))
     .toBeNull();
@@ -213,13 +213,13 @@ test("claimed tiles in grid do not mark juz as read", async ({ page }) => {
   await dismissInstallPromptIfVisible(page);
   await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
 
-  await page.getByRole("tab", { name: /All \(\d+\)/ }).click();
+  await page.getByRole("button", { name: /All \(\d+\)/ }).click();
   await page
     .getByTitle(new RegExp(`Juz ${selectedJuzNumber} .*Smoke`))
     .first()
     .click();
 
-  await page.getByRole("tab", { name: /My Juz \(1\)/ }).click();
+  await page.getByRole("button", { name: /My Juz \(1\)/ }).click();
   await dismissInstallPromptIfVisible(page);
   await expect(page.getByRole("button", { name: "Mark Read" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Undo" })).toHaveCount(0);
@@ -274,8 +274,8 @@ test("snapshot refresh recovers after transient offline period", async ({ page, 
   await context.setOffline(false);
 
   await expect(page.getByTitle(/^Tap to select Juz \d+$/).first()).toBeVisible();
-  await page.getByRole("tab", { name: /Available \(\d+\)/ }).click();
+  await page.getByRole("button", { name: /Available \(\d+\)/ }).click();
   await expect(
-    page.getByRole("tab", { name: /Available \(\d+\)/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /Available \(\d+\)/ })
+  ).toHaveAttribute("aria-pressed", "true");
 });

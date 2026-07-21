@@ -152,6 +152,7 @@ export default function UserDashboard() {
                 </div>
                 <Progress
                   value={(circle.claimed / circle.total) * 100}
+                  aria-label={`${circle.name}: ${circle.claimed}/${circle.total} ${t("juzClaimed")}`}
                   className="h-2 bg-quran-border/50"
                 />
                 <p className="mt-3 text-sm text-quran-muted">

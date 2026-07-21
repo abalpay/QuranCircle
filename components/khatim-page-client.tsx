@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import type { EventSnapshot } from "@/lib/types/events";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -866,6 +865,7 @@ export default function KhatimPageClient({
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label={tPage("circleSettings")}
                     className="rounded-full border-quran-border bg-white/80 px-3"
                   >
                     <Settings className="h-4 w-4" />
@@ -921,33 +921,62 @@ export default function KhatimPageClient({
       )}
 
       <section className="quran-card p-4 sm:p-5">
-        <Tabs value={displayFilter}>
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="all" onClick={() => setActiveFilter("all")}>
-              {t("all", { count: filterCounts.all })}
-            </TabsTrigger>
-            <TabsTrigger
-              value="available"
-              onClick={() => setActiveFilter("available")}
-            >
-              {t("available", { count: filterCounts.available })}
-            </TabsTrigger>
-            <TabsTrigger
-              value="mine"
-              onClick={() => setActiveFilter("mine")}
-              className={cn(showMyJuzNudge && "animate-pulse ring-2 ring-emerald-300")}
-            >
-              <span className="flex items-center gap-2">
-                <span>{t("myJuz", { count: filterCounts.mine })}</span>
-                {showMyJuzNudge && (
-                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                    {t("new")}
-                  </span>
-                )}
-              </span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div
+          role="group"
+          aria-label={t("juzFilters")}
+          className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground sm:w-auto"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={displayFilter === "all"}
+            onClick={() => setActiveFilter("all")}
+            className={cn(
+              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              displayFilter === "all" &&
+                "bg-background text-foreground shadow-sm hover:bg-background"
+            )}
+          >
+            {t("all", { count: filterCounts.all })}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={displayFilter === "available"}
+            onClick={() => setActiveFilter("available")}
+            className={cn(
+              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              displayFilter === "available" &&
+                "bg-background text-foreground shadow-sm hover:bg-background"
+            )}
+          >
+            {t("available", { count: filterCounts.available })}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={displayFilter === "mine"}
+            onClick={() => setActiveFilter("mine")}
+            className={cn(
+              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              displayFilter === "mine" &&
+                "bg-background text-foreground shadow-sm hover:bg-background",
+              showMyJuzNudge && "animate-pulse ring-2 ring-emerald-300"
+            )}
+          >
+            <span className="flex items-center gap-2">
+              <span>{t("myJuz", { count: filterCounts.mine })}</span>
+              {showMyJuzNudge && (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                  {t("new")}
+                </span>
+              )}
+            </span>
+          </Button>
+        </div>
         {filterSyncPending && (
           <p
             className="mt-2 text-xs text-quran-muted"
@@ -961,19 +990,40 @@ export default function KhatimPageClient({
 
       {showMineViewTabs && (
         <section className="quran-card p-4 sm:p-5">
-          <Tabs value={displayMineView} aria-label="My Juz views">
-            <TabsList className="w-full sm:w-auto">
-              <TabsTrigger value="mine" onClick={() => setMineView("mine")}>
-                {t("myJuzTab")}
-              </TabsTrigger>
-              <TabsTrigger
-                value="creator"
-                onClick={() => setMineView("creator")}
-              >
-                {t("creatorQueue", { count: creatorManageRows.length })}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div
+            role="group"
+            aria-label={t("myJuzViews")}
+            className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground sm:w-auto"
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-pressed={displayMineView === "mine"}
+              onClick={() => setMineView("mine")}
+              className={cn(
+                "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                displayMineView === "mine" &&
+                  "bg-background text-foreground shadow-sm hover:bg-background"
+              )}
+            >
+              {t("myJuzTab")}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-pressed={displayMineView === "creator"}
+              onClick={() => setMineView("creator")}
+              className={cn(
+                "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                displayMineView === "creator" &&
+                  "bg-background text-foreground shadow-sm hover:bg-background"
+              )}
+            >
+              {t("creatorQueue", { count: creatorManageRows.length })}
+            </Button>
+          </div>
         </section>
       )}
 

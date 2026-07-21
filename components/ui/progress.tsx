@@ -1,9 +1,17 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-type ProgressProps = React.HTMLAttributes<HTMLDivElement> & {
-  value?: number | null;
-};
+type ProgressAccessibleName =
+  | { "aria-label": string; "aria-labelledby"?: never }
+  | { "aria-label"?: never; "aria-labelledby": string };
+
+type ProgressProps = Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "aria-labelledby"
+> &
+  ProgressAccessibleName & {
+    value?: number | null;
+  };
 
 function clampProgress(value: number) {
   if (!Number.isFinite(value)) return 0;
@@ -28,7 +36,8 @@ function Progress({ className, value = 0, ...props }: ProgressProps) {
     >
       <div
         data-slot="progress-indicator"
-        className="bg-primary h-full w-full flex-1 transition-all"
+        aria-hidden="true"
+        className="bg-primary h-full w-full flex-1 transition-transform motion-reduce:transition-none"
         style={{ transform: `translateX(-${100 - clampedValue}%)` }}
       />
     </div>

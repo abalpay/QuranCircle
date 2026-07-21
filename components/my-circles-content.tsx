@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateKhatimDialog from "@/components/create-khatim-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { getMyCircles } from "@/lib/actions/events";
@@ -77,7 +76,11 @@ function CircleCard({ circle, archived = false }: { circle: MyCircle; archived?:
         )}
       </div>
 
-      <Progress value={progress} className="h-2 bg-quran-border/50" />
+      <Progress
+        value={progress}
+        aria-label={`${circle.name}: ${circle.claimed}/${circle.total} Juz claimed`}
+        className="h-2 bg-quran-border/50"
+      />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-quran-muted">
         <span>
           {circle.claimed}/{circle.total} Juz claimed
@@ -193,15 +196,40 @@ export default function MyCirclesContent() {
           </div>
         </div>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as CircleTab)}
+        <div
+          role="group"
+          aria-label="Circle status filters"
+          className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground sm:w-auto"
         >
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="active">Active ({activeCircles.length})</TabsTrigger>
-            <TabsTrigger value="archived">Archived ({archivedCircles.length})</TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={activeTab === "active"}
+            onClick={() => setActiveTab("active")}
+            className={cn(
+              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              activeTab === "active" &&
+                "bg-background text-foreground shadow-sm hover:bg-background"
+            )}
+          >
+            Active ({activeCircles.length})
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={activeTab === "archived"}
+            onClick={() => setActiveTab("archived")}
+            className={cn(
+              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              activeTab === "archived" &&
+                "bg-background text-foreground shadow-sm hover:bg-background"
+            )}
+          >
+            Archived ({archivedCircles.length})
+          </Button>
+        </div>
 
         <div className="mt-6">
           {isLoadingCircles ? (
