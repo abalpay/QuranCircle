@@ -188,16 +188,16 @@ test("creator sees queue sub-tabs and filters with URL sync", async ({ page }) =
 
   await page.goto(`/s/${fixture.shortCode}?filter=mine`);
   await expect(
-    page.getByRole("tab", { name: /My Juz \(\d+\)/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /My Juz \(\d+\)/ })
+  ).toHaveAttribute("aria-pressed", "true");
 
-  const creatorQueueTab = page.getByRole("tab", {
+  const creatorQueueTab = page.getByRole("button", {
     name: /^Creator Queue \(\d+\)$/,
   });
   await expect(creatorQueueTab).toBeVisible();
-  await expect(page.getByRole("tab", { name: /^My Juz$/ })).toHaveAttribute(
-    "data-state",
-    "active"
+  await expect(page.getByRole("button", { name: /^My Juz$/ })).toHaveAttribute(
+    "aria-pressed",
+    "true"
   );
   await expect
     .poll(() => new URL(page.url()).searchParams.get("mineView"))
@@ -221,7 +221,7 @@ test("creator sees queue sub-tabs and filters with URL sync", async ({ page }) =
   await page.getByRole("button", { name: "Mark Read" }).first().click();
   await expect(page.getByRole("button", { name: "Undo" }).first()).toBeVisible();
 
-  await page.getByRole("tab", { name: /All \(\d+\)/ }).click();
+  await page.getByRole("button", { name: /All \(\d+\)/ }).click();
   await expect
     .poll(() => new URL(page.url()).searchParams.get("mineView"))
     .toBeNull();
@@ -233,24 +233,24 @@ test("creator mine view follows URL during browser back and forward", async ({
   await signInAsCreator(page, fixture.creatorEmail, fixture.creatorPassword);
 
   await page.goto(`/s/${fixture.shortCode}?filter=mine`);
-  await expect(page.getByRole("tab", { name: /^My Juz$/ })).toHaveAttribute(
-    "data-state",
-    "active"
+  await expect(page.getByRole("button", { name: /^My Juz$/ })).toHaveAttribute(
+    "aria-pressed",
+    "true"
   );
 
   await page.goto(`/s/${fixture.shortCode}?filter=mine&mineView=creator`);
   await expect(
-    page.getByRole("tab", { name: /^Creator Queue \(\d+\)$/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /^Creator Queue \(\d+\)$/ })
+  ).toHaveAttribute("aria-pressed", "true");
 
   await page.goBack();
-  await expect(page.getByRole("tab", { name: /^My Juz$/ })).toHaveAttribute(
-    "data-state",
-    "active"
+  await expect(page.getByRole("button", { name: /^My Juz$/ })).toHaveAttribute(
+    "aria-pressed",
+    "true"
   );
 
   await page.goForward();
   await expect(
-    page.getByRole("tab", { name: /^Creator Queue \(\d+\)$/ })
-  ).toHaveAttribute("data-state", "active");
+    page.getByRole("button", { name: /^Creator Queue \(\d+\)$/ })
+  ).toHaveAttribute("aria-pressed", "true");
 });

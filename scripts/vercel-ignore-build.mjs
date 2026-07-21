@@ -1,14 +1,11 @@
 const env = process.env.VERCEL_ENV;
 const ref = process.env.VERCEL_GIT_COMMIT_REF ?? "";
-const author = process.env.VERCEL_GIT_COMMIT_AUTHOR_LOGIN ?? "";
 
-const isDependabot =
-  author === "dependabot" ||
-  author === "dependabot[bot]" ||
-  ref.startsWith("dependabot/");
-
-if (env === "preview" && isDependabot) {
-  console.log(`Skipping Dependabot preview deployment for ${ref || author}.`);
+// Preview currently points at the production Supabase project. Skip every
+// preview until Vercel Preview has an isolated Supabase project or branch with
+// its own credentials and seed data.
+if (env === "preview") {
+  console.log(`Skipping Vercel preview deployment for ${ref || "unknown-ref"}.`);
   process.exit(0);
 }
 

@@ -18,8 +18,10 @@ Run these checks after schema/app updates:
    - verify claimed Juz still appear in **My Juz**
 8. Tampered merge cookie/state does not merge a foreign anonymous identity.
 9. Account deletion is all-or-nothing:
-   - cleanup RPC succeeds, then auth user deletion succeeds
-   - on cleanup failure, no auth deletion occurs
+   - deleting `auth.users` runs application-data cleanup in the same database transaction
+   - if cleanup fails, the auth deletion and all cleanup changes roll back together
+   - the temporary `cleanup_current_user_data` rollout RPC returns success without mutating data
+   - keep the app-side compatibility RPC call until the application rollback window closes
 10. Private realtime channel behavior:
    - members receive invalidation updates
    - non-members cannot subscribe to private event topics
@@ -30,6 +32,10 @@ Run these checks after schema/app updates:
    - force a transient `merge_anonymous_identity` failure
    - `POST /auth/callback` returns `merge_retryable_error`
    - merge cookie is not cleared, and client retries until terminal status
+13. Password-change behavior:
+   - an incorrect current password is rejected and the old password still works
+   - a correct current password allows the update and retires the old password
+   - once the hosted Auth current-password requirement is enabled, direct update calls with a missing or incorrect `current_password` are rejected
 
 ## Merge Troubleshooting (My Juz)
 
@@ -89,7 +95,9 @@ Expected outcomes:
 
 1. Confirm Supabase Auth rate limits are active (`anonymous_users`, `sign_in_sign_ups`).
 2. Confirm DB mutation RPC guards reject abuse paths.
-3. Confirm anonymous-user cleanup policy is set to 30 days.
+3. Confirm the approved anonymous-user cleanup job has run successfully and
+   review its aggregate run log. Supabase does not automatically delete
+   anonymous users.
 4. Confirm monitoring alerts are configured:
    - anonymous sign-ins near/over 30 per hour per IP
    - claim mutation error rate above 5% in 5 minutes
@@ -103,6 +111,17 @@ Run before staging sign-off:
 2. `npx tsc --noEmit`
 3. `npm run build`
 
+## Vercel Preview Policy
+
+All Vercel Preview deployments are intentionally skipped while the Preview
+environment points at the production Supabase project. Pull requests are
+validated by the local-Supabase GitHub Actions test job instead.
+
+Restore Preview deployments only after all Preview Supabase variables point to
+an isolated project or branch with its own Auth, database, Storage, server-side
+secrets, and non-production seed data. Never add the production service-role key
+to Vercel Preview.
+
 ## Production Hardening Release Gates
 
 Use these explicit gates for phased rollout sign-off.
@@ -114,7 +133,8 @@ Pass:
 2. `npm run lint` passes.
 3. `npx tsc --noEmit` passes.
 4. `npm run test:unit` passes.
-5. `npm run test:e2e` passes with local Supabase env exported.
+5. `supabase test db --local` passes.
+6. `npm run test:e2e` passes with local Supabase env exported.
 
 Fail:
 1. Any command above fails.
@@ -161,6 +181,116 @@ Fail:
 2. Browse remains capped to initial fixed dataset.
 3. A11y or install sync regressions are observed in automated tests.
 
+### Phase 4 (Database-First Production Rollout) Gate
+
+The five `20260721064*` migrations must be applied before this app
+version. In particular, account deletion depends on the transactional
+`auth.users` trigger. The app retains the legacy cleanup RPC call during the
+rollback window, and the migration turns that RPC into a safe compatibility
+no-op. The fifth migration installs a bounded weekly cleanup of old,
+unreferenced anonymous users in an inactive state, so its aggregate preflight
+and activation require explicit approval.
+
+Pass:
+1. Confirm the target project ref is `vbxdcuucynuneqanrquw` before any remote operation.
+2. Run `supabase/scripts/inspect-anonymous-cleanup.sql` against production and
+   record the aggregate `eligible_for_cleanup` count. The query returns no user
+   identities. Confirm `cron.use_background_workers` is `off` and
+   `cron.timezone` is `GMT`, `UTC`, or `Etc/UTC`; the migration fails safely if
+   either invariant is not met. Explicitly approve the candidate count before
+   applying the fifth migration.
+3. Review the remote migration plan and apply all five pending migrations.
+4. Confirm remote migration history includes:
+   - `20260721064435_transactional_account_deletion`
+   - `20260721064503_explicit_data_api_privileges`
+   - `20260721064529_fix_database_advisor_findings`
+   - `20260721064558_revoke_internal_trigger_execution`
+   - `20260721064653_cleanup_unreferenced_anonymous_users`
+5. Run `supabase/scripts/verify-rpc-grants-and-indexes.sql` against production and confirm the account-deletion trigger and expected grants are present.
+6. Run `supabase/scripts/verify-anonymous-cleanup.sql`; reconfirm the cron mode
+   and timezone invariants, and confirm exactly one **inactive** job exists with
+   schedule `30 3 * * 0`.
+7. Keep the cleanup job inactive throughout app promotion. Activation is a
+   separate maintenance decision under Phase 5.
+8. Run Supabase security/performance advisors and resolve any new errors before app promotion.
+9. Deploy the app and smoke-test sign-in, anonymous claim, merge, circle creation, and account deletion.
+10. In the hosted Supabase Auth dashboard, enable **Require current password when changing password**. Do not push the repository's local `supabase/config.toml` to production because its site and redirect URLs are localhost-only.
+11. Verify a direct Auth password update with an omitted or incorrect `current_password` fails, a correct current password succeeds, and password recovery still succeeds.
+12. Enable SSL enforcement, then repeat application and external database-client connectivity checks.
+
+Fail / rollback:
+1. Do not promote the app if any migration or verification query fails.
+2. If the app smoke test fails, restore the previous Vercel deployment while leaving the compatible database migrations in place.
+3. Disable the hosted current-password setting before rolling back to an app version that does not send `current_password`.
+4. Correct a database defect with a forward migration; do not rewrite or roll back an applied production migration.
+5. Disable SSL enforcement if the application or an approved external database client cannot connect after it is enabled.
+6. If cleanup behavior, duration, or Storage blocking is unexpected, stop future
+   runs immediately and investigate before reactivation:
+
+   ```sql
+   SELECT cron.alter_job(
+     job_id := (
+       SELECT jobid
+       FROM cron.job
+       WHERE jobname = 'qurancircle-cleanup-unreferenced-anonymous-users'
+     ),
+     active := false
+   );
+   ```
+
+### Phase 5 (Anonymous Cleanup Activation) Gate
+
+This phase is intentionally separate from the app release. The cleanup deletes
+Auth users irreversibly at the application level, and paid backup/PITR remains
+deferred. Do not run the canary or activate the job without explicit approval.
+
+Pass:
+1. Confirm the production app is stable after Phase 4 and confirm there is no
+   expected live Supabase Storage write traffic during the canary window.
+2. Re-run `supabase/scripts/inspect-anonymous-cleanup.sql`. It has a 30-second
+   timeout and must complete successfully; retain its aggregate-only output and
+   explicitly approve the `eligible_for_cleanup` count.
+3. During a low-traffic window, run a manually approved one-user canary while
+   the cron job remains inactive:
+
+   ```sql
+   SELECT private.cleanup_unreferenced_anonymous_users(
+     interval '30 days',
+     1
+   );
+   ```
+
+   The function discovers candidates before locking Storage and uses `NOWAIT`,
+   so concurrent Storage activity aborts the cleanup rather than waiting. Run
+   `supabase/scripts/verify-anonymous-cleanup.sql`, re-run the aggregate
+   preflight, and confirm normal application behavior before continuing.
+4. After separate explicit approval, activate the weekly job and re-run the
+   verification script. Retain both outputs for the release record:
+
+   ```sql
+   SELECT cron.alter_job(
+     job_id := (
+       SELECT jobid
+       FROM cron.job
+       WHERE jobname = 'qurancircle-cleanup-unreferenced-anonymous-users'
+     ),
+     active := true
+   );
+   ```
+
+5. Inspect the first scheduled run's duration, deleted count, and status before
+   treating cleanup maintenance as fully enabled.
+
+Fail / rollback:
+1. Do not activate the cron job if the timed preflight, canary, application
+   checks, or Storage traffic confirmation fails.
+2. If activation has occurred, use the Phase 4 emergency deactivation query
+   immediately and investigate before any reactivation.
+
+Because paid backups/PITR are intentionally deferred on the current plan,
+deleted anonymous Auth rows are not recoverable through the application. Never
+activate the cleanup without the aggregate preflight approval above.
+
 ## Focused QA Checklist (Event-Level Filters + My Juz Flow)
 
 Use this quick checklist before shipping changes around filters, claiming, or status actions:
@@ -186,6 +316,7 @@ This project now includes:
 2. Playwright smoke E2E tests under `tests/e2e/`
 3. Deterministic local seed fixtures in `supabase/seed.sql`
 4. PR test gate via GitHub Actions in `.github/workflows/test.yml`
+5. Production build, lint, and TypeScript checks in the same required PR job
 
 ### Local Run (recommended flow)
 
@@ -208,6 +339,7 @@ This project now includes:
 6. Run tests:
    - Unit: `npm run test:unit`
    - Unit + coverage gates: `npm run test:unit:coverage`
+   - Database unit tests: `supabase test db --local`
    - DB/RPC contract checks: `npm run test:contracts`
    - E2E smoke: `npm run test:e2e`
    - Combined: `npm run test:ci`
@@ -298,7 +430,7 @@ See [supabase/scripts/reset-for-testing.sql](../supabase/scripts/reset-for-testi
 
 ## Option C: Delete User Only
 
-Removes your auth account; events and khatms remain. Cascades handle bookmarks and user references.
+Removes your auth account; events and khatms remain. The deletion trigger removes memberships/bookmarks, clears event ownership, and fully resets claimed Juz rows in the same transaction.
 
 **Via Dashboard:** Authentication → Users → Delete
 
@@ -333,10 +465,10 @@ const { error } = await supabase.auth.resend({
 For isolated testing with instant resets and no risk to production:
 
 ```bash
-supabase start  # starts local Postgres, Auth, Inbucket, Studio
+supabase start  # starts local Postgres, Auth, Mailpit, Studio
 ```
 
-- **Inbucket**: Catches all auth emails at http://localhost:54324 (no real emails sent)
+- **Mailpit**: Catches all auth emails at http://localhost:54324 (no real emails sent)
 - **Studio**: Database UI at http://localhost:54323
 - **Reset**: `supabase db reset` wipes and reapplies migrations
 

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { CookieMethodsServer } from "@supabase/ssr";
 import { updateSession } from "@/lib/supabase/proxy";
 
 const supabaseMocks = vi.hoisted(() => ({
@@ -7,6 +8,8 @@ const supabaseMocks = vi.hoisted(() => ({
   getUser: vi.fn(),
   rpc: vi.fn(),
 }));
+
+let capturedCookieMethods: CookieMethodsServer | undefined;
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: supabaseMocks.createServerClient,
@@ -23,11 +26,17 @@ describe("updateSession", () => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://supabase.test";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key";
-    supabaseMocks.createServerClient.mockReturnValue({
-      auth: {
-        getUser: supabaseMocks.getUser,
-      },
-      rpc: supabaseMocks.rpc,
+    capturedCookieMethods = undefined;
+    supabaseMocks.createServerClient.mockImplementation((...args: unknown[]) => {
+      const options = args[2] as { cookies: CookieMethodsServer };
+      capturedCookieMethods = options.cookies;
+
+      return {
+        auth: {
+          getUser: supabaseMocks.getUser,
+        },
+        rpc: supabaseMocks.rpc,
+      };
     });
   });
 
@@ -110,5 +119,74 @@ describe("updateSession", () => {
 
     expect(response.status).toBe(200);
     expect(supabaseMocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("propagates auth refresh cache headers with refreshed cookies", async () => {
+    supabaseMocks.getUser.mockImplementation(async () => {
+      capturedCookieMethods?.setAll?.(
+        [
+          {
+            name: "sb-test-auth-token",
+            value: "refreshed-token",
+            options: { path: "/", httpOnly: true },
+          },
+        ],
+        {
+          "Cache-Control":
+            "private, no-cache, no-store, must-revalidate, max-age=0",
+          Expires: "0",
+          Pragma: "no-cache",
+        }
+      );
+
+      return { data: { user: { id: "auth-user", is_anonymous: false } } };
+    });
+
+    const response = await updateSession(buildRequest("/account"));
+
+    expect(response.cookies.get("sb-test-auth-token")?.value).toBe(
+      "refreshed-token"
+    );
+    expect(response.headers.get("Cache-Control")).toBe(
+      "private, no-cache, no-store, must-revalidate, max-age=0"
+    );
+    expect(response.headers.get("Expires")).toBe("0");
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+  });
+
+  it("preserves refreshed auth state and cache headers across redirects", async () => {
+    supabaseMocks.getUser.mockImplementation(async () => {
+      capturedCookieMethods?.setAll?.(
+        [
+          {
+            name: "sb-test-auth-token",
+            value: "expired-token",
+            options: { path: "/", httpOnly: true },
+          },
+        ],
+        {
+          "Cache-Control":
+            "private, no-cache, no-store, must-revalidate, max-age=0",
+          Expires: "0",
+          Pragma: "no-cache",
+        }
+      );
+
+      return { data: { user: null } };
+    });
+
+    const response = await updateSession(buildRequest("/account"));
+
+    expect(response.status).toBe(307);
+    expect(response.cookies.get("sb-test-auth-token")?.value).toBe(
+      "expired-token"
+    );
+    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+    expect(response.headers.get("Cache-Control")).toBe(
+      "private, no-cache, no-store, must-revalidate, max-age=0"
+    );
+    expect(response.headers.get("Expires")).toBe("0");
+    expect(response.headers.get("Pragma")).toBe("no-cache");
   });
 });

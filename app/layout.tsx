@@ -16,6 +16,7 @@ import Footer from "@/components/footer";
 import NavigationProgress from "@/components/navigation-progress";
 import AuthErrorToast from "@/components/auth-error-toast";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getSiteUrl, toAbsoluteUrl } from "@/lib/site-url";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -103,7 +104,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} data-scroll-behavior="smooth">
       <body
         className={`${manrope.variable} ${cormorantGaramond.variable} ${notoNaskhArabic.variable} ${amiri.variable} font-sans antialiased`}
       >
@@ -132,6 +133,7 @@ export default async function RootLayout({
             </Suspense>
             <Toaster />
             <Analytics />
+            <SpeedInsights />
           </AuthModalProvider>
           </AuthProvider>
         </NextIntlClientProvider>

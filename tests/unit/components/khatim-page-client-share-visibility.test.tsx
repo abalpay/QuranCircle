@@ -4,8 +4,9 @@ import KhatimPageClient from "@/components/khatim-page-client";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 import type { EventSnapshot } from "@/lib/types/events";
 
-const { replaceMock } = vi.hoisted(() => ({
+const { replaceMock, searchParamsMock } = vi.hoisted(() => ({
   replaceMock: vi.fn(),
+  searchParamsMock: { value: "" },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -13,7 +14,7 @@ vi.mock("next/navigation", () => ({
     replace: replaceMock,
   }),
   usePathname: () => "/s/ABCDEFGH",
-  useSearchParams: () => new URLSearchParams(""),
+  useSearchParams: () => new URLSearchParams(searchParamsMock.value),
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
@@ -103,6 +104,7 @@ function buildEvent(overrides: Partial<EventSnapshot> = {}): EventSnapshot {
 describe("KhatimPageClient share/settings visibility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchParamsMock.value = "";
     Object.defineProperty(window, "localStorage", {
       value: {
         getItem: vi.fn(() => null),
@@ -124,8 +126,8 @@ describe("KhatimPageClient share/settings visibility", () => {
     expect(container.querySelector(".lucide-settings")).not.toBeInTheDocument();
   });
 
-  it("shows creator settings controls for creators", () => {
-    const { container } = render(
+  it("names creator settings and exposes filters as pressed buttons", () => {
+    render(
       <KhatimPageClient
         event={buildEvent({
           is_creator: true,
@@ -137,6 +139,39 @@ describe("KhatimPageClient share/settings visibility", () => {
     );
 
     expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
-    expect(container.querySelector(".lucide-settings")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Circle settings" })
+    ).toBeInTheDocument();
+
+    const filterGroup = screen.getByRole("group", { name: "Juz filters" });
+    expect(filterGroup.querySelector("[role='tab']")).not.toBeInTheDocument();
+    expect(filterGroup.querySelector("[aria-controls]")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "All (0)" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+  });
+
+  it("uses pressed buttons for creator My Juz views", () => {
+    searchParamsMock.value = "filter=mine";
+
+    render(
+      <KhatimPageClient
+        event={buildEvent({
+          is_creator: true,
+          can_manage: true,
+        })}
+        shortCode="ABCDEFGH"
+      />,
+      { wrapper: IntlWrapper }
+    );
+
+    const viewsGroup = screen.getByRole("group", { name: "My Juz views" });
+    expect(viewsGroup.querySelector("[role='tab']")).not.toBeInTheDocument();
+    expect(viewsGroup.querySelector("[aria-controls]")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "My Juz" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
   });
 });

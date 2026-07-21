@@ -50,6 +50,10 @@ export default async function FeaturedCircles({ events }: Props) {
           <div className="mt-auto">
             <Progress
               value={(ev.claimed / ev.total) * 100}
+              aria-label={`${ev.name}: ${t("juzClaimed", {
+                claimed: ev.claimed,
+                total: ev.total,
+              })}`}
               className="h-2 bg-quran-border/50"
             />
             <p className="mt-3 text-xs text-quran-muted">

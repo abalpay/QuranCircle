@@ -52,7 +52,9 @@ test.afterAll(async () => {
 
 test("browse page loads additional cursor pages", async ({ page }) => {
   await page.goto("/browse");
-  await page.getByPlaceholder("Search circles...").fill(fixtureToken);
+  await page
+    .getByRole("searchbox", { name: "Search circles" })
+    .fill(fixtureToken);
 
   const fixtureCards = page.locator("h2", {
     hasText: new RegExp(`Browse Pagination ${fixtureToken}`),

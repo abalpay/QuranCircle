@@ -1,7 +1,8 @@
 -- QuranCircle: Delete a single user for testing email confirmation
 -- Run in Supabase Dashboard → SQL Editor
 --
--- Cascades: bookmarks deleted, events.created_by and juzs.claimed_by_user_id set to NULL
+-- The auth.users deletion trigger atomically removes memberships/bookmarks,
+-- clears event ownership, and fully resets claimed Juz rows to unclaimed.
 
 -- 1. Find your user ID
 SELECT id, email FROM auth.users;
