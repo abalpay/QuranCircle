@@ -121,6 +121,14 @@ describe("RPC contract checks", () => {
     expect(Array.isArray(data)).toBe(true);
   });
 
+  it("keeps application tables behind the allowlisted RPC surface", async () => {
+    const anon = createAnonClient();
+    const { error } = await anon.from("events").select("id").limit(1);
+
+    expect(error).not.toBeNull();
+    expect((error?.message ?? "").toLowerCase()).toContain("permission");
+  });
+
   it("blocks mutation RPCs for raw anon role", async () => {
     const anon = createAnonClient();
     const { error } = await anon.rpc("claim_juz_batch", {
@@ -171,5 +179,148 @@ describe("RPC contract checks", () => {
 
     assertNoFunctionSignatureDrift(error, "merge_anonymous_identity_for_target");
     expect((error?.message ?? "").toLowerCase()).not.toContain("permission");
+  });
+
+  it("keeps the account-cleanup rollout RPC non-mutating", async () => {
+    const client = await createAuthenticatedClient();
+    const token = randomUUID().replace(/-/g, "").slice(0, 8);
+    const eventId = randomUUID();
+
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await client.auth.getUser();
+      expect(userError).toBeNull();
+      expect(user).toBeTruthy();
+      if (!user) throw new Error("Compatibility RPC fixture user was not found");
+
+      const { error: eventError } = await admin.from("events").insert({
+        id: eventId,
+        name: "Account deletion rollout compatibility circle",
+        short_code: `SHIM${token}`,
+        is_public: false,
+        created_by: user.id,
+      });
+      expect(eventError).toBeNull();
+
+      const { data: shimResult, error: shimError } = await client.rpc(
+        "cleanup_current_user_data"
+      );
+      expect(shimError).toBeNull();
+      expect(shimResult).toBe(true);
+
+      const { data: eventAfter, error: eventReadError } = await admin
+        .from("events")
+        .select("created_by")
+        .eq("id", eventId)
+        .single();
+      expect(eventReadError).toBeNull();
+      expect(eventAfter?.created_by).toBe(user.id);
+    } finally {
+      await admin.from("events").delete().eq("id", eventId);
+      await client.auth.signOut();
+    }
+  });
+
+  it("cleans application data in the auth-user deletion transaction", async () => {
+    const token = randomUUID().replace(/-/g, "").slice(0, 8);
+    const eventId = randomUUID();
+    const khatmId = randomUUID();
+    const juzId = randomUUID();
+    let userId: string | undefined;
+
+    try {
+      const { data: createdUser, error: createError } =
+        await admin.auth.admin.createUser({
+          email: `account-delete-${token}@e2e.local`,
+          password: `Account-${token}!A`,
+          email_confirm: true,
+        });
+      expect(createError).toBeNull();
+      expect(createdUser.user).toBeTruthy();
+      userId = createdUser.user?.id;
+      if (!userId) throw new Error("Account deletion fixture user was not created");
+      createdUserIds.push(userId);
+
+      const { error: eventError } = await admin.from("events").insert({
+        id: eventId,
+        name: "Account deletion contract circle",
+        short_code: `DEL${token}`,
+        is_public: false,
+        created_by: userId,
+      });
+      expect(eventError).toBeNull();
+
+      const { error: khatmError } = await admin.from("khatms").insert({
+        id: khatmId,
+        event_id: eventId,
+        khatm_number: 1,
+      });
+      expect(khatmError).toBeNull();
+
+      const claimedAt = new Date().toISOString();
+      const { error: juzError } = await admin.from("juzs").insert({
+        id: juzId,
+        khatm_id: khatmId,
+        juz_number: 1,
+        claimed_by_name: "Deletion Contract User",
+        claimed_by_user_id: userId,
+        status: "claimed",
+        claimed_at: claimedAt,
+      });
+      expect(juzError).toBeNull();
+
+      const { error: memberError } = await admin.from("event_members").insert({
+        event_id: eventId,
+        user_id: userId,
+        role: "creator",
+      });
+      expect(memberError).toBeNull();
+
+      const { error: bookmarkError } = await admin.from("bookmarks").insert({
+        event_id: eventId,
+        user_id: userId,
+      });
+      expect(bookmarkError).toBeNull();
+
+      const { error: deleteError } =
+        await admin.auth.admin.deleteUser(userId);
+      expect(deleteError).toBeNull();
+      createdUserIds.splice(createdUserIds.indexOf(userId), 1);
+
+      const { data: eventAfter, error: eventReadError } = await admin
+        .from("events")
+        .select("created_by")
+        .eq("id", eventId)
+        .single();
+      expect(eventReadError).toBeNull();
+      expect(eventAfter?.created_by).toBeNull();
+
+      const { data: juzAfter, error: juzReadError } = await admin
+        .from("juzs")
+        .select(
+          "claimed_by_name, claimed_by_user_id, status, claimed_at, read_at"
+        )
+        .eq("id", juzId)
+        .single();
+      expect(juzReadError).toBeNull();
+      expect(juzAfter).toEqual({
+        claimed_by_name: null,
+        claimed_by_user_id: null,
+        status: "unclaimed",
+        claimed_at: null,
+        read_at: null,
+      });
+
+      const [{ data: bookmarks }, { data: memberships }] = await Promise.all([
+        admin.from("bookmarks").select("id").eq("user_id", userId),
+        admin.from("event_members").select("id").eq("user_id", userId),
+      ]);
+      expect(bookmarks).toEqual([]);
+      expect(memberships).toEqual([]);
+    } finally {
+      await admin.from("events").delete().eq("id", eventId);
+    }
   });
 });

@@ -14,6 +14,7 @@ FROM information_schema.routine_privileges rp
 WHERE rp.routine_schema = 'public'
   AND rp.routine_name IN (
     'current_auth_is_non_anonymous',
+    'broadcast_event_invalidation',
     'can_access_event',
     'current_user_is_event_creator',
     'current_user_is_event_member',
@@ -85,11 +86,42 @@ BEGIN
   IF has_function_privilege('anon', 'public.delete_event_by_shortcode(text)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: anon can execute delete_event_by_shortcode';
   END IF;
+  IF to_regprocedure('public.cleanup_current_user_data()') IS NULL THEN
+    RAISE EXCEPTION 'FAILED: account deletion rollout compatibility RPC is missing';
+  END IF;
   IF has_function_privilege('anon', 'public.cleanup_current_user_data()', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: anon can execute cleanup_current_user_data';
   END IF;
+  IF NOT has_function_privilege('authenticated', 'public.cleanup_current_user_data()', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: authenticated cannot execute cleanup_current_user_data compatibility RPC';
+  END IF;
+  IF has_function_privilege('service_role', 'public.cleanup_current_user_data()', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: service_role can execute cleanup_current_user_data compatibility RPC';
+  END IF;
   IF has_function_privilege('anon', 'public.merge_anonymous_identity_for_target(uuid,uuid)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: anon can execute merge_anonymous_identity_for_target';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger t
+    JOIN pg_class c ON c.oid = t.tgrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'auth'
+      AND c.relname = 'users'
+      AND t.tgname = 'cleanup_user_data_before_auth_delete'
+      AND NOT t.tgisinternal
+      AND t.tgenabled <> 'D'
+      AND t.tgfoid = to_regprocedure('private.cleanup_user_data_before_auth_delete()')
+  ) THEN
+    RAISE EXCEPTION 'FAILED: transactional account-deletion trigger is missing or disabled';
+  END IF;
+
+  -- Internal trigger functions must never be client-callable.
+  IF has_function_privilege('anon', 'public.broadcast_event_invalidation()', 'EXECUTE')
+     OR has_function_privilege('authenticated', 'public.broadcast_event_invalidation()', 'EXECUTE')
+     OR has_function_privilege('service_role', 'public.broadcast_event_invalidation()', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: client role can execute broadcast_event_invalidation';
   END IF;
 
   -- merge RPC hardening.
@@ -104,7 +136,37 @@ BEGIN
 END
 $$;
 
--- 3) Index assertions.
+-- 3) Direct table access is service-role only; clients use RPCs.
+DO $$
+DECLARE
+  v_table text;
+BEGIN
+  FOREACH v_table IN ARRAY ARRAY[
+    'public.events',
+    'public.khatms',
+    'public.juzs',
+    'public.bookmarks',
+    'public.event_members'
+  ]
+  LOOP
+    IF has_table_privilege('anon', v_table, 'SELECT,INSERT,UPDATE,DELETE')
+       OR has_table_privilege('authenticated', v_table, 'SELECT,INSERT,UPDATE,DELETE') THEN
+      RAISE EXCEPTION 'FAILED: client role has direct CRUD on %', v_table;
+    END IF;
+
+    IF NOT has_table_privilege('service_role', v_table, 'SELECT')
+       OR NOT has_table_privilege('service_role', v_table, 'INSERT')
+       OR NOT has_table_privilege('service_role', v_table, 'UPDATE')
+       OR NOT has_table_privilege('service_role', v_table, 'DELETE') THEN
+      RAISE EXCEPTION 'FAILED: service_role lacks required CRUD on %', v_table;
+    END IF;
+  END LOOP;
+
+  RAISE NOTICE 'PASS: direct table privilege assertions succeeded.';
+END
+$$;
+
+-- 4) Index assertions.
 DO $$
 DECLARE
   v_exists boolean;
