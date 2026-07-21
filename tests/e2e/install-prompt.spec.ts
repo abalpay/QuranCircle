@@ -22,7 +22,18 @@ async function setMockNow(page: Page, now: number) {
   );
 }
 
-test.use({ ...devices["iPhone 13"] });
+const iPhone13 = devices["iPhone 13"];
+
+// The device descriptor defaults to WebKit. Keep this suite in the configured
+// Chromium project while retaining iPhone viewport, touch, and user-agent
+// emulation so CI installs and exercises exactly one browser engine.
+test.use({
+  userAgent: iPhone13.userAgent,
+  viewport: iPhone13.viewport,
+  deviceScaleFactor: iPhone13.deviceScaleFactor,
+  isMobile: iPhone13.isMobile,
+  hasTouch: iPhone13.hasTouch,
+});
 
 test.describe("install prompt", () => {
   test.beforeEach(async ({ page }) => {
@@ -142,7 +153,7 @@ test.describe("install prompt", () => {
 
     await page.getByRole("button", { name: "Not now" }).click();
 
-    await page.getByRole("tab", { name: /My Juz \(1\)/ }).click();
+    await page.getByRole("button", { name: /My Juz \(1\)/ }).click();
     await page.getByRole("button", { name: "Unclaim" }).click();
   });
 

@@ -1,9 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import { assertSafeSupabaseTestTarget } from "./tests/support/supabase-test-target";
 
 const fallbackPort = process.env.PLAYWRIGHT_PORT ?? "3101";
 const baseURL =
   process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${fallbackPort}`;
 const serverPort = new URL(baseURL).port || fallbackPort;
+const webServerCommand = process.env.CI ? "next start" : "next dev";
 
 const requiredEnv = [
   "NEXT_PUBLIC_SUPABASE_URL",
@@ -12,6 +14,8 @@ const requiredEnv = [
 ];
 
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+
+assertSafeSupabaseTestTarget();
 
 if (missingEnv.length > 0) {
   const msg = `Missing ${missingEnv.join(", ")}. Load local Supabase env before running Playwright.`;
@@ -48,7 +52,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `next dev -p ${serverPort}`,
+    command: `${webServerCommand} -p ${serverPort}`,
     url: baseURL,
     timeout: 180_000,
     reuseExistingServer: false,

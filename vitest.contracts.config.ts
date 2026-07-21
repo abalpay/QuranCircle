@@ -1,5 +1,8 @@
 import path from "node:path";
 import { defineConfig } from "vitest/config";
+import { assertSafeSupabaseTestTarget } from "./tests/support/supabase-test-target";
+
+assertSafeSupabaseTestTarget();
 
 export default defineConfig({
   resolve: {
