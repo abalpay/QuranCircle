@@ -31,3 +31,15 @@ updates:
         dependency-type: "production"
         patterns:
           - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Australia/Melbourne"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
