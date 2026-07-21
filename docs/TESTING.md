@@ -183,7 +183,7 @@ Fail:
 
 ### Phase 4 (Database-First Production Rollout) Gate
 
-The five `20260720*`/`20260721*` migrations must be applied before this app
+The five `20260721064*` migrations must be applied before this app
 version. In particular, account deletion depends on the transactional
 `auth.users` trigger. The app retains the legacy cleanup RPC call during the
 rollback window, and the migration turns that RPC into a safe compatibility
@@ -201,11 +201,11 @@ Pass:
    applying the fifth migration.
 3. Review the remote migration plan and apply all five pending migrations.
 4. Confirm remote migration history includes:
-   - `20260720063551_transactional_account_deletion`
-   - `20260720063555_explicit_data_api_privileges`
-   - `20260721000000_fix_database_advisor_findings`
-   - `20260721021015_revoke_internal_trigger_execution`
-   - `20260721043222_cleanup_unreferenced_anonymous_users`
+   - `20260721064435_transactional_account_deletion`
+   - `20260721064503_explicit_data_api_privileges`
+   - `20260721064529_fix_database_advisor_findings`
+   - `20260721064558_revoke_internal_trigger_execution`
+   - `20260721064653_cleanup_unreferenced_anonymous_users`
 5. Run `supabase/scripts/verify-rpc-grants-and-indexes.sql` against production and confirm the account-deletion trigger and expected grants are present.
 6. Run `supabase/scripts/verify-anonymous-cleanup.sql`; reconfirm the cron mode
    and timezone invariants, and confirm exactly one **inactive** job exists with
