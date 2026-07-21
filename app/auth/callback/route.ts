@@ -22,6 +22,16 @@ type MergeFinalizeResult = {
   shouldClearCookie: boolean;
 };
 
+function setPrivateNoStoreHeaders(response: NextResponse) {
+  response.headers.set(
+    "Cache-Control",
+    "private, no-cache, no-store, must-revalidate, max-age=0"
+  );
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  return response;
+}
+
 async function finalizePendingMerge({
   supabase,
 }: {
@@ -97,7 +107,7 @@ export async function GET(request: Request) {
           getMergeStateClearCookieOptions(isSecureOrigin)
         );
       }
-      return response;
+      return setPrivateNoStoreHeaders(response);
     }
     console.error("Auth callback failed:", error.message);
   }
@@ -108,7 +118,7 @@ export async function GET(request: Request) {
     "",
     getMergeStateClearCookieOptions(isSecureOrigin)
   );
-  return response;
+  return setPrivateNoStoreHeaders(response);
 }
 
 export async function POST(request: Request) {
@@ -117,9 +127,7 @@ export async function POST(request: Request) {
   const mergeResult = await finalizePendingMerge({ supabase });
   const response = NextResponse.json({ status: mergeResult.status });
 
-  response.headers.set("Cache-Control", "no-store");
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
+  setPrivateNoStoreHeaders(response);
   if (mergeResult.shouldClearCookie) {
     response.cookies.set(
       MERGE_STATE_COOKIE,

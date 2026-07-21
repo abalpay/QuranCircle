@@ -12,6 +12,17 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   }
 }
 
+function copyAuthResponseState(from: NextResponse, to: NextResponse) {
+  copyCookies(from, to);
+
+  for (const name of ["Cache-Control", "Expires", "Pragma"]) {
+    const value = from.headers.get(name);
+    if (value !== null) {
+      to.headers.set(name, value);
+    }
+  }
+}
+
 function getAuthRedirectPath(pathname: string) {
   if (pathname === "/account") return "/";
   if (pathname === "/reset-password") return "/?error=auth";
@@ -34,9 +45,14 @@ function getShortCodeFromPath(pathname: string) {
   return shortCode;
 }
 
-export async function updateSession(request: NextRequest) {
+export async function updateSession(
+  request: NextRequest,
+  requestHeaders: Headers = request.headers
+) {
   let supabaseResponse = NextResponse.next({
-    request,
+    request: {
+      headers: requestHeaders,
+    },
   });
 
   // Handle locale cookie
@@ -68,15 +84,22 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, responseHeaders) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
+          const previousResponse = supabaseResponse;
           supabaseResponse = NextResponse.next({
-            request,
+            request: {
+              headers: requestHeaders,
+            },
           });
+          copyAuthResponseState(previousResponse, supabaseResponse);
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
+          );
+          Object.entries(responseHeaders).forEach(([name, value]) =>
+            supabaseResponse.headers.set(name, value)
           );
         },
       },
@@ -93,7 +116,7 @@ export async function updateSession(request: NextRequest) {
       const redirectResponse = NextResponse.redirect(
         new URL(authRedirectPath, request.url)
       );
-      copyCookies(supabaseResponse, redirectResponse);
+      copyAuthResponseState(supabaseResponse, redirectResponse);
       return redirectResponse;
     }
 
@@ -110,7 +133,7 @@ export async function updateSession(request: NextRequest) {
             "X-Robots-Tag": "noindex, nofollow",
           },
         });
-        copyCookies(supabaseResponse, notFoundResponse);
+        copyAuthResponseState(supabaseResponse, notFoundResponse);
         return notFoundResponse;
       }
     }

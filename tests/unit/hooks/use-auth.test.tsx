@@ -558,12 +558,16 @@ describe("useAuth", () => {
       initialSessionUser: { id: "auth-user", is_anonymous: false },
     });
     mockCreateClient.mockReturnValue(supabase);
+    vi.mocked(fetch).mockResolvedValueOnce(
+      buildJsonResponse({ status: "no_pending_merge" })
+    );
 
     const auth = renderAuthHook();
 
     await waitFor(() => {
       expect(auth.result.current.sessionReady).toBe(true);
       expect(auth.result.current.user).not.toBeNull();
+      expect(fetch).toHaveBeenCalledTimes(1);
     });
 
     await act(async () => {

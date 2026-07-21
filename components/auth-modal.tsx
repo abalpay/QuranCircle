@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,6 +27,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+  createPasswordSchema,
+  PASSWORD_REQUIREMENTS_DESCRIPTION,
+} from "@/lib/auth/password-policy";
 
 const MERGE_PREPARATION_BLOCK_MESSAGE =
   "Could not secure claim transfer, retry required.";
@@ -46,7 +51,7 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: createPasswordSchema(),
 });
 
 const forgotPasswordSchema = z.object({
@@ -484,6 +489,9 @@ export default function AuthModal({
                               className="rounded-xl border-quran-border bg-white/85"
                             />
                           </FormControl>
+                          <FormDescription>
+                            {PASSWORD_REQUIREMENTS_DESCRIPTION}
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}

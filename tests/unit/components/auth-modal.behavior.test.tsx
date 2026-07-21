@@ -101,6 +101,24 @@ describe("AuthModal behavior", () => {
     });
   });
 
+  it("rejects a registration password that does not meet the hosted policy", async () => {
+    const user = userEvent.setup();
+
+    render(<AuthModal isOpen onClose={() => {}} action="register" />);
+
+    await user.type(screen.getByLabelText("Username"), "Ahmet");
+    await user.type(screen.getByLabelText("Email"), "ahmet@example.com");
+    await user.type(screen.getByLabelText("Password"), "alllowercase1");
+    await user.click(screen.getByRole("button", { name: "Create Account" }));
+
+    expect(
+      await screen.findByText(
+        "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol."
+      )
+    ).toBeInTheDocument();
+    expect(authMocks.signUp).not.toHaveBeenCalled();
+  });
+
   it("submits forgot password and shows success state", async () => {
     const user = userEvent.setup();
 

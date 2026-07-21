@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,6 +36,7 @@ import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { createPasswordSchema } from "@/lib/auth/password-policy";
 
 // --- Component ---
 
@@ -61,9 +63,8 @@ export default function AccountPageClient() {
 
   const passwordSchema = z
     .object({
-      newPassword: z
-        .string()
-        .min(8, t("passwordMinLength")),
+      currentPassword: z.string().min(1, t("currentPasswordRequired")),
+      newPassword: createPasswordSchema(t("passwordRequirements")),
       confirmPassword: z.string().min(8, t("confirmPasswordRequired")),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
@@ -79,7 +80,11 @@ export default function AccountPageClient() {
 
   const passwordForm = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
-    defaultValues: { newPassword: "", confirmPassword: "" },
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
   // Populate profile form when user loads
@@ -131,7 +136,27 @@ export default function AccountPageClient() {
     setIsSavingPassword(true);
     try {
       const supabase = createClient();
+      const email = user?.email;
+      if (!email) {
+        toast.error(t("failedToVerifyCurrentPassword"));
+        return;
+      }
+
+      const { error: verificationError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password: data.currentPassword,
+        });
+
+      if (verificationError) {
+        toast.error(t("failedToVerifyCurrentPassword"), {
+          description: formatAuthError(verificationError.message),
+        });
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
+        current_password: data.currentPassword,
         password: data.newPassword,
       });
 
@@ -286,6 +311,27 @@ export default function AccountPageClient() {
               >
                 <FormField
                   control={passwordForm.control}
+                  name="currentPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("currentPassword")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder={t("enterCurrentPassword")}
+                          {...field}
+                          required
+                          aria-required="true"
+                          autoComplete="current-password"
+                          className="rounded-xl border-quran-border bg-white/85"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={passwordForm.control}
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
@@ -295,10 +341,15 @@ export default function AccountPageClient() {
                           type="password"
                           placeholder={t("enterNewPassword")}
                           {...field}
+                          required
+                          aria-required="true"
                           autoComplete="new-password"
                           className="rounded-xl border-quran-border bg-white/85"
                         />
                       </FormControl>
+                      <FormDescription>
+                        {t("passwordRequirements")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -314,6 +365,8 @@ export default function AccountPageClient() {
                           type="password"
                           placeholder={t("confirmNewPassword")}
                           {...field}
+                          required
+                          aria-required="true"
                           autoComplete="new-password"
                           className="rounded-xl border-quran-border bg-white/85"
                         />

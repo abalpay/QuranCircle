@@ -46,7 +46,9 @@ describe("/auth/callback merge finalization", () => {
     expect(getUser).not.toHaveBeenCalled();
     expect(adminRpc).not.toHaveBeenCalled();
     expect(response.headers.get("set-cookie")).toBeNull();
-    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("Cache-Control")).toBe(
+      "private, no-cache, no-store, must-revalidate, max-age=0"
+    );
     expect(response.headers.get("Pragma")).toBe("no-cache");
     expect(response.headers.get("Expires")).toBe("0");
   });
@@ -234,6 +236,11 @@ describe("/auth/callback merge finalization", () => {
     expect(exchangeCodeForSession).toHaveBeenCalledWith("oauth-code");
     expect(response.headers.get("location")).toBe("https://example.com/browse");
     expect(response.headers.get("set-cookie")).toContain("quran_circle_merge_state=");
+    expect(response.headers.get("Cache-Control")).toBe(
+      "private, no-cache, no-store, must-revalidate, max-age=0"
+    );
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.headers.get("Expires")).toBe("0");
   });
 
   it("GET sanitizes unsafe next path values", async () => {
@@ -257,6 +264,11 @@ describe("/auth/callback merge finalization", () => {
 
     expect(response.headers.get("location")).toBe("https://example.com/?error=auth");
     expect(response.headers.get("set-cookie")).toContain("quran_circle_merge_state=");
+    expect(response.headers.get("Cache-Control")).toBe(
+      "private, no-cache, no-store, must-revalidate, max-age=0"
+    );
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.headers.get("Expires")).toBe("0");
   });
 
   it("GET redirects with auth error when code is absent", async () => {
@@ -267,5 +279,10 @@ describe("/auth/callback merge finalization", () => {
     expect(exchangeCodeForSession).not.toHaveBeenCalled();
     expect(response.headers.get("location")).toBe("https://example.com/?error=auth");
     expect(response.headers.get("set-cookie")).toContain("quran_circle_merge_state=");
+    expect(response.headers.get("Cache-Control")).toBe(
+      "private, no-cache, no-store, must-revalidate, max-age=0"
+    );
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.headers.get("Expires")).toBe("0");
   });
 });

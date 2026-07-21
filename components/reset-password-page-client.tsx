@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,6 +22,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { createPasswordSchema } from "@/lib/auth/password-policy";
 
 export default function ResetPasswordPageClient() {
   const router = useRouter();
@@ -30,7 +32,7 @@ export default function ResetPasswordPageClient() {
 
   const resetPasswordSchema = z
     .object({
-      password: z.string().min(8, t("passwordMinLength")),
+      password: createPasswordSchema(t("passwordRequirements")),
       confirmPassword: z.string().min(8, t("confirmPasswordRequired")),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -113,6 +115,9 @@ export default function ResetPasswordPageClient() {
                         className="rounded-xl border-quran-border bg-white/85"
                       />
                     </FormControl>
+                    <FormDescription>
+                      {t("passwordRequirements")}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
