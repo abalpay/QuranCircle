@@ -7,11 +7,12 @@
 
 -- 1) Inspect effective routine privileges for relevant functions.
 SELECT
+  rp.routine_schema,
   rp.routine_name,
   rp.grantee,
   rp.privilege_type
 FROM information_schema.routine_privileges rp
-WHERE rp.routine_schema = 'public'
+WHERE rp.routine_schema IN ('public', 'private')
   AND rp.routine_name IN (
     'current_auth_is_non_anonymous',
     'broadcast_event_invalidation',
@@ -41,6 +42,31 @@ ORDER BY rp.routine_name, rp.grantee, rp.privilege_type;
 -- 2) Assertions: anon can read, but cannot run mutation/user RPCs.
 DO $$
 BEGIN
+  -- SECURITY DEFINER policy helpers must not be exposed as public RPCs.
+  IF to_regprocedure('public.can_access_event(uuid)') IS NOT NULL
+     OR to_regprocedure('public.current_user_is_event_creator(uuid)') IS NOT NULL
+     OR to_regprocedure('public.current_user_is_event_member(uuid)') IS NOT NULL THEN
+    RAISE EXCEPTION 'FAILED: internal policy helper remains in public';
+  END IF;
+  IF to_regprocedure('private.can_access_event(uuid)') IS NULL
+     OR to_regprocedure('private.current_user_is_event_creator(uuid)') IS NULL
+     OR to_regprocedure('private.current_user_is_event_member(uuid)') IS NULL THEN
+    RAISE EXCEPTION 'FAILED: private policy helper is missing';
+  END IF;
+  IF has_schema_privilege('anon', 'private', 'USAGE')
+     OR has_schema_privilege('authenticated', 'private', 'USAGE')
+     OR has_schema_privilege('service_role', 'private', 'USAGE') THEN
+    RAISE EXCEPTION 'FAILED: a client role can resolve objects in private';
+  END IF;
+  IF NOT has_function_privilege('anon', 'private.can_access_event(uuid)', 'EXECUTE')
+     OR NOT has_function_privilege('authenticated', 'private.can_access_event(uuid)', 'EXECUTE')
+     OR NOT has_function_privilege('anon', 'private.current_user_is_event_creator(uuid)', 'EXECUTE')
+     OR NOT has_function_privilege('authenticated', 'private.current_user_is_event_creator(uuid)', 'EXECUTE')
+     OR NOT has_function_privilege('anon', 'private.current_user_is_event_member(uuid)', 'EXECUTE')
+     OR NOT has_function_privilege('authenticated', 'private.current_user_is_event_member(uuid)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: RLS roles cannot execute a private policy helper';
+  END IF;
+
   -- anon-read RPCs should remain callable.
   IF NOT has_function_privilege('anon', 'public.get_event_snapshot_by_shortcode(text,integer,integer)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: anon cannot execute get_event_snapshot_by_shortcode';

@@ -121,6 +121,19 @@ describe("RPC contract checks", () => {
     expect(Array.isArray(data)).toBe(true);
   });
 
+  it.each([
+    ["can_access_event", { p_event_id: randomUUID() }],
+    ["current_user_is_event_creator", { p_event_id: randomUUID() }],
+    ["current_user_is_event_member", { p_event_id: randomUUID() }],
+  ])("does not expose internal policy helper %s as an RPC", async (name, args) => {
+    const anon = createAnonClient();
+    const { data, error } = await anon.rpc(name, args);
+
+    expect(data).toBeNull();
+    expect(error).not.toBeNull();
+    expect(error?.code).toBe("PGRST202");
+  });
+
   it("keeps application tables behind the allowlisted RPC surface", async () => {
     const anon = createAnonClient();
     const { error } = await anon.from("events").select("id").limit(1);
