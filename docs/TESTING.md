@@ -77,19 +77,23 @@ where schemaname = 'realtime'
 ```
 
 ```sql
-select proname
+select n.nspname as schema_name, p.proname
 from pg_proc p
 join pg_namespace n on n.oid = p.pronamespace
-where n.nspname = 'public'
-  and proname in ('can_access_event', 'ensure_event_membership', 'merge_anonymous_identity')
-order by proname;
+where (n.nspname = 'private' and p.proname = 'can_access_event')
+   or (
+     n.nspname = 'public'
+     and p.proname in ('ensure_event_membership', 'merge_anonymous_identity')
+   )
+order by n.nspname, p.proname;
 ```
 
 Expected outcomes:
 
 1. `00013_realtime_invalidation.sql` and `00016_realtime_policy_topic_fix.sql` appear in migration history.
 2. `authenticated_event_invalidation_subscribe` exists on `realtime.messages`.
-3. `can_access_event`, `ensure_event_membership`, and `merge_anonymous_identity` functions are present.
+3. `private.can_access_event`, `public.ensure_event_membership`, and
+   `public.merge_anonymous_identity` are present.
 
 ## Ops Checks (No CAPTCHA Rollout)
 
