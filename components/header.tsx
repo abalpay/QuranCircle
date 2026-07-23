@@ -52,30 +52,48 @@ export default function Header() {
           : "sticky top-0 z-50 border-b border-quran-border/65 bg-quran-bg/92 backdrop-blur-xl"
       }
     >
-      <div className="mx-auto flex w-full max-w-[80rem] items-center gap-3 px-5 py-3 sm:px-8 lg:px-10">
-        <Link href="/" className="group inline-flex items-center gap-3">
+      <div
+        className={`mx-auto flex w-full items-center ${
+          isHomePage
+            ? "max-w-[88rem] gap-4 px-5 py-3.5 sm:px-8 lg:px-10"
+            : "max-w-[80rem] gap-3 px-5 py-3 sm:px-8 lg:px-10"
+        }`}
+      >
+        <Link
+          href="/"
+          className={`group inline-flex items-center ${
+            isHomePage ? "gap-3.5" : "gap-3"
+          }`}
+        >
           <span
             className={
               isHomePage
-                ? "flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.55)] bg-[hsl(150_30%_96%/0.045)] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.08)] transition-transform duration-200 group-hover:scale-[1.03]"
+                ? "flex h-[3.05rem] w-[3.05rem] items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.55)] bg-[hsl(150_30%_96%/0.045)] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.08)] transition-transform duration-200 group-hover:scale-[1.03]"
                 : "flex h-10 w-10 items-center justify-center rounded-xl border border-quran-border bg-white/70 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]"
             }
           >
-            <Image src="/quran-icon.png" alt="Quran Icon" width={23} height={23} />
+            <Image
+              src="/quran-icon.png"
+              alt="Quran Icon"
+              width={isHomePage ? 28 : 23}
+              height={isHomePage ? 28 : 23}
+            />
           </span>
           <span className="leading-none">
             <span
-              className={`block font-heading text-2xl ${
-                isHomePage ? "text-[hsl(150_30%_96%)]" : "text-quran-green"
+              className={`block font-heading ${
+                isHomePage
+                  ? "text-[1.75rem] text-[hsl(150_30%_96%)]"
+                  : "text-2xl text-quran-green"
               }`}
             >
               QuranCircle
             </span>
             <span
-              className={`block text-[10px] font-semibold uppercase tracking-[0.24em] ${
+              className={`block font-semibold uppercase tracking-[0.24em] ${
                 isHomePage
-                  ? "text-[hsl(var(--quran-gold)/0.82)]"
-                  : "text-quran-muted"
+                  ? "text-[10.5px] text-[hsl(var(--quran-gold)/0.82)]"
+                  : "text-[10px] text-quran-muted"
               }`}
             >
               {t("readTogether")}
@@ -88,12 +106,12 @@ export default function Header() {
           variant="ghost"
           size="sm"
           className={`
-            ml-4 hidden rounded-full border md:inline-flex
+            hidden rounded-full border md:inline-flex
             ${pathname === "/my-circles"
-              ? "border-quran-green/35 bg-quran-green/10 text-quran-green"
+              ? "ml-6 min-h-10 border-quran-green/35 bg-quran-green/10 px-4 text-[0.9rem] text-quran-green"
               : isHomePage
-                ? "border-transparent text-[hsl(158_18%_76%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white"
-                : "border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70"}
+                ? "ml-6 min-h-10 border-transparent px-4 text-[0.92rem] text-[hsl(158_18%_84%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white"
+                : "ml-4 border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70"}
           `}
         >
           <Link href="/my-circles">
@@ -102,7 +120,11 @@ export default function Header() {
           </Link>
         </Button>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div
+          className={`ml-auto flex items-center ${
+            isHomePage ? "gap-3" : "gap-2"
+          }`}
+        >
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -110,12 +132,14 @@ export default function Header() {
                 size="sm"
                 className={
                   isHomePage
-                    ? "hidden rounded-full border border-transparent text-[hsl(158_18%_82%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white md:flex"
+                    ? "hidden min-h-10 rounded-full border border-transparent px-3 text-[0.92rem] text-[hsl(158_18%_86%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white md:flex"
                     : "hidden rounded-full border border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70 md:flex"
                 }
               >
                 <Globe2 className="mr-1 h-4 w-4" />
-                <span className="text-sm">{locale === "tr" ? t("turkish") : t("english")}</span>
+                <span className={isHomePage ? "text-[0.92rem]" : "text-sm"}>
+                  {locale === "tr" ? t("turkish") : t("english")}
+                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -157,7 +181,7 @@ export default function Header() {
                   size="sm"
                   className={
                     isHomePage
-                      ? "hidden rounded-full border border-white/12 bg-white/[0.06] px-3 text-[hsl(150_30%_94%)] hover:bg-white/[0.1] hover:text-white md:flex"
+                      ? "hidden min-h-10 rounded-full border border-white/12 bg-white/[0.06] px-4 text-[0.92rem] text-[hsl(150_30%_94%)] hover:bg-white/[0.1] hover:text-white md:flex"
                       : "hidden rounded-full border border-quran-border/80 bg-white/70 px-3 text-quran-deep hover:bg-white md:flex"
                   }
                 >
@@ -199,7 +223,7 @@ export default function Header() {
               size="sm"
               className={
                 isHomePage
-                  ? "hidden rounded-full border border-white/20 bg-white/[0.055] px-5 text-[hsl(150_30%_96%)] shadow-none hover:bg-white/[0.11] md:flex"
+                  ? "hidden min-h-10 rounded-full border border-white/20 bg-white/[0.055] px-6 text-[0.92rem] text-[hsl(150_30%_96%)] shadow-none hover:bg-white/[0.11] md:flex"
                   : "hidden rounded-full px-5 text-primary-foreground shadow-[0_12px_24px_-16px_var(--color-quran-deep)] md:flex"
               }
               onClick={() => openAuthModal("login")}

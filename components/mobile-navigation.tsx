@@ -47,52 +47,48 @@ export default function MobileNavigation() {
     <>
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-40 px-4 md:hidden"
+        className="mobile-bottom-nav md:hidden"
       >
-        <div className="safe-area-bottom mx-auto grid h-16 max-w-md grid-cols-4 items-center rounded-2xl border border-quran-border/85 bg-quran-card/94 shadow-[0_18px_42px_-22px_var(--color-quran-deep)] backdrop-blur-xl">
+        <div className="mobile-bottom-nav-surface">
           <Link
             href="/"
-            className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
-              pathname === "/"
-                ? "bg-quran-green/14 text-quran-green"
-                : "text-quran-muted"
+            aria-current={pathname === "/" ? "page" : undefined}
+            className={`mobile-bottom-nav-item ${
+              pathname === "/" ? "is-active" : ""
             }`}
           >
-            <Home className="h-5 w-5" />
-            <span className="mt-1 text-[11px] font-medium">{t("home")}</span>
+            <Home aria-hidden="true" />
+            <span>{t("home")}</span>
           </Link>
           <Link
             href="/my-circles"
-            className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
-              pathname === "/my-circles"
-                ? "bg-quran-green/14 text-quran-green"
-                : "text-quran-muted"
+            aria-current={pathname === "/my-circles" ? "page" : undefined}
+            className={`mobile-bottom-nav-item ${
+              pathname === "/my-circles" ? "is-active" : ""
             }`}
           >
-            <Layers3 className="h-5 w-5" />
-            <span className="mt-1 max-w-[68px] truncate text-[10px] font-medium">{t("myCircles")}</span>
+            <Layers3 aria-hidden="true" />
+            <span>{t("myCircles")}</span>
           </Link>
           <Link
             href="/browse"
-            className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
-              pathname === "/browse"
-                ? "bg-quran-green/14 text-quran-green"
-                : "text-quran-muted"
+            aria-current={pathname === "/browse" ? "page" : undefined}
+            className={`mobile-bottom-nav-item ${
+              pathname === "/browse" ? "is-active" : ""
             }`}
           >
-            <Compass className="h-5 w-5" />
-            <span className="mt-1 text-[11px] font-medium">{t("browse")}</span>
+            <Compass aria-hidden="true" />
+            <span>{t("browse")}</span>
           </Link>
           <button
+            type="button"
             onClick={handleProfileTap}
-            className={`mx-1 flex flex-col items-center justify-center rounded-xl py-2 transition-colors ${
-              isProfileOpen
-                ? "bg-quran-green/14 text-quran-green"
-                : "text-quran-muted"
+            className={`mobile-bottom-nav-item ${
+              isProfileOpen ? "is-active" : ""
             }`}
           >
-            <UserCircle className="h-5 w-5" />
-            <span className="mt-1 max-w-[64px] truncate text-[11px] font-medium">
+            <UserCircle aria-hidden="true" />
+            <span>
               {isAuthenticatedUser ? displayName : t("signIn")}
             </span>
           </button>
