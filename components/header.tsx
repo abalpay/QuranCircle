@@ -48,16 +48,16 @@ export default function Header() {
     <header
       className={
         isHomePage
-          ? "sticky top-0 z-50 border-b border-white/10 bg-[hsl(168_62%_10%/0.96)] backdrop-blur-xl"
+          ? "sticky top-0 z-50 border-b border-white/[0.09] bg-[hsl(168_69%_10%/0.97)] backdrop-blur-xl"
           : "sticky top-0 z-50 border-b border-quran-border/65 bg-quran-bg/92 backdrop-blur-xl"
       }
     >
-      <div className="mx-auto flex w-full max-w-[90rem] items-center gap-3 px-4 py-3 sm:px-8 lg:px-12">
+      <div className="mx-auto flex w-full max-w-[80rem] items-center gap-3 px-5 py-3 sm:px-8 lg:px-10">
         <Link href="/" className="group inline-flex items-center gap-3">
           <span
             className={
               isHomePage
-                ? "flex h-10 w-10 items-center justify-center rounded-xl border border-[hsl(var(--quran-gold)/0.42)] bg-[hsl(150_30%_96%/0.06)] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.08)] transition-transform duration-200 group-hover:scale-[1.03]"
+                ? "flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.55)] bg-[hsl(150_30%_96%/0.045)] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.08)] transition-transform duration-200 group-hover:scale-[1.03]"
                 : "flex h-10 w-10 items-center justify-center rounded-xl border border-quran-border bg-white/70 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]"
             }
           >
@@ -110,7 +110,7 @@ export default function Header() {
                 size="sm"
                 className={
                   isHomePage
-                    ? "hidden rounded-full border border-transparent text-[hsl(158_18%_76%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white md:flex"
+                    ? "hidden rounded-full border border-transparent text-[hsl(158_18%_82%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white md:flex"
                     : "hidden rounded-full border border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70 md:flex"
                 }
               >
@@ -199,7 +199,7 @@ export default function Header() {
               size="sm"
               className={
                 isHomePage
-                  ? "hidden rounded-full border border-[hsl(158_38%_58%/0.18)] bg-[hsl(163_38%_24%)] px-5 text-[hsl(150_30%_96%)] shadow-none hover:bg-[hsl(163_38%_28%)] md:flex"
+                  ? "hidden rounded-full border border-white/20 bg-white/[0.055] px-5 text-[hsl(150_30%_96%)] shadow-none hover:bg-white/[0.11] md:flex"
                   : "hidden rounded-full px-5 text-primary-foreground shadow-[0_12px_24px_-16px_var(--color-quran-deep)] md:flex"
               }
               onClick={() => openAuthModal("login")}

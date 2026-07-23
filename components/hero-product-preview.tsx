@@ -101,7 +101,7 @@ export default function HeroProductPreview() {
 
           <div className="hero-product-heading">
             <div>
-              <p className="hero-product-overline">Family Khatm Circle</p>
+              <p className="hero-product-overline">Family &amp; Friends Circle</p>
               <h2>Progress tracker</h2>
               <p aria-live="polite">{claimedCount} of 30 Juz claimed</p>
             </div>
@@ -197,7 +197,7 @@ export default function HeroProductPreview() {
           <span className="hero-product-footer-divider" aria-hidden />
           <span>
             <Link2 aria-hidden className="h-4 w-4" />
-            One shared link
+            Share circle link
           </span>
           {isDemoClaimed ? (
             <button type="button" onClick={() => setIsDemoClaimed(false)}>
