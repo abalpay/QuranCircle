@@ -39,7 +39,7 @@ export default function LandingMetrics({ stats }: LandingMetricsProps) {
       icon: BookOpen,
     },
     {
-      label: "Active Khatms",
+      label: "Khatms active now",
       value: stats.activeKhatms,
       icon: CircleCheckBig,
     },
