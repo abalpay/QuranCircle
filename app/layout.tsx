@@ -23,6 +23,7 @@ import { getLocale, getMessages } from "next-intl/server";
 
 const siteUrl = getSiteUrl();
 const socialImageUrl = toAbsoluteUrl("/quran-icon.png");
+const isVercelDeployment = process.env.VERCEL === "1";
 
 const manrope = Manrope({
   variable: "--font-body",
@@ -118,7 +119,7 @@ export default async function RootLayout({
                 className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
               >
                 <div className="absolute inset-x-0 top-0 h-104 bg-[radial-gradient(circle_at_top,hsl(var(--quran-light-green)/0.22),transparent_70%)]" />
-                <div className="absolute -left-28 top-20 h-64 w-64 rounded-full bg-[hsl(var(--quran-gold)/0.12)] blur-3xl" />
+                <div className="absolute -left-28 top-20 h-64 w-64 rounded-full bg-[hsl(var(--quran-gold)/0.08)] blur-3xl" />
                 <div className="absolute -right-28 bottom-12 h-72 w-72 rounded-full bg-[hsl(var(--quran-green)/0.14)] blur-3xl" />
               </div>
               <Header />
@@ -132,8 +133,12 @@ export default async function RootLayout({
               <AuthErrorToast />
             </Suspense>
             <Toaster />
-            <Analytics />
-            <SpeedInsights />
+            {isVercelDeployment ? (
+              <>
+                <Analytics />
+                <SpeedInsights />
+              </>
+            ) : null}
           </AuthModalProvider>
           </AuthProvider>
         </NextIntlClientProvider>

@@ -58,15 +58,15 @@
 }
 
 :root {
-  --quran-green: 166 62% 24%;
-  --quran-light-green: 162 32% 44%;
-  --quran-bg: 44 40% 95%;
-  --quran-card: 42 52% 98%;
-  --quran-text: 168 24% 16%;
-  --quran-muted: 162 13% 37%;
+  --quran-green: 166 64% 24%;
+  --quran-light-green: 166 44% 52%;
+  --quran-bg: 42 33% 96%;
+  --quran-card: 42 48% 98%;
+  --quran-text: 166 29% 16%;
+  --quran-muted: 161 10% 38%;
   --quran-border: 41 24% 78%;
-  --quran-gold: 39 54% 42%;
-  --quran-deep: 167 53% 18%;
+  --quran-gold: 40 42% 45%;
+  --quran-deep: 166 49% 16%;
   --radius: 0.9rem;
   --background: hsl(var(--quran-bg));
   --foreground: hsl(var(--quran-text));
@@ -75,12 +75,12 @@
   --popover: hsl(var(--quran-card));
   --popover-foreground: hsl(var(--quran-text));
   --primary: hsl(var(--quran-green));
-  --primary-foreground: hsl(44 58% 95%);
-  --secondary: hsl(44 38% 90%);
+  --primary-foreground: hsl(150 30% 98%);
+  --secondary: hsl(158 20% 91%);
   --secondary-foreground: hsl(var(--quran-deep));
-  --muted: hsl(43 32% 90%);
+  --muted: hsl(158 14% 91%);
   --muted-foreground: hsl(var(--quran-muted));
-  --accent: hsl(42 52% 84%);
+  --accent: hsl(162 25% 86%);
   --accent-foreground: hsl(var(--quran-deep));
   --destructive: hsl(0 72% 46%);
   --border: hsl(var(--quran-border));
@@ -94,8 +94,8 @@
   --sidebar: hsl(var(--quran-card));
   --sidebar-foreground: hsl(var(--quran-text));
   --sidebar-primary: hsl(var(--quran-green));
-  --sidebar-primary-foreground: hsl(44 58% 95%);
-  --sidebar-accent: hsl(45 45% 88%);
+  --sidebar-primary-foreground: hsl(150 30% 98%);
+  --sidebar-accent: hsl(158 20% 91%);
   --sidebar-accent-foreground: hsl(var(--quran-deep));
   --sidebar-border: hsl(var(--quran-border));
   --sidebar-ring: hsl(var(--quran-green) / 0.3);
@@ -149,19 +149,19 @@
     background-image:
       radial-gradient(
         circle at top right,
-        hsl(var(--quran-light-green) / 0.16),
+        hsl(var(--quran-light-green) / 0.1),
         transparent 42%
       ),
       radial-gradient(
         circle at bottom left,
-        hsl(var(--quran-gold) / 0.1),
+        hsl(var(--quran-gold) / 0.08),
         transparent 42%
       ),
       linear-gradient(
         180deg,
         hsl(var(--quran-bg)),
         hsl(var(--quran-bg)) 44%,
-        hsl(44 34% 93%) 100%
+        hsl(40 29% 94%) 100%
       );
     background-attachment: fixed;
   }
@@ -198,10 +198,14 @@
     @apply relative z-10 mx-auto w-full max-w-6xl px-4 py-8 pb-28 sm:px-6 lg:px-8 md:pb-8;
   }
 
+  .home-page-shell {
+    @apply pt-0;
+  }
+
   .quran-card {
     @apply rounded-3xl border transition-all;
     background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(44 50% 97%) 100%),
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%),
       url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     border-color: hsl(var(--quran-border));
     box-shadow:
@@ -212,7 +216,7 @@
   .quran-card-primary {
     @apply rounded-3xl border transition-all;
     background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(44 50% 97%) 100%),
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%),
       url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     border-color: hsl(var(--quran-border) / 0.8);
     box-shadow: 0 24px 48px -12px hsl(var(--quran-deep) / 0.15);
@@ -221,7 +225,7 @@
   .quran-card-interactive {
     @apply rounded-3xl border transition-all;
     background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(44 50% 97%) 100%),
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%),
       url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     border-color: hsl(var(--quran-border));
     box-shadow:
@@ -261,10 +265,10 @@
 
   .ornament-panel {
     background:
-      linear-gradient(140deg, hsl(var(--quran-card) / 0.95), hsl(45 62% 96%)),
+      linear-gradient(140deg, hsl(var(--quran-card) / 0.95), hsl(158 28% 97%)),
       radial-gradient(
         circle at 20% 20%,
-        hsl(var(--quran-gold) / 0.16),
+        hsl(var(--quran-light-green) / 0.13),
         transparent 42%
       );
   }
@@ -293,43 +297,439 @@
         transparent 50%,
         hsl(var(--quran-bg)) 85%
       ),
-      /* Warm center glow */
+      /* Luminous sea-glass centre glow */
       radial-gradient(
         circle at 50% 30%,
-        hsl(var(--quran-light-green) / 0.14),
+        hsl(var(--quran-light-green) / 0.18),
         transparent 55%
       ),
       /* Primary Islamic 8-pointed star with inner octagon (green, 120px tile) */
       url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231f4e45' stroke-width='1.5' opacity='0.12'%3E%3Crect x='36' y='36' width='48' height='48'/%3E%3Crect x='36' y='36' width='48' height='48' transform='rotate(45 60 60)'/%3E%3Cpolygon points='70,36 84,50 84,70 70,84 50,84 36,70 36,50 50,36'/%3E%3Cline x1='60' y1='0' x2='60' y2='26'/%3E%3Cline x1='120' y1='60' x2='94' y2='60'/%3E%3Cline x1='60' y1='120' x2='60' y2='94'/%3E%3Cline x1='0' y1='60' x2='26' y2='60'/%3E%3Cline x1='0' y1='0' x2='36' y2='36'/%3E%3Cline x1='120' y1='0' x2='84' y2='36'/%3E%3Cline x1='120' y1='120' x2='84' y2='84'/%3E%3Cline x1='0' y1='120' x2='36' y2='84'/%3E%3C/g%3E%3C/svg%3E"),
-      /* Gold accent tessellation (smaller offset grid) */
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%238a6d2b' stroke-width='0.8' opacity='0.05'%3E%3Crect x='18' y='18' width='24' height='24'/%3E%3Crect x='18' y='18' width='24' height='24' transform='rotate(45 30 30)'/%3E%3Cline x1='30' y1='0' x2='30' y2='13'/%3E%3Cline x1='60' y1='30' x2='47' y2='30'/%3E%3Cline x1='30' y1='60' x2='30' y2='47'/%3E%3Cline x1='0' y1='30' x2='13' y2='30'/%3E%3Cline x1='0' y1='0' x2='18' y2='18'/%3E%3Cline x1='60' y1='0' x2='42' y2='18'/%3E%3Cline x1='60' y1='60' x2='42' y2='42'/%3E%3Cline x1='0' y1='60' x2='18' y2='42'/%3E%3C/g%3E%3C/svg%3E");
+      /* Sea-glass accent tessellation (smaller offset grid) */
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2358a99d' stroke-width='0.8' opacity='0.06'%3E%3Crect x='18' y='18' width='24' height='24'/%3E%3Crect x='18' y='18' width='24' height='24' transform='rotate(45 30 30)'/%3E%3Cline x1='30' y1='0' x2='30' y2='13'/%3E%3Cline x1='60' y1='30' x2='47' y2='30'/%3E%3Cline x1='30' y1='60' x2='30' y2='47'/%3E%3Cline x1='0' y1='30' x2='13' y2='30'/%3E%3Cline x1='0' y1='0' x2='18' y2='18'/%3E%3Cline x1='60' y1='0' x2='42' y2='18'/%3E%3Cline x1='60' y1='60' x2='42' y2='42'/%3E%3Cline x1='0' y1='60' x2='18' y2='42'/%3E%3C/g%3E%3C/svg%3E");
     background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat;
     background-size: 100% 100%, 100% 100%, 100% 100%, 120px 120px, 60px 60px;
   }
 
   @media (max-width: 640px) {
     .hero-pattern::before {
-      background-image:
-        linear-gradient(
-          to bottom,
-          hsl(var(--quran-bg)) 0%,
-          transparent 12%,
-          transparent 90%,
-          hsl(var(--quran-bg)) 100%
-        ),
-        radial-gradient(
-          ellipse at 50% 45%,
-          transparent 50%,
-          hsl(var(--quran-bg)) 85%
-        ),
-        radial-gradient(
-          circle at 50% 30%,
-          hsl(var(--quran-light-green) / 0.14),
-          transparent 55%
-        );
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
+      background-size: 100% 100%, 100% 100%, 100% 100%, 104px 104px, 52px 52px;
+      opacity: 0.58;
     }
+  }
+
+  /* ── Home hero: Emerald Sanctuary ── */
+  .hero-sanctuary {
+    @apply relative isolate overflow-hidden border;
+    width: 100vw;
+    min-height: 0;
+    margin-left: calc(50% - 50vw);
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    border-color: hsl(158 44% 45% / 0.24);
+    background:
+      radial-gradient(
+        circle at 78% 24%,
+        hsl(164 45% 54% / 0.12),
+        transparent 32%
+      ),
+      linear-gradient(132deg, hsl(169 58% 15%), hsl(167 64% 11%) 72%);
+    box-shadow:
+      0 48px 90px -52px hsl(168 70% 7% / 0.82),
+      inset 0 1px 0 hsl(150 30% 96% / 0.08);
+  }
+
+  .hero-sanctuary::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-10;
+    background-image:
+      linear-gradient(
+        105deg,
+        hsl(150 30% 96% / 0.025) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        15deg,
+        hsl(150 30% 96% / 0.018) 1px,
+        transparent 1px
+      );
+    background-size: 72px 72px;
+    mask-image: linear-gradient(90deg, black, transparent 74%);
+  }
+
+  .hero-sanctuary::after {
+    display: none;
+  }
+
+  .hero-sanctuary-grid {
+    @apply mx-auto grid w-full max-w-[90rem] px-5 sm:px-8 lg:px-12;
+    min-height: clamp(46rem, calc(100dvh - 4rem), 58rem);
+    grid-template-columns: minmax(0, 1.05fr) minmax(25rem, 0.95fr);
+  }
+
+  .hero-sanctuary-copy {
+    @apply relative z-[1] flex flex-col items-start justify-center px-10 py-20 text-left lg:px-16 xl:px-20;
+  }
+
+  .hero-sanctuary-bismillah {
+    font-family: var(--font-amiri), var(--font-arabic), serif;
+    color: hsl(var(--quran-gold) / 0.86);
+    @apply mb-7 text-3xl leading-relaxed;
+    animation: sanctuary-enter 760ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+  }
+
+  .hero-sanctuary-eyebrow {
+    @apply mb-5 inline-flex border-y py-2 text-[0.67rem] font-semibold uppercase tracking-[0.24em];
+    color: hsl(158 32% 80%);
+    border-color: hsl(158 38% 65% / 0.24);
+    animation: sanctuary-enter 760ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+  }
+
+  .hero-sanctuary-title {
+    font-family: var(--font-display), var(--font-arabic), "Iowan Old Style", serif;
+    color: hsl(150 30% 96%);
+    @apply max-w-[12ch] text-[2.8rem] leading-[0.98] font-semibold sm:text-6xl lg:text-[4.35rem];
+    letter-spacing: -0.035em;
+    animation: sanctuary-enter 820ms cubic-bezier(0.16, 1, 0.3, 1) 210ms both;
+  }
+
+  .hero-sanctuary-title span {
+    color: hsl(163 38% 62%);
+    @apply mt-2 block;
+  }
+
+  .hero-sanctuary-description {
+    color: hsl(158 18% 76%);
+    @apply mt-7 max-w-xl text-base leading-7 sm:text-lg;
+    animation: sanctuary-enter 820ms cubic-bezier(0.16, 1, 0.3, 1) 280ms both;
+  }
+
+  .hero-sanctuary-copy > div {
+    animation: sanctuary-enter 820ms cubic-bezier(0.16, 1, 0.3, 1) 340ms both;
+  }
+
+  .hero-sanctuary-trust {
+    color: hsl(158 18% 72%);
+    @apply mt-7 grid grid-cols-2 gap-x-5 gap-y-3 text-xs font-medium;
+    animation: sanctuary-enter 820ms cubic-bezier(0.16, 1, 0.3, 1) 410ms both;
+  }
+
+  .hero-sanctuary-trust li {
+    @apply flex items-center gap-2;
+  }
+
+  .hero-sanctuary-trust svg {
+    color: hsl(163 42% 62%);
+  }
+
+  .hero-sanctuary-art {
+    @apply relative flex min-w-0 items-center justify-center overflow-hidden border-l;
+    border-color: hsl(158 34% 72% / 0.11);
+    background:
+      radial-gradient(
+        circle at 50% 46%,
+        hsl(163 42% 54% / 0.11),
+        transparent 48%
+      ),
+      linear-gradient(180deg, hsl(150 30% 96% / 0.025), transparent);
+  }
+
+  .hero-sanctuary-art::before {
+    content: '';
+    @apply pointer-events-none absolute inset-y-12 left-0 w-px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      hsl(var(--quran-gold) / 0.5),
+      transparent
+    );
+  }
+
+  .hero-product-frame {
+    @apply relative flex h-[calc(100%-2rem)] min-h-[42rem] w-[calc(100%-2rem)] items-center justify-center p-3;
+    isolation: isolate;
+  }
+
+  .hero-product-frame::before {
+    content: '';
+    @apply pointer-events-none absolute -right-40 -bottom-44 -z-10 aspect-square w-[38rem] rotate-12 rounded-full;
+    opacity: 0.28;
+    background:
+      repeating-conic-gradient(
+        from 22.5deg,
+        hsl(var(--quran-gold) / 0.3) 0deg 0.65deg,
+        transparent 0.65deg 22.5deg
+      ),
+      radial-gradient(
+        circle,
+        transparent 0 36%,
+        hsl(var(--quran-gold) / 0.2) 36.2% 36.45%,
+        transparent 36.7% 55%,
+        hsl(160 35% 72% / 0.14) 55.2% 55.45%,
+        transparent 55.7%
+      );
+    mask-image: radial-gradient(circle, black, transparent 68%);
+  }
+
+  .hero-product-card {
+    @apply relative w-full overflow-hidden border;
+    max-width: 46rem;
+    border-radius: 1.5rem 0.65rem 1.5rem 1.5rem;
+    border-color: hsl(42 34% 83% / 0.9);
+    color: hsl(var(--quran-deep));
+    background:
+      radial-gradient(
+        circle at 100% 0%,
+        hsl(var(--quran-light-green) / 0.13),
+        transparent 28%
+      ),
+      linear-gradient(145deg, hsl(45 42% 98%), hsl(42 30% 94%));
+    box-shadow:
+      0 38px 78px -32px hsl(168 74% 5% / 0.72),
+      0 0 0 1px hsl(0 0% 100% / 0.64),
+      inset 0 1px 0 hsl(0 0% 100% / 0.92);
+    animation: sanctuary-enter 880ms cubic-bezier(0.16, 1, 0.3, 1) 260ms both;
+  }
+
+  .hero-product-card::after {
+    content: '';
+    @apply pointer-events-none absolute inset-2;
+    border: 1px solid hsl(var(--quran-green) / 0.08);
+    border-radius: 1.12rem 0.42rem 1.12rem 1.12rem;
+  }
+
+  .hero-product-header {
+    @apply relative px-6 pt-5 pb-4;
+  }
+
+  .hero-product-meta {
+    @apply flex items-center justify-between gap-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em];
+    color: hsl(var(--quran-muted));
+  }
+
+  .hero-product-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5;
+    color: hsl(var(--quran-green));
+    background: hsl(var(--quran-green) / 0.08);
+    box-shadow: inset 0 0 0 1px hsl(var(--quran-green) / 0.1);
+  }
+
+  .hero-product-heading {
+    @apply mt-4 flex items-end justify-between gap-5;
+  }
+
+  .hero-product-overline {
+    @apply mb-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em];
+    color: hsl(var(--quran-gold));
+  }
+
+  .hero-product-heading h2 {
+    font-family: var(--font-display), var(--font-arabic), "Iowan Old Style", serif;
+    @apply text-3xl leading-none font-semibold;
+    letter-spacing: -0.025em;
+  }
+
+  .hero-product-heading > div:first-child > p:last-child {
+    @apply mt-2 text-xs font-medium;
+    color: hsl(var(--quran-muted));
+  }
+
+  .hero-product-progress-value {
+    @apply flex shrink-0 flex-col items-end;
+  }
+
+  .hero-product-progress-value strong {
+    font-family: var(--font-display), "Times New Roman", serif;
+    @apply text-3xl leading-none font-semibold tabular-nums;
+    color: hsl(var(--quran-green));
+  }
+
+  .hero-product-progress-value span {
+    @apply mt-1.5 text-[0.54rem] font-semibold uppercase tracking-[0.13em];
+    color: hsl(var(--quran-muted));
+  }
+
+  .hero-product-progress {
+    @apply mt-4 h-2 overflow-hidden rounded-full;
+    background: hsl(var(--quran-border) / 0.56);
+    box-shadow: inset 0 1px 2px hsl(var(--quran-deep) / 0.08);
+  }
+
+  .hero-product-progress > span {
+    @apply block h-full rounded-full;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--quran-green)),
+      hsl(var(--quran-light-green))
+    );
+    box-shadow: 0 0 16px hsl(var(--quran-green) / 0.26);
+    transition: width 480ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-product-progress-labels {
+    @apply mt-2 flex justify-between text-[0.57rem] font-medium uppercase tracking-[0.1em];
+    color: hsl(var(--quran-muted) / 0.85);
+  }
+
+  .hero-product-legend {
+    @apply flex items-center justify-center gap-5 border-y px-5 py-3 text-[0.62rem] font-medium;
+    color: hsl(var(--quran-muted));
+    border-color: hsl(var(--quran-border) / 0.58);
+    background: hsl(0 0% 100% / 0.38);
+  }
+
+  .hero-product-legend > span {
+    @apply flex items-center gap-1.5;
+  }
+
+  .hero-product-legend i {
+    @apply block h-2.5 w-2.5 rounded-sm border;
+  }
+
+  .hero-product-legend .is-available {
+    border-color: hsl(var(--quran-border));
+    background: hsl(42 28% 97%);
+  }
+
+  .hero-product-legend .is-claimed {
+    border-color: hsl(39 72% 57%);
+    background: hsl(39 88% 88%);
+  }
+
+  .hero-product-legend .is-completed {
+    border-color: hsl(var(--quran-green));
+    background: hsl(var(--quran-green));
+  }
+
+  .hero-product-grid {
+    @apply grid grid-cols-6 gap-2 px-5 py-4;
+  }
+
+  .hero-product-tile {
+    @apply relative flex aspect-square h-full w-full flex-col items-center justify-center overflow-hidden border text-center;
+    border-radius: 0.9rem 0.34rem 0.9rem 0.9rem;
+    transition:
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 220ms ease,
+      box-shadow 220ms ease,
+      background 220ms ease;
+  }
+
+  .hero-product-tile::after {
+    content: '';
+    @apply pointer-events-none absolute inset-x-2 top-0 h-px;
+    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.84), transparent);
+  }
+
+  .hero-product-tile.is-available {
+    color: hsl(var(--quran-deep));
+    border-color: hsl(var(--quran-border) / 0.62);
+    background: linear-gradient(145deg, hsl(42 38% 99%), hsl(40 24% 95%));
+    box-shadow:
+      0 8px 18px -16px hsl(var(--quran-deep) / 0.46),
+      inset 0 1px 0 hsl(0 0% 100% / 0.88);
+  }
+
+  .hero-product-tile.is-claimed {
+    color: hsl(34 62% 35%);
+    border-color: hsl(39 76% 68% / 0.66);
+    background: linear-gradient(145deg, hsl(42 100% 94%), hsl(38 84% 88%));
+    box-shadow:
+      0 10px 20px -17px hsl(34 68% 35% / 0.5),
+      inset 0 1px 0 hsl(0 0% 100% / 0.74);
+  }
+
+  .hero-product-tile.is-completed {
+    color: hsl(150 28% 96%);
+    border-color: hsl(158 44% 36% / 0.72);
+    background:
+      radial-gradient(circle at 70% 15%, hsl(158 45% 65% / 0.28), transparent 34%),
+      linear-gradient(145deg, hsl(159 45% 38%), hsl(164 58% 25%));
+    box-shadow:
+      0 12px 24px -18px hsl(var(--quran-deep) / 0.72),
+      inset 0 1px 0 hsl(0 0% 100% / 0.16);
+  }
+
+  .hero-product-tile.is-demo {
+    cursor: pointer;
+    border-color: hsl(var(--quran-green) / 0.68);
+    box-shadow:
+      0 0 0 2px hsl(var(--quran-green) / 0.12),
+      0 13px 24px -17px hsl(var(--quran-green) / 0.64);
+  }
+
+  .hero-product-tile.is-demo:not(:disabled):hover {
+    transform: translateY(-3px);
+    border-color: hsl(var(--quran-green));
+    box-shadow:
+      0 0 0 3px hsl(var(--quran-green) / 0.12),
+      0 18px 30px -17px hsl(var(--quran-green) / 0.7);
+  }
+
+  .hero-product-tile.is-demo:focus-visible {
+    outline: 2px solid hsl(var(--quran-green));
+    outline-offset: 3px;
+  }
+
+  .hero-product-tile.is-demo:disabled {
+    cursor: default;
+  }
+
+  .hero-product-tile-number {
+    font-family: var(--font-display), "Times New Roman", serif;
+    @apply text-[1.65rem] leading-none font-medium tabular-nums;
+  }
+
+  .hero-product-tile-state {
+    @apply mt-1 flex max-w-[90%] items-center gap-1 truncate text-[0.52rem] font-semibold;
+  }
+
+  .hero-product-tile.is-available .hero-product-tile-state {
+    color: hsl(var(--quran-muted) / 0.78);
+  }
+
+  .hero-product-tile-action {
+    @apply mt-1.5 rounded-full px-2 py-1 text-[0.5rem] font-bold;
+    color: hsl(150 30% 98%);
+    background: hsl(var(--quran-green));
+    box-shadow: 0 5px 12px -7px hsl(var(--quran-deep) / 0.72);
+  }
+
+  .hero-product-footer {
+    @apply relative flex min-h-12 items-center justify-center gap-4 border-t px-5 py-3 text-[0.58rem] font-semibold uppercase tracking-[0.13em];
+    color: hsl(var(--quran-muted));
+    border-color: hsl(var(--quran-border) / 0.58);
+    background: hsl(0 0% 100% / 0.4);
+  }
+
+  .hero-product-footer > span:not(.hero-product-footer-divider),
+  .hero-product-footer button {
+    @apply flex items-center gap-1.5;
+  }
+
+  .hero-product-footer svg {
+    color: hsl(var(--quran-green));
+  }
+
+  .hero-product-footer-divider {
+    @apply h-3 w-px;
+    background: hsl(var(--quran-border));
+  }
+
+  .hero-product-footer button {
+    @apply absolute right-4 rounded-full px-2 py-1 normal-case tracking-normal;
+    color: hsl(var(--quran-green));
+    background: hsl(var(--quran-green) / 0.07);
+  }
+
+  .hero-product-footer button:hover {
+    background: hsl(var(--quran-green) / 0.12);
+  }
+
+  .hero-product-footer button:focus-visible {
+    outline: 2px solid hsl(var(--quran-green));
+    outline-offset: 2px;
   }
 
   /* ── Section containment panel ── */
@@ -339,8 +739,190 @@
     background: linear-gradient(
       170deg,
       hsl(var(--quran-card) / 0.55),
-      hsl(44 42% 96% / 0.45)
+      hsl(158 24% 97% / 0.45)
     );
+  }
+
+  /* Landing-only architectural surface language */
+  .landing-panel {
+    @apply relative isolate overflow-hidden;
+    border-radius: 0.9rem 2.2rem 0.9rem 2.2rem;
+    border-color: hsl(var(--quran-border) / 0.62);
+    background:
+      radial-gradient(
+        circle at 95% 0%,
+        hsl(var(--quran-light-green) / 0.1),
+        transparent 30%
+      ),
+      linear-gradient(
+        145deg,
+        hsl(var(--quran-card) / 0.94),
+        hsl(158 22% 97% / 0.74)
+      );
+    box-shadow:
+      0 28px 70px -58px hsl(var(--quran-deep) / 0.42),
+      inset 0 1px 0 hsl(0 0% 100% / 0.85);
+  }
+
+  .landing-panel::before {
+    content: '';
+    @apply pointer-events-none absolute -right-24 -top-28 -z-10 h-80 w-80;
+    background: center / contain no-repeat
+      url("data:image/svg+xml,%3Csvg width='320' height='320' viewBox='0 0 320 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23125e4d' stroke-width='1.2' opacity='.45'%3E%3Ccircle cx='160' cy='160' r='78'/%3E%3Ccircle cx='160' cy='160' r='112'/%3E%3Crect x='82' y='82' width='156' height='156'/%3E%3Crect x='82' y='82' width='156' height='156' transform='rotate(45 160 160)'/%3E%3Cpath d='M160 18l32 64 70-24-24 70 64 32-64 32 24 70-70-24-32 64-32-64-70 24 24-70-64-32 64-32-24-70 70 24z'/%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.14;
+    transform: rotate(8deg);
+  }
+
+  .landing-panel::after {
+    content: '';
+    @apply pointer-events-none absolute left-8 top-0 h-[2px] w-28 sm:left-10 sm:w-36;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--quran-green)),
+      hsl(var(--quran-light-green) / 0.45),
+      transparent
+    );
+  }
+
+  .landing-panel-comparison {
+    background:
+      radial-gradient(
+        circle at 8% 18%,
+        hsl(var(--quran-gold) / 0.07),
+        transparent 24%
+      ),
+      radial-gradient(
+        circle at 95% 0%,
+        hsl(var(--quran-light-green) / 0.1),
+        transparent 30%
+      ),
+      linear-gradient(
+        145deg,
+        hsl(var(--quran-card) / 0.96),
+        hsl(158 22% 97% / 0.76)
+      );
+  }
+
+  .comparison-card {
+    @apply relative overflow-hidden border;
+    border-radius: 1.45rem 0.5rem 1.45rem 1.45rem;
+    border-color: hsl(var(--quran-border) / 0.72);
+    box-shadow:
+      0 22px 44px -38px hsl(var(--quran-deep) / 0.4),
+      inset 0 1px 0 hsl(0 0% 100% / 0.78);
+  }
+
+  .comparison-card::before {
+    content: '';
+    @apply pointer-events-none absolute -right-9 -top-9 h-20 w-20 rotate-45;
+    border: 1px solid hsl(var(--quran-green) / 0.16);
+    box-shadow: 0 0 0 12px hsl(var(--quran-green) / 0.025);
+  }
+
+  .comparison-card-muted {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--quran-card) / 0.72),
+      hsl(158 15% 96% / 0.6)
+    );
+  }
+
+  .comparison-card-primary {
+    border-color: hsl(var(--quran-light-green) / 0.42);
+    background:
+      radial-gradient(
+        circle at 100% 0%,
+        hsl(var(--quran-light-green) / 0.15),
+        transparent 36%
+      ),
+      linear-gradient(145deg, hsl(var(--quran-card)), hsl(160 28% 96%));
+    box-shadow:
+      0 28px 60px -42px hsl(var(--quran-green) / 0.6),
+      inset 3px 0 0 hsl(var(--quran-green) / 0.72),
+      inset 0 1px 0 hsl(0 0% 100% / 0.82);
+  }
+
+  .landing-panel-steps {
+    background:
+      linear-gradient(
+        108deg,
+        hsl(var(--quran-green) / 0.045),
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 92% 12%,
+        hsl(var(--quran-light-green) / 0.09),
+        transparent 32%
+      ),
+      linear-gradient(
+        145deg,
+        hsl(var(--quran-card) / 0.96),
+        hsl(158 22% 97% / 0.72)
+      );
+  }
+
+  .process-heading {
+    @apply mb-10 grid items-end gap-5 border-b pb-8 text-left md:grid-cols-[0.85fr_1.15fr] md:gap-12;
+    border-color: hsl(var(--quran-border) / 0.58);
+  }
+
+  .process-kicker {
+    color: hsl(var(--quran-gold));
+    @apply mb-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em];
+  }
+
+  .process-ledger {
+    @apply border-t;
+    border-color: hsl(var(--quran-border) / 0.64);
+  }
+
+  .process-row {
+    @apply grid items-center gap-5 border-b py-7 transition-all duration-300 md:grid-cols-[3.5rem_3.5rem_minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-6 md:py-9;
+    border-color: hsl(var(--quran-border) / 0.64);
+  }
+
+  .process-row:hover {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--quran-green) / 0.045),
+      transparent 78%
+    );
+  }
+
+  .process-row > * {
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .process-row:hover > * {
+    transform: translateX(4px);
+  }
+
+  .process-number {
+    font-family: var(--font-display), "Times New Roman", serif;
+    color: hsl(var(--quran-green) / 0.46);
+    @apply text-sm font-semibold tracking-[0.16em];
+  }
+
+  .process-icon {
+    @apply flex h-11 w-11 items-center justify-center border text-quran-green;
+    border-color: hsl(var(--quran-green) / 0.28);
+    background: hsl(var(--quran-green) / 0.055);
+    clip-path: polygon(28% 0, 72% 0, 100% 28%, 100% 72%, 72% 100%, 28% 100%, 0 72%, 0 28%);
+  }
+
+  .landing-panel-resource {
+    background:
+      linear-gradient(100deg, hsl(var(--quran-green) / 0.055), transparent 42%),
+      radial-gradient(
+        circle at 95% 0%,
+        hsl(var(--quran-light-green) / 0.13),
+        transparent 34%
+      ),
+      linear-gradient(
+        145deg,
+        hsl(var(--quran-card) / 0.97),
+        hsl(158 24% 97% / 0.78)
+      );
   }
 
   .animate-fade-rise {
@@ -380,11 +962,33 @@
 
   /* ── Community stats bar ── */
   .stats-bar {
-    @apply relative z-20 -mt-8 mx-auto max-w-3xl rounded-2xl border px-6 py-5 sm:px-8;
+    @apply relative z-20 -mt-8 mx-auto max-w-5xl overflow-hidden border px-6 py-5 sm:px-8;
+    border-radius: 0.65rem 1.9rem 0.65rem 1.9rem;
     border-color: hsl(var(--quran-border) / 0.5);
-    background: hsl(var(--quran-card) / 0.85);
+    background:
+      linear-gradient(90deg, hsl(var(--quran-green) / 0.08), transparent 18%),
+      hsl(var(--quran-card) / 0.88);
     backdrop-filter: blur(12px);
-    box-shadow: 0 12px 32px -16px hsl(var(--quran-deep) / 0.12);
+    box-shadow:
+      0 22px 50px -34px hsl(var(--quran-deep) / 0.35),
+      inset 0 1px 0 hsl(0 0% 100% / 0.8);
+  }
+
+  .stats-bar::before {
+    content: '';
+    @apply pointer-events-none absolute inset-x-0 top-0 h-px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--quran-green) / 0.78),
+      hsl(var(--quran-light-green) / 0.35) 38%,
+      transparent 78%
+    );
+  }
+
+  .stats-bar::after {
+    content: '';
+    @apply pointer-events-none absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rotate-45;
+    border: 1px solid hsl(var(--quran-green) / 0.22);
   }
 
   .stats-bar-item {
@@ -410,12 +1014,14 @@
   .step-number-circle {
     @apply relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold;
     background: linear-gradient(
-      135deg,
+      145deg,
+      hsl(var(--quran-light-green)),
       hsl(var(--quran-green)),
       hsl(var(--quran-deep))
     );
-    color: hsl(44 58% 95%);
-    box-shadow: 0 4px 12px -4px hsl(var(--quran-deep) / 0.3);
+    color: var(--primary-foreground);
+    clip-path: polygon(28% 0, 72% 0, 100% 28%, 100% 72%, 72% 100%, 28% 100%, 0 72%, 0 28%);
+    box-shadow: 0 8px 18px -10px hsl(var(--quran-deep) / 0.7);
   }
 
   .step-connector {
@@ -424,7 +1030,7 @@
     background: linear-gradient(
       180deg,
       hsl(var(--quran-green) / 0.3),
-      hsl(var(--quran-gold) / 0.15)
+      hsl(var(--quran-light-green) / 0.12)
     );
   }
 
@@ -573,6 +1179,159 @@
   .install-step-chip {
     @apply rounded-xl border border-quran-border/60 bg-white/75 px-2 py-2;
   }
+
+  @media (max-width: 1023px) {
+    .hero-sanctuary-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-sanctuary-copy {
+      @apply mx-auto w-full max-w-3xl px-9;
+    }
+
+    .hero-sanctuary-title {
+      @apply text-[3.45rem];
+    }
+
+    .hero-sanctuary-art {
+      @apply min-h-0 border-l-0 border-t px-8 pb-8;
+      background:
+        radial-gradient(
+          circle at 50% 40%,
+          hsl(163 42% 54% / 0.1),
+          transparent 52%
+        ),
+        linear-gradient(180deg, hsl(150 30% 96% / 0.018), transparent);
+    }
+
+    .hero-sanctuary-art::before {
+      display: none;
+    }
+
+    .hero-product-frame {
+      @apply h-auto min-h-0 w-full p-0;
+    }
+
+    .hero-product-card {
+      max-width: 52rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .hero-sanctuary {
+      min-height: auto;
+      border-radius: 0;
+    }
+
+    .hero-sanctuary::after {
+      inset: 7px;
+      border-radius: 0.4rem 1.6rem 0.4rem 1.6rem;
+    }
+
+    .hero-sanctuary-grid {
+      @apply min-h-0 grid-cols-1;
+    }
+
+    .hero-sanctuary-copy {
+      @apply items-start px-6 pt-14 pb-12 text-left sm:px-9;
+    }
+
+    .hero-sanctuary-bismillah {
+      @apply mb-4 text-xl;
+    }
+
+    .hero-sanctuary-eyebrow {
+      @apply mb-4;
+    }
+
+    .hero-sanctuary-title {
+      @apply text-[2.7rem] sm:text-[3.5rem];
+    }
+
+    .hero-sanctuary-description {
+      @apply mt-5 text-base leading-7;
+    }
+
+    .hero-sanctuary-trust {
+      @apply hidden;
+    }
+
+    .hero-sanctuary-art {
+      @apply relative right-auto top-auto w-auto border-0 px-3 pb-4 opacity-100;
+      height: auto;
+      background: linear-gradient(180deg, transparent, hsl(163 42% 54% / 0.04));
+    }
+
+    .hero-product-card {
+      border-radius: 1.2rem 0.48rem 1.2rem 1.2rem;
+    }
+
+    .hero-product-header {
+      @apply px-4 pt-4 pb-3;
+    }
+
+    .hero-product-heading {
+      @apply mt-3 items-end gap-3;
+    }
+
+    .hero-product-heading h2,
+    .hero-product-progress-value strong {
+      @apply text-2xl;
+    }
+
+    .hero-product-progress-value span {
+      @apply hidden;
+    }
+
+    .hero-product-legend {
+      @apply gap-3 px-3 py-2.5 text-[0.56rem];
+    }
+
+    .hero-product-grid {
+      @apply grid-cols-5 gap-1.5 px-3 py-3;
+    }
+
+    .hero-product-tile {
+      border-radius: 0.7rem 0.28rem 0.7rem 0.7rem;
+    }
+
+    .hero-product-tile-number {
+      @apply text-xl;
+    }
+
+    .hero-product-tile-state,
+    .hero-product-tile-action {
+      @apply text-[0.46rem];
+    }
+
+    .hero-product-footer {
+      @apply min-h-0 flex-wrap gap-x-3 gap-y-2 px-3 py-3 text-[0.52rem];
+    }
+
+    .hero-product-footer button {
+      @apply static;
+    }
+
+    .process-row {
+      @apply grid-cols-[2.75rem_minmax(0,1fr)] gap-x-4 gap-y-3 py-6;
+    }
+
+    .process-number {
+      @apply col-start-1 row-start-1 self-center;
+    }
+
+    .process-icon {
+      @apply col-start-1 row-start-2 h-9 w-9 self-start;
+    }
+
+    .process-row > div:not(.process-icon) {
+      @apply col-start-2 row-start-1;
+    }
+
+    .process-row > p {
+      @apply col-start-2 row-start-2;
+    }
+  }
 }
 
 @supports not (color: color-mix(in lab, red, red)) {
@@ -629,6 +1388,18 @@
   }
 }
 
+@keyframes sanctuary-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes cta-shimmer {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
@@ -672,9 +1443,1717 @@
 
 @media (prefers-reduced-motion: reduce) {
   * {
+    animation-delay: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ── Premium public landing page ─────────────────────────────────────── */
+
+.home-page-shell {
+  position: relative;
+  width: 100%;
+  overflow: clip;
+  background: hsl(var(--quran-bg));
+}
+
+.home-page-shell + footer {
+  display: none;
+}
+
+.landing-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 46rem;
+  overflow: hidden;
+  color: hsl(42 42% 96%);
+  background:
+    radial-gradient(
+      circle at 74% 38%,
+      hsl(163 55% 37% / 0.16),
+      transparent 33%
+    ),
+    radial-gradient(
+      circle at 18% 6%,
+      hsl(var(--quran-gold) / 0.065),
+      transparent 24%
+    ),
+    linear-gradient(122deg, hsl(168 69% 11%), hsl(168 68% 9%) 58%, hsl(169 74% 8%));
+  box-shadow: inset 0 -1px 0 hsl(42 36% 92% / 0.08);
+}
+
+.landing-hero::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, hsl(168 72% 6% / 0.23), transparent 22%, transparent 78%, hsl(168 72% 6% / 0.28)),
+    radial-gradient(ellipse at 50% 35%, transparent 38%, hsl(168 80% 5% / 0.18) 100%);
+}
+
+.landing-hero::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0.72;
+  background:
+    radial-gradient(circle at 8.5% 18%, hsl(var(--quran-gold) / 0.85) 0 1px, transparent 2px),
+    radial-gradient(circle at 10.5% 57%, hsl(var(--quran-gold) / 0.48) 0 1px, transparent 2px),
+    radial-gradient(circle at 17% 76%, hsl(var(--quran-gold) / 0.44) 0 1px, transparent 2px),
+    radial-gradient(circle at 91% 24%, hsl(var(--quran-gold) / 0.4) 0 1px, transparent 2px);
+}
+
+.landing-hero-grain {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.15;
+  background-image:
+    repeating-linear-gradient(
+      102deg,
+      transparent 0 17px,
+      hsl(42 30% 96% / 0.035) 18px,
+      transparent 19px 41px
+    ),
+    repeating-linear-gradient(
+      12deg,
+      transparent 0 23px,
+      hsl(42 30% 96% / 0.02) 24px,
+      transparent 25px 56px
+    );
+  mask-image: linear-gradient(90deg, black, transparent 45%, transparent 62%, black);
+}
+
+.landing-hero-rosette {
+  position: absolute;
+  z-index: 0;
+  width: 32rem;
+  height: 32rem;
+  pointer-events: none;
+  color: hsl(var(--quran-gold));
+  opacity: 0.12;
+  stroke: currentColor;
+  stroke-width: 0.7;
+}
+
+.landing-hero-rosette-left {
+  top: 4rem;
+  left: -25rem;
+  transform: rotate(8deg);
+}
+
+.landing-hero-rosette-right {
+  right: -24rem;
+  bottom: -6rem;
+  color: hsl(163 44% 64%);
+  transform: rotate(21deg);
+}
+
+.landing-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 0.84fr) minmax(34rem, 1.16fr);
+  align-items: center;
+  gap: clamp(2.5rem, 5vw, 5.5rem);
+  width: min(100%, 80rem);
+  min-height: 46rem;
+  margin-inline: auto;
+  padding: 3.5rem 2.5rem 5.5rem;
+}
+
+.landing-hero-copy {
+  width: 100%;
+  max-width: 31rem;
+}
+
+.landing-bismillah {
+  margin-bottom: 1.55rem;
+  color: hsl(var(--quran-gold) / 0.96);
+  font-family: var(--font-amiri), var(--font-arabic), serif;
+  font-size: clamp(1.65rem, 2.1vw, 2.15rem);
+  line-height: 1.5;
+  text-align: left;
+  text-shadow: 0 7px 22px hsl(168 75% 5% / 0.4);
+  animation: sanctuary-enter 720ms cubic-bezier(0.16, 1, 0.3, 1) 50ms both;
+}
+
+.landing-eyebrow {
+  margin: 0 0 0.8rem;
+  color: hsl(var(--quran-gold));
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.landing-eyebrow-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1.1rem;
+  padding-block: 0.42rem;
+  color: hsl(158 25% 82%);
+  border-top: 1px solid hsl(var(--quran-gold) / 0.25);
+  border-bottom: 1px solid hsl(var(--quran-gold) / 0.25);
+  animation: sanctuary-enter 740ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+}
+
+.landing-eyebrow-dark span {
+  color: hsl(var(--quran-gold) / 0.92);
+  font-size: 0.55rem;
+}
+
+.landing-hero-title {
+  margin: 0;
+  color: hsl(42 42% 97%);
+  font-family: var(--font-display), var(--font-arabic), "Iowan Old Style", serif;
+  font-size: clamp(3.5rem, 5vw, 4.65rem);
+  font-weight: 600;
+  letter-spacing: -0.038em;
+  line-height: 0.9;
+  text-wrap: balance;
+  text-shadow: 0 16px 38px hsl(168 80% 4% / 0.28);
+  animation: sanctuary-enter 780ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+}
+
+.landing-hero-title span {
+  color: hsl(165 42% 63%);
+}
+
+.landing-hero-description {
+  max-width: 30rem;
+  margin: 1.55rem 0 0;
+  color: hsl(157 17% 78%);
+  font-size: 0.95rem;
+  line-height: 1.85;
+  animation: sanctuary-enter 800ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
+}
+
+.landing-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.7rem;
+  animation: sanctuary-enter 820ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
+}
+
+.landing-hero-primary,
+.landing-hero-secondary {
+  min-height: 3rem;
+  padding-inline: 1.25rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.landing-hero-primary {
+  color: hsl(var(--quran-deep));
+  border: 1px solid hsl(42 42% 99%);
+  background: hsl(42 42% 98%);
+  box-shadow: 0 16px 30px -20px hsl(168 80% 2% / 0.72);
+}
+
+.landing-hero-primary:hover {
+  color: hsl(var(--quran-deep));
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 20px 34px -19px hsl(168 80% 2% / 0.8);
+}
+
+.landing-hero-secondary {
+  color: hsl(42 30% 94%);
+  border: 1px solid hsl(157 23% 78% / 0.34);
+  background: hsl(158 25% 80% / 0.045);
+  box-shadow: inset 0 1px 0 hsl(42 42% 100% / 0.035);
+}
+
+.landing-hero-secondary:hover {
+  color: white;
+  border-color: hsl(157 23% 78% / 0.52);
+  background: hsl(158 25% 80% / 0.09);
+  transform: translateY(-1px);
+}
+
+.landing-hero-primary:focus-visible,
+.landing-hero-secondary:focus-visible {
+  outline: 2px solid hsl(165 46% 68%);
+  outline-offset: 3px;
+}
+
+.landing-hero-benefits {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 1rem;
+  margin: 1.55rem 0 0;
+  padding: 0;
+  color: hsl(157 15% 73%);
+  font-size: 0.63rem;
+  font-weight: 600;
+  list-style: none;
+  animation: sanctuary-enter 840ms cubic-bezier(0.16, 1, 0.3, 1) 360ms both;
+}
+
+.landing-hero-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  white-space: nowrap;
+}
+
+.landing-hero-benefits svg {
+  width: 0.84rem;
+  height: 0.84rem;
+  color: hsl(164 39% 62%);
+  stroke-width: 1.7;
+}
+
+.landing-hero-preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.landing-preview-glow {
+  position: absolute;
+  z-index: -1;
+  width: 30rem;
+  height: 30rem;
+  border-radius: 50%;
+  background: hsl(163 48% 48% / 0.13);
+  filter: blur(72px);
+}
+
+.landing-hero-preview .hero-product-frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+}
+
+.landing-hero-preview .hero-product-frame::before {
+  display: none;
+}
+
+.landing-hero-preview .hero-product-card {
+  width: 100%;
+  max-width: 37rem;
+  margin-inline: auto;
+  border: 1px solid hsl(39 31% 77%);
+  border-radius: 1.4rem;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      hsl(var(--quran-gold) / 0.07),
+      transparent 25%
+    ),
+    linear-gradient(145deg, hsl(42 57% 99%), hsl(40 35% 95%));
+  box-shadow:
+    0 36px 70px -28px hsl(168 85% 3% / 0.78),
+    0 0 0 6px hsl(42 37% 91% / 0.96),
+    0 0 0 7px hsl(39 27% 74% / 0.55),
+    inset 0 1px 0 white;
+}
+
+.landing-hero-preview .hero-product-card::after {
+  inset: 0.45rem;
+  border-color: hsl(var(--quran-green) / 0.1);
+  border-radius: 1rem;
+}
+
+.landing-hero-preview .hero-product-header {
+  padding: 1.2rem 1.35rem 0.9rem;
+}
+
+.landing-hero-preview .hero-product-heading {
+  margin-top: 0.85rem;
+}
+
+.landing-hero-preview .hero-product-heading h2 {
+  font-size: 1.7rem;
+}
+
+.landing-hero-preview .hero-product-progress-value strong {
+  font-size: 1.8rem;
+}
+
+.landing-hero-preview .hero-product-legend {
+  padding-block: 0.65rem;
+}
+
+.landing-hero-preview .hero-product-grid {
+  gap: 0.52rem;
+  padding: 1rem 1.25rem 1.1rem;
+}
+
+.landing-hero-preview .hero-product-tile {
+  border-radius: 0.7rem;
+}
+
+.landing-hero-preview .hero-product-tile-number {
+  font-size: 1.45rem;
+}
+
+.landing-hero-preview .hero-product-footer {
+  min-height: 3.15rem;
+}
+
+.landing-light-canvas {
+  position: relative;
+  isolation: isolate;
+  min-height: 40rem;
+  padding: 0 1.5rem 7rem;
+  background:
+    radial-gradient(
+      circle at 2% 22%,
+      hsl(var(--quran-gold) / 0.055),
+      transparent 18rem
+    ),
+    radial-gradient(
+      circle at 98% 58%,
+      hsl(var(--quran-green) / 0.045),
+      transparent 22rem
+    ),
+    linear-gradient(180deg, hsl(42 36% 97%), hsl(42 31% 96%));
+}
+
+.landing-light-canvas::before,
+.landing-light-canvas::after {
+  position: absolute;
+  z-index: -1;
+  width: 26rem;
+  height: 26rem;
+  content: "";
+  pointer-events: none;
+  opacity: 0.15;
+  background:
+    repeating-conic-gradient(
+      from 22.5deg,
+      hsl(var(--quran-gold) / 0.7) 0deg 0.55deg,
+      transparent 0.55deg 22.5deg
+    );
+  mask-image: radial-gradient(circle, black, transparent 68%);
+}
+
+.landing-light-canvas::before {
+  top: 19rem;
+  left: -19rem;
+}
+
+.landing-light-canvas::after {
+  right: -19rem;
+  bottom: 16rem;
+  color: hsl(var(--quran-green));
+  opacity: 0.1;
+}
+
+.landing-dashboard-wrap,
+.landing-content {
+  width: min(100%, 76rem);
+  margin-inline: auto;
+}
+
+.landing-dashboard-wrap {
+  position: relative;
+  z-index: 2;
+}
+
+.landing-metrics {
+  position: relative;
+  z-index: 5;
+  width: min(calc(100% - 2rem), 70rem);
+  margin: -3.2rem auto 0;
+  overflow: hidden;
+  border: 1px solid hsl(var(--quran-border) / 0.7);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(100deg, hsl(var(--quran-green) / 0.035), transparent 24%),
+    hsl(42 55% 99% / 0.96);
+  box-shadow:
+    0 26px 54px -30px hsl(var(--quran-deep) / 0.38),
+    inset 0 1px 0 white;
+}
+
+.landing-metrics::before {
+  position: absolute;
+  inset: 0.35rem;
+  content: "";
+  pointer-events: none;
+  border: 1px solid hsl(var(--quran-gold) / 0.08);
+  border-radius: 0.9rem;
+}
+
+.landing-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  padding: 1.55rem 1.5rem;
+  list-style: none;
+}
+
+.landing-metrics-grid li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 3.4rem;
+  padding-inline: 1.5rem;
+}
+
+.landing-metrics-grid li + li {
+  border-left: 1px solid hsl(var(--quran-border) / 0.6);
+}
+
+.landing-metrics-grid svg {
+  width: 1.7rem;
+  height: 1.7rem;
+  flex: 0 0 auto;
+  color: hsl(var(--quran-green) / 0.82);
+  stroke-width: 1.35;
+}
+
+.landing-metrics-grid div {
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-metrics-grid strong {
+  color: hsl(var(--quran-deep));
+  font-family: var(--font-display), "Iowan Old Style", serif;
+  font-size: clamp(1.65rem, 2.5vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-metrics-grid span {
+  margin-top: 0.4rem;
+  color: hsl(var(--quran-muted));
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.landing-content {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-section h2,
+.landing-resource h2,
+.landing-final-cta h2 {
+  margin: 0;
+  color: hsl(var(--quran-deep));
+  font-family: var(--font-display), "Iowan Old Style", serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.landing-comparison {
+  padding-top: 8.5rem;
+}
+
+.landing-comparison-top {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: clamp(2.5rem, 5vw, 5rem);
+}
+
+.landing-comparison-intro {
+  max-width: 26rem;
+}
+
+.landing-comparison-intro h2 {
+  max-width: 13ch;
+  font-size: clamp(2.25rem, 3.3vw, 3.15rem);
+}
+
+.landing-comparison-intro > p:last-child {
+  max-width: 24rem;
+  margin: 1rem 0 0;
+  color: hsl(var(--quran-muted));
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.landing-comparison-cards {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.landing-comparison-card {
+  position: relative;
+  min-height: 18.5rem;
+  overflow: hidden;
+  padding: 1.7rem 1.55rem;
+  border: 1px solid hsl(var(--quran-border) / 0.72);
+  border-radius: 1.15rem;
+  box-shadow:
+    0 20px 44px -36px hsl(var(--quran-deep) / 0.35),
+    inset 0 1px 0 hsl(0 0% 100% / 0.9);
+}
+
+.landing-comparison-card.is-usual {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      hsl(var(--quran-gold) / 0.07),
+      transparent 33%
+    ),
+    linear-gradient(145deg, hsl(39 40% 98%), hsl(39 32% 95%));
+}
+
+.landing-comparison-card.is-qurancircle {
+  border-color: hsl(var(--quran-green) / 0.27);
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      hsl(var(--quran-light-green) / 0.1),
+      transparent 38%
+    ),
+    linear-gradient(145deg, hsl(157 34% 98%), hsl(158 29% 95%));
+}
+
+.landing-comparison-card h3 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: hsl(var(--quran-deep));
+  font-family: var(--font-display), "Iowan Old Style", serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+}
+
+.landing-comparison-card ul {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  color: hsl(var(--quran-muted));
+  font-size: 0.79rem;
+  line-height: 1.6;
+  list-style: none;
+}
+
+.landing-comparison-card li {
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  gap: 0.55rem;
+  align-items: start;
+}
+
+.comparison-point-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.13rem;
+  border-radius: 50%;
+}
+
+.comparison-point-icon svg {
+  width: 0.66rem;
+  height: 0.66rem;
+  stroke-width: 2.2;
+}
+
+.comparison-point-icon.is-negative {
+  color: hsl(33 47% 48%);
+  background: hsl(var(--quran-gold) / 0.1);
+}
+
+.comparison-point-icon.is-positive {
+  color: hsl(var(--quran-green));
+  background: hsl(var(--quran-green) / 0.1);
+}
+
+.comparison-card-art {
+  position: absolute;
+  top: -0.6rem;
+  right: -0.6rem;
+  width: 7rem;
+  height: 7rem;
+  color: hsl(var(--quran-gold));
+  opacity: 0.1;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+
+.comparison-card-art.is-mosque {
+  top: -0.2rem;
+  right: -1.5rem;
+  width: 10rem;
+  color: hsl(var(--quran-green));
+}
+
+.comparison-vs {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  color: hsl(var(--quran-deep));
+  border: 1px solid hsl(var(--quran-border) / 0.75);
+  border-radius: 50%;
+  background: hsl(var(--quran-card));
+  box-shadow: 0 12px 24px -17px hsl(var(--quran-deep) / 0.58);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  transform: translate(-50%, -50%);
+}
+
+.landing-comparison-foot {
+  max-width: 62rem;
+  margin: 2.25rem auto 0;
+  padding-top: 1.9rem;
+  border-top: 1px solid hsl(var(--quran-border) / 0.56);
+}
+
+.landing-comparison-foot p {
+  margin: 0;
+  color: hsl(var(--quran-muted));
+  font-size: 0.79rem;
+  line-height: 1.85;
+}
+
+.landing-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  color: hsl(var(--quran-green));
+  font-size: 0.73rem;
+  font-weight: 750;
+  text-underline-offset: 0.25rem;
+}
+
+.landing-text-link:hover {
+  text-decoration: underline;
+}
+
+.landing-text-link svg {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+.landing-text-link:focus-visible,
+.landing-resource-button:focus-visible,
+.landing-final-cta-button:focus-visible {
+  outline: 2px solid hsl(var(--quran-green) / 0.72);
+  outline-offset: 3px;
+}
+
+.landing-process {
+  position: relative;
+  margin-top: 7.5rem;
+  overflow: hidden;
+  padding: 2.7rem 3rem 3.2rem;
+  border: 1px solid hsl(var(--quran-border) / 0.66);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      hsl(var(--quran-light-green) / 0.075),
+      transparent 30%
+    ),
+    hsl(42 48% 98% / 0.88);
+  box-shadow:
+    0 26px 58px -45px hsl(var(--quran-deep) / 0.4),
+    inset 0 1px 0 white;
+}
+
+.landing-process::before {
+  position: absolute;
+  top: 0;
+  left: 2.75rem;
+  width: 7.5rem;
+  height: 2px;
+  content: "";
+  background: linear-gradient(90deg, hsl(var(--quran-green)), transparent);
+}
+
+.landing-process-rosette {
+  position: absolute;
+  top: -8.5rem;
+  right: -6rem;
+  width: 21rem;
+  height: 21rem;
+  color: hsl(var(--quran-green));
+  opacity: 0.065;
+  stroke: currentColor;
+  stroke-width: 0.8;
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.landing-process-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: 1.8rem;
+  border-bottom: 1px solid hsl(var(--quran-border) / 0.58);
+}
+
+.landing-process-header h2 {
+  font-size: clamp(2.2rem, 3vw, 2.8rem);
+}
+
+.landing-process-header > p {
+  max-width: 28rem;
+  margin: 0 0 0.25rem;
+  color: hsl(var(--quran-muted));
+  font-size: 0.83rem;
+  line-height: 1.7;
+}
+
+.landing-process-steps {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.2rem;
+  margin: 0;
+  padding: 2.45rem 0 0;
+  list-style: none;
+}
+
+.landing-process-steps > li {
+  position: relative;
+  text-align: center;
+}
+
+.process-step-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 5.7rem;
+}
+
+.process-step-number {
+  position: absolute;
+  top: 0.4rem;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 1.55rem;
+  color: hsl(var(--quran-green));
+  border: 1px solid hsl(var(--quran-green) / 0.14);
+  border-radius: 999px;
+  background: hsl(var(--quran-green) / 0.045);
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.process-step-connector {
+  position: absolute;
+  top: 2.75rem;
+  left: calc(50% + 3.1rem);
+  width: calc(100% - 2.8rem);
+  border-top: 1px dashed hsl(var(--quran-green) / 0.22);
+}
+
+.landing-process-steps > li:last-child .process-step-connector {
+  display: none;
+}
+
+.process-step-medallion {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.25rem;
+  height: 5.25rem;
+  color: hsl(var(--quran-green));
+  border: 1px solid hsl(var(--quran-green) / 0.17);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      white,
+      hsl(42 32% 96%) 68%
+    );
+  box-shadow:
+    0 15px 30px -23px hsl(var(--quran-deep) / 0.42),
+    0 0 0 0.45rem hsl(var(--quran-green) / 0.025),
+    inset 0 1px 0 white;
+}
+
+.process-step-medallion::after {
+  position: absolute;
+  bottom: -0.4rem;
+  width: 0.72rem;
+  height: 0.72rem;
+  content: "";
+  border-right: 1px solid hsl(var(--quran-green) / 0.16);
+  border-bottom: 1px solid hsl(var(--quran-green) / 0.16);
+  background: hsl(42 36% 96%);
+  transform: rotate(45deg);
+}
+
+.process-step-medallion svg {
+  width: 1.65rem;
+  height: 1.65rem;
+  stroke-width: 1.4;
+}
+
+.landing-process-steps h3 {
+  margin: 1rem 0 0;
+  color: hsl(var(--quran-deep));
+  font-family: var(--font-display), "Iowan Old Style", serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+}
+
+.landing-process-steps p {
+  max-width: 16rem;
+  margin: 0.65rem auto 0;
+  color: hsl(var(--quran-muted));
+  font-size: 0.75rem;
+  line-height: 1.65;
+}
+
+.landing-verse {
+  position: relative;
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr) 10rem;
+  align-items: center;
+  min-height: 11.5rem;
+  margin-top: 2.5rem;
+  overflow: hidden;
+  padding: 0.8rem 2.25rem 0.8rem 1.25rem;
+  border: 1px solid hsl(var(--quran-border) / 0.62);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(
+      circle at 15% 40%,
+      hsl(var(--quran-gold) / 0.08),
+      transparent 26%
+    ),
+    linear-gradient(110deg, hsl(42 48% 99%), hsl(157 21% 97%));
+  box-shadow:
+    0 24px 48px -42px hsl(var(--quran-deep) / 0.38),
+    inset 0 1px 0 white;
+}
+
+.landing-verse-illustration {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-verse-illustration img {
+  width: 10rem;
+  height: 10rem;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 14px hsl(39 39% 30% / 0.12));
+}
+
+.landing-verse blockquote {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding-left: 2.7rem;
+}
+
+.landing-quote-mark {
+  position: absolute;
+  top: -0.45rem;
+  left: 0;
+  color: hsl(var(--quran-green));
+  font-family: Georgia, serif;
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.landing-verse blockquote p {
+  max-width: 38rem;
+  margin: 0;
+  color: hsl(var(--quran-deep));
+  font-family: var(--font-display), "Iowan Old Style", serif;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.landing-verse cite {
+  display: block;
+  margin-top: 1rem;
+  color: hsl(var(--quran-gold));
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.landing-verse-rosette {
+  position: absolute;
+  right: -5rem;
+  width: 15rem;
+  height: 15rem;
+  color: hsl(var(--quran-green));
+  opacity: 0.1;
+  stroke: currentColor;
+  stroke-width: 0.8;
+  transform: rotate(13deg);
+}
+
+.landing-resource {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 14rem;
+  align-items: center;
+  gap: 2rem;
+  min-height: 10.3rem;
+  margin-top: 2rem;
+  overflow: hidden;
+  padding: 1.7rem 2rem;
+  border: 1px solid hsl(var(--quran-border) / 0.62);
+  border-radius: 1.2rem;
+  background:
+    linear-gradient(90deg, hsl(var(--quran-gold) / 0.035), transparent 34%),
+    hsl(42 47% 98% / 0.92);
+  box-shadow:
+    0 20px 44px -40px hsl(var(--quran-deep) / 0.35),
+    inset 0 1px 0 white;
+}
+
+.landing-resource-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 34rem;
+}
+
+.landing-resource h2 {
+  font-size: clamp(1.85rem, 2.5vw, 2.4rem);
+}
+
+.landing-resource-copy > p:last-child {
+  margin: 0.65rem 0 0;
+  color: hsl(var(--quran-muted));
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+
+.landing-resource-button {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.8rem;
+  padding: 0.65rem 1rem;
+  color: hsl(var(--quran-deep));
+  border: 1px solid hsl(var(--quran-border) / 0.72);
+  border-radius: 999px;
+  background: hsl(42 48% 99% / 0.9);
+  box-shadow: 0 12px 22px -18px hsl(var(--quran-deep) / 0.45);
+  font-size: 0.67rem;
+  font-weight: 750;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.landing-resource-button:hover {
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 26px -18px hsl(var(--quran-deep) / 0.5);
+}
+
+.landing-resource-button svg {
+  width: 0.92rem;
+  height: 0.92rem;
+  color: hsl(var(--quran-green));
+}
+
+.landing-resource-button svg:last-child {
+  width: 0.72rem;
+  height: 0.72rem;
+}
+
+.landing-resource-quran {
+  position: absolute;
+  z-index: 1;
+  right: -0.5rem;
+  bottom: -1.8rem;
+  width: 15rem;
+  height: 10rem;
+  opacity: 0.9;
+  filter: drop-shadow(0 14px 14px hsl(var(--quran-deep) / 0.1));
+  transform: rotate(-4deg);
+}
+
+.landing-final-cta {
+  position: relative;
+  isolation: isolate;
+  min-height: 20rem;
+  margin-top: 2.75rem;
+  overflow: hidden;
+  padding: 4rem 2rem;
+  color: hsl(42 42% 97%);
+  border: 1px solid hsl(var(--quran-gold) / 0.62);
+  border-radius: 1.55rem;
+  background:
+    radial-gradient(
+      circle at 50% 26%,
+      hsl(163 44% 42% / 0.17),
+      transparent 40%
+    ),
+    linear-gradient(140deg, hsl(168 66% 16%), hsl(168 73% 10%));
+  box-shadow:
+    0 36px 60px -30px hsl(var(--quran-deep) / 0.65),
+    inset 0 1px 0 hsl(42 42% 100% / 0.08);
+}
+
+.landing-final-cta::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0.28;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='96' height='96' viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23d0b16a' stroke-width='.55' opacity='.36'%3E%3Crect x='28' y='28' width='40' height='40'/%3E%3Crect x='28' y='28' width='40' height='40' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='18'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 96px 96px;
+  mask-image: radial-gradient(ellipse at center, black, transparent 76%);
+}
+
+.landing-final-cta::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0.55rem;
+  content: "";
+  pointer-events: none;
+  border: 1px solid hsl(var(--quran-gold) / 0.3);
+  border-radius: 1.15rem;
+}
+
+.landing-final-cta-copy {
+  position: relative;
+  z-index: 3;
+  width: min(100%, 38rem);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.landing-cta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 1.1rem;
+  padding: 0.4rem 0.8rem;
+  color: hsl(41 38% 79%);
+  border: 1px solid hsl(var(--quran-gold) / 0.32);
+  border-radius: 999px;
+  background: hsl(42 44% 98% / 0.045);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.landing-cta-badge svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.landing-final-cta h2 {
+  color: hsl(42 42% 97%);
+  font-size: clamp(2.65rem, 4.4vw, 4rem);
+  text-shadow: 0 14px 32px hsl(168 80% 4% / 0.34);
+}
+
+.landing-final-cta-copy > p:nth-of-type(2) {
+  max-width: 29rem;
+  margin: 1rem auto 0;
+  color: hsl(157 16% 77%);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.landing-final-cta-button {
+  min-height: 3.15rem;
+  margin-top: 1.8rem;
+  padding-inline: 1.6rem;
+  color: hsl(var(--quran-deep));
+  border: 1px solid white;
+  border-radius: 999px;
+  background: hsl(42 50% 99%);
+  box-shadow: 0 17px 28px -19px hsl(168 80% 3% / 0.7);
+  font-size: 0.73rem;
+  font-weight: 800;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.landing-final-cta-button:hover {
+  color: hsl(var(--quran-deep));
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 22px 34px -18px hsl(168 80% 3% / 0.8);
+}
+
+.landing-final-cta-button svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.landing-cta-mosque {
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  left: -1rem;
+  width: 24rem;
+  height: 11rem;
+  color: hsl(var(--quran-gold));
+  opacity: 0.46;
+  stroke: currentColor;
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.landing-cta-rosette {
+  position: absolute;
+  z-index: 2;
+  right: -7rem;
+  bottom: -6rem;
+  width: 25rem;
+  height: 25rem;
+  color: hsl(163 43% 63%);
+  opacity: 0.15;
+  stroke: currentColor;
+  stroke-width: 0.75;
+  transform: rotate(15deg);
+  pointer-events: none;
+}
+
+@media (max-width: 1180px) {
+  .landing-hero-inner {
+    grid-template-columns: minmax(0, 0.86fr) minmax(30rem, 1.14fr);
+    gap: 2.8rem;
+    padding-inline: 2rem;
+  }
+
+  .landing-hero-benefits {
+    grid-template-columns: repeat(2, max-content);
+  }
+
+  .landing-hero-preview .hero-product-card {
+    max-width: 34rem;
+  }
+
+  .landing-comparison-top {
+    gap: 2.5rem;
+  }
+
+  .landing-resource {
+    grid-template-columns: minmax(0, 1fr) auto 11rem;
+  }
+
+  .landing-resource-quran {
+    right: -2rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .landing-hero,
+  .landing-hero-inner {
+    min-height: auto;
+  }
+
+  .landing-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+    padding-top: 4.5rem;
+    padding-bottom: 7.5rem;
+  }
+
+  .landing-hero-copy {
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+
+  .landing-hero-title {
+    font-size: 4.45rem;
+  }
+
+  .landing-hero-description {
+    max-width: 37rem;
+  }
+
+  .landing-hero-benefits {
+    grid-template-columns: repeat(4, max-content);
+  }
+
+  .landing-hero-preview {
+    max-width: 46rem;
+    margin-inline: auto;
+  }
+
+  .landing-hero-preview .hero-product-card {
+    max-width: 40rem;
+  }
+
+  .landing-comparison-top {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-comparison-intro {
+    max-width: 40rem;
+  }
+
+  .landing-comparison-intro h2 {
+    max-width: 18ch;
+  }
+
+  .landing-verse {
+    grid-template-columns: 9rem minmax(0, 1fr) 5rem;
+    padding-left: 0.75rem;
+  }
+
+  .landing-verse-illustration img {
+    width: 8.5rem;
+    height: 8.5rem;
+  }
+
+  .landing-resource {
+    grid-template-columns: minmax(0, 1fr) auto 8rem;
+    padding-right: 2rem;
+  }
+
+  .landing-resource-copy {
+    max-width: 29rem;
+  }
+
+  .landing-resource-quran {
+    display: block;
+    right: -2.4rem;
+    width: 11.5rem;
+    height: 8rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .landing-hero-inner {
+    gap: 2.8rem;
+    padding: 3.4rem 1.1rem 6.5rem;
+  }
+
+  .landing-hero-copy {
+    padding-inline: 0.35rem;
+  }
+
+  .landing-bismillah {
+    margin-bottom: 1.15rem;
+    font-size: 1.45rem;
+  }
+
+  .landing-eyebrow-dark {
+    max-width: 100%;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+  }
+
+  .landing-hero-title {
+    font-size: clamp(3.25rem, 15vw, 4rem);
+    line-height: 0.92;
+  }
+
+  .landing-hero-description {
+    margin-top: 1.35rem;
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+
+  .landing-hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    margin-top: 1.45rem;
+  }
+
+  .landing-hero-primary,
+  .landing-hero-secondary {
+    width: 100%;
+  }
+
+  .landing-hero-benefits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 0.9rem;
+    width: 100%;
+    font-size: 0.59rem;
+  }
+
+  .landing-hero-benefits li {
+    white-space: normal;
+  }
+
+  .landing-hero-preview .hero-product-card {
+    max-width: calc(100vw - 2.35rem);
+    border-radius: 1.1rem;
+    box-shadow:
+      0 30px 56px -30px hsl(168 85% 3% / 0.75),
+      0 0 0 4px hsl(42 37% 91% / 0.96),
+      0 0 0 5px hsl(39 27% 74% / 0.5);
+  }
+
+  .landing-hero-preview .hero-product-header {
+    padding: 0.95rem 0.9rem 0.75rem;
+  }
+
+  .landing-hero-preview .hero-product-badge {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.52rem;
+  }
+
+  .landing-hero-preview .hero-product-heading h2,
+  .landing-hero-preview .hero-product-progress-value strong {
+    font-size: 1.35rem;
+  }
+
+  .landing-hero-preview .hero-product-progress-value span {
+    display: none;
+  }
+
+  .landing-hero-preview .hero-product-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.36rem;
+    padding: 0.72rem;
+  }
+
+  .landing-hero-preview .hero-product-tile {
+    border-radius: 0.55rem;
+  }
+
+  .landing-hero-preview .hero-product-tile-number {
+    font-size: 1.1rem;
+  }
+
+  .landing-hero-preview .hero-product-tile-state,
+  .landing-hero-preview .hero-product-tile-action {
+    font-size: 0.43rem;
+  }
+
+  .landing-hero-preview .hero-product-legend {
+    gap: 0.8rem;
+    padding: 0.55rem 0.45rem;
+    font-size: 0.49rem;
+  }
+
+  .landing-hero-preview .hero-product-footer {
+    gap: 0.75rem;
+    min-height: 2.7rem;
+    padding-inline: 0.6rem;
+    font-size: 0.46rem;
+  }
+
+  .landing-light-canvas {
+    padding-inline: 0.9rem;
+    padding-bottom: 6.5rem;
+  }
+
+  .landing-metrics {
+    width: calc(100% - 0.5rem);
+    margin-top: -2.35rem;
+  }
+
+  .landing-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0.75rem;
+  }
+
+  .landing-metrics-grid li {
+    justify-content: flex-start;
+    gap: 0.65rem;
+    min-height: 5rem;
+    padding: 0.8rem;
+  }
+
+  .landing-metrics-grid li + li {
+    border-left: 0;
+  }
+
+  .landing-metrics-grid li:nth-child(2) {
+    border-left: 1px solid hsl(var(--quran-border) / 0.55);
+  }
+
+  .landing-metrics-grid li:last-child {
+    grid-column: 1 / -1;
+    justify-content: center;
+    border-top: 1px solid hsl(var(--quran-border) / 0.55);
+  }
+
+  .landing-metrics-grid svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .landing-metrics-grid strong {
+    font-size: 1.55rem;
+  }
+
+  .landing-metrics-grid span {
+    font-size: 0.51rem;
+    letter-spacing: 0.1em;
+  }
+
+  .landing-comparison {
+    padding-top: 6.5rem;
+  }
+
+  .landing-comparison-intro h2 {
+    font-size: 2.35rem;
+  }
+
+  .landing-comparison-cards {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .landing-comparison-card {
+    min-height: 0;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .comparison-vs {
+    position: relative;
+    top: auto;
+    left: auto;
+    justify-self: center;
+    margin-block: -0.45rem;
+    transform: none;
+  }
+
+  .landing-comparison-foot {
+    margin-top: 1.9rem;
+  }
+
+  .landing-process {
+    margin-top: 5.5rem;
+    padding: 2.2rem 1.25rem 2.5rem;
+  }
+
+  .landing-process::before {
+    left: 1.25rem;
+  }
+
+  .landing-process-header {
+    display: block;
+  }
+
+  .landing-process-header h2 {
+    font-size: 2.35rem;
+  }
+
+  .landing-process-header > p {
+    margin-top: 0.8rem;
+  }
+
+  .landing-process-steps {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-top: 0.6rem;
+  }
+
+  .landing-process-steps > li {
+    display: grid;
+    grid-template-columns: 4.35rem 1fr;
+    column-gap: 1rem;
+    align-items: center;
+    padding-block: 1.1rem;
+    text-align: left;
+  }
+
+  .landing-process-steps > li + li {
+    border-top: 1px solid hsl(var(--quran-border) / 0.5);
+  }
+
+  .process-step-top {
+    grid-row: 1 / 3;
+    grid-column: 1;
+    min-height: 4.35rem;
+  }
+
+  .process-step-number {
+    top: -0.3rem;
+    left: -0.2rem;
+    width: 1.75rem;
+    height: 1.25rem;
+    font-size: 0.48rem;
+  }
+
+  .process-step-connector {
+    display: none;
+  }
+
+  .process-step-medallion {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .process-step-medallion svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .landing-process-steps h3 {
+    grid-column: 2;
+    margin-top: 0;
+    font-size: 1.3rem;
+  }
+
+  .landing-process-steps p {
+    grid-column: 2;
+    max-width: none;
+    margin: 0.35rem 0 0;
+    font-size: 0.7rem;
+  }
+
+  .landing-verse {
+    grid-template-columns: 1fr;
+    padding: 1.15rem 1.25rem 1.75rem;
+    text-align: center;
+  }
+
+  .landing-verse-illustration img {
+    width: 8.8rem;
+    height: 8.8rem;
+  }
+
+  .landing-verse blockquote {
+    padding-left: 0;
+  }
+
+  .landing-quote-mark {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: block;
+    height: 2.4rem;
+    font-size: 3.5rem;
+  }
+
+  .landing-verse blockquote p {
+    font-size: 1.25rem;
+  }
+
+  .landing-verse-rosette {
+    right: -7rem;
+    bottom: -6rem;
+  }
+
+  .landing-resource {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    min-height: 0;
+    padding: 1.6rem 1.25rem 1.4rem;
+  }
+
+  .landing-resource-button {
+    width: fit-content;
+  }
+
+  .landing-resource-quran {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    display: block;
+    justify-self: end;
+    width: 12rem;
+    height: 8rem;
+    margin: -1.5rem -0.4rem -1.1rem 0;
+  }
+
+  .landing-final-cta {
+    min-height: 24rem;
+    padding: 4.5rem 1.35rem 6.5rem;
+  }
+
+  .landing-final-cta h2 {
+    font-size: 2.75rem;
+  }
+
+  .landing-cta-mosque {
+    left: -6rem;
+    width: 22rem;
+    opacity: 0.4;
+  }
+
+  .landing-cta-rosette {
+    right: -12rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .landing-hero-inner {
+    padding-inline: 0.8rem;
+  }
+
+  .landing-hero-title {
+    font-size: 3.15rem;
+  }
+
+  .landing-hero-benefits {
+    gap: 0.65rem;
+  }
+
+  .landing-hero-preview .hero-product-card {
+    max-width: calc(100vw - 1.8rem);
+  }
+
+  .landing-light-canvas {
+    padding-inline: 0.65rem;
+  }
+
+  .landing-metrics-grid li {
+    padding-inline: 0.55rem;
   }
 }

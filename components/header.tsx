@@ -27,6 +27,7 @@ import { useTranslations, useLocale } from "next-intl";
 
 export default function Header() {
   const pathname = usePathname();
+  const isHomePage = pathname === "/";
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("Header");
@@ -44,17 +45,39 @@ export default function Header() {
     "User";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-quran-border/65 bg-quran-bg/92 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+    <header
+      className={
+        isHomePage
+          ? "sticky top-0 z-50 border-b border-white/[0.09] bg-[hsl(168_69%_10%/0.97)] backdrop-blur-xl"
+          : "sticky top-0 z-50 border-b border-quran-border/65 bg-quran-bg/92 backdrop-blur-xl"
+      }
+    >
+      <div className="mx-auto flex w-full max-w-[80rem] items-center gap-3 px-5 py-3 sm:px-8 lg:px-10">
         <Link href="/" className="group inline-flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-quran-border bg-white/70 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]">
+          <span
+            className={
+              isHomePage
+                ? "flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.55)] bg-[hsl(150_30%_96%/0.045)] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.08)] transition-transform duration-200 group-hover:scale-[1.03]"
+                : "flex h-10 w-10 items-center justify-center rounded-xl border border-quran-border bg-white/70 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]"
+            }
+          >
             <Image src="/quran-icon.png" alt="Quran Icon" width={23} height={23} />
           </span>
           <span className="leading-none">
-            <span className="block font-heading text-2xl text-quran-green">
+            <span
+              className={`block font-heading text-2xl ${
+                isHomePage ? "text-[hsl(150_30%_96%)]" : "text-quran-green"
+              }`}
+            >
               QuranCircle
             </span>
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-quran-muted">
+            <span
+              className={`block text-[10px] font-semibold uppercase tracking-[0.24em] ${
+                isHomePage
+                  ? "text-[hsl(var(--quran-gold)/0.82)]"
+                  : "text-quran-muted"
+              }`}
+            >
               {t("readTogether")}
             </span>
           </span>
@@ -68,7 +91,9 @@ export default function Header() {
             ml-4 hidden rounded-full border md:inline-flex
             ${pathname === "/my-circles"
               ? "border-quran-green/35 bg-quran-green/10 text-quran-green"
-              : "border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70"}
+              : isHomePage
+                ? "border-transparent text-[hsl(158_18%_76%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white"
+                : "border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70"}
           `}
         >
           <Link href="/my-circles">
@@ -83,7 +108,11 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="hidden rounded-full border border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70 md:flex"
+                className={
+                  isHomePage
+                    ? "hidden rounded-full border border-transparent text-[hsl(158_18%_82%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white md:flex"
+                    : "hidden rounded-full border border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70 md:flex"
+                }
               >
                 <Globe2 className="mr-1 h-4 w-4" />
                 <span className="text-sm">{locale === "tr" ? t("turkish") : t("english")}</span>
@@ -126,7 +155,11 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="hidden rounded-full border border-quran-border/80 bg-white/70 px-3 text-quran-deep hover:bg-white md:flex"
+                  className={
+                    isHomePage
+                      ? "hidden rounded-full border border-white/12 bg-white/[0.06] px-3 text-[hsl(150_30%_94%)] hover:bg-white/[0.1] hover:text-white md:flex"
+                      : "hidden rounded-full border border-quran-border/80 bg-white/70 px-3 text-quran-deep hover:bg-white md:flex"
+                  }
                 >
                   <UserCircle className="mr-2 h-4 w-4 text-quran-green" />
                   <span className="text-sm">{t("salam")}, {displayName}</span>
@@ -164,7 +197,11 @@ export default function Header() {
             <Button
               variant="default"
               size="sm"
-              className="hidden rounded-full px-5 text-primary-foreground shadow-[0_12px_24px_-16px_var(--color-quran-deep)] md:flex"
+              className={
+                isHomePage
+                  ? "hidden rounded-full border border-white/20 bg-white/[0.055] px-5 text-[hsl(150_30%_96%)] shadow-none hover:bg-white/[0.11] md:flex"
+                  : "hidden rounded-full px-5 text-primary-foreground shadow-[0_12px_24px_-16px_var(--color-quran-deep)] md:flex"
+              }
               onClick={() => openAuthModal("login")}
             >
               {t("signIn")}
