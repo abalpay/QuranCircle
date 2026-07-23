@@ -14,6 +14,7 @@ type ShareNavigator = {
 export type ShareCircleInviteOptions = {
   navigatorRef?: ShareNavigator | null;
   title?: string;
+  onShareSuccess?: () => void;
   onCopySuccess?: () => void;
   onCopyError?: () => void;
 };
@@ -49,6 +50,7 @@ export async function shareCircleInvite(
         text,
         url: input.url,
       });
+      options.onShareSuccess?.();
     } catch {
       // User cancellation is expected in native share sheets.
     }

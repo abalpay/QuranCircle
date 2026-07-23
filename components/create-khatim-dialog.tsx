@@ -21,15 +21,18 @@ import { useRouter } from "next/navigation";
 import { Loader2, CirclePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { trackProductEvent } from "@/lib/analytics";
 
 type CreateKhatimDialogProps = {
   isOpen: boolean;
   onClose: () => void;
+  source?: string;
 };
 
 export default function CreateKhatimDialog({
   isOpen,
   onClose,
+  source = "unknown",
 }: CreateKhatimDialogProps) {
   const t = useTranslations("CreateKhatim");
   const [name, setName] = useState("");
@@ -72,6 +75,10 @@ export default function CreateKhatimDialog({
       return;
     }
 
+    trackProductEvent("Circle Created", {
+      visibility: isPublic ? "public" : "link_only",
+      source,
+    });
     toast.success(t("circleCreated"));
     resetForm();
     onClose();

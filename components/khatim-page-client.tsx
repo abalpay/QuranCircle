@@ -31,6 +31,7 @@ import { useTranslations } from "next-intl";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { cn } from "@/lib/utils";
 import { shareCircleInvite } from "@/lib/share-invite";
+import { trackProductEvent } from "@/lib/analytics";
 import {
   type GlobalFilter,
   getDisplayFilter,
@@ -756,7 +757,15 @@ export default function KhatimPageClient({
       },
       {
         title: event.name,
+        onShareSuccess: () => {
+          trackProductEvent("Circle Invite Shared", {
+            visibility: event.is_public ? "public" : "link_only",
+          });
+        },
         onCopySuccess: () => {
+          trackProductEvent("Circle Invite Copied", {
+            visibility: event.is_public ? "public" : "link_only",
+          });
           toast.success(tPage("inviteCopied"));
         },
         onCopyError: () => {

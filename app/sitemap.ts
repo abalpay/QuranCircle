@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/site-url";
 
-const FALLBACK_STATIC_LASTMOD = "2026-02-23T00:00:00.000Z";
+const FALLBACK_STATIC_LASTMOD = "2026-07-23T00:00:00.000Z";
 
 function getStaticLastModified() {
   const value =

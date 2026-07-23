@@ -52,6 +52,7 @@ describe("shareCircleInvite", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     const onCopySuccess = vi.fn();
     const onCopyError = vi.fn();
+    const onShareSuccess = vi.fn();
 
     await shareCircleInvite(input, {
       title: input.name,
@@ -59,6 +60,7 @@ describe("shareCircleInvite", () => {
         share,
         clipboard: { writeText },
       },
+      onShareSuccess,
       onCopySuccess,
       onCopyError,
     });
@@ -70,6 +72,7 @@ describe("shareCircleInvite", () => {
       url: input.url,
     });
     expect(writeText).not.toHaveBeenCalled();
+    expect(onShareSuccess).toHaveBeenCalledTimes(1);
     expect(onCopySuccess).not.toHaveBeenCalled();
     expect(onCopyError).not.toHaveBeenCalled();
   });

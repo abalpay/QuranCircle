@@ -31,6 +31,7 @@ import {
   createPasswordSchema,
   PASSWORD_REQUIREMENTS_DESCRIPTION,
 } from "@/lib/auth/password-policy";
+import { trackProductEvent } from "@/lib/analytics";
 
 const MERGE_PREPARATION_BLOCK_MESSAGE =
   "Could not secure claim transfer, retry required.";
@@ -73,6 +74,7 @@ const GoogleSignInButton = () => {
   const { signInWithGoogle } = useAuth();
 
   const handleGoogleSignIn = async () => {
+    trackProductEvent("Auth Started", { action: "google", source: "auth_modal" });
     const { error } = await signInWithGoogle();
     if (error) {
       if (isMergePreparationError(error)) {
@@ -178,6 +180,7 @@ export default function AuthModal({
         });
         return;
       }
+      trackProductEvent("Auth Completed", { method: "password_login" });
       toast.success("Login successful");
       closeAndReset();
       onSuccess?.();
@@ -204,6 +207,7 @@ export default function AuthModal({
         });
         return;
       }
+      trackProductEvent("Auth Completed", { method: "password_register" });
       toast.success("Account created successfully");
       closeAndReset();
       onSuccess?.();
