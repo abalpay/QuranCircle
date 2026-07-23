@@ -12,6 +12,7 @@ import {
 import UserDashboard from "@/components/home-content";
 import FeaturedCircles from "@/components/featured-circles";
 import HeroActions from "@/components/hero-actions";
+import HeroProductPreview from "@/components/hero-product-preview";
 import HomeInstallPrompt from "@/components/home-install-prompt";
 import { getCommunityStats } from "@/lib/actions/stats";
 import { getPublicEvents } from "@/lib/actions/events";
@@ -103,7 +104,7 @@ export default async function HomePage() {
   ];
 
   return (
-    <main className="page-shell grow">
+    <main className="page-shell home-page-shell grow">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -111,46 +112,53 @@ export default async function HomePage() {
         }}
       />
       {/* ── Hero Section ── */}
-      <section className="hero-pattern relative flex flex-col items-center justify-center py-20 text-center sm:py-28 lg:py-36">
+      <section className="hero-sanctuary">
         <HomeInstallPrompt />
 
-        <p className="bismillah-decoration mb-6">
-          بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
-        </p>
+        <div className="hero-sanctuary-grid">
+          <div className="hero-sanctuary-copy">
+            <p className="hero-sanctuary-bismillah">
+              بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
+            </p>
 
-        <span className="quran-badge mb-5">{tMarketing("eyebrow")}</span>
+            <span className="hero-sanctuary-eyebrow">
+              {tMarketing("eyebrow")}
+            </span>
 
-        <h1 className="font-heading max-w-4xl text-4xl leading-[1.1] text-quran-deep sm:text-5xl md:text-6xl lg:text-7xl">
-          Complete the Quran
-          <br />
-          <span className="hero-gradient-text">together.</span>
-        </h1>
+            <h1 className="hero-sanctuary-title">
+              Complete the Qur&apos;an,
+              <span>together.</span>
+            </h1>
 
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-quran-muted sm:text-lg md:text-xl">
-          QuranCircle helps families, masjids, and groups coordinate meaningful
-          recitation. Create a circle, let people claim their portion, and
-          finish your collective Khatm with clarity.
-        </p>
+            <p className="hero-sanctuary-description">
+              QuranCircle helps families, masjids, and groups coordinate
+              meaningful recitation. Create a circle, let people claim their
+              portion, and finish your collective Khatm with clarity.
+            </p>
 
-        <div className="w-full max-w-md px-2 sm:w-auto sm:max-w-none sm:px-0">
-          <HeroActions />
+            <div className="w-full max-w-md sm:max-w-none">
+              <HeroActions theme="dark" />
+            </div>
+
+            <ul className="hero-sanctuary-trust">
+              {[
+                tMarketing("trustLink"),
+                tMarketing("trustJuz"),
+                tMarketing("trustProgress"),
+                tMarketing("trustAccess"),
+              ].map((item) => (
+                <li key={item}>
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="hero-sanctuary-art">
+            <HeroProductPreview />
+          </div>
         </div>
-
-        <ul className="mt-6 flex max-w-3xl flex-wrap justify-center gap-x-5 gap-y-2 text-xs font-medium text-quran-muted sm:text-sm">
-          {[
-            tMarketing("trustLink"),
-            tMarketing("trustJuz"),
-            tMarketing("trustProgress"),
-            tMarketing("trustAccess"),
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-quran-green" />
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        <div className="hero-divider" />
       </section>
 
       {/* ── Community Stats Bar ── */}
@@ -176,7 +184,7 @@ export default async function HomePage() {
 
       {/* ── Category Positioning ── */}
       <section
-        className="section-panel mt-24"
+        className="section-panel landing-panel landing-panel-comparison mt-24"
         aria-labelledby="group-khatm-title"
       >
         <div className="max-w-3xl">
@@ -195,7 +203,7 @@ export default async function HomePage() {
         </div>
 
         <div className="relative mt-8 grid gap-5 md:grid-cols-2">
-          <div className="rounded-3xl border border-quran-border/70 bg-white/45 p-5 sm:p-6">
+          <div className="comparison-card comparison-card-muted p-5 sm:p-6">
             <h3 className="font-heading text-2xl text-quran-deep">
               {tMarketing("oldWayTitle")}
             </h3>
@@ -208,7 +216,7 @@ export default async function HomePage() {
               ))}
             </ul>
           </div>
-          <div className="quran-card-primary p-5 sm:p-6">
+          <div className="comparison-card comparison-card-primary p-5 sm:p-6">
             <h3 className="font-heading text-2xl text-quran-deep">
               {tMarketing("quranCircleWayTitle")}
             </h3>
@@ -253,72 +261,51 @@ export default async function HomePage() {
         </Button>
       </section>
 
-      {/* ── How It Works — Vertical Timeline ── */}
-      <section className="section-panel mt-24">
-        <div className="mb-10 text-center">
-          <h2 className="font-heading text-3xl text-quran-deep sm:text-4xl">
-            How It Works
-          </h2>
-          <p className="mt-3 text-quran-muted">
+      {/* ── How It Works — Editorial Process Ledger ── */}
+      <section className="section-panel landing-panel landing-panel-steps mt-24">
+        <div className="process-heading">
+          <div>
+            <p className="process-kicker">A clear path</p>
+            <h2 className="font-heading text-3xl text-quran-deep sm:text-4xl">
+              How It Works
+            </h2>
+          </div>
+          <p className="max-w-lg text-quran-muted">
             Simple, focused, and designed for spiritual collaboration.
           </p>
         </div>
 
-        {/* Mobile: vertical timeline / Desktop: 3-column grid */}
-        <div className="flex flex-col gap-10 md:hidden">
+        <div className="process-ledger">
           {steps.map((step, index) => (
-            <div
+            <article
               key={step.title}
-              className="how-it-works-step animate-fade-rise"
+              className="process-row animate-fade-rise"
               style={{
-                animationDelay: `${index * 100 + 400}ms`,
+                animationDelay: `${index * 110 + 240}ms`,
                 animationFillMode: "both",
               }}
             >
-              {/* Connector line (not on last item) */}
-              {index < steps.length - 1 && <div className="step-connector" />}
-
-              <div className="step-number-circle">{index + 1}</div>
-
-              <div className="flex-1 pb-2">
-                <h3 className="font-heading text-xl text-quran-deep">
+              <span aria-hidden className="process-number">
+                0{index + 1}
+              </span>
+              <div className="process-icon">
+                <step.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-heading text-2xl text-quran-deep">
                   {step.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-quran-muted">
-                  {step.description}
-                </p>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop: card grid */}
-        <div className="hidden gap-6 md:grid md:grid-cols-3">
-          {steps.map((step, index) => (
-            <div
-              key={step.title}
-              className="quran-card animate-fade-rise p-6 sm:p-8"
-              style={{
-                animationDelay: `${index * 100 + 400}ms`,
-                animationFillMode: "both",
-              }}
-            >
-              <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-quran-green/10 text-quran-green">
-                <step.icon className="h-6 w-6" />
-              </div>
-              <h3 className="font-heading text-2xl text-quran-deep">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-base leading-relaxed text-quran-muted">
+              <p className="text-base leading-relaxed text-quran-muted">
                 {step.description}
               </p>
-            </div>
+            </article>
           ))}
         </div>
       </section>
 
       {/* ── Organizer Guide ── */}
-      <section className="section-panel mt-12">
+      <section className="section-panel landing-panel landing-panel-resource mt-12">
         <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <span className="quran-badge mb-4">
