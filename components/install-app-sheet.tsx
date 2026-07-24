@@ -92,7 +92,7 @@ export default function InstallAppSheet({
         <button
           type="button"
           onClick={handleDismiss}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
+          className="absolute right-2 top-2 inline-flex size-11 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
           aria-label={t("close")}
         >
           <X className="h-4 w-4" />

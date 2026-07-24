@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import CreateKhatimDialog from "@/components/create-khatim-dialog";
+import AppPageHero from "@/components/app-page-hero";
 import { useAuth } from "@/hooks/use-auth";
 import { getMyCircles } from "@/lib/actions/events";
 import { cn } from "@/lib/utils";
 import {
-  Archive,
   BookOpenText,
   Globe2,
   Layers3,
@@ -27,7 +27,7 @@ function formatDate(value: string | null) {
   if (!value) return null;
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return null;
-  return parsed.toLocaleDateString("en-US", {
+  return parsed.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -42,7 +42,7 @@ function CircleCard({ circle, archived = false }: { circle: MyCircle; archived?:
     <Link
       href={`/s/${circle.short_code}`}
       className={cn(
-        "quran-card group block p-5 transition-all hover:-translate-y-1",
+        "quran-card-interactive group block min-h-56 p-6",
         archived && "opacity-70 hover:opacity-90"
       )}
     >
@@ -170,68 +170,80 @@ export default function MyCirclesContent() {
 
   return (
     <>
-      <section className="section-panel animate-fade-rise border-t-2 border-t-quran-gold/20 [animation-delay:120ms]" style={{ animationFillMode: "both" }}>
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <AppPageHero
+        eyebrow="Your reading history"
+        title="My Circles"
+        description="Return to circles you created or joined, review your claimed Juz, and keep every shared recitation moving."
+        icon={Layers3}
+      >
+        <div className="space-y-3">
+          <div className="app-hero-stat-grid">
+            <div className="app-hero-stat">
+              <strong>{activeCircles.length}</strong>
+              <span>Active circles</span>
+            </div>
+            <div className="app-hero-stat">
+              <strong>{archivedCircles.length}</strong>
+              <span>Archived</span>
+            </div>
+          </div>
+          <Button
+            className="w-full rounded-full"
+            onClick={() => setIsCreateOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Create a Circle
+          </Button>
+        </div>
+      </AppPageHero>
+
+      <section className="mt-8">
+        <div className="app-toolbar">
           <div>
-            <h1 className="font-heading text-3xl text-quran-deep sm:text-4xl">
-              My Circles
-            </h1>
-            <p className="mt-1 text-sm text-quran-muted sm:text-base">
-              Circles you created or contributed to with claimed and read Juz activity.
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
+              Circle library
+            </p>
+            <p className="mt-1 text-sm text-quran-muted">
+              Switch between current readings and completed history.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="quran-badge">
-              <Layers3 className="mr-2 h-3.5 w-3.5" />
-              {activeCircles.length} Active
-            </span>
-            <span className="quran-badge">
-              <Archive className="mr-2 h-3.5 w-3.5" />
-              {archivedCircles.length} Archived
-            </span>
-            <Button className="rounded-full" onClick={() => setIsCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create
+          <div
+            role="group"
+            aria-label="Circle status filters"
+            className="app-segmented-control"
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-pressed={activeTab === "active"}
+              onClick={() => setActiveTab("active")}
+              className={cn(
+                "h-full flex-1 rounded-lg px-4 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                activeTab === "active" &&
+                  "bg-background text-foreground shadow-sm hover:bg-background"
+              )}
+            >
+              Active ({activeCircles.length})
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-pressed={activeTab === "archived"}
+              onClick={() => setActiveTab("archived")}
+              className={cn(
+                "h-full flex-1 rounded-lg px-4 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                activeTab === "archived" &&
+                  "bg-background text-foreground shadow-sm hover:bg-background"
+              )}
+            >
+              Archived ({archivedCircles.length})
             </Button>
           </div>
         </div>
 
-        <div
-          role="group"
-          aria-label="Circle status filters"
-          className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground sm:w-auto"
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-pressed={activeTab === "active"}
-            onClick={() => setActiveTab("active")}
-            className={cn(
-              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-              activeTab === "active" &&
-                "bg-background text-foreground shadow-sm hover:bg-background"
-            )}
-          >
-            Active ({activeCircles.length})
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-pressed={activeTab === "archived"}
-            onClick={() => setActiveTab("archived")}
-            className={cn(
-              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-              activeTab === "archived" &&
-                "bg-background text-foreground shadow-sm hover:bg-background"
-            )}
-          >
-            Archived ({archivedCircles.length})
-          </Button>
-        </div>
-
-        <div className="mt-6">
+        <div className="mt-5">
           {isLoadingCircles ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[...Array(3)].map((_, index) => (
@@ -253,16 +265,16 @@ export default function MyCirclesContent() {
               ))}
             </div>
           ) : (
-            <div className="quran-card flex flex-col items-center justify-center p-10 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-quran-green/10 text-quran-green">
+            <div className="app-empty-state flex flex-col items-center justify-center">
+              <div className="relative mb-5 flex h-16 w-16 items-center justify-center rounded-[1.2rem] border border-quran-border/60 bg-white/75 text-quran-green shadow-sm">
                 <BookOpenText className="h-7 w-7" />
               </div>
               {isAuthenticatedUser ? (
                 <>
-                  <h2 className="font-heading text-xl text-quran-deep">
+                  <h2 className="relative font-heading text-3xl text-quran-deep">
                     {activeTab === "active" ? "No active circles yet" : "No archived circles"}
                   </h2>
-                  <p className="mt-2 max-w-sm text-sm text-quran-muted">
+                  <p className="relative mt-2 max-w-md text-sm leading-6 text-quran-muted">
                     {activeTab === "active"
                       ? "Create a new circle or claim a Juz to start tracking your progress here."
                       : "Archived circles will appear here when you archive circles you created or contributed to."}
@@ -276,10 +288,10 @@ export default function MyCirclesContent() {
                 </>
               ) : isAnonymous ? (
                 <>
-                  <h2 className="font-heading text-xl text-quran-deep">
+                  <h2 className="relative font-heading text-3xl text-quran-deep">
                     No circles in this session yet
                   </h2>
-                  <p className="mt-2 max-w-sm text-sm text-quran-muted">
+                  <p className="relative mt-2 max-w-md text-sm leading-6 text-quran-muted">
                     Claim a Juz in any circle to start building your personal circles history.
                   </p>
                   <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -296,8 +308,8 @@ export default function MyCirclesContent() {
                 </>
               ) : (
                 <>
-                  <h2 className="font-heading text-xl text-quran-deep">No circles found</h2>
-                  <p className="mt-2 max-w-sm text-sm text-quran-muted">
+                  <h2 className="relative font-heading text-3xl text-quran-deep">No circles found</h2>
+                  <p className="relative mt-2 max-w-md text-sm leading-6 text-quran-muted">
                     Join a circle and claim a Juz to see your activity appear here.
                   </p>
                   <Button asChild className="mt-6 rounded-full">

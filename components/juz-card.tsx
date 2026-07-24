@@ -35,7 +35,7 @@ export default function JuzCard({
   return (
     <div
       className={cn(
-        "group relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl border-t-[3px] transition-all duration-200",
+        "group relative flex aspect-square min-h-11 flex-col items-center justify-center overflow-hidden rounded-xl border-t-[3px] transition-[transform,background-color,border-color,box-shadow] duration-200",
         // Base border + background per state
         isUnclaimed && !isSelected && [
           "border-quran-border/50 bg-white/70",

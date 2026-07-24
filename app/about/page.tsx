@@ -9,6 +9,7 @@ import {
   Link2,
   ShieldCheck,
 } from "lucide-react";
+import AppPageHero from "@/components/app-page-hero";
 import CreateCircleAction from "@/components/create-circle-action";
 import { toAbsoluteUrl } from "@/lib/site-url";
 
@@ -108,37 +109,23 @@ export default function AboutPage() {
       />
 
       <article>
-        <header className="hero-pattern relative overflow-hidden rounded-[2rem] border border-quran-border/50 px-5 py-10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
-          <div className="relative z-10 max-w-4xl">
-            <nav
-              aria-label="Breadcrumb"
-              className="mb-8 flex items-center gap-2 text-sm text-quran-muted"
-            >
-              <Link
-                href="/"
-                className="transition-colors hover:text-quran-green"
-              >
-                QuranCircle
-              </Link>
-              <span aria-hidden>/</span>
-              <span>About</span>
-            </nav>
-
-            <span className="quran-badge">
-              <BookOpenCheck className="mr-2 h-3.5 w-3.5" />
-              Product facts
-            </span>
-            <h1 className="font-heading mt-5 max-w-4xl text-4xl leading-[1.05] text-quran-deep sm:text-5xl lg:text-[3.65rem]">
-              The shared place where a group Khatm stays clear
-            </h1>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-quran-muted sm:text-lg">
-              QuranCircle is a free group Quran Khatm tracker for families,
-              masjids, friends, classes, and communities. An organizer creates
-              one circle link, readers claim available Juz by name, and
-              everyone follows the same live progress through completion.
-            </p>
+        <AppPageHero
+          eyebrow="Product facts"
+          title="The shared place where a group Khatm stays clear"
+          description="QuranCircle is a free group Quran Khatm tracker for families, masjids, friends, classes, and communities. An organizer creates one circle link, readers claim available Juz by name, and everyone follows the same live progress through completion."
+          icon={BookOpenCheck}
+        >
+          <div className="app-hero-stat-grid">
+            <div className="app-hero-stat">
+              <strong>30</strong>
+              <span>Juz tracked</span>
+            </div>
+            <div className="app-hero-stat">
+              <strong>Free</strong>
+              <span>For every group</span>
+            </div>
           </div>
-        </header>
+        </AppPageHero>
 
         <section
           className="section-panel mt-10"

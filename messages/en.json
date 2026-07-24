@@ -1,7 +1,10 @@
 {
   "Header": {
     "readTogether": "Read Together",
+    "home": "Home",
+    "browse": "Browse",
     "myCircles": "My Circles",
+    "guide": "Khatm Guide",
     "english": "English",
     "turkish": "Turkish",
     "arabic": "Arabic",
@@ -118,6 +121,8 @@
   },
   "AccountPage": {
     "backToHome": "Back to home",
+    "eyebrow": "Personal settings",
+    "description": "Manage the profile and sign-in details connected to your QuranCircle account.",
     "accountSettings": "Account Settings",
     "profile": "Profile",
     "displayName": "Display name",
@@ -163,6 +168,7 @@
     "googleProvider": "Google"
   },
   "ResetPassword": {
+    "eyebrow": "Account security",
     "setNewPassword": "Set new password",
     "setNewPasswordDesc": "Enter a strong new password below.",
     "newPassword": "New password",

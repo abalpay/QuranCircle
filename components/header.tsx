@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  BookOpenCheck,
+  Compass,
   UserCircle,
   ChevronDown,
   Globe2,
+  Home,
   LogOut,
   Settings,
   Layers3,
@@ -27,7 +30,6 @@ import { useTranslations, useLocale } from "next-intl";
 
 export default function Header() {
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("Header");
@@ -44,100 +46,71 @@ export default function Header() {
     (isAuthenticatedUser && user?.email?.split("@")[0]) ||
     "User";
 
+  const primaryNavigation = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/browse", label: t("browse"), icon: Compass },
+    { href: "/my-circles", label: t("myCircles"), icon: Layers3 },
+    { href: "/khatm-coordination", label: t("guide"), icon: BookOpenCheck },
+  ];
+
   return (
-    <header
-      className={
-        isHomePage
-          ? "sticky top-0 z-50 border-b border-white/[0.09] bg-[hsl(168_69%_10%/0.97)] backdrop-blur-xl"
-          : "sticky top-0 z-50 border-b border-quran-border/65 bg-quran-bg/92 backdrop-blur-xl"
-      }
-    >
-      <div
-        className={`mx-auto flex w-full items-center ${
-          isHomePage
-            ? "max-w-[88rem] gap-4 px-5 py-3.5 sm:px-8 lg:px-10"
-            : "max-w-[80rem] gap-3 px-5 py-3 sm:px-8 lg:px-10"
-        }`}
-      >
+    <header className="app-header sticky top-0 z-50">
+      <div className="mx-auto flex w-full max-w-[88rem] items-center gap-4 px-5 py-3 sm:px-8 lg:px-10">
         <Link
           href="/"
-          className={`group inline-flex items-center ${
-            isHomePage ? "gap-3.5" : "gap-3"
-          }`}
+          className="group inline-flex shrink-0 items-center gap-3"
         >
-          <span
-            className={
-              isHomePage
-                ? "flex h-[3.05rem] w-[3.05rem] items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.55)] bg-[hsl(150_30%_96%/0.045)] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.08)] transition-transform duration-200 group-hover:scale-[1.03]"
-                : "flex h-10 w-10 items-center justify-center rounded-xl border border-quran-border bg-white/70 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]"
-            }
-          >
+          <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.52)] bg-white/[0.045] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.09)] transition-transform duration-200 group-hover:scale-[1.03]">
             <Image
               src="/quran-icon.png"
-              alt="Quran Icon"
-              width={isHomePage ? 28 : 23}
-              height={isHomePage ? 28 : 23}
+              alt=""
+              width={25}
+              height={25}
             />
           </span>
           <span className="leading-none">
-            <span
-              className={`block font-heading ${
-                isHomePage
-                  ? "text-[1.75rem] text-[hsl(150_30%_96%)]"
-                  : "text-2xl text-quran-green"
-              }`}
-            >
+            <span className="block font-heading text-[1.55rem] text-[hsl(150_30%_96%)] sm:text-[1.65rem]">
               QuranCircle
             </span>
-            <span
-              className={`block font-semibold uppercase tracking-[0.24em] ${
-                isHomePage
-                  ? "text-[10.5px] text-[hsl(var(--quran-gold)/0.82)]"
-                  : "text-[10px] text-quran-muted"
-              }`}
-            >
+            <span className="block text-[9.5px] font-semibold uppercase tracking-[0.24em] text-[hsl(var(--quran-gold)/0.82)] sm:text-[10px]">
               {t("readTogether")}
             </span>
           </span>
         </Link>
 
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className={`
-            hidden rounded-full border md:inline-flex
-            ${pathname === "/my-circles"
-              ? "ml-6 min-h-10 border-quran-green/35 bg-quran-green/10 px-4 text-[0.9rem] text-quran-green"
-              : isHomePage
-                ? "ml-6 min-h-10 border-transparent px-4 text-[0.92rem] text-[hsl(158_18%_84%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white"
-                : "ml-4 border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70"}
-          `}
+        <nav
+          aria-label="Primary navigation"
+          className="ml-4 hidden items-center gap-1 lg:flex"
         >
-          <Link href="/my-circles">
-            <Layers3 className="mr-2 h-4 w-4" />
-            {t("myCircles")}
-          </Link>
-        </Button>
+          {primaryNavigation.map(({ href, label, icon: Icon }) => {
+            const isActive =
+              pathname === href ||
+              (href !== "/" && pathname.startsWith(`${href}/`));
 
-        <div
-          className={`ml-auto flex items-center ${
-            isHomePage ? "gap-3" : "gap-2"
-          }`}
-        >
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={isActive ? "page" : undefined}
+                className={`app-header-nav-link ${isActive ? "is-active" : ""}`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className={
-                  isHomePage
-                    ? "hidden min-h-10 rounded-full border border-transparent px-3 text-[0.92rem] text-[hsl(158_18%_86%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white md:flex"
-                    : "hidden rounded-full border border-transparent text-quran-muted hover:border-quran-border hover:bg-white/70 md:flex"
-                }
+                className="hidden rounded-full border border-transparent px-3 text-[hsl(158_18%_86%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white lg:flex"
               >
                 <Globe2 className="mr-1 h-4 w-4" />
-                <span className={isHomePage ? "text-[0.92rem]" : "text-sm"}>
+                <span className="text-sm">
                   {locale === "tr" ? t("turkish") : t("english")}
                 </span>
               </Button>
@@ -170,7 +143,7 @@ export default function Header() {
               >
                 {t("urdu")}
               </DropdownMenuItem>
-              </DropdownMenuContent>
+            </DropdownMenuContent>
             </DropdownMenu>
 
           {isAuthenticatedUser ? (
@@ -179,13 +152,9 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={
-                    isHomePage
-                      ? "hidden min-h-10 rounded-full border border-white/12 bg-white/[0.06] px-4 text-[0.92rem] text-[hsl(150_30%_94%)] hover:bg-white/[0.1] hover:text-white md:flex"
-                      : "hidden rounded-full border border-quran-border/80 bg-white/70 px-3 text-quran-deep hover:bg-white md:flex"
-                  }
+                  className="hidden rounded-full border border-white/12 bg-white/[0.06] px-4 text-[hsl(150_30%_94%)] hover:bg-white/[0.1] hover:text-white lg:flex"
                 >
-                  <UserCircle className="mr-2 h-4 w-4 text-quran-green" />
+                  <UserCircle className="mr-2 h-4 w-4 text-[hsl(var(--quran-light-green))]" />
                   <span className="text-sm">{t("salam")}, {displayName}</span>
                   <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
@@ -221,11 +190,7 @@ export default function Header() {
             <Button
               variant="default"
               size="sm"
-              className={
-                isHomePage
-                  ? "hidden min-h-10 rounded-full border border-white/20 bg-white/[0.055] px-6 text-[0.92rem] text-[hsl(150_30%_96%)] shadow-none hover:bg-white/[0.11] md:flex"
-                  : "hidden rounded-full px-5 text-primary-foreground shadow-[0_12px_24px_-16px_var(--color-quran-deep)] md:flex"
-              }
+              className="hidden rounded-full border border-white/20 bg-white/[0.055] px-6 text-[hsl(150_30%_96%)] shadow-none hover:bg-white/[0.11] lg:flex"
               onClick={() => openAuthModal("login")}
             >
               {t("signIn")}

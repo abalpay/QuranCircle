@@ -23,6 +23,7 @@ import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { createPasswordSchema } from "@/lib/auth/password-policy";
+import { LockKeyhole } from "lucide-react";
 
 export default function ResetPasswordPageClient() {
   const router = useRouter();
@@ -73,7 +74,7 @@ export default function ResetPasswordPageClient() {
   if (isLoading || !isAuthenticatedUser || !user) {
     return (
       <main className="page-shell grow flex items-center justify-center">
-        <div className="quran-card p-10 text-center">
+        <div className="app-state-card max-w-md">
           <p className="text-quran-muted">{t("loading")}</p>
         </div>
       </main>
@@ -81,14 +82,20 @@ export default function ResetPasswordPageClient() {
   }
 
   return (
-    <main className="page-shell grow flex items-center justify-center px-4">
-      <section className="quran-card-primary w-full max-w-md rounded-3xl border border-quran-border p-6 sm:p-8 shadow-lg">
+    <main className="page-shell flex grow items-center justify-center">
+      <section className="app-state-card max-w-lg text-left">
         <div className="space-y-6">
-          <div className="text-center sm:text-left">
-            <h1 className="font-heading text-2xl font-semibold text-quran-deep sm:text-3xl">
+          <div>
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-[1rem] border border-quran-border/60 bg-quran-green/[0.075] text-quran-green">
+              <LockKeyhole className="h-6 w-6" />
+            </div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
+              {t("eyebrow")}
+            </p>
+            <h1 className="mt-2 font-heading text-4xl text-quran-deep sm:text-5xl">
               {t("setNewPassword")}
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
               {t("setNewPasswordDesc")}
             </p>
           </div>
