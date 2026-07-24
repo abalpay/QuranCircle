@@ -1,12 +1,25 @@
-import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import KhatimPageClient from "@/components/khatim-page-client";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 import type { EventSnapshot } from "@/lib/types/events";
+import turkishMessages from "../../../messages/tr.json";
 
-const { replaceMock, searchParamsMock } = vi.hoisted(() => ({
+const {
+  copyCircleLinkMock,
+  replaceMock,
+  searchParamsMock,
+  shareCircleInviteMock,
+  trackProductEventMock,
+} = vi.hoisted(() => ({
+  copyCircleLinkMock: vi.fn(),
   replaceMock: vi.fn(),
   searchParamsMock: { value: "" },
+  shareCircleInviteMock: vi.fn(),
+  trackProductEventMock: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -52,6 +65,15 @@ vi.mock("@/lib/actions/events", () => ({
   archiveEvent: vi.fn().mockResolvedValue({}),
   unarchiveEvent: vi.fn().mockResolvedValue({}),
   deleteEvent: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock("@/lib/share-invite", () => ({
+  copyCircleLink: copyCircleLinkMock,
+  shareCircleInvite: shareCircleInviteMock,
+}));
+
+vi.mock("@/lib/analytics", () => ({
+  trackProductEvent: trackProductEventMock,
 }));
 
 vi.mock("@/hooks/use-pwa-install", () => ({
@@ -104,10 +126,21 @@ function buildEvent(overrides: Partial<EventSnapshot> = {}): EventSnapshot {
   };
 }
 
+function TurkishIntlWrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="tr" messages={turkishMessages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+
 describe("KhatimPageClient share/settings visibility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     searchParamsMock.value = "";
+    shareCircleInviteMock.mockResolvedValue("shared");
+    copyCircleLinkMock.mockResolvedValue("copied");
+    window.history.replaceState({}, "", "/s/ABCDEFGH");
     Object.defineProperty(window, "localStorage", {
       value: {
         getItem: vi.fn(() => null),
@@ -127,6 +160,64 @@ describe("KhatimPageClient share/settings visibility", () => {
 
     expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
     expect(container.querySelector(".lucide-settings")).not.toBeInTheDocument();
+  });
+
+  it("offers invitation sharing and clean-link copying", async () => {
+    const user = userEvent.setup();
+    render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
+      wrapper: IntlWrapper,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Share" }));
+
+    expect(
+      screen.getByRole("menuitem", { name: "Share invitation" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: "Copy link" })
+    ).toBeInTheDocument();
+  });
+
+  it("shares a localized invitation with the current locale path", async () => {
+    const user = userEvent.setup();
+    window.history.replaceState({}, "", "/tr/s/ABCDEFGH?filter=available");
+    render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
+      wrapper: TurkishIntlWrapper,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Paylaş" }));
+    await user.click(
+      screen.getByRole("menuitem", { name: "Halka davetini paylaş" })
+    );
+
+    await waitFor(() => {
+      expect(shareCircleInviteMock).toHaveBeenCalledWith({
+        title: "Circle One",
+        text: "QuranCircle’daki “Circle One” hatim halkasına katılın ve bir cüz sahiplenin.",
+        url: "http://localhost:3000/tr/s/ABCDEFGH",
+      });
+    });
+  });
+
+  it("copies only the current circle URL", async () => {
+    const user = userEvent.setup();
+    window.history.replaceState({}, "", "/tr/s/ABCDEFGH?filter=mine");
+    render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
+      wrapper: IntlWrapper,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Share" }));
+    await user.click(screen.getByRole("menuitem", { name: "Copy link" }));
+
+    await waitFor(() => {
+      expect(copyCircleLinkMock).toHaveBeenCalledWith(
+        "http://localhost:3000/tr/s/ABCDEFGH"
+      );
+    });
+    expect(trackProductEventMock).toHaveBeenCalledWith(
+      "Circle Invite Copied",
+      { visibility: "public" }
+    );
   });
 
   it("names creator settings and exposes filters as pressed buttons", () => {
