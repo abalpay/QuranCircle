@@ -82,17 +82,6 @@ export default function MobileNavigation() {
           </Link>
           <button
             type="button"
-            onClick={handleLanguageSwitch}
-            className="mobile-bottom-nav-item"
-            aria-label={
-              locale === "en" ? t("switchToTurkish") : t("switchToEnglish")
-            }
-          >
-            <Globe2 aria-hidden="true" />
-            <span>{locale === "en" ? "TR" : "EN"}</span>
-          </button>
-          <button
-            type="button"
             onClick={handleProfileTap}
             className={`mobile-bottom-nav-item ${
               isProfileOpen || pathname === "/account" ? "is-active" : ""

@@ -25,10 +25,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Globe2, Loader2 } from "lucide-react";
 import { createPasswordSchema } from "@/lib/auth/password-policy";
 import { trackProductEvent } from "@/lib/analytics";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 const MERGE_PREPARATION_BLOCK_MESSAGE =
   "Could not secure claim transfer, retry required.";
@@ -120,6 +121,10 @@ export default function AuthModal({
   onSuccess,
 }: AuthModalProps) {
   const t = useTranslations("AuthModal");
+  const languageT = useTranslations("MobileNav");
+  const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<
     "login" | "register" | "forgot-password" | null
   >(null);
@@ -131,6 +136,12 @@ export default function AuthModal({
   const [forgotPasswordSubmitting, setForgotPasswordSubmitting] =
     useState(false);
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
+
+  const handleLanguageSwitch = () => {
+    router.replace(`${pathname}${window.location.search}`, {
+      locale: locale === "en" ? "tr" : "en",
+    });
+  };
 
   const loginSchema = z.object({
     email: z.string().email(t("invalidEmail")),
@@ -255,9 +266,25 @@ export default function AuthModal({
               ? t("resetDescription")
               : activeTab === "register"
                 ? t("registerDescription")
-                : t("loginDescription")}
+              : t("loginDescription")}
           </DialogDescription>
         </DialogHeader>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleLanguageSwitch}
+          aria-label={
+            locale === "en"
+              ? languageT("switchToTurkish")
+              : languageT("switchToEnglish")
+          }
+          className="min-h-11 w-full rounded-full border-quran-border bg-white/70"
+        >
+          <Globe2 className="h-4 w-4" aria-hidden="true" />
+          {languageT("language")}:{" "}
+          {locale === "en" ? languageT("turkish") : languageT("english")}
+        </Button>
 
         {activeTab === "forgot-password" ? (
           forgotPasswordSuccess ? (

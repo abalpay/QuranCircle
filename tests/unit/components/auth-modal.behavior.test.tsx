@@ -7,12 +7,15 @@ import { IntlWrapper } from "../../helpers/intl-wrapper";
 const renderAuthModal = (component: React.ReactElement) =>
   render(component, { wrapper: IntlWrapper });
 
-const { authMocks, toastMock } = vi.hoisted(() => ({
+const { authMocks, routerMock, toastMock } = vi.hoisted(() => ({
   authMocks: {
     signInWithGoogle: vi.fn(),
     signInWithPassword: vi.fn(),
     signUp: vi.fn(),
     resetPassword: vi.fn(),
+  },
+  routerMock: {
+    replace: vi.fn(),
   },
   toastMock: {
     success: vi.fn(),
@@ -22,6 +25,11 @@ const { authMocks, toastMock } = vi.hoisted(() => ({
 
 vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => authMocks,
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  usePathname: () => "/browse",
+  useRouter: () => routerMock,
 }));
 
 vi.mock("sonner", () => ({
@@ -59,6 +67,20 @@ describe("AuthModal behavior", () => {
     expect(toastMock.success).toHaveBeenCalledWith("Login successful");
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onSuccess).toHaveBeenCalledTimes(1);
+  });
+
+  it("switches language from inside the sign-in dialog", async () => {
+    const user = userEvent.setup();
+
+    renderAuthModal(<AuthModal isOpen onClose={() => {}} action="login" />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Switch to Turkish" }),
+    );
+
+    expect(routerMock.replace).toHaveBeenCalledWith("/browse", {
+      locale: "tr",
+    });
   });
 
   it("shows paused error when merge preparation blocks login", async () => {

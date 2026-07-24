@@ -13,6 +13,11 @@ vi.mock("@/hooks/use-auth", () => ({
   }),
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  usePathname: () => "/",
+  useRouter: () => ({ replace: vi.fn() }),
+}));
+
 describe("AuthModal keyboard-accessible auth links", () => {
   it("renders forgot-password and back-to-login as button controls", async () => {
     const user = userEvent.setup();

@@ -24,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -103,50 +102,6 @@ export default function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden rounded-full border border-transparent px-3 text-[hsl(158_18%_86%)] hover:border-white/10 hover:bg-white/[0.06] hover:text-white lg:flex"
-              >
-                <Globe2 className="mr-1 h-4 w-4" />
-                <span className="text-sm">
-                  {locale === "tr" ? t("turkish") : t("english")}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="border-quran-border bg-quran-card"
-            >
-              <DropdownMenuItem onClick={() => setLocale("en")} disabled={locale === "en"}>
-                {t("english")}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLocale("tr")} disabled={locale === "tr"}>
-                {t("turkish")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() =>
-                  toast.info(t("comingSoon"), {
-                    description: `${t("arabic")} ${t("languageSupportSoon")}`,
-                  })
-                }
-              >
-                {t("arabic")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() =>
-                  toast.info(t("comingSoon"), {
-                    description: `${t("urdu")} ${t("languageSupportSoon")}`,
-                  })
-                }
-              >
-                {t("urdu")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-            </DropdownMenu>
-
           {isAuthenticatedUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -178,6 +133,23 @@ export default function Header() {
                     {t("accountSettings")}
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => setLocale("en")}
+                  disabled={locale === "en"}
+                >
+                  <Globe2 className="mr-2 h-4 w-4" />
+                  {t("english")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLocale("tr")}
+                  disabled={locale === "tr"}
+                >
+                  <Globe2 className="mr-2 h-4 w-4" />
+                  {t("turkish")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => signOut()}
                   className="text-red-600 focus:bg-red-50 focus:text-red-700"
