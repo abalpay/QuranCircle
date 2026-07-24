@@ -5,31 +5,52 @@ import { getTranslations } from "next-intl/server";
 export default async function Footer() {
   const t = await getTranslations("Footer");
   return (
-    <footer className="mt-auto border-t border-quran-border/60 bg-white/40 backdrop-blur-sm">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-quran-border/50 bg-white/50">
-              <Image src="/quran-icon.png" alt="QuranCircle" width={18} height={18} className="opacity-90" />
+    <footer className="app-footer mt-auto hidden lg:block">
+      <div className="mx-auto max-w-[88rem] px-8 py-9 lg:px-10">
+        <div className="flex items-center justify-between gap-8">
+          <div className="flex shrink-0 items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.42)] bg-white/[0.05]">
+              <Image src="/quran-icon.png" alt="" width={22} height={22} />
             </div>
-            <span className="font-heading text-xl text-quran-deep">QuranCircle</span>
+            <div>
+              <span className="block font-heading text-2xl leading-none text-white">
+                QuranCircle
+              </span>
+              <span className="mt-1 block text-[9px] font-semibold uppercase tracking-[0.22em] text-[hsl(var(--quran-gold)/0.78)]">
+                Read together
+              </span>
+            </div>
           </div>
-          
-          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium text-quran-muted">
-            <Link href="/" className="hover:text-quran-green transition-colors">{t("home")}</Link>
-            <Link href="/browse" className="hover:text-quran-green transition-colors">{t("browse")}</Link>
-            <Link href="/my-circles" className="hover:text-quran-green transition-colors">{t("myCircles")}</Link>
-            <Link href="/khatm-coordination" className="hover:text-quran-green transition-colors">{t("khatmGuide")}</Link>
-            <Link href="/about" className="hover:text-quran-green transition-colors">{t("about")}</Link>
-            <Link href="/contact" className="hover:text-quran-green transition-colors">{t("contact")}</Link>
-            <Link href="/privacy" className="hover:text-quran-green transition-colors">{t("privacy")}</Link>
-            <Link href="/terms" className="hover:text-quran-green transition-colors">{t("terms")}</Link>
-          </nav>
-          
-          <p className="text-xs text-quran-muted/80">
+          <p className="shrink-0 text-xs text-[hsl(158_12%_66%)]">
             © {new Date().getFullYear()} QuranCircle. {t("allRightsReserved")}
           </p>
         </div>
+
+        <nav
+          aria-label="Footer"
+          className="mt-7 flex flex-wrap items-center gap-x-1 border-t border-white/10 pt-5 text-sm font-medium text-[hsl(158_16%_76%)]"
+        >
+          {[
+            ["/", t("home")],
+            ["/browse", t("browse")],
+            ["/my-circles", t("myCircles")],
+            ["/khatm-coordination", t("khatmGuide")],
+            ["/group-khatm-whatsapp", t("whatsappGuide")],
+            ["/ramadan-group-khatm", t("ramadanGuide")],
+            ["/about", t("about")],
+            ["/contact", t("contact")],
+            ["/privacy", t("privacy")],
+            ["/terms", t("terms")],
+          ].map(([href, label]) => (
+            <Link
+              key={href}
+              href={href}
+              className="inline-flex min-h-11 items-center rounded-full px-3 transition-colors hover:bg-white/[0.06] hover:text-white"
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
     </footer>
   );

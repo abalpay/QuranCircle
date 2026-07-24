@@ -92,7 +92,7 @@ export default function BrowseEvents({ initialPage }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="app-toolbar">
         <form
           role="search"
           className="relative flex-1 max-w-md"
@@ -111,12 +111,12 @@ export default function BrowseEvents({ initialPage }: Props) {
             placeholder={t("searchCircles")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 rounded-full border-quran-border bg-white/80"
+            className="rounded-full border-quran-border bg-white/85 pl-10"
           />
         </form>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="rounded-full border-quran-border bg-white/80 gap-2">
+            <Button variant="outline" className="w-full gap-2 rounded-full border-quran-border bg-white/85 sm:w-auto">
               <ArrowUpDown className="h-4 w-4" />
               {t("sortBy")} {sortBy === "newest" ? t("newest") : sortBy === "oldest" ? t("oldest") : t("progress")}
             </Button>
@@ -130,12 +130,12 @@ export default function BrowseEvents({ initialPage }: Props) {
       </div>
 
       {filteredEvents.length === 0 ? (
-        <div className="quran-card p-12 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-quran-green/10 text-quran-green">
+        <div className="app-empty-state">
+          <div className="relative mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-[1.2rem] border border-quran-border/60 bg-white/75 text-quran-green shadow-sm">
             <Compass className="h-7 w-7" />
           </div>
-          <h3 className="font-heading text-xl text-quran-deep">{t("noCirclesFound")}</h3>
-          <p className="mt-2 text-quran-muted">
+          <h3 className="relative font-heading text-3xl text-quran-deep">{t("noCirclesFound")}</h3>
+          <p className="relative mx-auto mt-2 max-w-md text-quran-muted">
             {searchQuery ? t("adjustSearch") : t("beTheFirst")}
           </p>
           {!searchQuery && (
@@ -151,7 +151,7 @@ export default function BrowseEvents({ initialPage }: Props) {
               <Link
                 key={ev.id}
                 href={`/s/${ev.short_code}`}
-                className="quran-card-interactive group flex h-full flex-col bg-white/60 p-5"
+                className="quran-card-interactive group flex h-full min-h-60 flex-col overflow-hidden p-6"
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <h2 className="min-h-[3.5rem] font-heading text-2xl leading-tight text-quran-deep transition-colors group-hover:text-quran-green">

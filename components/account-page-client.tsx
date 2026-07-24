@@ -34,9 +34,10 @@ import { createClient } from "@/lib/supabase/client";
 import { deleteAccount } from "@/lib/actions/account";
 import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, LockKeyhole, Trash2, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createPasswordSchema } from "@/lib/auth/password-policy";
+import AppPageHero from "@/components/app-page-hero";
 
 // --- Component ---
 
@@ -208,40 +209,61 @@ export default function AccountPageClient() {
   if (isLoading || !isAuthenticatedUser || !user) {
     return (
       <main className="page-shell grow flex items-center justify-center">
-        <div className="quran-card p-10 text-center">
+        <div className="app-state-card max-w-md">
           <p className="text-quran-muted">{t("loading")}</p>
         </div>
       </main>
     );
   }
 
-  const memberSince = new Date(user.created_at).toLocaleDateString("en-US", {
+  const memberSince = new Date(user.created_at).toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
   return (
-    <main className="page-shell grow px-4 py-8">
-      <div className="mx-auto max-w-2xl space-y-8">
+    <main className="page-shell grow">
+      <div className="mx-auto max-w-4xl space-y-8">
         {/* Back link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-1 text-sm text-quran-muted hover:text-quran-deep transition-colors"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full px-1 text-sm text-quran-muted transition-colors hover:text-quran-deep"
         >
           <ArrowLeft className="h-4 w-4" />
           {t("backToHome")}
         </Link>
 
-        <h1 className="font-heading text-2xl font-semibold text-quran-deep sm:text-3xl">
-          {t("accountSettings")}
-        </h1>
+        <AppPageHero
+          eyebrow={t("eyebrow")}
+          title={t("accountSettings")}
+          description={t("description")}
+          icon={UserRound}
+          compact
+        >
+          <div className="app-hero-ledger">
+            <p className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-quran-gold">
+              {t("memberSince")}
+            </p>
+            <p className="mt-3 font-heading text-3xl text-quran-deep">
+              {memberSince}
+            </p>
+            <p className="mt-2 truncate text-sm text-quran-muted">
+              {user.email}
+            </p>
+          </div>
+        </AppPageHero>
 
         {/* ── Profile Section ── */}
-        <section className="quran-card-primary rounded-3xl border border-quran-border p-6 sm:p-8 shadow-lg space-y-6">
-          <h2 className="font-heading text-lg font-semibold text-quran-deep">
-            {t("profile")}
-          </h2>
+        <section className="quran-card space-y-6 p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-quran-green/10 text-quran-green">
+              <UserRound className="h-5 w-5" />
+            </div>
+            <h2 className="font-heading text-3xl text-quran-deep">
+              {t("profile")}
+            </h2>
+          </div>
 
           <Form {...profileForm}>
             <form
@@ -267,11 +289,12 @@ export default function AccountPageClient() {
               />
 
               <div>
-                <label className="text-sm font-medium leading-none">
+                <label htmlFor="account-email" className="text-sm font-medium leading-none">
                   {t("email")}
                 </label>
                 <div className="mt-2 flex items-center gap-2">
                   <Input
+                    id="account-email"
                     value={user.email ?? ""}
                     disabled
                     className="rounded-xl border-quran-border bg-white/50"
@@ -281,11 +304,6 @@ export default function AccountPageClient() {
                   </Badge>
                 </div>
               </div>
-
-              <p className="text-xs text-quran-muted">
-                {t("memberSince")} {memberSince}
-              </p>
-
               <Button
                 type="submit"
                 className="rounded-full"
@@ -299,10 +317,15 @@ export default function AccountPageClient() {
 
         {/* ── Security Section (email/password only) ── */}
         {isEmailProvider && (
-          <section className="quran-card-primary rounded-3xl border border-quran-border p-6 sm:p-8 shadow-lg space-y-6">
-            <h2 className="font-heading text-lg font-semibold text-quran-deep">
-              {t("security")}
-            </h2>
+          <section className="quran-card space-y-6 p-6 sm:p-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-quran-green/10 text-quran-green">
+                <LockKeyhole className="h-5 w-5" />
+              </div>
+              <h2 className="font-heading text-3xl text-quran-deep">
+                {t("security")}
+              </h2>
+            </div>
 
             <Form {...passwordForm}>
               <form
@@ -388,8 +411,8 @@ export default function AccountPageClient() {
         )}
 
         {/* ── Danger Zone ── */}
-        <section className="rounded-3xl border border-red-200 bg-red-50/60 p-6 sm:p-8 shadow-lg space-y-4">
-          <h2 className="font-heading text-lg font-semibold text-red-700">
+        <section className="space-y-4 rounded-[1.5rem] border border-red-200/80 bg-red-50/55 p-6 shadow-[0_20px_52px_-44px_rgba(153,27,27,0.35)] sm:p-8">
+          <h2 className="font-heading text-3xl text-red-700">
             {t("dangerZone")}
           </h2>
           <p className="text-sm text-red-600/80">
@@ -415,10 +438,11 @@ export default function AccountPageClient() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <label htmlFor="delete-confirmation" className="text-sm font-medium">
                   {t("typeDelete")} <span className="font-bold">DELETE</span> {t("toConfirm")}
                 </label>
                 <Input
+                  id="delete-confirmation"
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
                   placeholder={t("deletePlaceholder")}

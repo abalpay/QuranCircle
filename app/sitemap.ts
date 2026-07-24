@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
-import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/site-url";
 
-const FALLBACK_STATIC_LASTMOD = "2026-07-23T00:00:00.000Z";
+const FALLBACK_STATIC_LASTMOD = "2026-07-24T00:00:00.000Z";
 
 function getStaticLastModified() {
   const value =
@@ -38,6 +37,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/group-khatm-whatsapp`,
+      lastModified: staticLastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/ramadan-group-khatm`,
+      lastModified: staticLastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: staticLastModified,
       changeFrequency: "monthly",
@@ -63,15 +74,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const supabase = await createClient();
-  const { data: events } = await supabase.rpc("list_public_events_for_sitemap");
-
-  const eventPages: MetadataRoute.Sitemap = (events ?? []).map((event: { short_code: string; created_at: string }) => ({
-    url: `${baseUrl}/s/${event.short_code}`,
-    lastModified: new Date(event.created_at),
-    changeFrequency: "daily" as const,
-    priority: 0.6,
-  }));
-
-  return [...staticPages, ...eventPages];
+  return staticPages;
 }

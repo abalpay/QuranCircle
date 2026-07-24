@@ -63,7 +63,7 @@ export default function ClaimJuzDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md rounded-3xl border-quran-border bg-quran-card p-5 sm:p-6">
+      <DialogContent className="max-w-[calc(100%-1.5rem)] rounded-[1.75rem] border-quran-border bg-quran-card p-5 sm:max-w-md sm:p-6">
         <DialogHeader className="text-center pb-2">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-quran-green/14 p-2">
             <BookOpen className="h-6 w-6 text-quran-green" />

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowUpRight, Clock3, Github, MessageCircleMore } from "lucide-react";
+import AppPageHero from "@/components/app-page-hero";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -24,39 +26,56 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main className="page-shell grow">
-      <section className="quran-card-primary p-6 sm:p-10">
-        <h1 className="font-heading text-4xl text-quran-deep sm:text-5xl">
-          Contact
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-relaxed text-quran-muted sm:text-lg">
-          For product feedback, bug reports, or project questions, use the
-          channels below.
-        </p>
-      </section>
+      <AppPageHero
+        eyebrow="Talk to the maintainers"
+        title="Contact"
+        description="Share product feedback, report a problem, or ask a project question through the public support channel."
+        icon={MessageCircleMore}
+      >
+        <div className="app-hero-ledger">
+          <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-quran-gold">
+            Best place to start
+          </p>
+          <p className="mt-3 font-heading text-3xl text-quran-deep">GitHub Issues</p>
+          <p className="mt-2 text-sm leading-6 text-quran-muted">
+            Public, searchable, and easy for the community to follow.
+          </p>
+        </div>
+      </AppPageHero>
 
-      <section className="section-panel mt-8 space-y-5">
-        <div className="quran-card-info">
-          <h2 className="font-heading text-2xl text-quran-deep">GitHub Issues</h2>
-          <p className="mt-2 text-quran-muted">
+      <section className="mt-8 grid gap-5 md:grid-cols-2" aria-label="Contact options">
+        <article className="app-info-card">
+          <div className="app-info-card-icon">
+            <Github className="h-6 w-6" />
+          </div>
+          <h2 className="font-heading text-3xl text-quran-deep">Open an issue</h2>
+          <p className="mt-3 leading-7 text-quran-muted">
             Submit feature requests and bug reports through the public issue tracker.
           </p>
           <Link
             href="https://github.com/abalpay/QuranCircle/issues"
-            className="mt-4 inline-flex text-sm font-semibold text-quran-green hover:underline"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-quran-border bg-white/75 px-5 text-sm font-semibold text-quran-green transition-colors hover:border-quran-green/40 hover:bg-white"
             target="_blank"
             rel="noreferrer"
           >
             Open issue tracker
+            <ArrowUpRight className="h-4 w-4" />
           </Link>
-        </div>
+        </article>
 
-        <div className="quran-card-info">
-          <h2 className="font-heading text-2xl text-quran-deep">Response Expectations</h2>
-          <p className="mt-2 text-quran-muted">
+        <article className="app-info-card">
+          <div className="app-info-card-icon">
+            <Clock3 className="h-6 w-6" />
+          </div>
+          <h2 className="font-heading text-3xl text-quran-deep">What to expect</h2>
+          <p className="mt-3 leading-7 text-quran-muted">
             Requests are reviewed as quickly as possible, with priority given to
             reliability, data integrity, and user-impacting bugs.
           </p>
-        </div>
+          <div className="mt-6 border-t border-quran-border/55 pt-5 text-sm leading-6 text-quran-muted">
+            Include the page, device, and steps to reproduce a problem when possible.
+          </div>
+        </article>
       </section>
     </main>
   );

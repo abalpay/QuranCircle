@@ -375,7 +375,7 @@ export default function KhatmCard({
             <button
               type="button"
               onClick={() => setExpanded(false)}
-              className="rounded-full p-1.5 text-quran-muted transition-colors hover:bg-quran-border/30"
+              className="flex size-11 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
               aria-label={t("collapseKhatm")}
             >
               <ChevronUp className="h-5 w-5" />

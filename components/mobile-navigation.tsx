@@ -47,7 +47,7 @@ export default function MobileNavigation() {
     <>
       <nav
         aria-label="Mobile navigation"
-        className="mobile-bottom-nav md:hidden"
+        className="mobile-bottom-nav lg:hidden"
       >
         <div className="mobile-bottom-nav-surface">
           <Link
@@ -84,7 +84,7 @@ export default function MobileNavigation() {
             type="button"
             onClick={handleProfileTap}
             className={`mobile-bottom-nav-item ${
-              isProfileOpen ? "is-active" : ""
+              isProfileOpen || pathname === "/account" ? "is-active" : ""
             }`}
           >
             <UserCircle aria-hidden="true" />
@@ -99,10 +99,11 @@ export default function MobileNavigation() {
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="rounded-t-2xl border-quran-border bg-quran-card"
+          className="rounded-t-[1.75rem] border-quran-border bg-quran-card pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-24px_64px_-34px_hsl(var(--quran-deep)/0.65)]"
         >
-          <SheetHeader>
-            <SheetTitle className="text-quran-deep">
+          <SheetHeader className="px-5 pt-6">
+            <div className="mb-2 h-1 w-12 self-center rounded-full bg-quran-border" aria-hidden />
+            <SheetTitle className="font-heading text-3xl text-quran-deep">
               {t("salam")}, {displayName}
             </SheetTitle>
             {isAuthenticatedUser && user?.email && (

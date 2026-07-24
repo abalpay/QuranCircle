@@ -87,7 +87,7 @@ export default function CreateKhatimDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md rounded-3xl border-quran-border bg-quran-card p-5 sm:p-6">
+      <DialogContent className="max-w-[calc(100%-1.5rem)] rounded-[1.75rem] border-quran-border bg-quran-card p-5 sm:max-w-md sm:p-6">
         <DialogHeader className="text-left">
           <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-quran-green/14 text-quran-green">
             <CirclePlus className="h-5 w-5" />
@@ -126,7 +126,7 @@ export default function CreateKhatimDialog({
               />
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-quran-border bg-white/80 p-4">
+            <div className="flex items-center justify-between gap-5 rounded-2xl border border-quran-border bg-white/80 p-4">
               <div>
                 <Label htmlFor="isPublic" className="font-medium">
                   {t("makePublic")}

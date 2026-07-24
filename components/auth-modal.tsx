@@ -307,7 +307,7 @@ export default function AuthModal({
                 </Button>
                 <button
                   type="button"
-                  className="mt-4 w-full text-center text-sm text-primary hover:underline"
+                  className="mt-2 min-h-11 w-full rounded-full text-center text-sm text-primary hover:bg-quran-green/[0.05] hover:underline"
                   onClick={() => setActiveTab("login")}
                 >
                   Back to Login
@@ -396,7 +396,7 @@ export default function AuthModal({
                     />
                     <button
                       type="button"
-                      className="text-left text-sm text-primary hover:underline"
+                      className="inline-flex min-h-11 items-center rounded-full px-1 text-left text-sm text-primary hover:underline"
                       onClick={() => setActiveTab("forgot-password")}
                     >
                       Forgot password?
