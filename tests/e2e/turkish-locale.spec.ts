@@ -25,6 +25,7 @@ test.describe("Turkish locale routing", () => {
       page.getByRole("heading", { name: "Açık Hatim Halkalarını Keşfedin" }),
     ).toBeVisible();
 
+    await page.getByRole("button", { name: "Giriş Yap", exact: true }).click();
     await page.getByRole("button", { name: "İngilizceye geç" }).click();
     await expect.poll(() => new URL(page.url()).pathname).toBe("/browse");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
