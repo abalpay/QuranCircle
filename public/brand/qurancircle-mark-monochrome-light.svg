@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">QuranCircle</title>
+  <desc id="desc">Monochrome light logo mark.</desc>
+  <circle cx="64" cy="63" r="52" fill="none" stroke="#f6eedc" stroke-width="5.25"/>
+  <path d="m97 101 21 21h-15l-9-10" fill="none" stroke="#f6eedc" stroke-width="5.25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M60 19 31 37c-5 3-8 8-8 14v31c0 6 3 11 8 14l29 18V89L42 76c-5-3-7-7-7-12s2-9 7-12l18-13V19Z" fill="#f6eedc"/>
+  <path d="m68 19 29 18c5 3 8 8 8 14v31c0 6-3 11-8 14l-29 18V89l18-13c5-3 7-7 7-12s-2-9-7-12L68 39V19Z" fill="#f6eedc"/>
+</svg>

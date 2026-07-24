@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import BrandMark from "@/components/brand-mark";
 
 export const runtime = "nodejs";
 
@@ -82,6 +83,28 @@ export default async function OGImage() {
             position: "relative",
           }}
         >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              marginBottom: 28,
+            }}
+          >
+            <BrandMark variant="on-light" width="52" height="52" />
+            <div
+              style={{
+                display: "flex",
+                color: colors.deep,
+                fontFamily: "serif",
+                fontSize: 32,
+                fontWeight: 600,
+              }}
+            >
+              QuranCircle
+            </div>
+          </div>
+
           {/* Main heading */}
           <div
             style={{

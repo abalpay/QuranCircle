@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">QuranCircle Common Space concept</title>
+  <desc id="desc">Three architectural isometric planes meet around one circular shared space.</desc>
+  <defs>
+    <mask id="sharedSpace">
+      <rect width="160" height="160" fill="#fff"/>
+      <circle cx="80" cy="82" r="24" fill="#000"/>
+    </mask>
+  </defs>
+
+  <g mask="url(#sharedSpace)">
+    <path d="M80 6 149 46 80 86 11 46Z" fill="#FFD45A"/>
+    <path d="m11 46 69 40v68l-69-40Z" fill="#FF715B"/>
+    <path d="m149 46-69 40v68l69-40Z" fill="#6B58E8"/>
+    <path d="M80 6v80L11 46Z" fill="#FFC23D"/>
+    <path d="m80 86 69-40-69-40Z" fill="#55D6C2"/>
+  </g>
+  <circle cx="80" cy="82" r="24" fill="none" stroke="#171A3D" stroke-width="7"/>
+</svg>

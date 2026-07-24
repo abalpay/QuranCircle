@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">QuranCircle Thirtyfold concept</title>
+  <desc id="desc">Six isometric modules form one precise loop, representing six groups of five Juz.</desc>
+
+  <path d="m80 4 34 20-34 20-34-20Z" fill="#FFC857"/>
+  <path d="m118 26 34 20v40l-34-20Z" fill="#FF6B6B"/>
+  <path d="m152 91-34 20v40l34-20Z" fill="#9B5DE5"/>
+  <path d="m114 136-34 20-34-20 34-20Z" fill="#5C6CF2"/>
+  <path d="M42 111 8 91v40l34 20Z" fill="#00A7A0"/>
+  <path d="M42 26 8 46v40l34-20Z" fill="#2EC4B6"/>
+
+  <path d="m80 44 38 22v45l-38 22-38-22V66Z" fill="#171A3D"/>
+  <path d="m80 58 26 15v31l-26 15-26-15V73Z" fill="#F7F6FF"/>
+  <path d="m54 73 26 15v31l-26-15Z" fill="#E1E5FF"/>
+  <path d="m106 73-26 15v31l26-15Z" fill="#D5F6F1"/>
+</svg>

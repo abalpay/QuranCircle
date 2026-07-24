@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import BrandMark from "@/components/brand-mark";
 
 export default async function Footer() {
   const t = await getTranslations("Footer");
@@ -9,9 +9,7 @@ export default async function Footer() {
       <div className="mx-auto max-w-[88rem] px-8 py-9 lg:px-10">
         <div className="flex items-center justify-between gap-8">
           <div className="flex shrink-0 items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.42)] bg-white/[0.05]">
-              <Image src="/quran-icon.png" alt="" width={22} height={22} />
-            </div>
+            <BrandMark variant="on-dark" className="h-10 w-10 shrink-0" />
             <div>
               <span className="block font-heading text-2xl leading-none text-white">
                 QuranCircle
