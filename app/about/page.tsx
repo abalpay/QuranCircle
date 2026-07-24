@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { BookOpenCheck, HeartHandshake, Sparkles, UsersRound } from "lucide-react";
+import AppPageHero from "@/components/app-page-hero";
 
 export const metadata: Metadata = {
   title: "About QuranCircle",
@@ -23,41 +25,56 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="page-shell grow">
-      <section className="quran-card-primary p-6 sm:p-10">
-        <h1 className="font-heading text-4xl text-quran-deep sm:text-5xl">
-          About QuranCircle
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-relaxed text-quran-muted sm:text-lg">
-          QuranCircle is a lightweight platform for organizing collaborative Quran
-          reading circles. It helps groups track Juz assignments and completion
-          progress so a full Khatm can be finished together with clarity.
-        </p>
-      </section>
+      <AppPageHero
+        eyebrow="Built for shared recitation"
+        title="About QuranCircle"
+        description="A calm, lightweight place for families, friends, masjids, and communities to organize a complete Quran Khatm together."
+        icon={BookOpenCheck}
+      >
+        <div className="app-hero-ledger">
+          <Sparkles className="h-6 w-6 text-quran-gold" />
+          <p className="mt-4 font-heading text-2xl leading-tight text-quran-deep">
+            Less coordination. More space for recitation.
+          </p>
+          <p className="mt-3 text-sm leading-6 text-quran-muted">
+            One link keeps every portion, reader, and completion status clear.
+          </p>
+        </div>
+      </AppPageHero>
 
-      <section className="section-panel mt-8 space-y-6">
-        <div>
+      <section className="app-content-grid" aria-label="About QuranCircle">
+        <article className="app-info-card">
+          <div className="app-info-card-icon">
+            <UsersRound className="h-6 w-6" />
+          </div>
           <h2 className="font-heading text-2xl text-quran-deep">Who It Helps</h2>
-          <p className="mt-2 text-quran-muted">
+          <p className="mt-3 leading-7 text-quran-muted">
             Families, friends, masjid groups, and communities that want a simple,
             focused way to coordinate Quran recitation without unnecessary friction.
           </p>
-        </div>
+        </article>
 
-        <div>
+        <article className="app-info-card">
+          <div className="app-info-card-icon">
+            <HeartHandshake className="h-6 w-6" />
+          </div>
           <h2 className="font-heading text-2xl text-quran-deep">How It Works</h2>
-          <p className="mt-2 text-quran-muted">
+          <p className="mt-3 leading-7 text-quran-muted">
             Create a circle, share the short link, let participants claim their
             portion, and monitor progress in real time until completion.
           </p>
-        </div>
+        </article>
 
-        <div>
+        <article className="app-info-card">
+          <div className="app-info-card-icon">
+            <Sparkles className="h-6 w-6" />
+          </div>
           <h2 className="font-heading text-2xl text-quran-deep">Principles</h2>
-          <p className="mt-2 text-quran-muted">
+          <p className="mt-3 leading-7 text-quran-muted">
             QuranCircle is built around simplicity, accessibility, and reliable
             progress tracking so groups can stay focused on recitation.
           </p>
-        </div>
+        </article>
       </section>
     </main>
   );

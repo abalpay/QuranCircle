@@ -140,7 +140,7 @@ export default function UserDashboard() {
               <Link
                 key={circle.id}
                 href={`/s/${circle.short_code}`}
-                className="quran-card group block p-5 transition-all hover:-translate-y-1"
+                className="quran-card group block p-5 transition-[transform,border-color,box-shadow] hover:-translate-y-1"
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <h3 className="font-heading text-2xl leading-tight text-quran-deep group-hover:text-quran-green">

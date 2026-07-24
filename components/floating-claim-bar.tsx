@@ -93,12 +93,12 @@ export default function FloatingClaimBar({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed bottom-20 left-1/2 z-[45] -translate-x-1/2 md:bottom-6">
+    <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] left-1/2 z-[45] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 lg:bottom-6 lg:w-auto lg:max-w-none">
       <div
         data-testid="multi-select-coachmark"
         data-state={coachmarkVisible ? "visible" : "hidden"}
         aria-hidden={!coachmarkVisible}
-        className={`pointer-events-none absolute -top-10 left-1/2 w-max -translate-x-1/2 whitespace-nowrap rounded-full border border-quran-border/70 bg-white px-3 py-1 text-[11px] font-medium text-quran-muted shadow-sm transition-all duration-200 ${
+        className={`pointer-events-none absolute -top-10 left-1/2 w-max -translate-x-1/2 whitespace-nowrap rounded-full border border-quran-border/70 bg-white px-3 py-1 text-[11px] font-medium text-quran-muted shadow-sm transition-[opacity,transform] duration-200 ${
           coachmarkVisible
             ? "visible translate-y-0 opacity-100"
             : "invisible -translate-y-1 opacity-0"
@@ -110,7 +110,7 @@ export default function FloatingClaimBar({
       <div
         data-testid="floating-claim-bar"
         data-state={visible ? "visible" : "hidden"}
-        className={`flex items-center gap-3 rounded-2xl border border-quran-border bg-white px-4 py-3 shadow-lg transition-all duration-200 ${
+        className={`flex w-full items-center gap-3 rounded-[1.4rem] border border-quran-border bg-white/95 px-3 py-3 shadow-[0_22px_52px_-24px_hsl(var(--quran-deep)/0.62)] backdrop-blur-md transition-[opacity,transform] duration-200 lg:w-auto lg:px-4 ${
           visible
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0"
@@ -119,7 +119,7 @@ export default function FloatingClaimBar({
         <button
           type="button"
           onClick={onClear}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
+          className="flex size-11 shrink-0 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
           aria-label={t("clearSelection")}
         >
           <X className="h-4 w-4" />

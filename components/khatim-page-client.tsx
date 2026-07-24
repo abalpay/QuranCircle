@@ -817,97 +817,99 @@ export default function KhatimPageClient({
   return (
     <>
       <div className="space-y-8 sm:space-y-10">
-      <section className="quran-card-primary p-6 sm:p-8">
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          <span className="quran-badge">
-            {event.is_public ? (
-              <>
-                <Globe2 className="mr-2 h-3.5 w-3.5" />
-                {tPage("publicCircle")}
-              </>
-            ) : (
-              <>
-                <Link2 className="mr-2 h-3.5 w-3.5" />
-                {tPage("linkOnlyCircle")}
-              </>
-            )}
-          </span>
-          <span className="quran-badge">
-            {event.is_archived ? (
-              <>
-                <Archive className="mr-2 h-3.5 w-3.5" />
-                {tPage("archived")}
-              </>
-            ) : (
-              <>
-                <ShieldCheck className="mr-2 h-3.5 w-3.5" />
-                {tPage("openForClaims")}
-              </>
-            )}
-          </span>
-        </div>
+        <section className="app-page-hero app-page-hero-compact">
+          <div className="relative z-10 lg:col-span-2">
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <span className="quran-badge">
+                {event.is_public ? (
+                  <>
+                    <Globe2 className="mr-2 h-3.5 w-3.5" />
+                    {tPage("publicCircle")}
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="mr-2 h-3.5 w-3.5" />
+                    {tPage("linkOnlyCircle")}
+                  </>
+                )}
+              </span>
+              <span className="quran-badge">
+                {event.is_archived ? (
+                  <>
+                    <Archive className="mr-2 h-3.5 w-3.5" />
+                    {tPage("archived")}
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="mr-2 h-3.5 w-3.5" />
+                    {tPage("openForClaims")}
+                  </>
+                )}
+              </span>
+            </div>
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-heading text-4xl leading-tight text-quran-deep">
-              {event.name}
-            </h1>
-            {event.description && (
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-quran-muted sm:text-base">
-                {event.description}
-              </p>
-            )}
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h1 className="font-heading text-[2.75rem] leading-[1.02] text-quran-deep sm:text-[3.7rem]">
+                  {event.name}
+                </h1>
+                {event.description && (
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-quran-muted sm:text-base">
+                    {event.description}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-quran-border bg-white/80 px-4"
+                  onClick={handleShare}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  {tPage("share")}
+                </Button>
+                {isCreator && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        aria-label={tPage("circleSettings")}
+                        className="rounded-full border-quran-border bg-white/80 px-3"
+                      >
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleArchiveToggle}>
+                        {event.is_archived ? (
+                          <>
+                            <ArchiveRestore className="mr-2 h-4 w-4" />
+                            {tPage("unarchiveKhatim")}
+                          </>
+                        ) : (
+                          <>
+                            <Archive className="mr-2 h-4 w-4" />
+                            {tPage("archiveKhatim")}
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {tPage("deleteKhatim")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full border-quran-border bg-white/80 px-4"
-              onClick={handleShare}
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              {tPage("share")}
-            </Button>
-            {isCreator && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    aria-label={tPage("circleSettings")}
-                    className="rounded-full border-quran-border bg-white/80 px-3"
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleArchiveToggle}>
-                    {event.is_archived ? (
-                      <>
-                        <ArchiveRestore className="mr-2 h-4 w-4" />
-                        {tPage("unarchiveKhatim")}
-                      </>
-                    ) : (
-                      <>
-                        <Archive className="mr-2 h-4 w-4" />
-                        {tPage("archiveKhatim")}
-                      </>
-                    )}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-red-600 focus:text-red-600"
-                    onClick={() => setIsDeleteDialogOpen(true)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    {tPage("deleteKhatim")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        </div>
-      </section>
+        </section>
 
       {event.is_archived && (
         <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
@@ -929,11 +931,14 @@ export default function KhatimPageClient({
         </div>
       )}
 
-      <section className="quran-card p-4 sm:p-5">
+      <section className="app-toolbar">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
+          {t("juzFilters")}
+        </p>
         <div
           role="group"
           aria-label={t("juzFilters")}
-          className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground sm:w-auto"
+          className="app-segmented-control"
         >
           <Button
             type="button"
@@ -942,7 +947,7 @@ export default function KhatimPageClient({
             aria-pressed={displayFilter === "all"}
             onClick={() => setActiveFilter("all")}
             className={cn(
-              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
               displayFilter === "all" &&
                 "bg-background text-foreground shadow-sm hover:bg-background"
             )}
@@ -956,7 +961,7 @@ export default function KhatimPageClient({
             aria-pressed={displayFilter === "available"}
             onClick={() => setActiveFilter("available")}
             className={cn(
-              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
               displayFilter === "available" &&
                 "bg-background text-foreground shadow-sm hover:bg-background"
             )}
@@ -970,7 +975,7 @@ export default function KhatimPageClient({
             aria-pressed={displayFilter === "mine"}
             onClick={() => setActiveFilter("mine")}
             className={cn(
-              "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+              "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
               displayFilter === "mine" &&
                 "bg-background text-foreground shadow-sm hover:bg-background",
               showMyJuzNudge && "animate-pulse ring-2 ring-emerald-300"
@@ -998,11 +1003,14 @@ export default function KhatimPageClient({
       </section>
 
       {showMineViewTabs && (
-        <section className="quran-card p-4 sm:p-5">
+        <section className="app-toolbar">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
+            {t("myJuzViews")}
+          </p>
           <div
             role="group"
             aria-label={t("myJuzViews")}
-            className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground sm:w-auto"
+            className="app-segmented-control"
           >
             <Button
               type="button"
@@ -1011,7 +1019,7 @@ export default function KhatimPageClient({
               aria-pressed={displayMineView === "mine"}
               onClick={() => setMineView("mine")}
               className={cn(
-                "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
                 displayMineView === "mine" &&
                   "bg-background text-foreground shadow-sm hover:bg-background"
               )}
@@ -1025,7 +1033,7 @@ export default function KhatimPageClient({
               aria-pressed={displayMineView === "creator"}
               onClick={() => setMineView("creator")}
               className={cn(
-                "h-[calc(100%-1px)] flex-1 px-2 py-1 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
                 displayMineView === "creator" &&
                   "bg-background text-foreground shadow-sm hover:bg-background"
               )}

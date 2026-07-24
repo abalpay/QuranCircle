@@ -1,7 +1,10 @@
 {
   "Header": {
     "readTogether": "Birlikte Oku",
+    "home": "Ana Sayfa",
+    "browse": "Göz At",
     "myCircles": "Halkalarım",
+    "guide": "Hatim Rehberi",
     "english": "İngilizce",
     "turkish": "Türkçe",
     "arabic": "Arapça",
@@ -116,6 +119,8 @@
   },
   "AccountPage": {
     "backToHome": "Ana sayfaya dön",
+    "eyebrow": "Kişisel ayarlar",
+    "description": "QuranCircle hesabınıza bağlı profil ve giriş bilgilerini yönetin.",
     "accountSettings": "Hesap Ayarları",
     "profile": "Profil",
     "displayName": "Görünen ad",
@@ -161,6 +166,7 @@
     "googleProvider": "Google"
   },
   "ResetPassword": {
+    "eyebrow": "Hesap güvenliği",
     "setNewPassword": "Yeni şifre belirle",
     "setNewPasswordDesc": "Aşağıya güçlü bir yeni şifre girin.",
     "newPassword": "Yeni şifre",
