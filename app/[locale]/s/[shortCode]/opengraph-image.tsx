@@ -3,6 +3,7 @@ import { createAnonClient } from "@/lib/supabase/anon";
 import { getTranslations } from "next-intl/server";
 import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
+import BrandMark from "@/components/brand-mark";
 
 export const runtime = "nodejs";
 
@@ -102,14 +103,7 @@ export default async function OGImage({
             position: "relative",
           }}
         >
-          <div
-            style={{
-              fontSize: 24,
-              display: "flex",
-            }}
-          >
-            &#128214;
-          </div>
+          <BrandMark variant="on-dark" width="42" height="42" />
           <div
             style={{
               fontSize: 24,

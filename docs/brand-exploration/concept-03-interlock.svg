@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">QuranCircle Interlock concept</title>
+  <desc id="desc">Two folded ribbons interlock to complete one circular form.</desc>
+
+  <path d="M79 8 143 45v42l-28-16V61L79 40 43 61 15 45Z" fill="#5267F7"/>
+  <path d="m143 45-28 16v10l28 16Z" fill="#3348C7"/>
+  <path d="M15 45v70l64 37v-32l-36-21V61Z" fill="#20BFA9"/>
+  <path d="m15 45 28 16v38l-28 16Z" fill="#168F84"/>
+
+  <path d="M81 152 17 115V73l28 16v10l36 21 36-21 28 16Z" fill="#FFB84D"/>
+  <path d="m17 115 28-16V89L17 73Z" fill="#E88C2A"/>
+  <path d="M145 115V45L81 8v32l36 21v38Z" fill="#FF6B7A"/>
+  <path d="m145 115-28-16V61l28-16Z" fill="#D94865"/>
+
+  <path d="m79 40 36 21v10L81 91 43 69v-8Z" fill="#F7F6FF"/>
+  <path d="m81 120-36-21V89l34-20 38 22v8Z" fill="#FFF8EB"/>
+</svg>

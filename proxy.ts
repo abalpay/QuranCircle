@@ -68,6 +68,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|auth|_next|_vercel|favicon.ico|manifest\\.json|sw\\.js|workbox-.*\\.js|robots.txt|sitemap.xml|.*opengraph-image|.*\\..*).*)",
+    "/((?!api|auth|_next|_vercel|icon(?:$|\\?)|apple-icon(?:$|\\?)|favicon.ico|manifest\\.json|sw\\.js|workbox-.*\\.js|robots.txt|sitemap.xml|.*opengraph-image|.*\\..*).*)",
   ],
 };

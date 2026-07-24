@@ -12,6 +12,7 @@ import PublicCircleCta from "@/components/landing/public-circle-cta";
 import { getCommunityStats } from "@/lib/actions/stats";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
 
 export async function generateMetadata({
   params,
@@ -59,7 +60,7 @@ export default async function HomePage({ params }: LocalePageProps) {
       "@type": "Organization",
       name: "QuranCircle",
       url: toAbsoluteUrl("/"),
-      logo: toAbsoluteUrl("/quran-icon.png"),
+      logo: toAbsoluteUrl(BRAND_LOGO_PATH),
     },
     {
       "@context": "https://schema.org",

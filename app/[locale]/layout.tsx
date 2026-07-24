@@ -26,9 +26,10 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
 
 const siteUrl = getSiteUrl();
-const socialImageUrl = toAbsoluteUrl("/quran-icon.png");
+const socialImageUrl = toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH);
 const isVercelDeployment = process.env.VERCEL === "1";
 
 const manrope = Manrope({
@@ -102,8 +103,8 @@ export async function generateMetadata({
       images: [
         {
           url: socialImageUrl,
-          width: 512,
-          height: 512,
+          width: 1200,
+          height: 630,
           alt: "QuranCircle",
         },
       ],
@@ -121,7 +122,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover" as const,
-  themeColor: "#0f5f52",
+  themeColor: "#0d332a",
 };
 
 export default async function LocaleLayout({
