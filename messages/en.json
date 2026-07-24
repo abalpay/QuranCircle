@@ -308,6 +308,10 @@
   },
   "CirclePage": {
     "share": "Share",
+    "shareInvitation": "Share invitation",
+    "copyLink": "Copy link",
+    "publicShareInvitation": "Join the “{name}” Khatm circle on QuranCircle and claim a Juz.",
+    "linkOnlyShareInvitation": "You’re invited to join the “{name}” Khatm circle on QuranCircle and claim a Juz.",
     "circleSettings": "Circle settings",
     "archived": "Archived",
     "openForClaims": "Open For Claims",
@@ -319,7 +323,9 @@
     "publicCircle": "Public Circle",
     "linkOnlyCircle": "Link-Only Circle",
     "inviteCopied": "Invite copied to clipboard",
-    "inviteCopyFailed": "Failed to copy invite",
+    "linkCopied": "Circle link copied",
+    "linkCopyFailed": "Failed to copy circle link",
+    "shareFailed": "Sharing is unavailable. Copy the link instead.",
     "khatimArchived": "Khatim archived",
     "khatimUnarchived": "Khatim unarchived",
     "archiveUpdateFailed": "Unable to update archive state. Please try again.",
@@ -540,7 +546,8 @@
     "joinCircle": "Join this Khatm Circle"
   },
   "CircleMetadata": {
-    "description": "Join the {eventName} Khatm circle on QuranCircle"
+    "description": "Join the {eventName} Khatm circle on QuranCircle",
+    "imageAlt": "Invitation to join the {eventName} Khatm circle on QuranCircle"
   },
   "HeroPreview": {
     "you": "You",

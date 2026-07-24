@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     event.description || t("description", { eventName: event.name });
   const pathname = getPathname({ locale, href: `/s/${shortCode}` });
   const url = toAbsoluteUrl(pathname);
+  const imageAlt = t("imageAlt", { eventName: event.name });
   const ogVersion = new Date(event.created_at).getTime().toString(36);
   const ogImageUrl = toAbsoluteUrl(
     `${pathname}/opengraph-image?v=${ogVersion}`
@@ -51,13 +52,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url,
       type: "website",
-      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      siteName: "QuranCircle",
+      locale: locale === "tr" ? "tr_TR" : "en_US",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: imageAlt,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${event.name} - QuranCircle`,
       description,
-      images: [ogImageUrl],
+      images: [{ url: ogImageUrl, alt: imageAlt }],
     },
   };
 }

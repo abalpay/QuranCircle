@@ -16,6 +16,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Share2,
+  Send,
+  Copy,
+  ChevronDown,
   Globe2,
   Link2,
   ShieldCheck,
@@ -31,7 +34,7 @@ import InstallAppSheet from "@/components/install-app-sheet";
 import { useTranslations } from "next-intl";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { cn } from "@/lib/utils";
-import { shareCircleInvite } from "@/lib/share-invite";
+import { copyCircleLink, shareCircleInvite } from "@/lib/share-invite";
 import { trackProductEvent } from "@/lib/analytics";
 import {
   type GlobalFilter,
@@ -748,32 +751,50 @@ export default function KhatimPageClient({
     };
   }, [refreshEvent]);
 
-  const handleShare = async () => {
-    const url = `${window.location.origin}/s/${shortCode}`;
-    await shareCircleInvite(
-      {
-        name: event.name,
-        isPublic: event.is_public,
-        url,
-      },
-      {
-        title: event.name,
-        onShareSuccess: () => {
-          trackProductEvent("Circle Invite Shared", {
-            visibility: event.is_public ? "public" : "link_only",
-          });
-        },
-        onCopySuccess: () => {
-          trackProductEvent("Circle Invite Copied", {
-            visibility: event.is_public ? "public" : "link_only",
-          });
-          toast.success(tPage("inviteCopied"));
-        },
-        onCopyError: () => {
-          toast.error(tPage("inviteCopyFailed"));
-        },
-      }
-    );
+  const getCircleUrl = () =>
+    `${window.location.origin}${window.location.pathname}`;
+
+  const handleShareInvitation = async () => {
+    const result = await shareCircleInvite({
+      title: event.name,
+      text: tPage(
+        event.is_public ? "publicShareInvitation" : "linkOnlyShareInvitation",
+        { name: event.name }
+      ),
+      url: getCircleUrl(),
+    });
+
+    if (result === "shared") {
+      trackProductEvent("Circle Invite Shared", {
+        visibility: event.is_public ? "public" : "link_only",
+      });
+      return;
+    }
+
+    if (result === "copied") {
+      trackProductEvent("Circle Invite Copied", {
+        visibility: event.is_public ? "public" : "link_only",
+      });
+      toast.success(tPage("inviteCopied"));
+      return;
+    }
+
+    if (result === "failed") {
+      toast.error(tPage("shareFailed"));
+    }
+  };
+
+  const handleCopyLink = async () => {
+    const result = await copyCircleLink(getCircleUrl());
+    if (result === "failed") {
+      toast.error(tPage("linkCopyFailed"));
+      return;
+    }
+
+    trackProductEvent("Circle Invite Copied", {
+      visibility: event.is_public ? "public" : "link_only",
+    });
+    toast.success(tPage("linkCopied"));
   };
 
   const handleArchiveToggle = async () => {
@@ -861,15 +882,39 @@ export default function KhatimPageClient({
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full border-quran-border bg-white/80 px-4"
-                  onClick={handleShare}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  {tPage("share")}
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-quran-border bg-white/80 px-4"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" />
+                      {tPage("share")}
+                      <ChevronDown className="ml-1.5 h-3.5 w-3.5 text-quran-muted" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={8}
+                    className="min-w-52 rounded-xl border-quran-border bg-white/95 p-1.5 shadow-xl backdrop-blur"
+                  >
+                    <DropdownMenuItem
+                      className="rounded-lg text-quran-deep focus:bg-quran-light-green/50 focus:text-quran-deep [&_svg]:text-quran-green"
+                      onSelect={() => void handleShareInvitation()}
+                    >
+                      <Send />
+                      {tPage("shareInvitation")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="rounded-lg text-quran-deep focus:bg-quran-light-green/50 focus:text-quran-deep [&_svg]:text-quran-green"
+                      onSelect={() => void handleCopyLink()}
+                    >
+                      <Copy />
+                      {tPage("copyLink")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 {isCreator && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

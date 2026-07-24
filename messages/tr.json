@@ -308,6 +308,10 @@
   },
   "CirclePage": {
     "share": "Paylaş",
+    "shareInvitation": "Halka davetini paylaş",
+    "copyLink": "Bağlantıyı kopyala",
+    "publicShareInvitation": "QuranCircle’daki “{name}” hatim halkasına katılın ve bir cüz sahiplenin.",
+    "linkOnlyShareInvitation": "QuranCircle’daki “{name}” hatim halkasına davetlisiniz. Bir cüz sahiplenin.",
     "circleSettings": "Halka ayarları",
     "archived": "Arşivlendi",
     "openForClaims": "Sahiplenmeye Açık",
@@ -319,7 +323,9 @@
     "publicCircle": "Açık Halka",
     "linkOnlyCircle": "Yalnızca Bağlantılı Halka",
     "inviteCopied": "Davet panoya kopyalandı",
-    "inviteCopyFailed": "Davet kopyalanamadı",
+    "linkCopied": "Halka bağlantısı kopyalandı",
+    "linkCopyFailed": "Halka bağlantısı kopyalanamadı",
+    "shareFailed": "Paylaşım açılamadı. Bunun yerine bağlantıyı kopyalayın.",
     "khatimArchived": "Hatim arşivlendi",
     "khatimUnarchived": "Hatim arşivden çıkarıldı",
     "archiveUpdateFailed": "Arşiv durumu güncellenemedi. Lütfen tekrar deneyin.",
@@ -540,7 +546,8 @@
     "joinCircle": "Bu Hatim Halkasına Katıl"
   },
   "CircleMetadata": {
-    "description": "QuranCircle'daki {eventName} hatim halkasına katılın"
+    "description": "QuranCircle'daki {eventName} hatim halkasına katılın",
+    "imageAlt": "QuranCircle’daki {eventName} hatim halkasına katılım daveti"
   },
   "HeroPreview": {
     "you": "Siz",

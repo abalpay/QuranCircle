@@ -34,4 +34,41 @@ describe("public circle metadata", () => {
       },
     });
   });
+
+  it("provides a complete localized social preview", async () => {
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: "tr", shortCode: "family-khatm" }),
+    });
+
+    expect(metadata.alternates?.canonical).toBe(
+      "https://www.qurancircle.io/tr/s/family-khatm"
+    );
+    expect(metadata.openGraph).toMatchObject({
+      title: "Family Ramadan Khatm - QuranCircle",
+      url: "https://www.qurancircle.io/tr/s/family-khatm",
+      siteName: "QuranCircle",
+      locale: "tr_TR",
+      images: [
+        {
+          url: expect.stringContaining(
+            "/tr/s/family-khatm/opengraph-image?v="
+          ),
+          width: 1200,
+          height: 630,
+          alt: "imageAlt",
+        },
+      ],
+    });
+    expect(metadata.twitter).toMatchObject({
+      card: "summary_large_image",
+      images: [
+        {
+          url: expect.stringContaining(
+            "/tr/s/family-khatm/opengraph-image?v="
+          ),
+          alt: "imageAlt",
+        },
+      ],
+    });
+  });
 });

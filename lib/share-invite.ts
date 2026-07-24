@@ -1,6 +1,6 @@
 export type CircleShareInput = {
-  name: string;
-  isPublic: boolean;
+  title: string;
+  text: string;
   url: string;
 };
 
@@ -11,59 +11,81 @@ type ShareNavigator = {
   };
 };
 
-export type ShareCircleInviteOptions = {
+type ShareNavigatorOptions = {
   navigatorRef?: ShareNavigator | null;
-  title?: string;
-  onShareSuccess?: () => void;
-  onCopySuccess?: () => void;
-  onCopyError?: () => void;
 };
 
-export function buildCircleInviteText({ name, isPublic, url }: CircleShareInput) {
-  const intro = isPublic
-    ? `Join the "${name}" Khatm circle on QuranCircle.`
-    : `You're invited to join the "${name}" Khatm circle on QuranCircle.`;
+export type ShareCircleInviteResult =
+  | "shared"
+  | "copied"
+  | "cancelled"
+  | "failed";
 
-  return `${intro} Claim a Juz here: ${url}`;
+function isAbortError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "AbortError"
+  );
 }
 
 function resolveNavigator(
-  navigatorRef: ShareCircleInviteOptions["navigatorRef"]
+  navigatorRef: ShareNavigatorOptions["navigatorRef"]
 ): ShareNavigator | null {
   if (navigatorRef !== undefined) return navigatorRef;
   if (typeof navigator === "undefined") return null;
   return navigator;
 }
 
+function buildClipboardInvite(input: CircleShareInput) {
+  return `${input.text}\n${input.url}`;
+}
+
 export async function shareCircleInvite(
   input: CircleShareInput,
-  options: ShareCircleInviteOptions = {}
-) {
-  const text = buildCircleInviteText(input);
+  options: ShareNavigatorOptions = {}
+): Promise<ShareCircleInviteResult> {
   const navigatorRef = resolveNavigator(options.navigatorRef);
-  if (!navigatorRef) return;
+  if (!navigatorRef) return "failed";
 
   if (typeof navigatorRef.share === "function") {
     try {
       await navigatorRef.share({
-        title: options.title ?? input.name,
-        text,
+        title: input.title,
+        text: input.text,
         url: input.url,
       });
-      options.onShareSuccess?.();
-    } catch {
-      // User cancellation is expected in native share sheets.
+      return "shared";
+    } catch (error) {
+      return isAbortError(error) ? "cancelled" : "failed";
     }
-    return;
   }
 
   try {
     if (!navigatorRef.clipboard || typeof navigatorRef.clipboard.writeText !== "function") {
       throw new Error("Clipboard API unavailable");
     }
-    await navigatorRef.clipboard.writeText(text);
-    options.onCopySuccess?.();
+    await navigatorRef.clipboard.writeText(buildClipboardInvite(input));
+    return "copied";
   } catch {
-    options.onCopyError?.();
+    return "failed";
+  }
+}
+
+export async function copyCircleLink(
+  url: string,
+  options: ShareNavigatorOptions = {}
+): Promise<"copied" | "failed"> {
+  const navigatorRef = resolveNavigator(options.navigatorRef);
+
+  try {
+    if (!navigatorRef?.clipboard || typeof navigatorRef.clipboard.writeText !== "function") {
+      throw new Error("Clipboard API unavailable");
+    }
+    await navigatorRef.clipboard.writeText(url);
+    return "copied";
+  } catch {
+    return "failed";
   }
 }

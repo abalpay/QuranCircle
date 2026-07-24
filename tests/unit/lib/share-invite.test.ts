@@ -1,133 +1,93 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildCircleInviteText, shareCircleInvite } from "@/lib/share-invite";
-
-describe("buildCircleInviteText", () => {
-  it("returns the public-circle invite template", () => {
-    const result = buildCircleInviteText({
-      name: "Ramadan Friends",
-      isPublic: true,
-      url: "https://www.qurancircle.io/s/ABC12345",
-    });
-
-    expect(result).toBe(
-      'Join the "Ramadan Friends" Khatm circle on QuranCircle. Claim a Juz here: https://www.qurancircle.io/s/ABC12345'
-    );
-  });
-
-  it("returns the link-only invite template", () => {
-    const result = buildCircleInviteText({
-      name: "Family Weekly",
-      isPublic: false,
-      url: "https://www.qurancircle.io/s/FAMILY01",
-    });
-
-    expect(result).toBe(
-      'You\'re invited to join the "Family Weekly" Khatm circle on QuranCircle. Claim a Juz here: https://www.qurancircle.io/s/FAMILY01'
-    );
-  });
-
-  it("always includes both name and URL", () => {
-    const name = "Masjid Group";
-    const url = "https://www.qurancircle.io/s/MASJID99";
-    const result = buildCircleInviteText({
-      name,
-      isPublic: true,
-      url,
-    });
-
-    expect(result).toContain(name);
-    expect(result).toContain(url);
-  });
-});
+import { copyCircleLink, shareCircleInvite } from "@/lib/share-invite";
 
 describe("shareCircleInvite", () => {
   const input = {
-    name: "Quran Study Group",
-    isPublic: true,
+    title: "Quran Study Group",
+    text: "Join the Quran Study Group Khatm circle on QuranCircle and claim a Juz.",
     url: "https://www.qurancircle.io/s/STUDY123",
   };
 
-  it("uses native share payload when navigator.share is available", async () => {
+  it("shares text and URL as separate native-share fields", async () => {
     const share = vi.fn().mockResolvedValue(undefined);
     const writeText = vi.fn().mockResolvedValue(undefined);
-    const onCopySuccess = vi.fn();
-    const onCopyError = vi.fn();
-    const onShareSuccess = vi.fn();
 
-    await shareCircleInvite(input, {
-      title: input.name,
+    const result = await shareCircleInvite(input, {
       navigatorRef: {
         share,
         clipboard: { writeText },
       },
-      onShareSuccess,
-      onCopySuccess,
-      onCopyError,
     });
 
-    expect(share).toHaveBeenCalledTimes(1);
-    expect(share).toHaveBeenCalledWith({
-      title: input.name,
-      text: buildCircleInviteText(input),
-      url: input.url,
-    });
+    expect(result).toBe("shared");
+    expect(share).toHaveBeenCalledWith(input);
+    expect(input.text).not.toContain(input.url);
     expect(writeText).not.toHaveBeenCalled();
-    expect(onShareSuccess).toHaveBeenCalledTimes(1);
-    expect(onCopySuccess).not.toHaveBeenCalled();
-    expect(onCopyError).not.toHaveBeenCalled();
   });
 
-  it("copies invite text to clipboard when native share is unavailable", async () => {
+  it("copies the complete invitation when native share is unavailable", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
-    const onCopySuccess = vi.fn();
-    const onCopyError = vi.fn();
 
-    await shareCircleInvite(input, {
+    const result = await shareCircleInvite(input, {
       navigatorRef: {
         clipboard: { writeText },
       },
-      onCopySuccess,
-      onCopyError,
     });
 
-    expect(writeText).toHaveBeenCalledTimes(1);
-    expect(writeText).toHaveBeenCalledWith(buildCircleInviteText(input));
-    expect(onCopySuccess).toHaveBeenCalledTimes(1);
-    expect(onCopyError).not.toHaveBeenCalled();
+    expect(result).toBe("copied");
+    expect(writeText).toHaveBeenCalledWith(`${input.text}\n${input.url}`);
   });
 
-  it("invokes error callback when clipboard write fails", async () => {
-    const writeText = vi.fn().mockRejectedValue(new Error("Clipboard blocked"));
-    const onCopySuccess = vi.fn();
-    const onCopyError = vi.fn();
-
-    await shareCircleInvite(input, {
-      navigatorRef: {
-        clipboard: { writeText },
-      },
-      onCopySuccess,
-      onCopyError,
-    });
-
-    expect(writeText).toHaveBeenCalledTimes(1);
-    expect(onCopySuccess).not.toHaveBeenCalled();
-    expect(onCopyError).toHaveBeenCalledTimes(1);
+  it("returns failed when clipboard writing is unavailable", async () => {
+    await expect(
+      shareCircleInvite(input, { navigatorRef: {} })
+    ).resolves.toBe("failed");
   });
 
-  it("keeps AbortError from native share silent", async () => {
+  it("keeps native-share cancellation silent", async () => {
     const abortError = new Error("Share cancelled");
     abortError.name = "AbortError";
     const share = vi.fn().mockRejectedValue(abortError);
-    const onCopyError = vi.fn();
 
     await expect(
       shareCircleInvite(input, {
         navigatorRef: { share },
-        onCopyError,
       })
-    ).resolves.toBeUndefined();
+    ).resolves.toBe("cancelled");
+  });
 
-    expect(share).toHaveBeenCalledTimes(1);
-    expect(onCopyError).not.toHaveBeenCalled();
+  it("reports genuine native-share failures", async () => {
+    const share = vi.fn().mockRejectedValue(new Error("Share unavailable"));
+
+    await expect(
+      shareCircleInvite(input, {
+        navigatorRef: { share },
+      })
+    ).resolves.toBe("failed");
+  });
+});
+
+describe("copyCircleLink", () => {
+  const url = "https://www.qurancircle.io/tr/s/STUDY123";
+
+  it("copies only the canonical circle URL", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    const result = await copyCircleLink(url, {
+      navigatorRef: { clipboard: { writeText } },
+    });
+
+    expect(result).toBe("copied");
+    expect(writeText).toHaveBeenCalledWith(url);
+  });
+
+  it("reports clipboard failures", async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("Clipboard blocked"));
+
+    const result = await copyCircleLink(url, {
+      navigatorRef: { clipboard: { writeText } },
+    });
+
+    expect(result).toBe("failed");
   });
 });
