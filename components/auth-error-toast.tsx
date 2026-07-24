@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 export default function AuthErrorToast() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Auth");
 
@@ -16,11 +18,14 @@ export default function AuthErrorToast() {
         description: t("authFailedDesc"),
       });
 
-      const url = new URL(window.location.href);
-      url.searchParams.delete("error");
-      router.replace(url.pathname + url.search, { scroll: false });
+      const nextSearchParams = new URLSearchParams(searchParams);
+      nextSearchParams.delete("error");
+      const query = nextSearchParams.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
     }
-  }, [searchParams, router, t]);
+  }, [pathname, searchParams, router, t]);
 
   return null;
 }

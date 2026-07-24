@@ -17,6 +17,24 @@ describe("resource sitemap entries", () => {
     expect(urls).toContain(
       "https://www.qurancircle.io/ramadan-group-khatm",
     );
+    expect(urls).toContain(
+      "https://www.qurancircle.io/tr/group-khatm-whatsapp",
+    );
+    expect(urls).toContain(
+      "https://www.qurancircle.io/tr/ramadan-group-khatm",
+    );
+  });
+
+  it("links every English and Turkish URL as language alternatives", async () => {
+    const entries = await sitemap();
+    const englishHome = entries.find(
+      (entry) => entry.url === "https://www.qurancircle.io",
+    );
+
+    expect(englishHome?.alternates?.languages).toEqual({
+      en: "https://www.qurancircle.io",
+      tr: "https://www.qurancircle.io/tr",
+    });
   });
 
   it("does not expose individual public circles for indexing", async () => {

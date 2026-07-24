@@ -12,12 +12,17 @@ vi.mock("@/lib/site-url", () => ({
   toAbsoluteUrl: (path: string) => `https://www.qurancircle.io${path}`,
 }));
 
-import { generateMetadata } from "@/app/s/[shortCode]/page";
+vi.mock("next-intl/server", () => ({
+  getTranslations: vi.fn(async () => (key: string) => key),
+  setRequestLocale: vi.fn(),
+}));
+
+import { generateMetadata } from "@/app/[locale]/s/[shortCode]/page";
 
 describe("public circle metadata", () => {
   it("allows crawling links without indexing the individual circle", async () => {
     const metadata = await generateMetadata({
-      params: Promise.resolve({ shortCode: "family-khatm" }),
+      params: Promise.resolve({ locale: "en", shortCode: "family-khatm" }),
     });
 
     expect(metadata.robots).toMatchObject({

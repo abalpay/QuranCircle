@@ -40,7 +40,7 @@ describe("updateSession", () => {
     });
   });
 
-  it("redirects unauthenticated account requests while preserving locale cookie", async () => {
+  it("redirects unauthenticated account requests to the default-locale home", async () => {
     supabaseMocks.getUser.mockResolvedValue({
       data: { user: null },
     });
@@ -49,7 +49,25 @@ describe("updateSession", () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://quran-circle.test/");
-    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+    expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
+  });
+
+  it("preserves the Turkish route prefix in auth redirects", async () => {
+    supabaseMocks.getUser.mockResolvedValue({
+      data: { user: null },
+    });
+
+    const accountResponse = await updateSession(buildRequest("/tr/account"));
+    const resetResponse = await updateSession(
+      buildRequest("/tr/reset-password"),
+    );
+
+    expect(accountResponse.headers.get("location")).toBe(
+      "https://quran-circle.test/tr",
+    );
+    expect(resetResponse.headers.get("location")).toBe(
+      "https://quran-circle.test/tr?error=auth",
+    );
   });
 
   it("redirects anonymous users away from reset password", async () => {
@@ -152,7 +170,7 @@ describe("updateSession", () => {
     );
     expect(response.headers.get("Expires")).toBe("0");
     expect(response.headers.get("Pragma")).toBe("no-cache");
-    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+    expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
   });
 
   it("preserves refreshed auth state and cache headers across redirects", async () => {
@@ -182,7 +200,7 @@ describe("updateSession", () => {
     expect(response.cookies.get("sb-test-auth-token")?.value).toBe(
       "expired-token"
     );
-    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("en");
+    expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
     expect(response.headers.get("Cache-Control")).toBe(
       "private, no-cache, no-store, must-revalidate, max-age=0"
     );

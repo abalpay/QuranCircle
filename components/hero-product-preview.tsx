@@ -8,6 +8,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type PreviewStatus = "available" | "claimed" | "completed";
@@ -52,9 +53,10 @@ function TileContent({
   isDemo,
   isDemoClaimed,
 }: TileContentProps) {
+  const t = useTranslations("HeroPreview");
   const claimedName =
     juzNumber === DEMO_JUZ && isDemoClaimed
-      ? "You"
+      ? t("you")
       : CLAIMED_NAMES[juzNumber];
 
   return (
@@ -62,7 +64,7 @@ function TileContent({
       <span className="hero-product-tile-number">{juzNumber}</span>
       {status === "completed" ? (
         <span className="hero-product-tile-state">
-          Completed
+          {t("completed")}
           <CheckCircle2 aria-hidden className="h-3 w-3" />
         </span>
       ) : status === "claimed" ? (
@@ -71,15 +73,16 @@ function TileContent({
           <Check aria-hidden className="h-3 w-3" />
         </span>
       ) : isDemo ? (
-        <span className="hero-product-tile-action">Claim Juz</span>
+        <span className="hero-product-tile-action">{t("claimJuz")}</span>
       ) : (
-        <span className="hero-product-tile-state">Available</span>
+        <span className="hero-product-tile-state">{t("available")}</span>
       )}
     </>
   );
 }
 
 export default function HeroProductPreview() {
+  const t = useTranslations("HeroPreview");
   const [isDemoClaimed, setIsDemoClaimed] = useState(false);
   const claimedCount = isDemoClaimed ? 19 : 18;
   const progress = Math.round((claimedCount / 30) * 100);
@@ -88,33 +91,35 @@ export default function HeroProductPreview() {
     <div className="hero-product-frame">
       <div
         className="hero-product-card"
-        aria-label="Interactive preview of a QuranCircle Khatm tracker"
+        aria-label={t("previewAriaLabel")}
       >
         <header className="hero-product-header">
           <div className="hero-product-meta">
             <span className="hero-product-badge">
               <ShieldCheck aria-hidden className="h-3.5 w-3.5" />
-              Interactive preview
+              {t("interactivePreview")}
             </span>
-            <span>Khatm #1</span>
+            <span>{t("khatmNumber", { number: 1 })}</span>
           </div>
 
           <div className="hero-product-heading">
             <div>
-              <p className="hero-product-overline">Family &amp; Friends Circle</p>
-              <h2>Progress tracker</h2>
-              <p aria-live="polite">{claimedCount} of 30 Juz claimed</p>
+              <p className="hero-product-overline">{t("circleName")}</p>
+              <h2>{t("progressTracker")}</h2>
+              <p aria-live="polite">
+                {t("claimedProgress", { claimed: claimedCount, total: 30 })}
+              </p>
             </div>
             <div className="hero-product-progress-value">
               <strong>{progress}%</strong>
-              <span>Overall progress</span>
+              <span>{t("overallProgress")}</span>
             </div>
           </div>
 
           <div
             className="hero-product-progress"
             role="progressbar"
-            aria-label="Khatm claim progress"
+            aria-label={t("progressAriaLabel")}
             aria-valuemin={0}
             aria-valuemax={30}
             aria-valuenow={claimedCount}
@@ -123,27 +128,27 @@ export default function HeroProductPreview() {
           </div>
 
           <div className="hero-product-progress-labels" aria-hidden>
-            <span>{claimedCount} claimed</span>
-            <span>30 Juz</span>
+            <span>{t("claimedCount", { count: claimedCount })}</span>
+            <span>{t("juzCount", { count: 30 })}</span>
           </div>
         </header>
 
-        <div className="hero-product-legend" aria-label="Juz status legend">
+        <div className="hero-product-legend" aria-label={t("legendLabel")}>
           <span>
             <i className="is-available" />
-            Available
+            {t("available")}
           </span>
           <span>
             <i className="is-claimed" />
-            Claimed
+            {t("claimed")}
           </span>
           <span>
             <i className="is-completed" />
-            Completed
+            {t("completed")}
           </span>
         </div>
 
-        <ol className="hero-product-grid" aria-label="All 30 Juz">
+        <ol className="hero-product-grid" aria-label={t("gridLabel")}>
           {JUZ_NUMBERS.map((juzNumber) => {
             const status = getStatus(juzNumber, isDemoClaimed);
             const isDemo = juzNumber === DEMO_JUZ;
@@ -163,8 +168,8 @@ export default function HeroProductPreview() {
                     disabled={isDemoClaimed}
                     aria-label={
                       isDemoClaimed
-                        ? "Juz 19 claimed by you in this preview"
-                        : "Try the preview: claim Juz 19"
+                        ? t("demoClaimedLabel", { number: DEMO_JUZ })
+                        : t("demoClaimLabel", { number: DEMO_JUZ })
                     }
                   >
                     <TileContent
@@ -192,17 +197,17 @@ export default function HeroProductPreview() {
         <footer className="hero-product-footer">
           <span>
             <ShieldCheck aria-hidden className="h-4 w-4" />
-            Open for claims
+            {t("openForClaims")}
           </span>
           <span className="hero-product-footer-divider" aria-hidden />
           <span>
             <Link2 aria-hidden className="h-4 w-4" />
-            Share circle link
+            {t("shareCircleLink")}
           </span>
           {isDemoClaimed ? (
             <button type="button" onClick={() => setIsDemoClaimed(false)}>
               <RotateCcw aria-hidden className="h-3.5 w-3.5" />
-              Reset demo
+              {t("resetDemo")}
             </button>
           ) : null}
         </footer>

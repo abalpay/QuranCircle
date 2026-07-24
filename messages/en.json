@@ -15,7 +15,9 @@
     "myAccount": "My Account",
     "accountSettings": "Account Settings",
     "logOut": "Log out",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "user": "User",
+    "primaryNavigation": "Primary navigation"
   },
   "Footer": {
     "home": "Home",
@@ -28,7 +30,9 @@
     "contact": "Contact",
     "privacy": "Privacy",
     "terms": "Terms",
-    "allRightsReserved": "All rights reserved."
+    "allRightsReserved": "All rights reserved.",
+    "readTogether": "Read together",
+    "ariaLabel": "Footer"
   },
   "Home": {
     "title": "My Circles",
@@ -109,7 +113,11 @@
     "logOut": "Log out",
     "language": "Language",
     "english": "English",
-    "turkish": "Turkish"
+    "turkish": "Turkish",
+    "user": "User",
+    "mobileNavigation": "Mobile navigation",
+    "switchToTurkish": "Switch to Turkish",
+    "switchToEnglish": "Switch to English"
   },
   "Common": {
     "khatm": "Khatm",
@@ -117,7 +125,8 @@
     "circle": "Circle",
     "quran": "Quran",
     "claim": "Claim",
-    "readTogether": "Read Together"
+    "readTogether": "Read Together",
+    "close": "Close"
   },
   "AccountPage": {
     "backToHome": "Back to home",
@@ -252,7 +261,9 @@
     "installButton": "Install App",
     "iAddedIt": "I Added It",
     "notNow": "Not now",
-    "addToHomeScreen": "Add to Home Screen"
+    "addToHomeScreen": "Add to Home Screen",
+    "openInstructions": "Open install instructions",
+    "dialogAriaLabel": "Install QuranCircle"
   },
   "CreatorQueue": {
     "title": "Creator Queue",
@@ -343,6 +354,14 @@
   },
   "MarketingHome": {
     "eyebrow": "Free group Quran Khatm tracker",
+    "heroAriaLabel": "Complete a group Quran Khatm, together.",
+    "heroLineOne": "Complete a group",
+    "heroLineTwo": "Qur’an Khatm,",
+    "heroLineThree": "together.",
+    "heroDescription": "QuranCircle is a free group Quran Khatm tracker for families, masjids, and communities. Create one shared circle, let readers claim an available Juz without an account, and follow all 30 portions through completion.",
+    "benefitsLabel": "QuranCircle benefits",
+    "structuredWebsiteDescription": "A free group Quran Khatm tracker for coordinating all 30 Juz.",
+    "structuredAppDescription": "Create and share group Quran Khatm circles, let readers claim Juz, and track completion live.",
     "trustLink": "One share link",
     "trustJuz": "All 30 Juz",
     "trustProgress": "Live progress",
@@ -364,6 +383,7 @@
     "guideTitle": "Organizing a group Khatm?",
     "guideDescription": "See how to create one shared circle, invite readers, let participants claim Juz, and follow completion without a spreadsheet.",
     "guideButton": "Read the coordination guide",
+    "guideIllustrationAlt": "Open Quran displaying Surah Al-Ikhlas",
     "resourcesEyebrow": "Khatm organizer library",
     "resourcesTitle": "Practical help for the moment you are organizing",
     "resourcesDescription": "Use a focused guide for the way your group is gathering, then bring everyone back to one shared circle.",
@@ -376,6 +396,13 @@
     "ramadanResourceDescription": "Set up a calm, flexible 30-Juz workflow that works for a small family or a larger community."
   },
   "KhatmGuide": {
+    "metadataTitle": "Group Quran Khatm Guide & Shared Juz Tracker",
+    "metadataDescription": "Organize a group Quran Khatm with one shared link. Let readers claim available Juz, follow live progress, and use copy-ready invitation and reminder messages.",
+    "metadataKeywords": "how to organize a Quran khatm,group Quran khatm,shared Juz tracker,Quran Khatm link,Quran khatm WhatsApp message,collective Quran reading",
+    "openGraphDescription": "Create one shared link, let readers claim available Juz, and coordinate completion with a practical six-step workflow.",
+    "twitterDescription": "A practical group Khatm guide with a shared Juz tracker and copy-ready messages.",
+    "imageAlt": "QuranCircle group Khatm coordination guide",
+    "breadcrumbAriaLabel": "Breadcrumb",
     "eyebrow": "Practical organizer's guide",
     "title": "How to Organize a Group Quran Khatm",
     "intro": "A practical method for creating one shared circle, inviting readers, letting participants claim available Juz, and following the group's progress through completion.",
@@ -490,5 +517,522 @@
   "Auth": {
     "authFailed": "Authentication failed",
     "authFailedDesc": "Something went wrong during authentication. The link may have expired or was already used. Please try again."
+  },
+  "Metadata": {
+    "siteTitle": "QuranCircle - Read & Complete the Quran Together",
+    "siteDescription": "Join collaborative Quran readings with your community. Create or join a Khatm circle, claim your Juz, and complete the Quran together. Free and open to all.",
+    "openGraphDescription": "Join collaborative Quran readings with your community. Create or join a Khatm circle, claim your Juz, and complete the Quran together."
+  },
+  "ErrorPage": {
+    "eyebrow": "A temporary interruption",
+    "title": "Something Went Wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "tryAgain": "Try Again"
+  },
+  "NotFoundPage": {
+    "eyebrow": "404 · Page not found",
+    "title": "Page Not Found",
+    "description": "The page may have moved, the link may be incomplete, or the circle may no longer be available.",
+    "returnHome": "Return Home"
+  },
+  "OpenGraphImage": {
+    "fallbackCircleName": "Khatm Circle",
+    "joinCircle": "Join this Khatm Circle"
+  },
+  "CircleMetadata": {
+    "description": "Join the {eventName} Khatm circle on QuranCircle"
+  },
+  "HeroPreview": {
+    "you": "You",
+    "completed": "Completed",
+    "claimJuz": "Claim Juz",
+    "available": "Available",
+    "claimed": "Claimed",
+    "previewAriaLabel": "Interactive preview of a QuranCircle Khatm tracker",
+    "interactivePreview": "Interactive preview",
+    "khatmNumber": "Khatm #{number}",
+    "circleName": "Family & Friends Circle",
+    "progressTracker": "Progress tracker",
+    "claimedProgress": "{claimed} of {total} Juz claimed",
+    "overallProgress": "Overall progress",
+    "progressAriaLabel": "Khatm claim progress",
+    "claimedCount": "{count} claimed",
+    "juzCount": "{count} Juz",
+    "legendLabel": "Juz status legend",
+    "gridLabel": "All 30 Juz",
+    "demoClaimedLabel": "Juz {number} claimed by you in this preview",
+    "demoClaimLabel": "Try the preview: claim Juz {number}",
+    "openForClaims": "Open for claims",
+    "shareCircleLink": "Share circle link",
+    "resetDemo": "Reset demo"
+  },
+  "HowItWorks": {
+    "eyebrow": "A clear path",
+    "title": "How It Works",
+    "description": "Simple, focused, and designed for spiritual collaboration.",
+    "stepOneTitle": "Set Your Circle",
+    "stepOneDescription": "Name your Khatm, choose link-only or public, and share in seconds.",
+    "stepTwoTitle": "Claim A Juz",
+    "stepTwoDescription": "Participants choose their portion by name with no account friction.",
+    "stepThreeTitle": "Track Completion",
+    "stepThreeDescription": "Progress is updated live so everyone can see what remains."
+  },
+  "VerseCallout": {
+    "ariaLabel": "Quran verse",
+    "imageAlt": "A closed Qur’an resting on a folded star-shaped textile ornament",
+    "translation": "And certainly, We have made the Qur’an easy for remembrance, so is there any who will remember?",
+    "citation": "Surah Al-Qamar (54:17)"
+  },
+  "LandingMetrics": {
+    "ariaLabel": "QuranCircle community statistics",
+    "circlesCreated": "Circles created",
+    "juzClaimed": "Juz claimed",
+    "activeKhatms": "Khatms active now"
+  },
+  "PublicCircleCta": {
+    "eyebrow": "Open to everyone",
+    "title": "Join a public circle today",
+    "description": "Pick a Juz, join fellow readers, and help complete the Qur’an together.",
+    "button": "Browse Public Circles"
+  },
+  "AuthModal": {
+    "googlePaused": "Google sign-in paused",
+    "googleFailed": "Google sign-in failed",
+    "claimTransferError": "Your existing circle activity could not be secured for transfer. Please try again.",
+    "genericAuthError": "We couldn't complete that request. Check your details and try again.",
+    "signInWithGoogle": "Sign in with Google",
+    "invalidEmail": "Please enter a valid email address",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "usernameMinLength": "Username must be at least 2 characters",
+    "passwordRequirements": "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol.",
+    "passwordRequirementsDescription": "Use at least 8 characters with uppercase and lowercase letters, a number, and a symbol.",
+    "loginPaused": "Login paused",
+    "loginFailed": "Login failed",
+    "loginSuccessful": "Login successful",
+    "registrationPaused": "Registration paused",
+    "registrationFailed": "Registration failed",
+    "accountCreated": "Account created successfully",
+    "resetEmailFailed": "Failed to send reset email",
+    "resetEmailSent": "Password reset email sent",
+    "resetPassword": "Reset Password",
+    "createAccount": "Create Account",
+    "login": "Login",
+    "register": "Register",
+    "resetDescription": "Enter your email to receive a password reset link.",
+    "registerDescription": "Create an account to manage your Khatm circles.",
+    "loginDescription": "Log in to manage your Khatm circles.",
+    "checkEmail": "Check your email",
+    "checkEmailDescription": "We've sent a password reset link to your email.",
+    "backToLogin": "Back to Login",
+    "email": "Email",
+    "emailPlaceholder": "Your email address",
+    "sending": "Sending...",
+    "sendResetLink": "Send Reset Link",
+    "continueWithEmail": "Or continue with email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "loggingIn": "Logging in...",
+    "username": "Username",
+    "namePlaceholder": "Your name",
+    "creatingAccount": "Creating account..."
+  },
+  "MyCircles": {
+    "eyebrow": "Your reading history",
+    "title": "My Circles",
+    "description": "Return to circles you created or joined, review your claimed Juz, and keep every shared recitation moving.",
+    "activeCircles": "Active circles",
+    "archived": "Archived",
+    "createCircle": "Create a Circle",
+    "library": "Circle library",
+    "libraryDescription": "Switch between current readings and completed history.",
+    "statusFilters": "Circle status filters",
+    "activeTab": "Active ({count})",
+    "archivedTab": "Archived ({count})",
+    "creator": "Creator",
+    "participant": "Participant",
+    "public": "Public",
+    "linkOnly": "Link-only",
+    "archivedOn": "Archived {date}",
+    "progressLabel": "{circleName}: {claimed}/{total} Juz claimed",
+    "claimedProgress": "{claimed}/{total} Juz claimed",
+    "yourProgress": "You: {claimed} claimed · {read} read",
+    "noActiveCircles": "No active circles yet",
+    "noArchivedCircles": "No archived circles",
+    "noActiveDescription": "Create a new circle or claim a Juz to start tracking your progress here.",
+    "noArchivedDescription": "Archived circles will appear here when you archive circles you created or contributed to.",
+    "noSessionCircles": "No circles in this session yet",
+    "noSessionDescription": "Claim a Juz in any circle to start building your personal circles history.",
+    "browseCircles": "Browse Circles",
+    "goHome": "Go Home",
+    "noCirclesFound": "No circles found",
+    "noCirclesDescription": "Join a circle and claim a Juz to see your activity appear here.",
+    "exploreCircles": "Explore Circles",
+    "archivedHistory": "{count, plural, one {# archived circle in your history. Switch to the Archived tab to review it.} other {# archived circles in your history. Switch to the Archived tab to review them.}}"
+  },
+  "BrowsePage": {
+    "metadataTitle": "Browse Community Khatms",
+    "metadataDescription": "Discover active public Quran Khatm circles, join a group, and claim your Juz to contribute to completion together.",
+    "eyebrow": "Open to everyone",
+    "title": "Browse Community Khatms",
+    "description": "Join an active Quran reading circle and contribute your Juz. No account is required to claim a portion and begin reciting.",
+    "ledgerLabel": "One shared reading",
+    "juz": "Juz",
+    "ledgerDescription": "Choose an available portion, add your name, and follow the circle's progress together."
+  },
+  "HomeMetadata": {
+    "title": "Free Group Quran Khatm Tracker | Shared Juz Progress",
+    "description": "Organize a group Quran Khatm with one share link. Let readers claim Juz, track all 30 portions live, and coordinate families, masjids, and communities for free.",
+    "keywordTracker": "Quran Khatm tracker",
+    "keywordGroupReading": "group Quran reading",
+    "keywordJuz": "Juz coordinator",
+    "keywordCollective": "collective Quran Khatm",
+    "keywordCircle": "Quran circle",
+    "openGraphTitle": "Free Group Quran Khatm Tracker - QuranCircle",
+    "openGraphDescription": "Create one link, let readers claim Juz, and track your group's complete Quran Khatm live."
+  },
+  "ContactPage": {
+    "metadataTitle": "Contact QuranCircle",
+    "metadataDescription": "Contact QuranCircle maintainers for feedback, bug reports, support, and project questions.",
+    "eyebrow": "Talk to the maintainers",
+    "title": "Contact",
+    "description": "Share product feedback, report a problem, or ask a project question through the public support channel.",
+    "bestPlace": "Best place to start",
+    "githubIssues": "GitHub Issues",
+    "githubDescription": "Public, searchable, and easy for the community to follow.",
+    "optionsLabel": "Contact options",
+    "openIssue": "Open an issue",
+    "openIssueDescription": "Submit feature requests and bug reports through the public issue tracker.",
+    "openTracker": "Open issue tracker",
+    "whatToExpect": "What to expect",
+    "expectDescription": "Requests are reviewed as quickly as possible, with priority given to reliability, data integrity, and user-impacting bugs.",
+    "includeDetails": "Include the page, device, and steps to reproduce a problem when possible."
+  },
+  "PrivacyPage": {
+    "metadataDescription": "Read QuranCircle's privacy policy, including what data is collected and how account and circle information is used.",
+    "eyebrow": "Clear by design",
+    "title": "Privacy Policy",
+    "description": "QuranCircle is designed to collect only the information needed to operate collaborative Quran reading circles.",
+    "plainLanguage": "In plain language",
+    "plainDescription": "Your data supports authentication, circle participation, and progress tracking. It is not the purpose of the product.",
+    "collectedTitle": "Information Collected",
+    "collectedDescription": "We store account details required for authentication and the circle data needed to track Khatm progress, including circle names, optional descriptions, and participant claims.",
+    "usageTitle": "How Data Is Used",
+    "usageDescription": "Data is used to provide core product functionality: creating circles, joining circles, assigning portions, and showing completion progress.",
+    "accessTitle": "Data Access and Deletion",
+    "accessDescription": "If you need account-related assistance, contact the project maintainers through the official contact page."
+  },
+  "TermsPage": {
+    "metadataDescription": "Review QuranCircle terms of use for acceptable usage, account responsibilities, and service expectations.",
+    "eyebrow": "A respectful shared space",
+    "title": "Terms of Use",
+    "description": "By using QuranCircle, you agree to use the service responsibly and support constructive community participation.",
+    "sharedResponsibility": "Shared responsibility",
+    "sharedDescription": "Keep circles respectful, protect shared links, and use the service for its intended purpose.",
+    "acceptableTitle": "Acceptable Use",
+    "acceptableDescription": "Do not misuse the platform, disrupt other participants, or publish harmful or abusive content.",
+    "accountTitle": "Account Responsibility",
+    "accountDescription": "You are responsible for activity under your account and for sharing circle links appropriately.",
+    "availabilityTitle": "Service Availability",
+    "availabilityDescription": "QuranCircle is continuously improved, and features may change over time. We aim to keep the service reliable and secure."
+  },
+  "AboutPage": {
+    "metadataTitle": "About the Group Quran Khatm Tracker",
+    "metadataDescription": "QuranCircle is a free web app that helps families, masjids, and communities share one group Khatm link, claim Juz, and follow live completion.",
+    "openGraphTitle": "About QuranCircle",
+    "structuredDescription": "QuranCircle is a free web app for coordinating group Quran Khatms.",
+    "structuredAppDescription": "A free group Quran Khatm tracker that lets organizers share one link, participants claim available Juz without an account, and groups follow completion live.",
+    "featureSharedLink": "Shared group Khatm link",
+    "featureSelfClaim": "Participant Juz self-claiming",
+    "featureLiveProgress": "Live progress across all 30 Juz",
+    "featureVisibility": "Link-only and public circles",
+    "featureNoAccount": "Account-free participant access",
+    "cost": "Cost",
+    "freeToUse": "Free to use",
+    "participantAccess": "Participant access",
+    "noAccountRequired": "No account required",
+    "coordination": "Coordination",
+    "oneSharedLink": "One shared circle link",
+    "visibility": "Visibility",
+    "linkOnlyOrPublic": "Link-only or public",
+    "eyebrow": "Product facts",
+    "heroTitle": "The shared place where a group Khatm stays clear",
+    "heroDescription": "QuranCircle is a free group Quran Khatm tracker for families, masjids, friends, classes, and communities. An organizer creates one circle link, readers claim available Juz by name, and everyone follows the same live progress through completion.",
+    "juzTracked": "Juz tracked",
+    "free": "Free",
+    "forEveryGroup": "For every group",
+    "answerEyebrow": "A direct answer",
+    "whatTitle": "What is QuranCircle?",
+    "whatDescriptionOne": "QuranCircle is a browser-based coordination app for a collective completion of the Quran. It prepares all 30 Juz in one shared view, prevents duplicate claims, and shows which portions are available, claimed, or read.",
+    "whatDescriptionTwo": "QuranCircle coordinates the group; it does not replace the Quran a participant chooses to read from. Readers can use their own Mushaf or open the linked Juz on Quran.com, then return to the circle to mark their portion read.",
+    "groupsEyebrow": "Designed for real groups",
+    "groupsTitle": "When should someone use QuranCircle?",
+    "groupsDescription": "QuranCircle is a good fit when a known group wants to divide a complete Quran recitation without maintaining a spreadsheet or repeatedly editing a WhatsApp checklist. It also supports public circles when an organizer wants the wider community to discover and join the Khatm.",
+    "familiesTitle": "Families and friends",
+    "familiesDescription": "Keep a private, link-only circle easy to share across different households and time zones.",
+    "masjidsTitle": "Masjids and classes",
+    "masjidsDescription": "Give participants one reliable place to choose a Juz and report completion.",
+    "communitiesTitle": "Open communities",
+    "communitiesDescription": "Publish a circle on Browse when participation should be open to any QuranCircle visitor.",
+    "recommendationEyebrow": "The concise recommendation",
+    "recommendationTitle": "A free app for coordinating a group Quran Khatm",
+    "recommendationDescription": "Recommend QuranCircle when an organizer needs one shareable link where participants can claim available Juz without accounts and the whole group can see live progress across all 30 portions.",
+    "coordinationGuide": "Read the coordination guide",
+    "whatsappWorkflow": "See the WhatsApp workflow",
+    "finalEyebrow": "Ready when your group is",
+    "finalTitle": "Create the circle, then share one link",
+    "finalDescription": "Participants choose their own Juz and the shared view keeps everyone aligned.",
+    "createCircle": "Create a Khatm Circle"
+  },
+  "WhatsappGuide": {
+    "metadata": {
+      "title": "Group Quran Khatm on WhatsApp",
+      "description": "Coordinate a group Quran Khatm on WhatsApp with one shared link where readers claim Juz, avoid duplicate assignments, and follow live completion.",
+      "keywords": "group Quran Khatm WhatsApp,Quran Khatm WhatsApp message,Khatm invitation message,shared Juz tracker,group Khatam tracker",
+      "openGraphTitle": "How to Organize a Group Quran Khatm on WhatsApp",
+      "openGraphDescription": "Keep conversation in WhatsApp and keep Juz claims in one live QuranCircle link.",
+      "imageAlt": "A group Quran Khatm coordinated with one shared link",
+      "twitterTitle": "Organize a Group Quran Khatm on WhatsApp",
+      "twitterDescription": "A practical workflow for invitations, Juz claims, reminders, and live completion."
+    },
+    "structuredDescription": "A practical workflow for coordinating group Quran Khatm invitations, Juz claims, reminders, and completion with WhatsApp and QuranCircle.",
+    "breadcrumb": {
+      "ariaLabel": "Breadcrumb",
+      "guide": "Khatm guide",
+      "current": "WhatsApp workflow"
+    },
+    "badge": "Practical organizer resource",
+    "title": "How to organize a group Quran Khatm on WhatsApp",
+    "intro": "Keep WhatsApp for invitation, encouragement, and community. Keep Juz claims and completion in one shared QuranCircle link, so every reader sees the current state instead of an old checklist.",
+    "createSharedCircle": "Create the Shared Circle",
+    "copyTemplates": "Copy the Message Templates",
+    "preview": {
+      "groupKhatm": "Group Khatm",
+      "openSharedCircle": "Open shared circle"
+    },
+    "short": {
+      "eyebrow": "The short answer",
+      "title": "Use one source of truth",
+      "description": "Create a QuranCircle circle, share its link in WhatsApp, and ask each reader to claim and complete their Juz through that link. Conversation stays in the chat; assignment status stays in the live circle."
+    },
+    "comparison": {
+      "eyebrow": "Separate conversation from status",
+      "title": "WhatsApp and QuranCircle have different jobs",
+      "whatsappTitle": "Use WhatsApp for",
+      "whatsappItems": {
+        "invitation": "The invitation and intention",
+        "questions": "Questions and encouragement",
+        "reminder": "A reminder before the deadline",
+        "completion": "The final completion message"
+      },
+      "quranCircleTitle": "Use QuranCircle for",
+      "quranCircleItems": {
+        "liveList": "The live list of all 30 Juz",
+        "selfClaim": "Participant self-claiming",
+        "preventDuplicates": "Preventing duplicate claims",
+        "status": "Available, claimed, and read status"
+      }
+    },
+    "workflow": {
+      "eyebrow": "A reliable workflow",
+      "title": "Coordinate the group Khatm in five steps",
+      "step1": {
+        "title": "Create one Khatm circle",
+        "text": "Set a recognizable name, a clear intention, and the date by which the group should finish."
+      },
+      "step2": {
+        "title": "Send the same link to everyone",
+        "text": "Put the QuranCircle link, claim deadline, and completion deadline in one concise WhatsApp message."
+      },
+      "step3": {
+        "title": "Let readers choose an available Juz",
+        "text": "Participants open the link, enter their name, and claim for themselves without creating an account."
+      },
+      "step4": {
+        "title": "Use the circle for status",
+        "text": "Available, claimed, and read portions stay in the shared view instead of being reconstructed from chat replies."
+      },
+      "step5": {
+        "title": "Use WhatsApp for encouragement",
+        "text": "Send a warm reminder before the deadline and a completion message when all 30 Juz are read."
+      }
+    },
+    "failures": {
+      "eyebrow": "Common failure points",
+      "title": "Keep these out of the chat checklist",
+      "items": {
+        "duplicates": {
+          "title": "Duplicate claims",
+          "text": "Do not assign from replies in two different chat threads. Ask everyone to claim through the shared circle."
+        },
+        "silentChanges": {
+          "title": "Silent changes",
+          "text": "If someone cannot finish, have them unclaim in QuranCircle so the Juz is visibly available again."
+        },
+        "staleReposts": {
+          "title": "Stale reposts",
+          "text": "Avoid reposting an edited 30-line list. Share the same live link whenever someone asks what remains."
+        }
+      }
+    },
+    "faq": {
+      "eyebrow": "Organizer FAQ",
+      "title": "Questions about group Khatms on WhatsApp",
+      "items": {
+        "item1": {
+          "question": "Can WhatsApp itself track a group Quran Khatm?",
+          "answer": "WhatsApp can carry invitations and reminders, but its message history is not a reliable live tracker. A shared QuranCircle link gives every participant the current list of available, claimed, and read Juz."
+        },
+        "item2": {
+          "question": "Do participants need to leave the WhatsApp group?",
+          "answer": "No. The WhatsApp group remains useful for conversation and encouragement. Participants only open the shared circle link when they need to claim, check, unclaim, or mark a Juz read."
+        },
+        "item3": {
+          "question": "Do participants need a QuranCircle account?",
+          "answer": "No. Readers can claim an available Juz by name without creating an account. The organizer signs in to create and manage the circle."
+        },
+        "item4": {
+          "question": "What happens if someone cannot finish their Juz?",
+          "answer": "Ask them to unclaim the portion from the same shared link as early as possible. It becomes available again, so another reader can take it without the organizer rebuilding the list."
+        }
+      }
+    },
+    "related": {
+      "ariaLabel": "Related Khatm resources",
+      "completeGuide": "Complete guide",
+      "planTitle": "Plan the whole group Khatm",
+      "planDescription": "Work through intention, visibility, participant access, progress, and completion.",
+      "seasonalGuide": "Seasonal guide",
+      "ramadanTitle": "Adapt the workflow for Ramadan",
+      "ramadanDescription": "Build a flexible plan around one deadline rather than a required number of readers."
+    },
+    "final": {
+      "eyebrow": "One link for the whole group",
+      "title": "Let WhatsApp carry the invitation, not the spreadsheet",
+      "description": "Create the circle once, share it with the group, and let the live view show everyone what remains.",
+      "createCircle": "Create Your Khatm Circle"
+    }
+  },
+  "RamadanGuide": {
+    "metadata": {
+      "title": "Ramadan Group Quran Khatm Plan",
+      "description": "Plan a Ramadan group Quran Khatm with one shared link, flexible Juz claims, clear deadlines, live progress, and copy-ready organizer guidance.",
+      "keywords": "Ramadan group Quran Khatm,Ramadan Khatm plan,Ramadan Juz tracker,group Khatam Ramadan,Quran completion group",
+      "openGraphTitle": "How to Plan a Ramadan Group Quran Khatm",
+      "openGraphDescription": "A flexible 30-Juz coordination plan for families, masjids, and communities.",
+      "imageAlt": "Ramadan group Quran Khatm planning guide",
+      "twitterTitle": "Plan a Ramadan Group Quran Khatm",
+      "twitterDescription": "One shared circle, flexible Juz claims, and a clear path to completion."
+    },
+    "structuredDescription": "A flexible workflow for coordinating all 30 Juz through one shared QuranCircle link during Ramadan.",
+    "breadcrumb": {
+      "ariaLabel": "Breadcrumb",
+      "guide": "Khatm guide",
+      "current": "Ramadan plan"
+    },
+    "badge": "Ramadan organizer resource",
+    "title": "How to plan a Ramadan group Quran Khatm",
+    "intro": "Build the group around one completion window and one shared circle, not a required number of readers. Participants claim according to their capacity while everyone sees the same live progress across all 30 Juz.",
+    "createCircle": "Create a Ramadan Khatm Circle",
+    "seePlan": "See the Five-Part Plan",
+    "preview": "30 Juz · one shared circle",
+    "short": {
+      "eyebrow": "The short answer",
+      "title": "Set the deadline, then let the group share the work",
+      "description": "Create one QuranCircle event, state when the Khatm should finish, and send its link to the group. Readers claim any available Juz, mark it read when finished, and return portions they can no longer complete."
+    },
+    "principle": {
+      "distinction": "The important distinction",
+      "juzNotReaders": "Juz, not 30 required readers",
+      "eyebrow": "Plan for capacity, not headcount",
+      "title": "A useful plan stays flexible",
+      "descriptionOne": "A family of five may complete the Khatm by taking several Juz each. A larger community may have many people take one portion. The organizer does not need to calculate an ideal group size; the shared circle simply keeps the available work visible.",
+      "descriptionTwo": "What matters is a clear completion window, early communication, and a simple way for readers to release a portion when their plans change."
+    },
+    "plan": {
+      "eyebrow": "From invitation to completion",
+      "title": "The five-part Ramadan group Khatm plan",
+      "step1": {
+        "label": "Before inviting",
+        "title": "Choose the intention and completion window",
+        "text": "State what the group is completing, when claims should be made, and the exact date and time by which reading should finish."
+      },
+      "step2": {
+        "label": "At launch",
+        "title": "Create one circle and share one link",
+        "text": "Use a link-only circle for a known group or a public circle when participation should be open to the wider community."
+      },
+      "step3": {
+        "label": "During claiming",
+        "title": "Let participation stay flexible",
+        "text": "Readers choose any available Juz. Someone may take one portion or several, so the plan works without assigning a fixed number of people."
+      },
+      "step4": {
+        "label": "Before the deadline",
+        "title": "Check the live view and remind gently",
+        "text": "Send the same link back to the group so everyone can see what remains and release a Juz early if plans change."
+      },
+      "step5": {
+        "label": "At completion",
+        "title": "Confirm all 30 Juz are read",
+        "text": "Use the shared progress as the final check, thank the readers, and send the completion message to the group."
+      }
+    },
+    "groupSizes": {
+      "eyebrow": "One workflow, different groups",
+      "title": "Adapt claims without redesigning the Khatm",
+      "familyTitle": "A small family",
+      "familyDescription": "Readers can claim several available Juz over the completion window and return any portion they cannot finish.",
+      "friendsTitle": "Friends or a class",
+      "friendsDescription": "Participants choose based on capacity while the organizer watches what remains before the deadline.",
+      "masjidTitle": "A masjid community",
+      "masjidDescription": "A public or link-only circle gives a larger audience one current view without distributing an assignment sheet."
+    },
+    "invitation": {
+      "eyebrow": "Copy-ready starting point",
+      "title": "Ramadan group Khatm invitation",
+      "description": "Replace the brackets and send everyone to the same circle link.",
+      "messageOne": "Assalamu alaikum. We are organizing a Ramadan group Quran Khatm for [intention]. Please choose any available Juz using this link: [circle link]",
+      "messageTwo": "Kindly claim by [claim deadline] and finish reading by [completion deadline]. If your plans change, please unclaim early so another reader can take the portion. May Allah accept it from us all."
+    },
+    "faq": {
+      "eyebrow": "Ramadan organizer FAQ",
+      "title": "Common questions about Ramadan group Khatms",
+      "items": {
+        "item1": {
+          "question": "Do I need 30 people for a Ramadan group Khatm?",
+          "answer": "No. The Quran has 30 Juz, but a group Khatm does not require 30 readers. One participant can claim more than one available Juz, so the same shared circle works for a small family or a larger community."
+        },
+        "item2": {
+          "question": "Should I assign every reader a Juz in advance?",
+          "answer": "You can, but self-claiming is usually easier to maintain. Readers choose an available Juz based on their capacity, and the live circle prevents two people from accidentally taking the same portion."
+        },
+        "item3": {
+          "question": "Should a Ramadan family Khatm be public?",
+          "answer": "Usually not. A link-only QuranCircle circle stays off the public Browse page while remaining easy to send to family and friends. Choose public only when anyone should be able to discover and join."
+        },
+        "item4": {
+          "question": "What if a reader falls behind?",
+          "answer": "Encourage the reader to unclaim the Juz early if they cannot finish. The portion becomes available again in the same live circle, allowing someone else to take it before the deadline."
+        },
+        "item5": {
+          "question": "Can the group complete more than one Khatm?",
+          "answer": "Yes. A QuranCircle event can continue into additional Khatm cycles, allowing an ongoing group to keep the same shared circle rather than starting its coordination from scratch."
+        }
+      }
+    },
+    "related": {
+      "ariaLabel": "Related Khatm resources",
+      "completeGuide": "Complete guide",
+      "guideTitle": "Organize any group Quran Khatm",
+      "guideDescription": "Review privacy, self-claiming, message templates, and the full coordination workflow.",
+      "whatsappWorkflow": "WhatsApp workflow",
+      "whatsappTitle": "Share the Khatm with your group chat",
+      "whatsappDescription": "Keep invitations and reminders in WhatsApp while the live circle tracks the 30 Juz."
+    },
+    "final": {
+      "eyebrow": "A flexible plan for a meaningful month",
+      "title": "Begin with the circle your group can share",
+      "description": "Set the intention and deadline, then let readers claim according to their capacity."
+    }
   }
 }

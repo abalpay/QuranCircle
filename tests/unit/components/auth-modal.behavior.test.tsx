@@ -2,6 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AuthModal from "@/components/auth-modal";
+import { IntlWrapper } from "../../helpers/intl-wrapper";
+
+const renderAuthModal = (component: React.ReactElement) =>
+  render(component, { wrapper: IntlWrapper });
 
 const { authMocks, toastMock } = vi.hoisted(() => ({
   authMocks: {
@@ -38,7 +42,7 @@ describe("AuthModal behavior", () => {
     const onClose = vi.fn();
     const onSuccess = vi.fn();
 
-    render(
+    renderAuthModal(
       <AuthModal isOpen onClose={onClose} action="login" onSuccess={onSuccess} />
     );
 
@@ -63,7 +67,7 @@ describe("AuthModal behavior", () => {
     mergeError.name = "MergePreparationError";
     authMocks.signInWithPassword.mockResolvedValue({ error: mergeError });
 
-    render(<AuthModal isOpen onClose={() => {}} action="login" />);
+    renderAuthModal(<AuthModal isOpen onClose={() => {}} action="login" />);
 
     await user.type(screen.getByLabelText("Email"), "test@example.com");
     await user.type(screen.getByLabelText("Password"), "Password!1");
@@ -71,7 +75,8 @@ describe("AuthModal behavior", () => {
 
     await waitFor(() => {
       expect(toastMock.error).toHaveBeenCalledWith("Login paused", {
-        description: "Could not secure claim transfer, retry required.",
+        description:
+          "Your existing circle activity could not be secured for transfer. Please try again.",
       });
     });
   });
@@ -82,7 +87,7 @@ describe("AuthModal behavior", () => {
       error: new Error("Invalid login credentials"),
     });
 
-    render(<AuthModal isOpen onClose={() => {}} action="register" />);
+    renderAuthModal(<AuthModal isOpen onClose={() => {}} action="register" />);
 
     await user.type(screen.getByLabelText("Username"), "Ahmet");
     await user.type(screen.getByLabelText("Email"), "ahmet@example.com");
@@ -97,14 +102,15 @@ describe("AuthModal behavior", () => {
       );
     });
     expect(toastMock.error).toHaveBeenCalledWith("Registration failed", {
-      description: "Invalid login credentials",
+      description:
+        "We couldn't complete that request. Check your details and try again.",
     });
   });
 
   it("rejects a registration password that does not meet the hosted policy", async () => {
     const user = userEvent.setup();
 
-    render(<AuthModal isOpen onClose={() => {}} action="register" />);
+    renderAuthModal(<AuthModal isOpen onClose={() => {}} action="register" />);
 
     await user.type(screen.getByLabelText("Username"), "Ahmet");
     await user.type(screen.getByLabelText("Email"), "ahmet@example.com");
@@ -122,7 +128,9 @@ describe("AuthModal behavior", () => {
   it("submits forgot password and shows success state", async () => {
     const user = userEvent.setup();
 
-    render(<AuthModal isOpen onClose={() => {}} action="forgot-password" />);
+    renderAuthModal(
+      <AuthModal isOpen onClose={() => {}} action="forgot-password" />,
+    );
 
     await user.type(screen.getByLabelText("Email"), "reset@example.com");
     await user.click(screen.getByRole("button", { name: "Send Reset Link" }));

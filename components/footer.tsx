@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
@@ -17,7 +17,7 @@ export default async function Footer() {
                 QuranCircle
               </span>
               <span className="mt-1 block text-[9px] font-semibold uppercase tracking-[0.22em] text-[hsl(var(--quran-gold)/0.78)]">
-                Read together
+                {t("readTogether")}
               </span>
             </div>
           </div>
@@ -27,7 +27,7 @@ export default async function Footer() {
         </div>
 
         <nav
-          aria-label="Footer"
+          aria-label={t("ariaLabel")}
           className="mt-7 flex flex-wrap items-center gap-x-1 border-t border-white/10 pt-5 text-sm font-medium text-[hsl(158_16%_76%)]"
         >
           {[

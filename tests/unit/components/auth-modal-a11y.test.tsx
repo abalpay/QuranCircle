@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import AuthModal from "@/components/auth-modal";
+import { IntlWrapper } from "../../helpers/intl-wrapper";
 
 vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => ({
@@ -15,7 +16,9 @@ vi.mock("@/hooks/use-auth", () => ({
 describe("AuthModal keyboard-accessible auth links", () => {
   it("renders forgot-password and back-to-login as button controls", async () => {
     const user = userEvent.setup();
-    render(<AuthModal isOpen onClose={() => {}} action="login" />);
+    render(<AuthModal isOpen onClose={() => {}} action="login" />, {
+      wrapper: IntlWrapper,
+    });
 
     const forgotPasswordButton = screen.getByRole("button", {
       name: "Forgot password?",
@@ -32,4 +35,3 @@ describe("AuthModal keyboard-accessible auth links", () => {
     ).toBeInTheDocument();
   });
 });
-

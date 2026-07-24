@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Home, Layers3, Compass, UserCircle, LogOut, Settings, Globe2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
@@ -26,14 +25,15 @@ export default function MobileNavigation() {
 
   const handleLanguageSwitch = () => {
     const newLocale = locale === "en" ? "tr" : "en";
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
-    router.refresh();
+    router.replace(`${pathname}${window.location.search}`, {
+      locale: newLocale,
+    });
   };
 
   const displayName =
     (isAuthenticatedUser && (user?.user_metadata?.username as string)) ||
     (isAuthenticatedUser && user?.email?.split("@")[0]) ||
-    "User";
+    t("user");
 
   const handleProfileTap = () => {
     if (isAuthenticatedUser) {
@@ -46,7 +46,7 @@ export default function MobileNavigation() {
   return (
     <>
       <nav
-        aria-label="Mobile navigation"
+        aria-label={t("mobileNavigation")}
         className="mobile-bottom-nav lg:hidden"
       >
         <div className="mobile-bottom-nav-surface">
@@ -80,6 +80,17 @@ export default function MobileNavigation() {
             <Compass aria-hidden="true" />
             <span>{t("browse")}</span>
           </Link>
+          <button
+            type="button"
+            onClick={handleLanguageSwitch}
+            className="mobile-bottom-nav-item"
+            aria-label={
+              locale === "en" ? t("switchToTurkish") : t("switchToEnglish")
+            }
+          >
+            <Globe2 aria-hidden="true" />
+            <span>{locale === "en" ? "TR" : "EN"}</span>
+          </button>
           <button
             type="button"
             onClick={handleProfileTap}

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import ResourceLibrary from "@/components/landing/resource-library";
+import { IntlWrapper } from "../../helpers/intl-wrapper";
 
 const copy = {
   eyebrow: "Khatm organizer library",
@@ -17,7 +18,7 @@ const copy = {
 
 describe("ResourceLibrary", () => {
   it("links all three resource intents from the homepage", () => {
-    render(<ResourceLibrary copy={copy} />);
+    render(<ResourceLibrary copy={copy} />, { wrapper: IntlWrapper });
 
     expect(
       screen.getByRole("link", { name: /Coordination guide/i }),

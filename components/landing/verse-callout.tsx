@@ -1,13 +1,15 @@
 import Image from "next/image";
 import { GeometricRosette } from "@/components/landing/decorative-art";
+import { getTranslations } from "next-intl/server";
 
-export default function VerseCallout() {
+export default async function VerseCallout() {
+  const t = await getTranslations("VerseCallout");
   return (
-    <aside className="landing-verse" aria-label="Quran verse">
+    <aside className="landing-verse" aria-label={t("ariaLabel")}>
       <div className="landing-verse-illustration">
         <Image
           src="/illustrations/quran-verse.png"
-          alt="A closed Qur’an resting on a folded star-shaped textile ornament"
+          alt={t("imageAlt")}
           width={720}
           height={720}
           sizes="(max-width: 767px) 150px, 190px"
@@ -19,10 +21,9 @@ export default function VerseCallout() {
           “
         </span>
         <p>
-          And certainly, We have made the Qur’an easy for remembrance, so is
-          there any who will remember?
+          {t("translation")}
         </p>
-        <cite>Surah Al-Qamar (54:17)</cite>
+        <cite>{t("citation")}</cite>
       </blockquote>
 
       <GeometricRosette className="landing-verse-rosette" />

@@ -5,8 +5,10 @@ import {
   GeometricRosette,
   MosqueSkyline,
 } from "@/components/landing/decorative-art";
+import { getTranslations } from "next-intl/server";
 
-export default function PublicCircleCta() {
+export default async function PublicCircleCta() {
+  const t = await getTranslations("PublicCircleCta");
   return (
     <section
       className="landing-final-cta"
@@ -18,13 +20,10 @@ export default function PublicCircleCta() {
       <div className="landing-final-cta-copy">
         <p className="landing-cta-badge">
           <Sparkles aria-hidden="true" />
-          Open to everyone
+          {t("eyebrow")}
         </p>
-        <h2 id="public-circle-cta-title">Join a public circle today</h2>
-        <p>
-          Pick a Juz, join fellow readers, and help complete the Qur’an
-          together.
-        </p>
+        <h2 id="public-circle-cta-title">{t("title")}</h2>
+        <p>{t("description")}</p>
         <Button asChild size="lg" className="landing-final-cta-button">
           <AnalyticsLink
             href="/browse"
@@ -32,7 +31,7 @@ export default function PublicCircleCta() {
             analyticsSource="home_browse"
           >
             <Compass aria-hidden="true" />
-            Browse Public Circles
+            {t("button")}
           </AnalyticsLink>
         </Button>
       </div>

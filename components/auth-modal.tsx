@@ -24,14 +24,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import {
-  createPasswordSchema,
-  PASSWORD_REQUIREMENTS_DESCRIPTION,
-} from "@/lib/auth/password-policy";
+import { createPasswordSchema } from "@/lib/auth/password-policy";
 import { trackProductEvent } from "@/lib/analytics";
+import { useTranslations } from "next-intl";
 
 const MERGE_PREPARATION_BLOCK_MESSAGE =
   "Could not secure claim transfer, retry required.";
@@ -44,24 +41,13 @@ function isMergePreparationError(error: Error | null | undefined) {
   );
 }
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-const registerSchema = z.object({
-  username: z.string().min(2, "Username must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  password: createPasswordSchema(),
-});
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
-type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+type LoginFormValues = { email: string; password: string };
+type RegisterFormValues = {
+  username: string;
+  email: string;
+  password: string;
+};
+type ForgotPasswordFormValues = { email: string };
 
 type AuthModalProps = {
   isOpen: boolean;
@@ -71,6 +57,7 @@ type AuthModalProps = {
 };
 
 const GoogleSignInButton = () => {
+  const t = useTranslations("AuthModal");
   const { signInWithGoogle } = useAuth();
 
   const handleGoogleSignIn = async () => {
@@ -78,13 +65,13 @@ const GoogleSignInButton = () => {
     const { error } = await signInWithGoogle();
     if (error) {
       if (isMergePreparationError(error)) {
-        toast.error("Google sign-in paused", {
-          description: MERGE_PREPARATION_BLOCK_MESSAGE,
+        toast.error(t("googlePaused"), {
+          description: t("claimTransferError"),
         });
         return;
       }
-      toast.error("Google sign-in failed", {
-        description: formatAuthError(error.message),
+      toast.error(t("googleFailed"), {
+        description: t("genericAuthError"),
       });
     }
   };
@@ -121,7 +108,7 @@ const GoogleSignInButton = () => {
           />
         </g>
       </svg>
-      Sign in with Google
+      {t("signInWithGoogle")}
     </Button>
   );
 };
@@ -132,6 +119,7 @@ export default function AuthModal({
   action = "login",
   onSuccess,
 }: AuthModalProps) {
+  const t = useTranslations("AuthModal");
   const [selectedTab, setSelectedTab] = useState<
     "login" | "register" | "forgot-password" | null
   >(null);
@@ -143,6 +131,19 @@ export default function AuthModal({
   const [forgotPasswordSubmitting, setForgotPasswordSubmitting] =
     useState(false);
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
+
+  const loginSchema = z.object({
+    email: z.string().email(t("invalidEmail")),
+    password: z.string().min(8, t("passwordMinLength")),
+  });
+  const registerSchema = z.object({
+    username: z.string().min(2, t("usernameMinLength")),
+    email: z.string().email(t("invalidEmail")),
+    password: createPasswordSchema(t("passwordRequirements")),
+  });
+  const forgotPasswordSchema = z.object({
+    email: z.string().email(t("invalidEmail")),
+  });
 
   const closeAndReset = () => {
     setSelectedTab(null);
@@ -170,24 +171,24 @@ export default function AuthModal({
       const { error } = await signInWithPassword(data.email, data.password);
       if (error) {
         if (isMergePreparationError(error)) {
-          toast.error("Login paused", {
-            description: MERGE_PREPARATION_BLOCK_MESSAGE,
+          toast.error(t("loginPaused"), {
+            description: t("claimTransferError"),
           });
           return;
         }
-        toast.error("Login failed", {
-          description: formatAuthError(error.message),
+        toast.error(t("loginFailed"), {
+          description: t("genericAuthError"),
         });
         return;
       }
       trackProductEvent("Auth Completed", { method: "password_login" });
-      toast.success("Login successful");
+      toast.success(t("loginSuccessful"));
       closeAndReset();
       onSuccess?.();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unexpected login error";
-      toast.error("Login failed", {
-        description: formatAuthError(message),
+      console.error("[auth-modal] login failed", error);
+      toast.error(t("loginFailed"), {
+        description: t("genericAuthError"),
       });
     }
   };
@@ -197,24 +198,24 @@ export default function AuthModal({
       const { error } = await signUp(data.email, data.password, data.username);
       if (error) {
         if (isMergePreparationError(error)) {
-          toast.error("Registration paused", {
-            description: MERGE_PREPARATION_BLOCK_MESSAGE,
+          toast.error(t("registrationPaused"), {
+            description: t("claimTransferError"),
           });
           return;
         }
-        toast.error("Registration failed", {
-          description: formatAuthError(error.message),
+        toast.error(t("registrationFailed"), {
+          description: t("genericAuthError"),
         });
         return;
       }
       trackProductEvent("Auth Completed", { method: "password_register" });
-      toast.success("Account created successfully");
+      toast.success(t("accountCreated"));
       closeAndReset();
       onSuccess?.();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unexpected registration error";
-      toast.error("Registration failed", {
-        description: formatAuthError(message),
+      console.error("[auth-modal] registration failed", error);
+      toast.error(t("registrationFailed"), {
+        description: t("genericAuthError"),
       });
     }
   };
@@ -224,11 +225,13 @@ export default function AuthModal({
     const { error } = await resetPassword(data.email);
     setForgotPasswordSubmitting(false);
     if (error) {
-      toast.error("Failed to send reset email", { description: error.message });
+      toast.error(t("resetEmailFailed"), {
+        description: t("genericAuthError"),
+      });
       return;
     }
     setForgotPasswordSuccess(true);
-    toast.success("Password reset email sent");
+    toast.success(t("resetEmailSent"));
   };
 
   return (
@@ -241,14 +244,18 @@ export default function AuthModal({
       <DialogContent className="sm:max-w-md rounded-3xl border-quran-border bg-quran-card p-5 sm:p-6">
         <DialogHeader className="text-left">
           <DialogTitle className="font-heading text-3xl text-quran-deep">
-            {activeTab === "forgot-password" ? "Reset Password" : activeTab === "register" ? "Create Account" : "Login"}
+            {activeTab === "forgot-password"
+              ? t("resetPassword")
+              : activeTab === "register"
+                ? t("createAccount")
+                : t("login")}
           </DialogTitle>
           <DialogDescription>
             {activeTab === "forgot-password"
-              ? "Enter your email to receive a password reset link."
+              ? t("resetDescription")
               : activeTab === "register"
-                ? "Create an account to manage your Khatim circles."
-                : "Log in to manage your Khatim circles."}
+                ? t("registerDescription")
+                : t("loginDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -257,10 +264,10 @@ export default function AuthModal({
             <div className="space-y-4 py-4">
               <div className="text-center space-y-2">
                 <h3 className="text-lg font-medium text-quran-deep">
-                  Check your email
+                  {t("checkEmail")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  We&apos;ve sent a password reset link to your email.
+                  {t("checkEmailDescription")}
                 </p>
               </div>
               <Button
@@ -268,7 +275,7 @@ export default function AuthModal({
                 className="w-full rounded-full"
                 onClick={() => setActiveTab("login")}
               >
-                Back to Login
+                {t("backToLogin")}
               </Button>
             </div>
           ) : (
@@ -282,10 +289,10 @@ export default function AuthModal({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("email")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Your email address"
+                          placeholder={t("emailPlaceholder")}
                           {...field}
                           type="email"
                           required
@@ -303,14 +310,16 @@ export default function AuthModal({
                   className="w-full rounded-full"
                   disabled={forgotPasswordSubmitting}
                 >
-                  {forgotPasswordSubmitting ? "Sending..." : "Send Reset Link"}
+                  {forgotPasswordSubmitting
+                    ? t("sending")
+                    : t("sendResetLink")}
                 </Button>
                 <button
                   type="button"
                   className="mt-2 min-h-11 w-full rounded-full text-center text-sm text-primary hover:bg-quran-green/[0.05] hover:underline"
                   onClick={() => setActiveTab("login")}
                 >
-                  Back to Login
+                  {t("backToLogin")}
                 </button>
               </form>
             </Form>
@@ -325,13 +334,13 @@ export default function AuthModal({
                 value="login"
                 className="rounded-full data-[state=active]:bg-quran-green data-[state=active]:text-primary-foreground"
               >
-                Login
+                {t("login")}
               </TabsTrigger>
               <TabsTrigger
                 value="register"
                 className="rounded-full data-[state=active]:bg-quran-green data-[state=active]:text-primary-foreground"
               >
-                Register
+                {t("register")}
               </TabsTrigger>
             </TabsList>
 
@@ -344,7 +353,7 @@ export default function AuthModal({
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with email
+                      {t("continueWithEmail")}
                     </span>
                   </div>
                 </div>
@@ -358,7 +367,7 @@ export default function AuthModal({
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{t("email")}</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="you@example.com"
@@ -379,7 +388,7 @@ export default function AuthModal({
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel>{t("password")}</FormLabel>
                           <FormControl>
                             <Input
                               type="password"
@@ -399,7 +408,7 @@ export default function AuthModal({
                       className="inline-flex min-h-11 items-center rounded-full px-1 text-left text-sm text-primary hover:underline"
                       onClick={() => setActiveTab("forgot-password")}
                     >
-                      Forgot password?
+                      {t("forgotPassword")}
                     </button>
                     <Button
                       type="submit"
@@ -409,10 +418,10 @@ export default function AuthModal({
                       {loginForm.formState.isSubmitting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Logging in...
+                          {t("loggingIn")}
                         </>
                       ) : (
-                        "Login"
+                        t("login")
                       )}
                     </Button>
                   </form>
@@ -429,7 +438,7 @@ export default function AuthModal({
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with email
+                      {t("continueWithEmail")}
                     </span>
                   </div>
                 </div>
@@ -443,10 +452,10 @@ export default function AuthModal({
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel>{t("username")}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Your name"
+                              placeholder={t("namePlaceholder")}
                               {...field}
                               autoComplete="username"
                               className="rounded-xl border-quran-border bg-white/85"
@@ -461,7 +470,7 @@ export default function AuthModal({
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{t("email")}</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="you@example.com"
@@ -482,7 +491,7 @@ export default function AuthModal({
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel>{t("password")}</FormLabel>
                           <FormControl>
                             <Input
                               type="password"
@@ -494,7 +503,7 @@ export default function AuthModal({
                             />
                           </FormControl>
                           <FormDescription>
-                            {PASSWORD_REQUIREMENTS_DESCRIPTION}
+                            {t("passwordRequirementsDescription")}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -508,10 +517,10 @@ export default function AuthModal({
                       {registerForm.formState.isSubmitting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Creating account...
+                          {t("creatingAccount")}
                         </>
                       ) : (
-                        "Create Account"
+                        t("createAccount")
                       )}
                     </Button>
                   </form>

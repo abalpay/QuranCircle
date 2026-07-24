@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import MyCirclesContent from "@/components/my-circles-content";
+import { IntlWrapper } from "../../helpers/intl-wrapper";
 
 const { ensureSessionMock, getMyCirclesMock } = vi.hoisted(() => ({
   ensureSessionMock: vi.fn(),
@@ -62,7 +63,7 @@ describe("MyCirclesContent accessibility", () => {
 
   it("uses pressed buttons to switch circle status filters", async () => {
     const user = userEvent.setup();
-    render(<MyCirclesContent />);
+    render(<MyCirclesContent />, { wrapper: IntlWrapper });
 
     const group = screen.getByRole("group", {
       name: "Circle status filters",
