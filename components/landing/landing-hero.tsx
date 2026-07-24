@@ -53,19 +53,20 @@ export default function LandingHero({
           <h1
             id="landing-hero-title"
             className="landing-hero-title"
-            aria-label="Complete the Quran, together."
+            aria-label="Complete a group Quran Khatm, together."
           >
-            Complete the
+            Complete a group
             <br />
-            Qur’an,
+            Qur’an Khatm,
             <br />
             <span>together.</span>
           </h1>
 
           <p className="landing-hero-description">
-            QuranCircle helps families, masjids, and groups coordinate
-            meaningful recitation. Create a circle, let people claim their
-            portion, and finish your collective Khatm with clarity.
+            QuranCircle is a free group Quran Khatm tracker for families,
+            masjids, and communities. Create one shared circle, let readers
+            claim an available Juz without an account, and follow all 30
+            portions through completion.
           </p>
 
           <HeroActions theme="dark" />

@@ -30,6 +30,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: event.name,
     description,
+    robots: {
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+      },
+    },
     alternates: {
       canonical: url,
     },

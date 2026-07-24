@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Globe2,
   HandHeart,
+  Languages,
   Link2,
   MessageCircle,
   MousePointerClick,
@@ -69,7 +70,7 @@ const stepIcons = [
 ];
 
 const stepKeys = ["one", "two", "three", "four", "five", "six"] as const;
-const faqKeys = ["one", "two", "three", "four", "five"] as const;
+const faqKeys = ["one", "two", "three", "four", "five", "six"] as const;
 
 function safeJsonLd(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
@@ -90,7 +91,7 @@ export default async function KhatmCoordinationPage() {
       headline: t("title"),
       description: t("intro"),
       datePublished: "2026-07-23",
-      dateModified: "2026-07-23",
+      dateModified: "2026-07-24",
       mainEntityOfPage: pageUrl,
       image: toAbsoluteUrl("/opengraph-image"),
       author: {
@@ -252,6 +253,12 @@ export default async function KhatmCoordinationPage() {
             {t("contentsLabel")}
           </span>
           <a
+            href="#terminology"
+            className="shrink-0 hover:text-quran-green hover:underline"
+          >
+            {t("contentsTerminology")}
+          </a>
+          <a
             href="#steps"
             className="shrink-0 hover:text-quran-green hover:underline"
           >
@@ -292,6 +299,32 @@ export default async function KhatmCoordinationPage() {
             </div>
           </div>
         </aside>
+
+        <section
+          id="terminology"
+          aria-labelledby="terminology-title"
+          className="mt-8 scroll-mt-32 rounded-3xl border border-quran-border/70 bg-white/55 p-6 sm:p-8"
+        >
+          <div className="grid gap-5 sm:grid-cols-[3rem_minmax(0,1fr)]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-quran-green/20 bg-quran-green/[0.07] text-quran-green">
+              <Languages className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-quran-gold">
+                {t("terminologyEyebrow")}
+              </p>
+              <h2
+                id="terminology-title"
+                className="font-heading mt-1 text-2xl text-quran-deep sm:text-3xl"
+              >
+                {t("terminologyTitle")}
+              </h2>
+              <p className="mt-3 max-w-4xl leading-8 text-quran-muted">
+                {t("terminologyText")}
+              </p>
+            </div>
+          </div>
+        </section>
 
         <section
           id="steps"
@@ -414,6 +447,64 @@ export default async function KhatmCoordinationPage() {
                 </p>
               </details>
             ))}
+          </div>
+        </section>
+
+        <section
+          className="section-panel mt-14"
+          aria-labelledby="related-resources-title"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-quran-gold">
+            {t("relatedEyebrow")}
+          </p>
+          <h2
+            id="related-resources-title"
+            className="font-heading mt-1 text-3xl text-quran-deep sm:text-4xl"
+          >
+            {t("relatedTitle")}
+          </h2>
+          <p className="mt-3 max-w-3xl leading-7 text-quran-muted">
+            {t("relatedDescription")}
+          </p>
+          <div className="mt-7 grid gap-4 md:grid-cols-2">
+            <Link
+              href="/group-khatm-whatsapp"
+              className="quran-card-interactive group p-6"
+            >
+              <MessageCircle className="h-6 w-6 text-quran-green" />
+              <h3 className="font-heading mt-4 text-2xl text-quran-deep group-hover:text-quran-green">
+                {t("relatedWhatsappTitle")}
+              </h3>
+              <p className="mt-2 leading-7 text-quran-muted">
+                {t("relatedWhatsappText")}
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-quran-green">
+                {t("relatedRead")}
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </span>
+            </Link>
+            <Link
+              href="/ramadan-group-khatm"
+              className="quran-card-interactive group p-6"
+            >
+              <CalendarClock className="h-6 w-6 text-quran-green" />
+              <h3 className="font-heading mt-4 text-2xl text-quran-deep group-hover:text-quran-green">
+                {t("relatedRamadanTitle")}
+              </h3>
+              <p className="mt-2 leading-7 text-quran-muted">
+                {t("relatedRamadanText")}
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-quran-green">
+                {t("relatedRead")}
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </span>
+            </Link>
           </div>
         </section>
 

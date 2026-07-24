@@ -6,7 +6,12 @@ export type ConversionSource =
   | "home_browse"
   | "guide_hero"
   | "guide_preview"
-  | "guide_final";
+  | "guide_final"
+  | "about_final"
+  | "whatsapp_hero"
+  | "whatsapp_final"
+  | "ramadan_hero"
+  | "ramadan_final";
 
 type ProductEvent =
   | {

@@ -7,6 +7,7 @@ import ComparisonSection from "@/components/landing/comparison-section";
 import HowItWorks from "@/components/landing/how-it-works";
 import VerseCallout from "@/components/landing/verse-callout";
 import OrganizerResource from "@/components/landing/organizer-resource";
+import ResourceLibrary from "@/components/landing/resource-library";
 import PublicCircleCta from "@/components/landing/public-circle-cta";
 import { getCommunityStats } from "@/lib/actions/stats";
 import { toAbsoluteUrl } from "@/lib/site-url";
@@ -126,6 +127,26 @@ export default async function HomePage() {
             title={tMarketing("guideTitle")}
             description={tMarketing("guideDescription")}
             button={tMarketing("guideButton")}
+          />
+          <ResourceLibrary
+            copy={{
+              eyebrow: tMarketing("resourcesEyebrow"),
+              title: tMarketing("resourcesTitle"),
+              description: tMarketing("resourcesDescription"),
+              readResource: tMarketing("readResource"),
+              coordinationTitle: tMarketing("coordinationResourceTitle"),
+              coordinationDescription: tMarketing(
+                "coordinationResourceDescription",
+              ),
+              whatsappTitle: tMarketing("whatsappResourceTitle"),
+              whatsappDescription: tMarketing(
+                "whatsappResourceDescription",
+              ),
+              ramadanTitle: tMarketing("ramadanResourceTitle"),
+              ramadanDescription: tMarketing(
+                "ramadanResourceDescription",
+              ),
+            }}
           />
           <PublicCircleCta />
         </div>

@@ -20,6 +20,8 @@ export default async function Footer() {
             <Link href="/browse" className="hover:text-quran-green transition-colors">{t("browse")}</Link>
             <Link href="/my-circles" className="hover:text-quran-green transition-colors">{t("myCircles")}</Link>
             <Link href="/khatm-coordination" className="hover:text-quran-green transition-colors">{t("khatmGuide")}</Link>
+            <Link href="/group-khatm-whatsapp" className="hover:text-quran-green transition-colors">{t("whatsappGuide")}</Link>
+            <Link href="/ramadan-group-khatm" className="hover:text-quran-green transition-colors">{t("ramadanGuide")}</Link>
             <Link href="/about" className="hover:text-quran-green transition-colors">{t("about")}</Link>
             <Link href="/contact" className="hover:text-quran-green transition-colors">{t("contact")}</Link>
             <Link href="/privacy" className="hover:text-quran-green transition-colors">{t("privacy")}</Link>
