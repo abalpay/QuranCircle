@@ -47,10 +47,10 @@ describe("FloatingClaimBar", () => {
   it("keeps both bar and coachmark hidden when nothing is selected", () => {
     renderFloatingClaimBar(0);
 
-    expect(screen.getByTestId("floating-claim-bar")).toHaveAttribute(
-      "data-state",
-      "hidden"
-    );
+    const bar = screen.getByTestId("floating-claim-bar");
+    expect(bar).toHaveAttribute("data-state", "hidden");
+    expect(bar.parentElement).toHaveClass("pointer-events-none");
+    expect(bar).toHaveClass("pointer-events-none");
     expect(screen.getByTestId("multi-select-coachmark")).toHaveAttribute(
       "data-state",
       "hidden"
@@ -60,10 +60,9 @@ describe("FloatingClaimBar", () => {
   it("shows coachmark when first single selection happens", async () => {
     renderFloatingClaimBar(1);
 
-    expect(screen.getByTestId("floating-claim-bar")).toHaveAttribute(
-      "data-state",
-      "visible"
-    );
+    const bar = screen.getByTestId("floating-claim-bar");
+    expect(bar).toHaveAttribute("data-state", "visible");
+    expect(bar).toHaveClass("pointer-events-auto");
     await waitFor(() => {
       expect(screen.getByTestId("multi-select-coachmark")).toHaveAttribute(
         "data-state",

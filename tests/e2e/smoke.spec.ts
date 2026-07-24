@@ -25,7 +25,7 @@ test("home, browse, and my circles pages load without forced sign-in", async ({ 
 
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /Complete the Quran/i })
+    page.getByRole("heading", { name: /Complete a group.*Khatm/i })
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign In" })).toBeVisible();
 

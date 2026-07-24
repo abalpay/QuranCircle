@@ -93,7 +93,7 @@ export default function FloatingClaimBar({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] left-1/2 z-[45] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 lg:bottom-6 lg:w-auto lg:max-w-none">
+    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] left-1/2 z-[45] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 lg:bottom-6 lg:w-auto lg:max-w-none">
       <div
         data-testid="multi-select-coachmark"
         data-state={coachmarkVisible ? "visible" : "hidden"}
@@ -112,7 +112,7 @@ export default function FloatingClaimBar({
         data-state={visible ? "visible" : "hidden"}
         className={`flex w-full items-center gap-3 rounded-[1.4rem] border border-quran-border bg-white/95 px-3 py-3 shadow-[0_22px_52px_-24px_hsl(var(--quran-deep)/0.62)] backdrop-blur-md transition-[opacity,transform] duration-200 lg:w-auto lg:px-4 ${
           visible
-            ? "translate-y-0 opacity-100"
+            ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0"
         }`}
       >
