@@ -86,7 +86,7 @@ export default function InstallAppSheet({
       <section
         className="install-sheet pointer-events-auto"
         role="dialog"
-        aria-label="Install QuranCircle"
+        aria-label={t("dialogAriaLabel")}
         aria-modal="false"
       >
         <button

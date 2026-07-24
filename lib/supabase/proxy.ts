@@ -29,6 +29,20 @@ function getAuthRedirectPath(pathname: string) {
   return null;
 }
 
+function getAppPathname(pathname: string) {
+  return pathname.replace(/^\/(?:en|tr)(?=\/|$)/, "") || "/";
+}
+
+function localizeRedirectPath(pathname: string, requestPathname: string) {
+  if (requestPathname !== "/tr" && !requestPathname.startsWith("/tr/")) {
+    return pathname;
+  }
+
+  if (pathname === "/") return "/tr";
+  if (pathname.startsWith("/?")) return `/tr${pathname.slice(1)}`;
+  return `/tr${pathname}`;
+}
+
 function getShortCodeFromPath(pathname: string) {
   const match = pathname.match(/^\/s\/([^/]+)$/);
   if (!match) return null;
@@ -47,23 +61,16 @@ function getShortCodeFromPath(pathname: string) {
 
 export async function updateSession(
   request: NextRequest,
-  requestHeaders: Headers = request.headers
+  requestHeaders: Headers = request.headers,
+  initialResponse?: NextResponse,
 ) {
-  let supabaseResponse = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-
-  // Handle locale cookie
-  const locale = request.cookies.get("NEXT_LOCALE")?.value || "en";
-  if (!request.cookies.get("NEXT_LOCALE")) {
-    supabaseResponse.cookies.set("NEXT_LOCALE", locale, {
-      path: "/",
-      maxAge: 31536000, // 1 year
-      sameSite: "lax",
+  const supabaseResponse =
+    initialResponse ??
+    NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
     });
-  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
@@ -76,55 +83,51 @@ export async function updateSession(
     return supabaseResponse;
   }
 
-  const supabase = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet, responseHeaders) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          const previousResponse = supabaseResponse;
-          supabaseResponse = NextResponse.next({
-            request: {
-              headers: requestHeaders,
-            },
-          });
-          copyAuthResponseState(previousResponse, supabaseResponse);
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-          Object.entries(responseHeaders).forEach(([name, value]) =>
-            supabaseResponse.headers.set(name, value)
-          );
-        },
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet, responseHeaders) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value),
+        );
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options),
+        );
+        Object.entries(responseHeaders).forEach(([name, value]) =>
+          supabaseResponse.headers.set(name, value),
+        );
+      },
+    },
+  });
 
   try {
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const authRedirectPath = getAuthRedirectPath(request.nextUrl.pathname);
+    const appPathname = getAppPathname(request.nextUrl.pathname);
+    const authRedirectPath = getAuthRedirectPath(appPathname);
     if (authRedirectPath && (!user || user.is_anonymous)) {
       const redirectResponse = NextResponse.redirect(
-        new URL(authRedirectPath, request.url)
+        new URL(
+          localizeRedirectPath(authRedirectPath, request.nextUrl.pathname),
+          request.url
+        )
       );
       copyAuthResponseState(supabaseResponse, redirectResponse);
       return redirectResponse;
     }
 
-    const shortCode = getShortCodeFromPath(request.nextUrl.pathname);
+    const shortCode = getShortCodeFromPath(appPathname);
     if (shortCode) {
-      const { data, error } = await supabase.rpc("get_event_snapshot_by_shortcode", {
-        p_short_code: shortCode,
-      });
+      const { data, error } = await supabase.rpc(
+        "get_event_snapshot_by_shortcode",
+        {
+          p_short_code: shortCode,
+        },
+      );
 
       if (!error && !data) {
         const notFoundResponse = new NextResponse("Not Found", {

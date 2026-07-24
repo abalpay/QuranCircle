@@ -23,11 +23,17 @@ const {
   toastMock: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
   useRouter: () => routerMock,
 }));
 
 vi.mock("next-intl", () => ({
+  useFormatter: () => ({
+    dateTime: () => "January 1, 2026",
+  }),
   useTranslations: () => (key: string) =>
     ({
       currentPassword: "Current password",

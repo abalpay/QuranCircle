@@ -15,7 +15,9 @@
     "myAccount": "Hesabım",
     "accountSettings": "Hesap Ayarları",
     "logOut": "Çıkış Yap",
-    "signIn": "Giriş Yap"
+    "signIn": "Giriş Yap",
+    "user": "Kullanıcı",
+    "primaryNavigation": "Ana menü"
   },
   "Footer": {
     "home": "Ana Sayfa",
@@ -28,20 +30,22 @@
     "contact": "İletişim",
     "privacy": "Gizlilik",
     "terms": "Şartlar",
-    "allRightsReserved": "Tüm hakları saklıdır."
+    "allRightsReserved": "Tüm hakları saklıdır.",
+    "readTogether": "Birlikte oku",
+    "ariaLabel": "Alt bilgi"
   },
   "Home": {
     "title": "Halkalarım",
     "subtitle": "Aktif halkalarınız bir bakışta. Tam geçmiş için sayfayı açın.",
     "active": "Aktif",
     "viewAll": "Tümünü gör",
-    "juzClaimed": "Cüz üstlenildi",
+    "juzClaimed": "Cüz sahiplenildi",
     "noActiveCircles": "Aktif halka yok",
     "noActiveCirclesDesc": "İlerlemenizi buradan takip etmek için bir halka oluşturun veya katılın.",
-    "noActiveCirclesDescGuest": "Bu oturumdaki aktiviteniz yalnızca arşivlenmiştir. Geçmişinizi görmek için Halkalarım'ı ziyaret edin.",
+    "noActiveCirclesDescGuest": "Bu oturumdaki halkalarınız arşivlenmiş olabilir. Geçmişinizi görmek için Halkalarım sayfasını açın.",
     "createACircle": "Halka Oluştur",
     "openMyCircles": "Halkalarımı Aç",
-    "archivedHistory": "{count, plural, one {# arşivlenmiş halka} other {# arşivlenmiş halka}} geçmişinizde."
+    "archivedHistory": "Geçmişinizde {count, plural, one {# arşivlenmiş halka} other {# arşivlenmiş halka}} bulunuyor."
   },
   "HeroActions": {
     "startAKhatm": "Hatim Halkası Başlat",
@@ -61,7 +65,7 @@
     "adjustSearch": "Arama terimlerinizi ayarlamayı deneyin.",
     "beTheFirst": "Açık halka oluşturan ilk kişi olun.",
     "createACircle": "Halka Oluştur",
-    "juzClaimed": "Cüz üstlenildi",
+    "juzClaimed": "Cüz sahiplenildi",
     "open": "Açık",
     "loadMore": "Daha fazla halka yükle",
     "loading": "Yükleniyor…",
@@ -69,26 +73,26 @@
     "noDescription": "Açıklama sağlanmadı."
   },
   "ClaimDialog": {
-    "claim": "Üstlen",
+    "claim": "Sahiplen",
     "juz": "Cüz",
-    "enterName": "üstlenmek için adınızı girin",
-    "enterNameDesc": "Kur'an'ın bu bölümünü üstlenmek için adınızı girin",
+    "enterName": "Sahiplenmek için adınızı girin",
+    "enterNameDesc": "Kur'an'ın bu bölümünü sahiplenmek için adınızı girin",
     "yourName": "Adınız",
     "enterYourName": "Adınızı girin",
     "useDifferentName": "İsterseniz farklı bir isim kullanabilirsiniz.",
     "cancel": "İptal",
-    "claimButton": "Üstlen"
+    "claimButton": "Sahiplen"
   },
   "CreateKhatim": {
     "createCircle": "Hatim Halkası Oluştur",
-    "createCircleDesc": "Yeni bir kolektif okuma etkinliği başlatın.",
+    "createCircleDesc": "Yeni bir ortak okuma etkinliği başlatın.",
     "circleName": "Halka Adı",
     "circleNamePlaceholder": "Ramazan Hatimi 2025",
     "description": "Açıklama",
     "descriptionOptional": "(İsteğe Bağlı)",
     "descriptionPlaceholder": "Bu okuma etkinliği hakkında kısa bir açıklama...",
     "makePublic": "Bu halkayı herkese açık yap",
-    "makePublicDesc": "Bağlantıya sahip herkes katılabilir ve Cüz üstlenebilir.",
+    "makePublicDesc": "Bağlantıya sahip herkes katılabilir ve cüz sahiplenebilir.",
     "linkOnly": "Yalnızca bağlantı: Davet etmek istediğiniz kişilerle paylaşın.",
     "publicVisible": "Açık halkalar Göz At sayfasında herkese görünür.",
     "cancel": "İptal",
@@ -109,15 +113,20 @@
     "logOut": "Çıkış Yap",
     "language": "Dil",
     "english": "İngilizce",
-    "turkish": "Türkçe"
+    "turkish": "Türkçe",
+    "user": "Kullanıcı",
+    "mobileNavigation": "Mobil menü",
+    "switchToTurkish": "Türkçeye geç",
+    "switchToEnglish": "İngilizceye geç"
   },
   "Common": {
     "khatm": "Hatim",
     "juz": "Cüz",
     "circle": "Halka",
     "quran": "Kur'an",
-    "claim": "Üstlen",
-    "readTogether": "Birlikte Oku"
+    "claim": "Sahiplen",
+    "readTogether": "Birlikte Oku",
+    "close": "Kapat"
   },
   "AccountPage": {
     "backToHome": "Ana sayfaya dön",
@@ -143,10 +152,10 @@
     "dangerZone": "Tehlikeli Bölge",
     "dangerZoneDesc": "Hesabınızı ve tüm ilişkili verileri kalıcı olarak silin. Bu işlem geri alınamaz.",
     "deleteAccount": "Hesabı sil",
-    "deleteYourAccount": "Hesabınızı silin?",
+    "deleteYourAccount": "Hesabınız silinsin mi?",
     "deleteAccountDesc": "Bu, hesabınızı kalıcı olarak silecek, tüm cüz seçimlerinizi geri alacak ve yer işaretlerinizi kaldıracaktır. Bu işlem geri alınamaz.",
-    "typeDelete": "Yazın",
-    "toConfirm": "onaylamak için",
+    "typeDelete": "Onaylamak için",
+    "toConfirm": "yazın",
     "deletePlaceholder": "DELETE",
     "cancel": "İptal",
     "deleting": "Siliniyor...",
@@ -188,35 +197,35 @@
   "FloatingClaimBar": {
     "tipMultiSelect": "İpucu: Birden fazla seçmek için daha fazlasına dokunun",
     "clearSelection": "Seçimi temizle",
-    "juzSelected": "{count} Cüz seçildi",
-    "claim": "Üstlen"
+    "juzSelected": "{count} cüz seçildi",
+    "claim": "Sahiplen"
   },
   "KhatmCard": {
     "khatmNumber": "Hatim #{number}",
     "progressTracker": "İlerleme Durumu",
-    "claimed": "Üstlenildi",
-    "claimedCount": "{count} Üstlenildi",
-    "readCount": "{count} Okundu",
-    "juzCount": "30 Cüz",
-    "tapToSelect": "Seçmek için Cüz'e dokunun, ardından Üstlen'e basın.",
-    "noMyJuz": "Bu hatimde hiç cüz üstlenmediniz.",
+    "claimed": "Sahiplenildi",
+    "claimedCount": "{count} sahiplenildi",
+    "readCount": "{count} okundu",
+    "juzCount": "30 cüz",
+    "tapToSelect": "Seçmek için cüze dokunun, ardından Sahiplen'e basın.",
+    "noMyJuz": "Bu hatimde hiç cüz sahiplenmediniz.",
     "noAvailableJuz": "Bu hatimde müsait cüz yok.",
     "checkNextKhatm": "Yeni müsait cüzler için sonraki hatimi kontrol edin.",
     "juzLabel": "Cüz {number}",
     "read": "Okundu",
-    "claimedStatus": "Üstlenildi",
+    "claimedStatus": "Sahiplenildi",
     "openQuran": "Quran.com'u Aç",
     "markRead": "Okundu İşaretle",
     "undo": "Geri Al",
     "unclaim": "Vazgeç",
     "collapseKhatm": "Hatimi daralt",
-    "noMyJuzInKhatm": "Bu hatimde Cüzlerim yok",
-    "myJuzCount": "Cüzlerimde {count}",
+    "noMyJuzInKhatm": "Bu hatimde sahiplendiğiniz cüz yok",
+    "myJuzCount": "Cüzlerim: {count}",
     "noAvailableInKhatm": "Bu hatimde müsait cüz yok",
-    "availableCount": "{count} Müsait",
-    "claimedWithRead": "{claimed}/30 Üstlenildi",
-    "khatmArchived": "Bu Hatim arşivlenmiştir",
-    "allClaimedError": "Seçilen tüm cüzler zaten başkası tarafından üstlenildi",
+    "availableCount": "{count} müsait",
+    "claimedWithRead": "{claimed}/30 sahiplenildi",
+    "khatmArchived": "Bu hatim arşivlenmiştir",
+    "allClaimedError": "Seçilen cüzlerin tümü zaten başkası tarafından sahiplenildi",
     "juzUnclaimed": "Cüz sahipliği bırakıldı",
     "juzMarkedRead": "Cüz okundu olarak işaretlendi",
     "juzMarkedUnread": "Cüz okunmadı olarak işaretlendi",
@@ -232,41 +241,43 @@
   "FeaturedCircles": {
     "join": "Katıl",
     "noDescription": "Açıklama sağlanmadı.",
-    "juzClaimed": "{claimed}/{total} Cüz üstlenildi"
+    "juzClaimed": "{claimed}/{total} cüz sahiplenildi"
   },
   "InstallApp": {
     "installApp": "Uygulamayı Yükle",
-    "claimSuccessTitle": "Halkanızı bir dokunuşta yakınında tutun",
+    "claimSuccessTitle": "Halkanıza tek dokunuşla ulaşın",
     "claimSuccessDesc": "Hatiminize saniyeler içinde dönebilmek için bu uygulamayı telefonunuza ekleyin.",
     "homeTitle": "QuranCircle'ı Yükle",
-    "homeDesc": "Ana ekranınızdan uygulama benzeri deneyimle hızlı erişim elde edin.",
+    "homeDesc": "Uygulama deneyimiyle ana ekranınızdan hızlıca erişin.",
     "close": "Yükleme istemini kapat",
     "iosSteps": "iPhone ve iPad Adımları",
     "share": "Paylaş",
     "addToHome": "Ana Ekrana Ekle",
     "add": "Ekle",
     "safariNote": "Bu seçeneği görmüyorsanız, bu sayfayı Safari'de açın ve tekrar deneyin.",
-    "tapToInstall": "QuranCircle'ı ana ekranınıza eklemek için yükle'ye dokunun.",
+    "tapToInstall": "QuranCircle'ı ana ekranınıza eklemek için “Yükle”ye dokunun.",
     "manualInstall": "Manuel Yükleme",
-    "manualInstallDesc": "Tarayıcı menünüzü açın ve Uygulamayı yükle veya Ana ekrana ekle seçeneğini seçin.",
+    "manualInstallDesc": "Tarayıcı menüsünü açıp “Uygulamayı yükle” veya “Ana ekrana ekle” seçeneğine dokunun.",
     "installButton": "Uygulamayı Yükle",
     "iAddedIt": "Ekledim",
     "notNow": "Şimdi değil",
-    "addToHomeScreen": "Ana Ekrana Ekle"
+    "addToHomeScreen": "Ana Ekrana Ekle",
+    "openInstructions": "Yükleme talimatlarını aç",
+    "dialogAriaLabel": "QuranCircle'ı yükle"
   },
   "CreatorQueue": {
     "title": "Yönetim Paneli",
-    "subtitle": "Kişisel Cüzlerim akışınızı ayrı tutarken etkinlik genelindeki cüz üstlenmelerini yönetin.",
+    "subtitle": "Kişisel Cüzlerim akışınızı ayrı tutarken halka genelindeki cüz sahiplenmelerini yönetin.",
     "total": "Toplam {count}",
-    "claimed": "Üstlenildi {count}",
+    "claimed": "Sahiplenildi {count}",
     "read": "Okundu {count}",
-    "yours": "Sizin {count}",
+    "yours": "Sizinki {count}",
     "searchPlaceholder": "Ad, hatim veya cüz ara",
     "searchLabel": "Yönetim paneli satırlarında ara",
     "status": "Durum",
     "allStatuses": "Tüm durumlar",
     "all": "Tümü",
-    "claimedStatus": "Üstlenildi",
+    "claimedStatus": "Sahiplenildi",
     "readStatus": "Okundu",
     "khatm": "Hatim",
     "allKhatms": "Tüm hatimler",
@@ -277,8 +288,8 @@
     "rowsShown": "{count} satır gösteriliyor.",
     "noMatches": "Mevcut filtrelerinizle eşleşen satır yok.",
     "khatmJuz": "Hatim #{khatm} · Cüz {juz}",
-    "by": "tarafından {name}",
-    "nameUnavailable": "ad mevcut değil",
+    "by": "{name} tarafından",
+    "nameUnavailable": "ad bilgisi yok",
     "markRead": "Okundu İşaretle",
     "undo": "Geri Al",
     "unclaim": "Vazgeç",
@@ -299,7 +310,7 @@
     "share": "Paylaş",
     "circleSettings": "Halka ayarları",
     "archived": "Arşivlendi",
-    "openForClaims": "Üstlenmeye Açık",
+    "openForClaims": "Sahiplenmeye Açık",
     "archiveKhatim": "Hatimi Arşivle",
     "unarchiveKhatim": "Hatimi Arşivden Çıkar",
     "unarchive": "Arşivden Çıkar",
@@ -313,26 +324,26 @@
     "khatimUnarchived": "Hatim arşivden çıkarıldı",
     "archiveUpdateFailed": "Arşiv durumu güncellenemedi. Lütfen tekrar deneyin.",
     "khatimDeleted": "Hatim silindi",
-    "deleteFailed": "Bu Hatim silinemedi. Lütfen tekrar deneyin.",
-    "failedToLoadOlder": "Eski Hatim döngüleri yüklenemedi. Lütfen tekrar deneyin.",
+    "deleteFailed": "Bu hatim silinemedi. Lütfen tekrar deneyin.",
+    "failedToLoadOlder": "Eski hatim döngüleri yüklenemedi. Lütfen tekrar deneyin.",
     "sessionError": "Oturum başlatılamıyor. Lütfen sayfayı yenileyin ve tekrar deneyin.",
     "juzMarkedRead": "Cüz okundu olarak işaretlendi",
-    "markReadFailed": "Bu Cüz okundu olarak işaretlenemedi. Lütfen tekrar deneyin.",
+    "markReadFailed": "Bu cüz okundu olarak işaretlenemedi. Lütfen tekrar deneyin.",
     "juzMarkedUnread": "Cüz okunmadı olarak işaretlendi",
-    "unmarkReadFailed": "Bu Cüz güncellenemedi. Lütfen tekrar deneyin.",
+    "unmarkReadFailed": "Bu cüz güncellenemedi. Lütfen tekrar deneyin.",
     "juzUnclaimed": "Cüz sahipliği bırakıldı",
-    "unclaimFailed": "Bu Cüz'ün sahipliği bırakılamadı. Lütfen tekrar deneyin.",
-    "juzClaimedNewKhatm": "Cüz üstlenildi! Yeni bir Hatim döngüsü başladı.",
-    "juzClaimedSingle": "Cüz üstlenildi.",
-    "juzClaimedMultiple": "{count} Cüz üstlenildi.",
-    "jumpToNewKhatm": "Yeni Hatim'e git",
-    "juzClaimedManage": "Cüz üstlenildi. Cüzlerim'de yönetin.",
-    "goToMyJuz": "Cüzlerim'e git",
+    "unclaimFailed": "Bu cüz bırakılamadı. Lütfen tekrar deneyin.",
+    "juzClaimedNewKhatm": "Cüz sahiplenildi! Yeni bir hatim döngüsü başladı.",
+    "juzClaimedSingle": "Cüz sahiplenildi.",
+    "juzClaimedMultiple": "{count} cüz sahiplenildi.",
+    "jumpToNewKhatm": "Yeni hatime git",
+    "juzClaimedManage": "Cüz sahiplenildi. Cüzlerim bölümünden yönetin.",
+    "goToMyJuz": "Cüzlerim bölümüne git",
     "creatorQueueTitle": "Yönetim Paneli",
-    "creatorQueueEmpty": "Henüz üstlenilmiş satır yok. İnsanlar üstlenmeye başladığında yönetim işlemleri burada görünecek.",
+    "creatorQueueEmpty": "Henüz sahiplenilmiş cüz yok. Katılımcılar cüz sahiplenmeye başladığında yönetim işlemleri burada görünecek.",
     "loadingOlderCycles": "Eski döngüler yükleniyor...",
     "loadOlderCycles": "Eski döngüleri yükle",
-    "showingKhatms": "{loaded} / {total} Hatim döngüsü gösteriliyor"
+    "showingKhatms": "{loaded} / {total} hatim döngüsü gösteriliyor"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Hatimi Sil?",
@@ -342,43 +353,59 @@
     "deletePermanently": "Kalıcı Olarak Sil"
   },
   "MarketingHome": {
-    "eyebrow": "Ücretsiz grup Kur'an Hatim takipçisi",
+    "eyebrow": "Ücretsiz grup hatmi takip uygulaması",
+    "heroAriaLabel": "Grupça Kur'an'ı birlikte hatmedin.",
+    "heroLineOne": "Kur'an'ı grupça",
+    "heroLineTwo": "birlikte okuyun,",
+    "heroLineThree": "birlikte hatmedin.",
+    "heroDescription": "QuranCircle; aileler, camiler ve topluluklar için ücretsiz bir grup hatim takip uygulamasıdır. Tek bir ortak halka oluşturun, okuyucuların hesap açmadan müsait bir cüzü sahiplenmesini sağlayın ve 30 cüzün tamamlanmasını birlikte takip edin.",
+    "benefitsLabel": "QuranCircle'ın sağladıkları",
+    "structuredWebsiteDescription": "30 cüzün tamamını koordine etmek için ücretsiz grup hatim takip uygulaması.",
+    "structuredAppDescription": "Grup hatim halkaları oluşturup paylaşın, okuyucular cüz sahiplensin ve tamamlanmayı anlık takip edin.",
     "trustLink": "Tek paylaşım bağlantısı",
-    "trustJuz": "30 Cüzün tamamı",
+    "trustJuz": "30 cüzün tamamı",
     "trustProgress": "Canlı ilerleme",
     "trustAccess": "Hesap gerekmez",
     "problemEyebrow": "Toplu okuma için tasarlandı",
     "problemTitle": "Elektronik tabloyu ve sohbet listesini geride bırakın",
-    "problemDescription": "QuranCircle; ailelere, camilere ve topluluklara tam bir Kur'an Hatmi düzenlemek için tek ve anlaşılır bir alan sunar.",
-    "categoryExplanation": "Tam bir Kur'an tilaveti 30 Cüze ayrılır. QuranCircle bu bölümleri paylaşılan canlı bir halkada bir araya getirir: katılımcılar bağlantıyı herhangi bir telefondan açabilir, müsait bir Cüzü sahiplenebilir ve bitirdiklerinde okundu olarak işaretleyebilir. Herkes aynı ilerlemeyi görür; böylece düzenleyiciler adları ve mesajları uzlaştırmak yerine teşvike odaklanabilir.",
+    "problemDescription": "QuranCircle; ailelere, camilere ve topluluklara tam bir Kur'an hatmi düzenlemek için tek ve anlaşılır bir alan sunar.",
+    "categoryExplanation": "Tam bir Kur'an tilaveti 30 cüze ayrılır. QuranCircle bu bölümleri ortak ve canlı bir halkada bir araya getirir: katılımcılar bağlantıyı herhangi bir telefondan açabilir, müsait bir cüzü sahiplenebilir ve bitirdiklerinde okundu olarak işaretleyebilir. Herkes aynı ilerlemeyi görür; böylece düzenleyiciler adları ve mesajları karşılaştırmak yerine teşvike odaklanabilir.",
     "oldWayTitle": "Alışılmış yöntem",
     "oldWayOne": "Sahiplenme ve tamamlama güncellemeleri yoğun grup sohbetinde kaybolur.",
     "oldWayTwo": "Düzenleyiciler güncellemeleri tek tek ister ve tabloları elle düzenler.",
     "oldWayThree": "Okuyucular hangi bölümlerin kaldığını hızla göremez.",
     "quranCircleWayTitle": "QuranCircle yöntemi",
-    "quranCircleWayOne": "Okuyucuların kendi Cüzünü sahiplendiği tek bir bağlantı paylaşın.",
+    "quranCircleWayOne": "Okuyucuların kendi cüzünü sahiplendiği tek bir bağlantı paylaşın.",
     "quranCircleWayTwo": "Sahiplenilen, müsait ve tamamlanan bölümleri canlı görün.",
     "quranCircleWayThree": "Aile halkalarını bağlantıya özel tutun veya topluluk halkalarını yayımlayın.",
     "guideLink": "Koordinasyon rehberini görün",
     "guideEyebrow": "Düzenleyici kaynağı",
-    "guideTitle": "Bir grup Hatmi mi düzenliyorsunuz?",
-    "guideDescription": "Tek bir ortak halka oluşturmayı, okuyucuları davet etmeyi, katılımcıların Cüz sahiplenmesini ve elektronik tablo olmadan tamamlanmayı takip etmeyi öğrenin.",
+    "guideTitle": "Bir grup hatmi mi düzenliyorsunuz?",
+    "guideDescription": "Tek bir ortak halka oluşturmayı, okuyucuları davet etmeyi, katılımcıların cüz sahiplenmesini ve elektronik tablo olmadan tamamlanmayı takip etmeyi öğrenin.",
     "guideButton": "Koordinasyon rehberini okuyun",
+    "guideIllustrationAlt": "İhlas Suresi'nin açık olduğu Kur'an-ı Kerim",
     "resourcesEyebrow": "Hatim düzenleyici kütüphanesi",
-    "resourcesTitle": "Düzenlediğiniz ana uygun, uygulamalı yardım",
+    "resourcesTitle": "Grubunuza uygun uygulamalı rehberler",
     "resourcesDescription": "Grubunuzun bir araya geliş şekline uygun rehberi kullanın, ardından herkesi tek bir ortak halkada buluşturun.",
     "readResource": "Kaynağı oku",
     "coordinationResourceTitle": "Eksiksiz koordinasyon rehberi",
     "coordinationResourceDescription": "Niyeti, son tarihi, daveti, katılımcıların kendi seçimini, hatırlatmaları ve tamamlanmayı planlayın.",
-    "whatsappResourceTitle": "WhatsApp'ta bir Hatmi koordine edin",
+    "whatsappResourceTitle": "WhatsApp'ta bir hatmi koordine edin",
     "whatsappResourceDescription": "WhatsApp'ı teşvik için kullanırken tek QuranCircle bağlantısını güncel bilginin kaynağı olarak koruyun.",
-    "ramadanResourceTitle": "Ramazan grup Hatmi planlayın",
-    "ramadanResourceDescription": "Küçük bir aileye veya daha geniş bir topluluğa uyum sağlayan sakin ve esnek bir 30 Cüz iş akışı kurun."
+    "ramadanResourceTitle": "Ramazan grup hatmi planlayın",
+    "ramadanResourceDescription": "Küçük bir aileye veya daha geniş bir topluluğa uyum sağlayan sade ve esnek bir 30 cüz iş akışı kurun."
   },
   "KhatmGuide": {
-    "eyebrow": "Uygulamalı düzenleyici rehberi",
+    "metadataTitle": "Grup Hatmi Rehberi ve Ortak Cüz Takibi",
+    "metadataDescription": "Tek ortak bağlantıyla grup hatmi düzenleyin. Okuyucular müsait cüzleri seçsin, anlık ilerlemeyi takip etsin ve hazır davet ile hatırlatma mesajlarını kullansın.",
+    "metadataKeywords": "grup hatmi nasıl düzenlenir,grup Kur'an hatmi,ortak cüz takibi,hatim bağlantısı,WhatsApp hatim mesajı,toplu Kur'an okuma",
+    "openGraphDescription": "Tek ortak bağlantı oluşturun, okuyucular müsait cüzleri seçsin ve altı adımlı pratik iş akışıyla hatmi koordine edin.",
+    "twitterDescription": "Ortak cüz takibi ve hazır mesajlarla pratik grup hatmi rehberi.",
+    "imageAlt": "QuranCircle grup hatmi koordinasyon rehberi",
+    "breadcrumbAriaLabel": "İçerik yolu",
+    "eyebrow": "Düzenleyiciler için pratik rehber",
     "title": "Grup Kur'an Hatmi Nasıl Düzenlenir?",
-    "intro": "Tek bir ortak halka oluşturmak, okuyucuları davet etmek, katılımcıların müsait Cüzleri sahiplenmesini sağlamak ve grubun tamamlanmaya kadar ilerlemesini izlemek için uygulamalı bir yöntem.",
+    "intro": "Tek bir ortak halka oluşturmak, okuyucuları davet etmek, katılımcıların müsait cüzleri sahiplenmesini sağlamak ve hatim tamamlanana kadar grubun ilerlemesini izlemek için pratik bir yöntem.",
     "updated": "Temmuz 2026'da güncellendi · 10 dakikalık rehber",
     "heroLedgerLabel": "Canlı halka ilerlemesi",
     "heroLedgerUnit": "Cüz",
@@ -392,10 +419,10 @@
     "contentsTemplates": "Kopyalanabilir mesajlar",
     "contentsFaq": "Sık sorulan sorular",
     "quickTitle": "Kısa cevap",
-    "quickAnswer": "Net bir bitiş zamanı belirleyin, bağlantıya özel veya açık bir QuranCircle halkası oluşturun ve bağlantısını paylaşın. Okuyucular hesap oluşturmadan adlarıyla müsait bir Cüz seçer, bitirince okundu olarak işaretler. Aynı canlı görünüm herkese geriye ne kaldığını gösterir.",
+    "quickAnswer": "Net bir bitiş zamanı belirleyin, bağlantıya özel veya açık bir QuranCircle halkası oluşturun ve bağlantısını paylaşın. Okuyucular hesap oluşturmadan adlarıyla müsait bir cüz seçer, bitirince okundu olarak işaretler. Aynı canlı görünüm herkese geriye ne kaldığını gösterir.",
     "terminologyEyebrow": "Kullanılan ifadeler",
     "terminologyTitle": "Khatm, Khatam, Khatma, Khatmah ve Hatim",
-    "terminologyText": "Bu yazımlar genellikle Kur'an'ın baştan sona tamamlanmasını ifade eder. İngilizcede Khatm, Khatam, Khatma, Khatmah veya Khitmah; Türkçede ise çoğunlukla Hatim kullanılır. QuranCircle ortak tamamlanma için İngilizcede “Khatm”, Kur'an'ın 30 bölümünün her biri için “Juz” ifadesini kullanır.",
+    "terminologyText": "Bu yazımlar genellikle Kur'an'ın baştan sona tamamlanmasını ifade eder. İngilizcede Khatm, Khatam, Khatma, Khatmah veya Khitmah; Türkçede ise Hatim kullanılır. QuranCircle Türkçe arayüzde “hatim” ve “cüz”, İngilizce arayüzde “Khatm” ve “Juz” ifadelerini kullanır.",
     "stepsEyebrow": "Güvenilir iş akışı",
     "stepsTitle": "Hatmi altı net adımda düzenleyin",
     "stepsDescription": "Araç önemlidir; ancak iyi koordinasyon hedef, zamanlama ve sorumluluklar konusunda basit bir anlaşmayla başlar.",
@@ -403,35 +430,35 @@
       "oneTitle": "Niyeti ve son tarihi belirleyin",
       "oneText": "Hatmin kimin için olduğunu ve tilavetin ne zaman tamamlanacağını belirtin. Okuyucular farklı ülkelerdeyse saat dilimiyle birlikte kesin tarih ve saat kullanın.",
       "twoTitle": "Bağlantıya özel veya açık seçin",
-      "twoText": "Aile, arkadaş, ders ve özel cami grupları için bağlantıya özel halka kullanın. Yalnızca QuranCircle'da gezen herkesin bulup katılmasını istiyorsanız açık seçeneğini kullanın.",
+      "twoText": "Aile, arkadaş, ders ve özel cami grupları için bağlantıya özel halka kullanın. Yalnızca tüm QuranCircle ziyaretçilerinin halkayı bulup katılmasını istiyorsanız açık seçeneğini kullanın.",
       "threeTitle": "Ortak halkayı oluşturun",
-      "threeText": "Halkaya tanınabilir bir ad verin, kısa bir açıklama ekleyin ve hedef tarihi belirleyin. QuranCircle 30 Cüzün tamamını tek bir canlı görünümde müsait bölümler olarak hazırlar.",
+      "threeText": "Halkaya kolayca tanınan bir ad verin, kısa bir açıklama ekleyin ve hedef tarihi belirleyin. QuranCircle 30 cüzün tamamını tek bir canlı görünümde müsait olarak hazırlar.",
       "fourTitle": "Tek bir davet bağlantısı gönderin",
       "fourText": "Amaç, son tarih ve sahiplenme bağlantısını kısa bir mesajda birleştirin. Canlı takibin doğru kalması için herkesten aynı bağlantıyı kullanmasını isteyin.",
-      "fiveTitle": "Okuyucular kendi Cüzlerini sahiplensin",
-      "fiveText": "Her okuyucu bağlantıyı açar, adını girer ve müsait bir Cüzü sahiplenir. Paylaşılan durum, iki kişinin yanlışlıkla aynı bölümü almasını önler.",
+      "fiveTitle": "Okuyucular kendi cüzlerini sahiplensin",
+      "fiveText": "Her okuyucu bağlantıyı açar, adını girer ve müsait bir cüzü sahiplenir. Ortak görünüm, iki kişinin yanlışlıkla aynı cüzü almasını önler.",
       "sixTitle": "İlerlemeyi izleyin ve tamamlayın",
-      "sixText": "Okuyucular bitirdiklerinde Cüzlerini okundu olarak işaretler. Son tarihten önce ne kaldığını kontrol edin, gerekirse nazik bir hatırlatma gönderin ve 30 Cüz tamamlanınca gruba teşekkür edin."
+      "sixText": "Okuyucular bitirdiklerinde cüzlerini okundu olarak işaretler. Son tarihten önce ne kaldığını kontrol edin, gerekirse nazik bir hatırlatma gönderin ve 30 cüz tamamlanınca gruba teşekkür edin."
     },
     "productPreview": {
       "eyebrow": "Ortak deneyim",
       "title": "Bağlantıyı paylaştığınızda grubunuzun gördüğü",
-      "description": "QuranCircle'ın temel iş akışı budur: katılımcıların hesap veya ayrı bir dağılım tablosu olmadan işlem yapabildiği, 30 Cüzün tamamını gösteren tek bir canlı görünüm.",
+      "description": "QuranCircle'ın temel iş akışı budur: katılımcıların hesap veya ayrı bir dağılım tablosu olmadan işlem yapabildiği, 30 cüzün tamamını gösteren tek bir canlı görünüm.",
       "previewLabel": "Ürün önizlemesi",
       "circleName": "Aile Ramazan Hatmi",
       "linkOnly": "Bağlantıya özel halka",
-      "progress": "30 Cüzden {count} tanesi sahiplenildi",
+      "progress": "30 cüzden {count} tanesi sahiplenildi",
       "available": "Müsait",
       "claimed": "Sahiplenildi",
       "read": "Okundu",
-      "gridLabel": "30 Cüzün tamamını gösteren örnek halka",
+      "gridLabel": "30 cüzün tamamını gösteren örnek halka",
       "availableLabel": "Cüz {number}, müsait",
       "claimedLabel": "Cüz {number}, {name} tarafından sahiplenildi",
       "readLabel": "Cüz {number}, okundu",
       "participantTitle": "Katılımcılar kendileri sahiplenir",
       "openLink": "Ortak halka bağlantısını herhangi bir telefonda açın.",
-      "claimJuz": "Müsait bir Cüz seçip adınızla sahiplenin.",
-      "markRead": "Aynı bağlantıya dönüp Cüzü okundu olarak işaretleyin.",
+      "claimJuz": "Müsait bir cüz seçip adınızla sahiplenin.",
+      "markRead": "Aynı bağlantıya dönüp cüzü okundu olarak işaretleyin.",
       "organizerTitle": "Düzenleyici gelişmeleri görür",
       "organizerText": "Müsait, sahiplenilmiş ve okunmuş durumlar ortak halkada güncellenir; böylece ayrıca elektronik tablo tutmaya gerek kalmaz."
     },
@@ -441,47 +468,47 @@
       "description": "Köşeli parantez içindeki bilgileri değiştirin, mesajı kısa tutun ve okuyucuları her zaman aynı canlı halka bağlantısına yönlendirin.",
       "invitationTitle": "Hatim daveti",
       "invitationTiming": "Başlangıçta gönderin",
-      "invitationText": "Selamün aleyküm. [niyet] için bir grup Kur'an Hatmi düzenliyoruz. Lütfen Cüzünüzü bu bağlantıdan seçin: [halka bağlantısı]\n\n[seçim son tarihi] tarihine kadar sahiplenip [tamamlama son tarihi] tarihine kadar okumanızı rica ederiz. Allah hepimizden kabul etsin.",
+      "invitationText": "Selamünaleyküm. [niyet] için bir grup Kur'an hatmi düzenliyoruz. Lütfen cüzünüzü bu bağlantıdan seçin: [halka bağlantısı]\n\n[seçim son tarihi] tarihine kadar sahiplenip [tamamlama son tarihi] tarihine kadar okumanızı rica ederiz. Allah hepimizden kabul etsin.",
       "reminderTitle": "Nazik hatırlatma",
       "reminderTiming": "Son tarihten önce gönderin",
-      "reminderText": "Selamün aleyküm. Grup Hatmimizin [tarih ve saat] tarihine kadar tamamlanması için nazik bir hatırlatmadır. Cüzünüzü kontrol edip buradan tamamlandı olarak işaretleyebilirsiniz: [halka bağlantısı]\n\nBölümünüzü bitiremeyecekseniz aynı bağlantıdan sahiplenmeyi kaldırın veya düzenleyiciye erken haber verin.",
+      "reminderText": "Selamünaleyküm. Grup hatmimizin [tarih ve saat] tarihine kadar tamamlanması için nazik bir hatırlatma: Cüzünüzü kontrol edip buradan tamamlandı olarak işaretleyebilirsiniz: [halka bağlantısı]\n\nCüzünüzü bitiremeyecekseniz aynı bağlantıdan bırakın veya düzenleyiciye erkenden haber verin.",
       "completionTitle": "Tamamlanma mesajı",
-      "completionTiming": "30 Cüz okunduğunda gönderin",
-      "completionText": "Elhamdülillah, grup Hatmimiz tamamlandı. Okuyan ve koordinasyona yardım eden herkesten Allah razı olsun. Allah tilavetimizi kabul etsin ve sevabını [niyet] için ulaştırsın."
+      "completionTiming": "30 cüz okunduğunda gönderin",
+      "completionText": "Elhamdülillah, grup hatmimiz tamamlandı. Okuyan ve koordinasyona yardım eden herkesten Allah razı olsun. Allah tilavetimizi kabul etsin ve sevabını [niyet] için ulaştırsın."
     },
     "privacyEyebrow": "Doğru görünürlüğü seçin",
     "privacyTitle": "Bağlantıya özel mi, açık halka mı?",
     "linkOnlyTitle": "Bağlantıya özel",
     "linkOnlyText": "Aileler, arkadaşlar, öğrenciler ve tanıdık topluluk grupları için uygundur. Halka, davet bağlantısına sahip kişilerce açılabilir ancak Göz At sayfasında listelenmez.",
     "publicTitle": "Açık",
-    "publicText": "Topluluk katılımına açık hedefler için uygundur. Halka Göz At sayfasında görünebilir; böylece ziyaretçiler onu bulup müsait bir Cüz sahiplenebilir.",
+    "publicText": "Topluluk katılımına açık hedefler için uygundur. Halka Göz At sayfasında görünebilir; böylece ziyaretçiler onu bulup müsait bir cüz sahiplenebilir.",
     "faqEyebrow": "Düzenleyici SSS",
-    "faqTitle": "Grup Hatimleri hakkında sık sorulan sorular",
+    "faqTitle": "Grup hatimleri hakkında sık sorulan sorular",
     "faq": {
-      "oneQuestion": "Grup Kur'an Hatmi nedir?",
-      "oneAnswer": "Grup Kur'an Hatmi, Kur'an'ın topluca tamamlanmasıdır. Okuyucular 30 Cüzden birini veya birkaçını sahiplenerek katkıda bulunur ve grup tam tilaveti birlikte bitirir.",
-      "twoQuestion": "QuranCircle 30 Cüzün tamamını nasıl koordine eder?",
-      "twoAnswer": "Düzenleyici tek bir halka bağlantısı paylaşır. Her okuyucu müsait bir Cüzü sahiplenir; bu tekrar eden sahiplenmeleri önler ve aynı görünüm bölümler sahiplenilip okundukça güncellenir.",
+      "oneQuestion": "Grup Kur'an hatmi nedir?",
+      "oneAnswer": "Grup Kur'an hatmi, Kur'an'ın topluca tamamlanmasıdır. Okuyucular 30 cüzden birini veya birkaçını sahiplenerek katkıda bulunur ve grup tilaveti birlikte tamamlar.",
+      "twoQuestion": "QuranCircle 30 cüzün tamamını nasıl koordine eder?",
+      "twoAnswer": "Düzenleyici tek bir halka bağlantısı paylaşır. Her okuyucu müsait bir cüzü sahiplenir; bu, aynı cüzün iki kez seçilmesini önler ve cüzler sahiplenilip okundukça ortak görünüm güncellenir.",
       "threeQuestion": "Katılımcıların QuranCircle hesabına ihtiyacı var mı?",
-      "threeAnswer": "Hayır. Katılımcılar paylaşılan bağlantıyı açıp hesap oluşturmadan adlarıyla bir Cüz sahiplenebilir. Düzenleyiciler halkalarını yönetebilmek için giriş yapar.",
-      "fourQuestion": "Aynı kişi birden fazla Cüz sahiplenebilir mi?",
-      "fourAnswer": "Evet. Bir okuyucu birden fazla müsait Cüz sahiplenebilir. Bu, küçük gruplarda veya son tarih yaklaşırken faydalıdır.",
-      "fiveQuestion": "Aile Hatmi açık olmalı mı?",
-      "fiveAnswer": "Genellikle hayır. Bağlantıya özel halka, Göz At sayfasında görünmeden kolayca paylaşılabildiği için aile veya özel grup açısından daha iyi bir varsayılandır.",
+      "threeAnswer": "Hayır. Katılımcılar paylaşılan bağlantıyı açıp hesap oluşturmadan adlarıyla bir cüz sahiplenebilir. Düzenleyiciler halkalarını yönetebilmek için giriş yapar.",
+      "fourQuestion": "Aynı kişi birden fazla cüz sahiplenebilir mi?",
+      "fourAnswer": "Evet. Bir okuyucu birden fazla müsait cüz sahiplenebilir. Bu, küçük gruplarda veya son tarih yaklaşırken faydalıdır.",
+      "fiveQuestion": "Aile hatmi açık olmalı mı?",
+      "fiveAnswer": "Genellikle hayır. Bağlantıya özel halka, Göz At sayfasında görünmeden kolayca paylaşılabildiği için aileler ve özel gruplar için en uygun seçenektir.",
       "sixQuestion": "Khatm, Khatam, Khatma ve Hatim aynı anlama mı gelir?",
       "sixAnswer": "Bunlar Kur'an'ın tamamlanması için kullanılan yaygın yazım biçimleridir; tercih edilen yazım dil ve topluluğa göre değişir. QuranCircle İngilizcede Khatm, Türkçede Hatim kullanır."
     },
-    "relatedEyebrow": "Odaklanmış düzenleyici kaynakları",
+    "relatedEyebrow": "Konuya özel düzenleyici kaynakları",
     "relatedTitle": "Grubunuza uygun rehberle devam edin",
     "relatedDescription": "Aynı ortak halka iş akışı, topluluğunuzun kullandığı iletişim kanalına ve döneme uyarlanabilir.",
-    "relatedWhatsappTitle": "WhatsApp'ta grup Hatmi nasıl koordine edilir?",
+    "relatedWhatsappTitle": "WhatsApp'ta grup hatmi nasıl koordine edilir?",
     "relatedWhatsappText": "Davet ve teşvik için WhatsApp'ı kullanırken tekrar eden seçimleri ve kaybolan güncellemeleri tek canlı halkayla önleyin.",
-    "relatedRamadanTitle": "Ramazan grup Hatmi nasıl planlanır?",
-    "relatedRamadanText": "Net bir zaman aralığı belirleyin, okuyucuları davet edin ve 30 Cüzü farklı büyüklükteki gruplar için esnek tutun.",
+    "relatedRamadanTitle": "Ramazan grup hatmi nasıl planlanır?",
+    "relatedRamadanText": "Net bir zaman aralığı belirleyin, okuyucuları davet edin ve 30 cüzü farklı büyüklükteki gruplar için esnek biçimde paylaştırın.",
     "relatedRead": "Odaklanmış rehberi okuyun",
     "finalEyebrow": "Grubunuz hazır olduğunda",
     "finalTitle": "Grubunuzun paylaşabileceği halkayı başlatın",
-    "finalText": "Tek bir bağlantı oluşturun, okuyucuların Cüzlerini sahiplenmesine izin verin ve tüm grubun ilerlemesini canlı takip edin.",
+    "finalText": "Tek bir bağlantı oluşturun, okuyucuların cüzlerini sahiplenmesini sağlayın ve tüm grubun ilerlemesini anlık takip edin.",
     "copied": "Kopyalandı",
     "copyTemplate": "Şablonu kopyala",
     "copySuccess": "Panoya kopyalandı.",
@@ -490,5 +517,522 @@
   "Auth": {
     "authFailed": "Kimlik doğrulama başarısız",
     "authFailedDesc": "Kimlik doğrulama sırasında bir şeyler ters gitti. Bağlantının süresi dolmuş veya zaten kullanılmış olabilir. Lütfen tekrar deneyin."
+  },
+  "Metadata": {
+    "siteTitle": "QuranCircle - Kur'an'ı Birlikte Okuyun ve Hatmedin",
+    "siteDescription": "Topluluğunuzla birlikte Kur'an okuyun. Bir hatim halkası oluşturun veya mevcut bir halkaya katılın, cüzünüzü sahiplenin ve Kur'an'ı birlikte hatmedin. Ücretsiz ve herkese açık.",
+    "openGraphDescription": "Topluluğunuzla birlikte Kur'an okuyun. Bir hatim halkası oluşturun veya mevcut bir halkaya katılın, cüzünüzü sahiplenin ve Kur'an'ı birlikte hatmedin."
+  },
+  "ErrorPage": {
+    "eyebrow": "Geçici bir kesinti",
+    "title": "Bir Sorun Oluştu",
+    "description": "Beklenmedik bir hata oluştu. Lütfen yeniden deneyin.",
+    "tryAgain": "Yeniden Dene"
+  },
+  "NotFoundPage": {
+    "eyebrow": "404 · Sayfa bulunamadı",
+    "title": "Sayfa Bulunamadı",
+    "description": "Sayfa taşınmış, bağlantı eksik veya halka artık kullanılamıyor olabilir.",
+    "returnHome": "Ana Sayfaya Dön"
+  },
+  "OpenGraphImage": {
+    "fallbackCircleName": "Hatim Halkası",
+    "joinCircle": "Bu Hatim Halkasına Katıl"
+  },
+  "CircleMetadata": {
+    "description": "QuranCircle'daki {eventName} hatim halkasına katılın"
+  },
+  "HeroPreview": {
+    "you": "Siz",
+    "completed": "Okundu",
+    "claimJuz": "Cüzü Sahiplen",
+    "available": "Müsait",
+    "claimed": "Sahiplenildi",
+    "previewAriaLabel": "QuranCircle hatim takipçisinin etkileşimli önizlemesi",
+    "interactivePreview": "Etkileşimli önizleme",
+    "khatmNumber": "Hatim #{number}",
+    "circleName": "Aile ve Arkadaşlar Halkası",
+    "progressTracker": "İlerleme takibi",
+    "claimedProgress": "{total} cüzden {claimed} tanesi sahiplenildi",
+    "overallProgress": "Genel ilerleme",
+    "progressAriaLabel": "Hatim sahiplenme ilerlemesi",
+    "claimedCount": "{count} sahiplenildi",
+    "juzCount": "{count} cüz",
+    "legendLabel": "Cüz durumları",
+    "gridLabel": "30 cüzün tamamı",
+    "demoClaimedLabel": "Önizlemede {number}. cüzü siz sahiplendiniz",
+    "demoClaimLabel": "Önizlemeyi deneyin: {number}. cüzü sahiplenin",
+    "openForClaims": "Sahiplenmeye açık",
+    "shareCircleLink": "Halka bağlantısını paylaş",
+    "resetDemo": "Önizlemeyi sıfırla"
+  },
+  "HowItWorks": {
+    "eyebrow": "Üç kolay adım",
+    "title": "Nasıl Çalışır?",
+    "description": "Sade, odaklı ve birlikte okumayı kolaylaştırmak için tasarlandı.",
+    "stepOneTitle": "Halkanızı Oluşturun",
+    "stepOneDescription": "Hatminize ad verin, bağlantıya özel veya açık olmasını seçin ve saniyeler içinde paylaşın.",
+    "stepTwoTitle": "Bir Cüz Sahiplenin",
+    "stepTwoDescription": "Katılımcılar hesap açmadan adlarıyla bir cüz seçer.",
+    "stepThreeTitle": "Tamamlanmayı Takip Edin",
+    "stepThreeDescription": "İlerleme anlık güncellenir; böylece herkes ne kaldığını görebilir."
+  },
+  "VerseCallout": {
+    "ariaLabel": "Kur'an ayeti",
+    "imageAlt": "Yıldız biçiminde katlanmış bir kumaş süsün üzerinde duran kapalı Kur'an-ı Kerim",
+    "translation": "Andolsun biz Kur'an'ı öğüt alınsın diye kolaylaştırdık. Öğüt alan yok mu?",
+    "citation": "Kamer Suresi (54:17)"
+  },
+  "LandingMetrics": {
+    "ariaLabel": "QuranCircle topluluk istatistikleri",
+    "circlesCreated": "Oluşturulan halka",
+    "juzClaimed": "Sahiplenilen cüz",
+    "activeKhatms": "Aktif hatim"
+  },
+  "PublicCircleCta": {
+    "eyebrow": "Herkese açık",
+    "title": "Bugün açık bir halkaya katılın",
+    "description": "Bir cüz seçin, diğer okuyuculara katılın ve Kur'an'ın birlikte hatmedilmesine katkıda bulunun.",
+    "button": "Açık Halkaları Gör"
+  },
+  "AuthModal": {
+    "googlePaused": "Google ile giriş duraklatıldı",
+    "googleFailed": "Google ile giriş başarısız",
+    "claimTransferError": "Mevcut halka etkinliğiniz aktarıma hazırlanamadı. Lütfen yeniden deneyin.",
+    "genericAuthError": "İşlem tamamlanamadı. Bilgilerinizi kontrol edip yeniden deneyin.",
+    "signInWithGoogle": "Google ile Giriş Yap",
+    "invalidEmail": "Geçerli bir e-posta adresi girin",
+    "passwordMinLength": "Şifre en az 8 karakter olmalıdır",
+    "usernameMinLength": "Kullanıcı adı en az 2 karakter olmalıdır",
+    "passwordRequirements": "Şifre en az 8 karakter olmalı; büyük harf, küçük harf, sayı ve sembol içermelidir.",
+    "passwordRequirementsDescription": "En az 8 karakter kullanın; büyük harf, küçük harf, sayı ve sembol ekleyin.",
+    "loginPaused": "Giriş duraklatıldı",
+    "loginFailed": "Giriş başarısız",
+    "loginSuccessful": "Giriş başarılı",
+    "registrationPaused": "Kayıt duraklatıldı",
+    "registrationFailed": "Kayıt başarısız",
+    "accountCreated": "Hesap başarıyla oluşturuldu",
+    "resetEmailFailed": "Şifre sıfırlama e-postası gönderilemedi",
+    "resetEmailSent": "Şifre sıfırlama e-postası gönderildi",
+    "resetPassword": "Şifreyi Sıfırla",
+    "createAccount": "Hesap Oluştur",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "resetDescription": "Şifre sıfırlama bağlantısı almak için e-posta adresinizi girin.",
+    "registerDescription": "Hatim halkalarınızı yönetmek için bir hesap oluşturun.",
+    "loginDescription": "Hatim halkalarınızı yönetmek için giriş yapın.",
+    "checkEmail": "E-postanızı kontrol edin",
+    "checkEmailDescription": "Şifre sıfırlama bağlantısını e-posta adresinize gönderdik.",
+    "backToLogin": "Girişe Dön",
+    "email": "E-posta",
+    "emailPlaceholder": "E-posta adresiniz",
+    "sending": "Gönderiliyor...",
+    "sendResetLink": "Sıfırlama Bağlantısı Gönder",
+    "continueWithEmail": "Veya e-posta ile devam edin",
+    "password": "Şifre",
+    "forgotPassword": "Şifrenizi mi unuttunuz?",
+    "loggingIn": "Giriş yapılıyor...",
+    "username": "Kullanıcı Adı",
+    "namePlaceholder": "Adınız",
+    "creatingAccount": "Hesap oluşturuluyor..."
+  },
+  "MyCircles": {
+    "eyebrow": "Okuma geçmişiniz",
+    "title": "Halkalarım",
+    "description": "Oluşturduğunuz veya katıldığınız halkalara dönün, sahiplendiğiniz cüzleri gözden geçirin ve ortak okumayı sürdürün.",
+    "activeCircles": "Aktif halkalar",
+    "archived": "Arşivlenen",
+    "createCircle": "Halka Oluştur",
+    "library": "Halka arşivi",
+    "libraryDescription": "Devam eden okumalar ile tamamlanan geçmiş arasında geçiş yapın.",
+    "statusFilters": "Halka durum filtreleri",
+    "activeTab": "Aktif ({count})",
+    "archivedTab": "Arşivlenen ({count})",
+    "creator": "Düzenleyici",
+    "participant": "Katılımcı",
+    "public": "Açık",
+    "linkOnly": "Bağlantıya özel",
+    "archivedOn": "{date} tarihinde arşivlendi",
+    "progressLabel": "{circleName}: {total} cüzden {claimed} tanesi sahiplenildi",
+    "claimedProgress": "{total} cüzden {claimed} tanesi sahiplenildi",
+    "yourProgress": "Siz: {claimed} cüz sahiplendiniz · {read} cüz okundu",
+    "noActiveCircles": "Henüz aktif halka yok",
+    "noArchivedCircles": "Arşivlenmiş halka yok",
+    "noActiveDescription": "İlerlemenizi burada takip etmek için yeni bir halka oluşturun veya bir cüz sahiplenin.",
+    "noArchivedDescription": "Oluşturduğunuz veya katkıda bulunduğunuz halkaları arşivlediğinizde burada görebilirsiniz.",
+    "noSessionCircles": "Bu oturumda henüz halka yok",
+    "noSessionDescription": "Kişisel halka geçmişinizi oluşturmaya başlamak için herhangi bir halkada cüz sahiplenin.",
+    "browseCircles": "Halkalara Göz At",
+    "goHome": "Ana Sayfaya Dön",
+    "noCirclesFound": "Halka bulunamadı",
+    "noCirclesDescription": "Etkinliğinizi burada görmek için bir halkaya katılıp cüz sahiplenin.",
+    "exploreCircles": "Halkaları Keşfet",
+    "archivedHistory": "Geçmişinizde {count} arşivlenmiş halka var. İncelemek için Arşivlenen sekmesine geçin."
+  },
+  "BrowsePage": {
+    "metadataTitle": "Açık Hatim Halkalarını Keşfedin",
+    "metadataDescription": "Aktif açık hatim halkalarını keşfedin, bir gruba katılın ve cüz sahiplenerek hatmin tamamlanmasına katkıda bulunun.",
+    "eyebrow": "Herkese açık",
+    "title": "Açık Hatim Halkalarını Keşfedin",
+    "description": "Aktif bir Kur'an okuma halkasına katılın ve bir cüz sahiplenerek katkıda bulunun. Cüz sahiplenmek ve okumaya başlamak için hesap gerekmez.",
+    "ledgerLabel": "Tek ortak okuma",
+    "juz": "Cüz",
+    "ledgerDescription": "Müsait bir cüz seçin, adınızı ekleyin ve halkanın ilerlemesini birlikte takip edin."
+  },
+  "HomeMetadata": {
+    "title": "Ücretsiz Grup Hatim Takip Uygulaması | Ortak Cüz Takibi",
+    "description": "Tek bir bağlantıyla grup hatmi düzenleyin. Okuyucular cüz sahiplensin, 30 cüzün ilerlemesini anlık takip edin; aileleri, camileri ve toplulukları ücretsiz koordine edin.",
+    "keywordTracker": "hatim takip uygulaması",
+    "keywordGroupReading": "grup Kur'an okuma",
+    "keywordJuz": "cüz dağıtımı",
+    "keywordCollective": "toplu Kur'an hatmi",
+    "keywordCircle": "Kur'an halkası",
+    "openGraphTitle": "Ücretsiz Grup Hatim Takip Uygulaması - QuranCircle",
+    "openGraphDescription": "Tek bir bağlantı oluşturun, okuyucular cüz sahiplensin ve grubunuzun hatim ilerlemesini anlık takip edin."
+  },
+  "ContactPage": {
+    "metadataTitle": "QuranCircle ile İletişim",
+    "metadataDescription": "Geri bildirim, hata bildirimi, destek ve proje soruları için QuranCircle ekibiyle iletişime geçin.",
+    "eyebrow": "Ekibe ulaşın",
+    "title": "İletişim",
+    "description": "Açık destek kanalı üzerinden ürün geri bildirimi paylaşın, sorun bildirin veya projeyle ilgili soru sorun.",
+    "bestPlace": "Başlamak için en iyi yer",
+    "githubIssues": "GitHub Issues",
+    "githubDescription": "Herkese açık, aranabilir ve topluluğun kolayca takip edebileceği bir kanal.",
+    "optionsLabel": "İletişim seçenekleri",
+    "openIssue": "Bildirim oluşturun",
+    "openIssueDescription": "Özellik taleplerinizi ve hata bildirimlerinizi açık takip sistemi üzerinden gönderin.",
+    "openTracker": "Bildirim sistemini aç",
+    "whatToExpect": "Sonraki adımlar",
+    "expectDescription": "Talepler mümkün olan en kısa sürede incelenir; güvenilirlik, veri bütünlüğü ve kullanıcıları etkileyen hatalara öncelik verilir.",
+    "includeDetails": "Mümkünse ilgili sayfayı, cihazınızı ve sorunu yeniden oluşturma adımlarını ekleyin."
+  },
+  "PrivacyPage": {
+    "metadataDescription": "QuranCircle'ın hangi verileri topladığını ve hesap ile halka bilgilerinin nasıl kullanıldığını açıklayan gizlilik politikasını okuyun.",
+    "eyebrow": "Tasarım gereği sade",
+    "title": "Gizlilik Politikası",
+    "description": "QuranCircle yalnızca ortak Kur'an okuma halkalarını çalıştırmak için gerekli bilgileri toplayacak şekilde tasarlanmıştır.",
+    "plainLanguage": "Kısaca",
+    "plainDescription": "Verileriniz kimlik doğrulama, halka katılımı ve ilerleme takibi için kullanılır; ürünün amacı verilerinizi toplamak değildir.",
+    "collectedTitle": "Toplanan Bilgiler",
+    "collectedDescription": "Kimlik doğrulama için gerekli hesap bilgilerini ve hatim ilerlemesini takip etmek için gereken halka verilerini saklarız. Bunlara halka adları, isteğe bağlı açıklamalar ve katılımcıların cüz seçimleri dahildir.",
+    "usageTitle": "Verilerin Kullanımı",
+    "usageDescription": "Veriler temel ürün işlevlerini sağlamak için kullanılır: halka oluşturmak, halkaya katılmak, cüz sahiplenmek ve tamamlanma ilerlemesini göstermek.",
+    "accessTitle": "Verilere Erişim ve Silme",
+    "accessDescription": "Hesabınızla ilgili yardıma ihtiyacınız varsa resmî iletişim sayfasından proje ekibine ulaşın."
+  },
+  "TermsPage": {
+    "metadataDescription": "Kabul edilebilir kullanım, hesap sorumlulukları ve hizmet beklentileri için QuranCircle kullanım koşullarını inceleyin.",
+    "eyebrow": "Saygılı bir ortak alan",
+    "title": "Kullanım Koşulları",
+    "description": "QuranCircle'ı kullanarak hizmeti sorumlu biçimde kullanmayı ve yapıcı topluluk katılımını desteklemeyi kabul edersiniz.",
+    "sharedResponsibility": "Ortak sorumluluk",
+    "sharedDescription": "Halkalarda saygılı olun, paylaşılan bağlantıları koruyun ve hizmeti amacı doğrultusunda kullanın.",
+    "acceptableTitle": "Kabul Edilebilir Kullanım",
+    "acceptableDescription": "Platformu kötüye kullanmayın, diğer katılımcıları rahatsız etmeyin ve zararlı ya da saldırgan içerik yayımlamayın.",
+    "accountTitle": "Hesap Sorumluluğu",
+    "accountDescription": "Hesabınız üzerinden yapılan işlemlerden ve halka bağlantılarını uygun şekilde paylaşmaktan siz sorumlusunuz.",
+    "availabilityTitle": "Hizmetin Kullanılabilirliği",
+    "availabilityDescription": "QuranCircle sürekli geliştirilmektedir ve özellikler zaman içinde değişebilir. Hizmeti güvenilir ve emniyetli tutmayı amaçlarız."
+  },
+  "AboutPage": {
+    "metadataTitle": "Grup Hatim Takip Uygulaması Hakkında",
+    "metadataDescription": "QuranCircle; ailelerin, camilerin ve toplulukların tek bir grup hatim bağlantısı paylaşmasına, cüz sahiplenmesine ve tamamlanmayı anlık takip etmesine yardımcı olan ücretsiz bir web uygulamasıdır.",
+    "openGraphTitle": "QuranCircle Hakkında",
+    "structuredDescription": "QuranCircle, grup hatimlerini koordine etmek için ücretsiz bir web uygulamasıdır.",
+    "structuredAppDescription": "Düzenleyicilerin tek bağlantı paylaşmasını, katılımcıların hesap açmadan müsait cüzleri sahiplenmesini ve grupların tamamlanmayı anlık takip etmesini sağlayan ücretsiz grup hatim takip uygulaması.",
+    "featureSharedLink": "Ortak grup hatim bağlantısı",
+    "featureSelfClaim": "Katılımcıların kendi cüzünü sahiplenmesi",
+    "featureLiveProgress": "30 cüzün tamamında anlık ilerleme",
+    "featureVisibility": "Bağlantıya özel ve açık halkalar",
+    "featureNoAccount": "Katılımcılar için hesapsız erişim",
+    "cost": "Ücret",
+    "freeToUse": "Ücretsiz",
+    "participantAccess": "Katılımcı erişimi",
+    "noAccountRequired": "Hesap gerekmez",
+    "coordination": "Koordinasyon",
+    "oneSharedLink": "Tek ortak halka bağlantısı",
+    "visibility": "Görünürlük",
+    "linkOnlyOrPublic": "Bağlantıya özel veya açık",
+    "eyebrow": "Ürün bilgileri",
+    "heroTitle": "Grup hatminin düzenli kaldığı ortak alan",
+    "heroDescription": "QuranCircle; aileler, camiler, arkadaşlar, sınıflar ve topluluklar için ücretsiz bir grup hatim takip uygulamasıdır. Düzenleyici tek bir halka bağlantısı oluşturur, okuyucular müsait cüzleri adlarıyla sahiplenir ve herkes hatim tamamlanana kadar aynı güncel ilerlemeyi görür.",
+    "juzTracked": "Takip edilen cüz",
+    "free": "Ücretsiz",
+    "forEveryGroup": "Her grup için",
+    "answerEyebrow": "Kısa cevap",
+    "whatTitle": "QuranCircle nedir?",
+    "whatDescriptionOne": "QuranCircle, Kur'an'ın topluca hatmedilmesini koordine eden tarayıcı tabanlı bir uygulamadır. 30 cüzün tamamını tek ortak görünümde hazırlar, aynı cüzün iki kişi tarafından seçilmesini önler ve hangi cüzlerin müsait, sahiplenilmiş veya okunmuş olduğunu gösterir.",
+    "whatDescriptionTwo": "QuranCircle grubu koordine eder; katılımcının okumayı tercih ettiği Kur'an-ı Kerim'in yerini almaz. Okuyucular kendi mushaflarını kullanabilir veya bağlantılı cüzü Quran.com'da açabilir, ardından halkaya dönüp cüzlerini okundu olarak işaretleyebilir.",
+    "groupsEyebrow": "Gerçek gruplar için tasarlandı",
+    "groupsTitle": "QuranCircle ne zaman kullanılmalı?",
+    "groupsDescription": "QuranCircle, tanıdık bir grup elektronik tablo tutmadan veya WhatsApp listesini sürekli düzenlemeden tam bir Kur'an tilavetini bölüşmek istediğinde uygundur. Düzenleyicinin daha geniş bir topluluğun hatmi keşfedip katılmasını istediği durumlarda açık halkaları da destekler.",
+    "familiesTitle": "Aileler ve arkadaşlar",
+    "familiesDescription": "Bağlantıya özel halkanızı farklı evler ve saat dilimleri arasında kolayca paylaşın.",
+    "masjidsTitle": "Camiler ve sınıflar",
+    "masjidsDescription": "Katılımcılara cüz seçip tamamlandığını bildirebilecekleri tek ve güvenilir bir alan sunun.",
+    "communitiesTitle": "Açık topluluklar",
+    "communitiesDescription": "Katılımın tüm QuranCircle ziyaretçilerine açık olması gerektiğinde halkayı Göz At sayfasında yayımlayın.",
+    "recommendationEyebrow": "Kısaca önerimiz",
+    "recommendationTitle": "Grup hatmini koordine etmek için ücretsiz uygulama",
+    "recommendationDescription": "Bir düzenleyicinin, katılımcıların hesap açmadan müsait cüzleri sahiplenebildiği ve tüm grubun 30 cüzdeki ilerlemeyi anlık görebildiği tek bir bağlantıya ihtiyacı olduğunda QuranCircle'ı kullanın.",
+    "coordinationGuide": "Koordinasyon rehberini okuyun",
+    "whatsappWorkflow": "WhatsApp iş akışını görün",
+    "finalEyebrow": "Grubunuz hazır olduğunda",
+    "finalTitle": "Halkayı oluşturun, tek bağlantıyı paylaşın",
+    "finalDescription": "Katılımcılar kendi cüzlerini seçer; ortak görünüm herkesi aynı ilerlemede buluşturur.",
+    "createCircle": "Hatim Halkası Oluştur"
+  },
+  "WhatsappGuide": {
+    "metadata": {
+      "title": "WhatsApp'ta Grup Hatmi Düzenleme",
+      "description": "Okuyucuların cüz seçebildiği, çakışmaların önlendiği ve tamamlanmanın anlık izlendiği tek bağlantıyla WhatsApp'ta grup hatmi düzenleyin.",
+      "keywords": "WhatsApp grup hatmi,WhatsApp hatim mesajı,hatim davet mesajı,ortak cüz takip uygulaması,grup hatim takibi",
+      "openGraphTitle": "WhatsApp'ta Grup Hatmi Nasıl Düzenlenir?",
+      "openGraphDescription": "Sohbeti WhatsApp'ta, cüz seçimlerini tek bir canlı QuranCircle bağlantısında tutun.",
+      "imageAlt": "Tek ortak bağlantıyla koordine edilen grup hatmi",
+      "twitterTitle": "WhatsApp'ta Grup Hatmi Düzenleyin",
+      "twitterDescription": "Davetler, cüz seçimleri, hatırlatmalar ve tamamlanma için pratik bir iş akışı."
+    },
+    "structuredDescription": "WhatsApp ve QuranCircle ile grup hatmi davetlerini, cüz seçimlerini, hatırlatmaları ve tamamlanmayı koordine etmek için pratik bir iş akışı.",
+    "breadcrumb": {
+      "ariaLabel": "İçerik yolu",
+      "guide": "Hatim rehberi",
+      "current": "WhatsApp iş akışı"
+    },
+    "badge": "Düzenleyiciler için pratik rehber",
+    "title": "WhatsApp'ta grup hatmi nasıl düzenlenir?",
+    "intro": "WhatsApp'ı davet, teşvik ve topluluk iletişimi için kullanın. Cüz seçimlerini ve tamamlanma durumunu tek bir QuranCircle bağlantısında tutun; böylece herkes eski bir liste yerine güncel durumu görsün.",
+    "createSharedCircle": "Ortak Halkayı Oluştur",
+    "copyTemplates": "Mesaj Şablonlarını Kopyala",
+    "preview": {
+      "groupKhatm": "Grup Hatmi",
+      "openSharedCircle": "Ortak halkayı aç"
+    },
+    "short": {
+      "eyebrow": "Kısa cevap",
+      "title": "Tek bir güncel kaynak kullanın",
+      "description": "Bir QuranCircle halkası oluşturun, bağlantısını WhatsApp'ta paylaşın ve her okuyucudan cüzünü bu bağlantı üzerinden seçip tamamlamasını isteyin. Sohbet WhatsApp'ta, dağılımın güncel durumu canlı halkada kalsın."
+    },
+    "comparison": {
+      "eyebrow": "Sohbeti durum takibinden ayırın",
+      "title": "WhatsApp ve QuranCircle'ın görevleri farklıdır",
+      "whatsappTitle": "WhatsApp'ı şunlar için kullanın",
+      "whatsappItems": {
+        "invitation": "Davet ve niyet",
+        "questions": "Sorular ve teşvik",
+        "reminder": "Son tarihten önce hatırlatma",
+        "completion": "Hatim tamamlanınca gönderilecek mesaj"
+      },
+      "quranCircleTitle": "QuranCircle'ı şunlar için kullanın",
+      "quranCircleItems": {
+        "liveList": "30 cüzün güncel listesi",
+        "selfClaim": "Katılımcının kendi cüzünü seçmesi",
+        "preventDuplicates": "Aynı cüzün iki kez seçilmesini önleme",
+        "status": "Müsait, sahiplenilmiş ve okunmuş cüzlerin durumu"
+      }
+    },
+    "workflow": {
+      "eyebrow": "Güvenilir bir iş akışı",
+      "title": "Grup hatmini beş adımda koordine edin",
+      "step1": {
+        "title": "Tek bir hatim halkası oluşturun",
+        "text": "Kolayca tanınan bir ad, açık bir niyet ve grubun tamamlaması gereken tarihi belirleyin."
+      },
+      "step2": {
+        "title": "Herkese aynı bağlantıyı gönderin",
+        "text": "QuranCircle bağlantısını, cüz seçimi için son tarihi ve tamamlama tarihini kısa bir WhatsApp mesajında paylaşın."
+      },
+      "step3": {
+        "title": "Okuyucular müsait bir cüz seçsin",
+        "text": "Katılımcılar bağlantıyı açar, adlarını yazar ve hesap oluşturmadan kendi cüzlerini seçer."
+      },
+      "step4": {
+        "title": "Durum takibi için halkayı kullanın",
+        "text": "Müsait, sahiplenilmiş ve okunmuş cüzler sohbet yanıtlarından yeniden oluşturulmak yerine ortak görünümde güncel kalır."
+      },
+      "step5": {
+        "title": "Teşvik için WhatsApp'ı kullanın",
+        "text": "Son tarihten önce sıcak bir hatırlatma, 30 cüzün tamamı okunduğunda da hatim mesajı gönderin."
+      }
+    },
+    "failures": {
+      "eyebrow": "Sık karşılaşılan sorunlar",
+      "title": "Bunları sohbet listesinin dışında tutun",
+      "items": {
+        "duplicates": {
+          "title": "Çakışan cüz seçimleri",
+          "text": "İki farklı sohbet zincirindeki yanıtlardan cüz dağıtmayın. Herkesin ortak halka üzerinden seçim yapmasını isteyin."
+        },
+        "silentChanges": {
+          "title": "Görünmeyen değişiklikler",
+          "text": "Birisi tamamlayamayacaksa cüzü QuranCircle'da bırakmasını isteyin; böylece cüz yeniden müsait görünür."
+        },
+        "staleReposts": {
+          "title": "Güncelliğini yitiren listeler",
+          "text": "Düzenlenmiş 30 satırlık listeyi tekrar tekrar paylaşmayın. Ne kaldığı sorulduğunda aynı canlı bağlantıyı gönderin."
+        }
+      }
+    },
+    "faq": {
+      "eyebrow": "Düzenleyici için sık sorulanlar",
+      "title": "WhatsApp'taki grup hatimleri hakkında sorular",
+      "items": {
+        "item1": {
+          "question": "WhatsApp tek başına grup hatmini takip edebilir mi?",
+          "answer": "WhatsApp davetleri ve hatırlatmaları iletebilir; ancak mesaj geçmişi güvenilir bir canlı takip aracı değildir. Ortak QuranCircle bağlantısı her katılımcıya müsait, sahiplenilmiş ve okunmuş cüzlerin güncel listesini gösterir."
+        },
+        "item2": {
+          "question": "Katılımcıların WhatsApp grubundan ayrılması gerekir mi?",
+          "answer": "Hayır. WhatsApp grubu sohbet ve teşvik için kullanılmaya devam eder. Katılımcılar yalnızca cüz seçmek, durumunu kontrol etmek, cüzü bırakmak veya okundu olarak işaretlemek istediklerinde ortak halka bağlantısını açar."
+        },
+        "item3": {
+          "question": "Katılımcıların QuranCircle hesabı olması gerekir mi?",
+          "answer": "Hayır. Okuyucular hesap oluşturmadan adlarıyla müsait bir cüz seçebilir. Yalnızca halkayı oluşturup yöneten düzenleyicinin giriş yapması gerekir."
+        },
+        "item4": {
+          "question": "Birisi cüzünü bitiremezse ne olur?",
+          "answer": "Mümkün olduğunca erken, aynı ortak bağlantıdan cüzü bırakmasını isteyin. Cüz yeniden müsait olur ve düzenleyicinin listeyi baştan hazırlamasına gerek kalmadan başka bir okuyucu cüzü seçebilir."
+        }
+      }
+    },
+    "related": {
+      "ariaLabel": "İlgili hatim kaynakları",
+      "completeGuide": "Kapsamlı rehber",
+      "planTitle": "Grup hatminin tamamını planlayın",
+      "planDescription": "Niyet, görünürlük, katılımcı erişimi, ilerleme ve tamamlanma adımlarını düzenleyin.",
+      "seasonalGuide": "Ramazan rehberi",
+      "ramadanTitle": "İş akışını Ramazan'a uyarlayın",
+      "ramadanDescription": "Zorunlu bir okuyucu sayısı yerine tek bir son tarih etrafında esnek bir plan oluşturun."
+    },
+    "final": {
+      "eyebrow": "Tüm grup için tek bağlantı",
+      "title": "Daveti WhatsApp taşısın, cüz takibini ortak halka yapsın",
+      "description": "Halkayı bir kez oluşturup grupla paylaşın; güncel görünüm herkese hangi cüzlerin kaldığını göstersin.",
+      "createCircle": "Hatim Halkanızı Oluşturun"
+    }
+  },
+  "RamadanGuide": {
+    "metadata": {
+      "title": "Ramazan Grup Hatmi Planı",
+      "description": "Tek ortak bağlantı, esnek cüz seçimleri, açık son tarihler, anlık ilerleme ve kullanıma hazır düzenleyici rehberiyle Ramazan grup hatmi planlayın.",
+      "keywords": "Ramazan grup hatmi,Ramazan hatim planı,Ramazan cüz takibi,grup hatmi Ramazan,Kur'an hatim grubu",
+      "openGraphTitle": "Ramazan Grup Hatmi Nasıl Planlanır?",
+      "openGraphDescription": "Aileler, camiler ve topluluklar için esnek bir 30 cüz koordinasyon planı.",
+      "imageAlt": "Ramazan grup hatmi planlama rehberi",
+      "twitterTitle": "Ramazan Grup Hatmi Planlayın",
+      "twitterDescription": "Tek ortak halka, esnek cüz seçimleri ve tamamlanmaya giden açık bir yol."
+    },
+    "structuredDescription": "Ramazan'da 30 cüzün tamamını tek bir ortak QuranCircle bağlantısıyla koordine etmek için esnek bir iş akışı.",
+    "breadcrumb": {
+      "ariaLabel": "İçerik yolu",
+      "guide": "Hatim rehberi",
+      "current": "Ramazan planı"
+    },
+    "badge": "Ramazan düzenleyicileri için rehber",
+    "title": "Ramazan grup hatmi nasıl planlanır?",
+    "intro": "Grubu belirli sayıda okuyucu etrafında değil, tek bir tamamlama dönemi ve ortak halka etrafında kurun. Katılımcılar kapasitelerine göre cüz seçerken herkes 30 cüzün güncel durumunu görsün.",
+    "createCircle": "Ramazan Hatim Halkası Oluştur",
+    "seePlan": "Beş Adımlı Planı Gör",
+    "preview": "30 cüz · tek ortak halka",
+    "short": {
+      "eyebrow": "Kısa cevap",
+      "title": "Son tarihi belirleyin, okumayı grupça paylaşın",
+      "description": "Bir QuranCircle halkası oluşturun, hatmin ne zaman tamamlanacağını belirtin ve bağlantıyı grupla paylaşın. Okuyucular müsait cüzleri seçer, bitirince okundu olarak işaretler ve tamamlayamayacakları cüzleri bırakır."
+    },
+    "principle": {
+      "distinction": "Önemli ayrım",
+      "juzNotReaders": "30 okuyucu değil, 30 cüz",
+      "eyebrow": "Kişi sayısına değil kapasiteye göre planlayın",
+      "title": "İyi bir plan esnek kalır",
+      "descriptionOne": "Beş kişilik bir aile, kişi başına birkaç cüz alarak hatmi tamamlayabilir. Daha büyük bir toplulukta birçok kişi birer cüz okuyabilir. Düzenleyicinin ideal grup büyüklüğünü hesaplaması gerekmez; ortak halka yalnızca kalan cüzleri görünür tutar.",
+      "descriptionTwo": "Önemli olan açık bir tamamlama dönemi, erken iletişim ve planı değişen okuyucuların cüzlerini kolayca bırakabilmesidir."
+    },
+    "plan": {
+      "eyebrow": "Davetten tamamlanmaya",
+      "title": "Beş adımlı Ramazan grup hatmi planı",
+      "step1": {
+        "label": "Davet öncesi",
+        "title": "Niyeti ve tamamlama dönemini belirleyin",
+        "text": "Grubun ne için hatim yaptığını, cüzlerin ne zamana kadar seçileceğini ve okumanın tamamlanacağı kesin tarihi ve saati belirtin."
+      },
+      "step2": {
+        "label": "Başlangıçta",
+        "title": "Tek halka oluşturup tek bağlantı paylaşın",
+        "text": "Tanıdık bir grup için bağlantıya özel, katılım daha geniş bir topluluğa açık olacaksa herkese açık bir halka kullanın."
+      },
+      "step3": {
+        "label": "Cüz seçimi sırasında",
+        "title": "Katılımı esnek tutun",
+        "text": "Okuyucular müsait cüzleri seçer. Bir kişi bir veya birkaç cüz alabilir; böylece plan sabit sayıda katılımcıya ihtiyaç duymaz."
+      },
+      "step4": {
+        "label": "Son tarihten önce",
+        "title": "Güncel görünümü kontrol edip nazikçe hatırlatın",
+        "text": "Aynı bağlantıyı yeniden paylaşın; herkes kalan cüzleri görebilsin ve planı değişenler cüzlerini erkenden bırakabilsin."
+      },
+      "step5": {
+        "label": "Tamamlanınca",
+        "title": "30 cüzün tamamının okunduğunu doğrulayın",
+        "text": "Son kontrolü ortak ilerleme görünümünden yapın, okuyuculara teşekkür edin ve hatim mesajını grupla paylaşın."
+      }
+    },
+    "groupSizes": {
+      "eyebrow": "Tek iş akışı, farklı gruplar",
+      "title": "Hatmi baştan tasarlamadan cüz seçimlerini uyarlayın",
+      "familyTitle": "Küçük bir aile",
+      "familyDescription": "Okuyucular tamamlama dönemi boyunca birden fazla müsait cüz seçebilir ve bitiremeyecekleri cüzleri bırakabilir.",
+      "friendsTitle": "Arkadaşlar veya bir sınıf",
+      "friendsDescription": "Katılımcılar kapasitelerine göre seçim yaparken düzenleyici son tarihten önce kalan cüzleri takip eder.",
+      "masjidTitle": "Bir cami topluluğu",
+      "masjidDescription": "Açık veya bağlantıya özel bir halka, dağıtım listesi göndermeden geniş bir topluluğa tek güncel görünüm sunar."
+    },
+    "invitation": {
+      "eyebrow": "Kullanıma hazır başlangıç",
+      "title": "Ramazan grup hatmi daveti",
+      "description": "Köşeli parantezleri doldurun ve herkesi aynı halka bağlantısına yönlendirin.",
+      "messageOne": "Selamünaleyküm. [niyet] için Ramazan grup hatmi düzenliyoruz. Lütfen şu bağlantıdan müsait bir cüz seçin: [halka bağlantısı]",
+      "messageTwo": "Cüzünüzü [seçim son tarihi] tarihine kadar seçip okumayı [tamamlama tarihi] tarihine kadar bitirmenizi rica ederiz. Planınız değişirse başka bir okuyucunun alabilmesi için cüzü erkenden bırakın. Allah hepimizden kabul etsin."
+    },
+    "faq": {
+      "eyebrow": "Ramazan düzenleyicisi için sık sorulanlar",
+      "title": "Ramazan grup hatimleri hakkında sık sorulanlar",
+      "items": {
+        "item1": {
+          "question": "Ramazan grup hatmi için 30 kişi gerekir mi?",
+          "answer": "Hayır. Kur'an 30 cüzdür; ancak grup hatmi 30 okuyucu gerektirmez. Bir katılımcı birden fazla müsait cüz seçebilir. Bu nedenle aynı ortak halka hem küçük bir aile hem de büyük bir topluluk için çalışır."
+        },
+        "item2": {
+          "question": "Her okuyucuya önceden bir cüz atamalı mıyım?",
+          "answer": "Atayabilirsiniz; ancak okuyucuların kendi cüzlerini seçmesi genellikle daha kolay yönetilir. Herkes kapasitesine göre müsait bir cüz seçer ve canlı halka aynı cüzün yanlışlıkla iki kişi tarafından alınmasını önler."
+        },
+        "item3": {
+          "question": "Aile içi Ramazan hatmi herkese açık olmalı mı?",
+          "answer": "Genellikle hayır. Bağlantıya özel QuranCircle halkası Göz At sayfasında görünmez, ancak aile ve arkadaşlarla kolayca paylaşılır. Yalnızca herkesin keşfedip katılması isteniyorsa açık halka seçin."
+        },
+        "item4": {
+          "question": "Bir okuyucu geride kalırsa ne olur?",
+          "answer": "Bitiremeyecekse cüzü erkenden bırakmasını rica edin. Cüz aynı canlı halkada yeniden müsait olur ve başka biri son tarihten önce seçebilir."
+        },
+        "item5": {
+          "question": "Grup birden fazla hatim tamamlayabilir mi?",
+          "answer": "Evet. QuranCircle halkası yeni hatim döngüleriyle devam edebilir; böylece grup koordinasyonu baştan kurmadan aynı ortak halkayı kullanabilir."
+        }
+      }
+    },
+    "related": {
+      "ariaLabel": "İlgili hatim kaynakları",
+      "completeGuide": "Kapsamlı rehber",
+      "guideTitle": "Her tür grup hatmini düzenleyin",
+      "guideDescription": "Gizlilik, katılımcıların kendi cüzünü seçmesi, mesaj şablonları ve tüm koordinasyon iş akışını inceleyin.",
+      "whatsappWorkflow": "WhatsApp iş akışı",
+      "whatsappTitle": "Hatmi grup sohbetinizle paylaşın",
+      "whatsappDescription": "Davet ve hatırlatmaları WhatsApp'ta tutarken canlı halka 30 cüzü takip etsin."
+    },
+    "final": {
+      "eyebrow": "Bereketli bir ay için esnek plan",
+      "title": "Grubunuzun paylaşabileceği halkayla başlayın",
+      "description": "Niyeti ve son tarihi belirleyin; okuyucular kapasitelerine göre cüz seçsin."
+    }
   }
 }

@@ -7,6 +7,7 @@ type OrganizerResourceProps = {
   title: string;
   description: string;
   button: string;
+  illustrationAlt: string;
 };
 
 export default function OrganizerResource({
@@ -14,6 +15,7 @@ export default function OrganizerResource({
   title,
   description,
   button,
+  illustrationAlt,
 }: OrganizerResourceProps) {
   return (
     <section
@@ -37,7 +39,10 @@ export default function OrganizerResource({
         <ExternalLink aria-hidden="true" />
       </AnalyticsLink>
 
-      <OpenQuranIllustration className="landing-resource-quran" />
+      <OpenQuranIllustration
+        className="landing-resource-quran"
+        title={illustrationAlt}
+      />
     </section>
   );
 }

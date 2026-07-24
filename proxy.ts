@@ -1,5 +1,9 @@
-import { type NextRequest } from "next/server";
+import { NextRequest } from "next/server";
+import createMiddleware from "next-intl/middleware";
 import { updateSession } from "@/lib/supabase/proxy";
+import { routing } from "@/i18n/routing";
+
+const handleI18nRouting = createMiddleware(routing);
 
 function getSupabaseConnectSources() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -46,7 +50,17 @@ export async function proxy(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
 
-  const response = await updateSession(request, requestHeaders);
+  const localizedRequest = new NextRequest(request, {
+    headers: requestHeaders,
+  });
+  const i18nResponse = handleI18nRouting(localizedRequest);
+
+  if (!i18nResponse.ok) {
+    i18nResponse.headers.set("Content-Security-Policy", contentSecurityPolicy);
+    return i18nResponse;
+  }
+
+  const response = await updateSession(request, requestHeaders, i18nResponse);
   response.headers.set("Content-Security-Policy", contentSecurityPolicy);
 
   return response;
@@ -54,6 +68,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest\\.json|sw\\.js|workbox-.*\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|auth|_next|_vercel|favicon.ico|manifest\\.json|sw\\.js|workbox-.*\\.js|robots.txt|sitemap.xml|.*opengraph-image|.*\\..*).*)",
   ],
 };

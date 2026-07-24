@@ -10,11 +10,14 @@ const { replaceMock, searchParamsMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(searchParamsMock.value),
+}));
+
+vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({
     replace: replaceMock,
   }),
   usePathname: () => "/s/ABCDEFGH",
-  useSearchParams: () => new URLSearchParams(searchParamsMock.value),
 }));
 
 vi.mock("@/lib/supabase/client", () => ({

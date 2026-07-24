@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,26 +17,28 @@ import {
   Plus,
   Users2,
 } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 
 const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
 
 type MyCircle = Awaited<ReturnType<typeof getMyCircles>>[number];
 type CircleTab = "active" | "archived";
 
-function formatDate(value: string | null) {
-  if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 function CircleCard({ circle, archived = false }: { circle: MyCircle; archived?: boolean }) {
+  const t = useTranslations("MyCircles");
+  const format = useFormatter();
   const progress = Math.round((circle.claimed / circle.total) * 100);
-  const archivedLabel = archived ? formatDate(circle.archived_at) : null;
+  const archivedDate = circle.archived_at
+    ? new Date(circle.archived_at)
+    : null;
+  const archivedLabel =
+    archivedDate && !Number.isNaN(archivedDate.getTime())
+      ? format.dateTime(archivedDate, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : null;
 
   return (
     <Link
@@ -64,29 +66,41 @@ function CircleCard({ circle, archived = false }: { circle: MyCircle; archived?:
               : "border-sky-200 bg-sky-50 text-sky-700"
           )}
         >
-          {circle.relation === "creator" ? "Creator" : "Participant"}
+          {circle.relation === "creator" ? t("creator") : t("participant")}
         </span>
         <span className="rounded-full border border-quran-border bg-white/70 px-2.5 py-1 text-quran-muted">
-          {circle.is_public ? "Public" : "Link-only"}
+          {circle.is_public ? t("public") : t("linkOnly")}
         </span>
         {archived && (
           <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-700">
-            {archivedLabel ? `Archived ${archivedLabel}` : "Archived"}
+            {archivedLabel
+              ? t("archivedOn", { date: archivedLabel })
+              : t("archived")}
           </span>
         )}
       </div>
 
       <Progress
         value={progress}
-        aria-label={`${circle.name}: ${circle.claimed}/${circle.total} Juz claimed`}
+        aria-label={t("progressLabel", {
+          circleName: circle.name,
+          claimed: circle.claimed,
+          total: circle.total,
+        })}
         className="h-2 bg-quran-border/50"
       />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-quran-muted">
         <span>
-          {circle.claimed}/{circle.total} Juz claimed
+          {t("claimedProgress", {
+            claimed: circle.claimed,
+            total: circle.total,
+          })}
         </span>
         <span>
-          You: {circle.my_claimed} claimed · {circle.my_read} read
+          {t("yourProgress", {
+            claimed: circle.my_claimed,
+            read: circle.my_read,
+          })}
         </span>
       </div>
     </Link>
@@ -94,6 +108,7 @@ function CircleCard({ circle, archived = false }: { circle: MyCircle; archived?:
 }
 
 export default function MyCirclesContent() {
+  const t = useTranslations("MyCircles");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [circles, setCircles] = useState<MyCircle[]>([]);
   const [isLoadingCircles, setIsLoadingCircles] = useState(true);
@@ -171,20 +186,20 @@ export default function MyCirclesContent() {
   return (
     <>
       <AppPageHero
-        eyebrow="Your reading history"
-        title="My Circles"
-        description="Return to circles you created or joined, review your claimed Juz, and keep every shared recitation moving."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
         icon={Layers3}
       >
         <div className="space-y-3">
           <div className="app-hero-stat-grid">
             <div className="app-hero-stat">
               <strong>{activeCircles.length}</strong>
-              <span>Active circles</span>
+              <span>{t("activeCircles")}</span>
             </div>
             <div className="app-hero-stat">
               <strong>{archivedCircles.length}</strong>
-              <span>Archived</span>
+              <span>{t("archived")}</span>
             </div>
           </div>
           <Button
@@ -192,7 +207,7 @@ export default function MyCirclesContent() {
             onClick={() => setIsCreateOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
-            Create a Circle
+            {t("createCircle")}
           </Button>
         </div>
       </AppPageHero>
@@ -201,15 +216,15 @@ export default function MyCirclesContent() {
         <div className="app-toolbar">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
-              Circle library
+              {t("library")}
             </p>
             <p className="mt-1 text-sm text-quran-muted">
-              Switch between current readings and completed history.
+              {t("libraryDescription")}
             </p>
           </div>
           <div
             role="group"
-            aria-label="Circle status filters"
+            aria-label={t("statusFilters")}
             className="app-segmented-control"
           >
             <Button
@@ -224,7 +239,7 @@ export default function MyCirclesContent() {
                   "bg-background text-foreground shadow-sm hover:bg-background"
               )}
             >
-              Active ({activeCircles.length})
+              {t("activeTab", { count: activeCircles.length })}
             </Button>
             <Button
               type="button"
@@ -238,7 +253,7 @@ export default function MyCirclesContent() {
                   "bg-background text-foreground shadow-sm hover:bg-background"
               )}
             >
-              Archived ({archivedCircles.length})
+              {t("archivedTab", { count: archivedCircles.length })}
             </Button>
           </div>
         </div>
@@ -272,50 +287,54 @@ export default function MyCirclesContent() {
               {isAuthenticatedUser ? (
                 <>
                   <h2 className="relative font-heading text-3xl text-quran-deep">
-                    {activeTab === "active" ? "No active circles yet" : "No archived circles"}
+                    {activeTab === "active"
+                      ? t("noActiveCircles")
+                      : t("noArchivedCircles")}
                   </h2>
                   <p className="relative mt-2 max-w-md text-sm leading-6 text-quran-muted">
                     {activeTab === "active"
-                      ? "Create a new circle or claim a Juz to start tracking your progress here."
-                      : "Archived circles will appear here when you archive circles you created or contributed to."}
+                      ? t("noActiveDescription")
+                      : t("noArchivedDescription")}
                   </p>
                   {activeTab === "active" && (
                     <Button className="mt-6 rounded-full" onClick={() => setIsCreateOpen(true)}>
                       <Plus className="mr-2 h-4 w-4" />
-                      Create a Circle
+                      {t("createCircle")}
                     </Button>
                   )}
                 </>
               ) : isAnonymous ? (
                 <>
                   <h2 className="relative font-heading text-3xl text-quran-deep">
-                    No circles in this session yet
+                    {t("noSessionCircles")}
                   </h2>
                   <p className="relative mt-2 max-w-md text-sm leading-6 text-quran-muted">
-                    Claim a Juz in any circle to start building your personal circles history.
+                    {t("noSessionDescription")}
                   </p>
                   <div className="mt-6 flex flex-wrap justify-center gap-2">
                     <Button asChild className="rounded-full">
                       <Link href="/browse">
                         <Globe2 className="mr-2 h-4 w-4" />
-                        Browse Circles
+                        {t("browseCircles")}
                       </Link>
                     </Button>
                     <Button asChild variant="outline" className="rounded-full border-quran-border bg-white/80">
-                      <Link href="/">Go Home</Link>
+                      <Link href="/">{t("goHome")}</Link>
                     </Button>
                   </div>
                 </>
               ) : (
                 <>
-                  <h2 className="relative font-heading text-3xl text-quran-deep">No circles found</h2>
+                  <h2 className="relative font-heading text-3xl text-quran-deep">
+                    {t("noCirclesFound")}
+                  </h2>
                   <p className="relative mt-2 max-w-md text-sm leading-6 text-quran-muted">
-                    Join a circle and claim a Juz to see your activity appear here.
+                    {t("noCirclesDescription")}
                   </p>
                   <Button asChild className="mt-6 rounded-full">
                     <Link href="/browse">
                       <Users2 className="mr-2 h-4 w-4" />
-                      Explore Circles
+                      {t("exploreCircles")}
                     </Link>
                   </Button>
                 </>
@@ -326,7 +345,7 @@ export default function MyCirclesContent() {
 
         {activeTab === "active" && archivedCircles.length > 0 && !isLoadingCircles && (
           <p className="mt-6 text-sm text-quran-muted">
-            {archivedCircles.length} archived {archivedCircles.length === 1 ? "circle" : "circles"} in your history. Switch to the Archived tab to review them.
+            {t("archivedHistory", { count: archivedCircles.length })}
           </p>
         )}
       </section>

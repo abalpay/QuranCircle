@@ -8,28 +8,17 @@ import HeroActions from "@/components/hero-actions";
 import HeroProductPreview from "@/components/hero-product-preview";
 import HomeInstallPrompt from "@/components/home-install-prompt";
 import { GeometricRosette } from "@/components/landing/decorative-art";
-
-type LandingHeroProps = {
-  eyebrow: string;
-  benefits: {
-    link: string;
-    progress: string;
-    juz: string;
-    access: string;
-  };
-};
+import { getTranslations } from "next-intl/server";
 
 const benefitIcons = [Link2, ChartNoAxesCombined, BookOpen, UserRoundCheck];
 
-export default function LandingHero({
-  eyebrow,
-  benefits,
-}: LandingHeroProps) {
+export default async function LandingHero() {
+  const t = await getTranslations("MarketingHome");
   const benefitItems = [
-    benefits.link,
-    benefits.progress,
-    benefits.juz,
-    benefits.access,
+    t("trustLink"),
+    t("trustProgress"),
+    t("trustJuz"),
+    t("trustAccess"),
   ];
 
   return (
@@ -47,31 +36,31 @@ export default function LandingHero({
 
           <p className="landing-eyebrow landing-eyebrow-dark">
             <span aria-hidden="true">✦</span>
-            {eyebrow}
+            {t("eyebrow")}
           </p>
 
           <h1
             id="landing-hero-title"
             className="landing-hero-title"
-            aria-label="Complete a group Quran Khatm, together."
+            aria-label={t("heroAriaLabel")}
           >
-            Complete a group
+            {t("heroLineOne")}
             <br />
-            Qur’an Khatm,
+            {t("heroLineTwo")}
             <br />
-            <span>together.</span>
+            <span>{t("heroLineThree")}</span>
           </h1>
 
           <p className="landing-hero-description">
-            QuranCircle is a free group Quran Khatm tracker for families,
-            masjids, and communities. Create one shared circle, let readers
-            claim an available Juz without an account, and follow all 30
-            portions through completion.
+            {t("heroDescription")}
           </p>
 
           <HeroActions theme="dark" />
 
-          <ul className="landing-hero-benefits" aria-label="QuranCircle benefits">
+          <ul
+            className="landing-hero-benefits"
+            aria-label={t("benefitsLabel")}
+          >
             {benefitItems.map((item, index) => {
               const BenefitIcon = benefitIcons[index];
               return (

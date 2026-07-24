@@ -3,8 +3,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import {
   BookOpenCheck,
   Compass,
@@ -27,6 +26,7 @@ import {
 import Image from "next/image";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
+import type { AppLocale } from "@/i18n/routing";
 
 export default function Header() {
   const pathname = usePathname();
@@ -36,15 +36,16 @@ export default function Header() {
   const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
 
-  const setLocale = (newLocale: string) => {
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
-    router.refresh();
+  const setLocale = (newLocale: AppLocale) => {
+    router.replace(`${pathname}${window.location.search}`, {
+      locale: newLocale,
+    });
   };
 
   const displayName =
     (isAuthenticatedUser && (user?.user_metadata?.username as string)) ||
     (isAuthenticatedUser && user?.email?.split("@")[0]) ||
-    "User";
+    t("user");
 
   const primaryNavigation = [
     { href: "/", label: t("home"), icon: Home },
@@ -79,7 +80,7 @@ export default function Header() {
         </Link>
 
         <nav
-          aria-label="Primary navigation"
+          aria-label={t("primaryNavigation")}
           className="ml-4 hidden items-center gap-1 lg:flex"
         >
           {primaryNavigation.map(({ href, label, icon: Icon }) => {

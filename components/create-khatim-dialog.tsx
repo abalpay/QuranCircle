@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { createEvent } from "@/lib/actions/events";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Loader2, CirclePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";

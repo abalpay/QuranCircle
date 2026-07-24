@@ -16,63 +16,50 @@ function getStaticLastModified() {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl();
   const staticLastModified = getStaticLastModified();
-
-  const staticPages: MetadataRoute.Sitemap = [
+  const pages = [
+    { path: "", changeFrequency: "daily", priority: 1 },
+    { path: "/browse", changeFrequency: "daily", priority: 0.8 },
     {
-      url: baseUrl,
-      lastModified: staticLastModified,
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/browse`,
-      lastModified: staticLastModified,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/khatm-coordination`,
-      lastModified: staticLastModified,
+      path: "/khatm-coordination",
       changeFrequency: "weekly",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/group-khatm-whatsapp`,
-      lastModified: staticLastModified,
+      path: "/group-khatm-whatsapp",
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/ramadan-group-khatm`,
-      lastModified: staticLastModified,
+      path: "/ramadan-group-khatm",
       changeFrequency: "monthly",
       priority: 0.7,
     },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: staticLastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: staticLastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: staticLastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: staticLastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-  ];
+    { path: "/about", changeFrequency: "monthly", priority: 0.4 },
+    { path: "/privacy", changeFrequency: "monthly", priority: 0.4 },
+    { path: "/terms", changeFrequency: "monthly", priority: 0.4 },
+    { path: "/contact", changeFrequency: "monthly", priority: 0.4 },
+  ] as const;
 
-  return staticPages;
+  return pages.flatMap(({ path, changeFrequency, priority }) => {
+    const englishUrl = `${baseUrl}${path}`;
+    const turkishUrl = `${baseUrl}/tr${path}`;
+    const languages = { en: englishUrl, tr: turkishUrl };
+
+    return [
+      {
+        url: englishUrl,
+        lastModified: staticLastModified,
+        changeFrequency,
+        priority,
+        alternates: { languages },
+      },
+      {
+        url: turkishUrl,
+        lastModified: staticLastModified,
+        changeFrequency,
+        priority,
+        alternates: { languages },
+      },
+    ];
+  });
 }

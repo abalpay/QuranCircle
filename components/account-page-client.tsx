@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link, useRouter } from "@/i18n/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -35,7 +34,7 @@ import { deleteAccount } from "@/lib/actions/account";
 import { formatAuthError } from "@/lib/utils";
 import { toast } from "sonner";
 import { ArrowLeft, LockKeyhole, Trash2, UserRound } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { createPasswordSchema } from "@/lib/auth/password-policy";
 import AppPageHero from "@/components/app-page-hero";
 
@@ -44,6 +43,7 @@ import AppPageHero from "@/components/app-page-hero";
 export default function AccountPageClient() {
   const router = useRouter();
   const t = useTranslations("AccountPage");
+  const format = useFormatter();
   const { user, isLoading, isAuthenticatedUser } = useAuth();
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -216,7 +216,7 @@ export default function AccountPageClient() {
     );
   }
 
-  const memberSince = new Date(user.created_at).toLocaleDateString(undefined, {
+  const memberSince = format.dateTime(new Date(user.created_at), {
     year: "numeric",
     month: "long",
     day: "numeric",

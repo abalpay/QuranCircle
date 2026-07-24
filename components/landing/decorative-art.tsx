@@ -1,5 +1,6 @@
 type DecorativeArtProps = {
   className?: string;
+  title?: string;
 };
 
 export function GeometricRosette({ className }: DecorativeArtProps) {
@@ -61,7 +62,10 @@ export function MosqueSkyline({ className }: DecorativeArtProps) {
   );
 }
 
-export function OpenQuranIllustration({ className }: DecorativeArtProps) {
+export function OpenQuranIllustration({
+  className,
+  title = "Open Quran",
+}: DecorativeArtProps) {
   return (
     <svg
       role="img"
@@ -72,9 +76,7 @@ export function OpenQuranIllustration({ className }: DecorativeArtProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <title id="open-quran-title">
-        Open Qur’an displaying Surah Al-Ikhlas
-      </title>
+      <title id="open-quran-title">{title}</title>
 
       <path
         d="M20 48c45-18 91-18 140 1 49-19 95-19 140-1l-8 112c-48-12-91-10-132 9-41-19-84-21-132-9L20 48Z"

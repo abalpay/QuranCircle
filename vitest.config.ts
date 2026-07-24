@@ -3,13 +3,29 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "."),
-    },
+    alias: [
+      {
+        find: /^next\/server$/,
+        replacement: path.resolve(__dirname, "node_modules/next/server.js"),
+      },
+      {
+        find: /^next\/navigation$/,
+        replacement: path.resolve(__dirname, "node_modules/next/navigation.js"),
+      },
+      {
+        find: "@",
+        replacement: path.resolve(__dirname, "."),
+      },
+    ],
   },
   test: {
     environment: "jsdom",
     setupFiles: ["./tests/setup/vitest.setup.ts"],
+    server: {
+      deps: {
+        inline: ["next-intl"],
+      },
+    },
     include: ["tests/unit/**/*.test.{ts,tsx}"],
     globals: true,
     passWithNoTests: false,

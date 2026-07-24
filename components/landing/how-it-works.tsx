@@ -5,6 +5,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { GeometricRosette } from "@/components/landing/decorative-art";
+import { getTranslations } from "next-intl/server";
 
 type ProcessStep = {
   title: string;
@@ -12,27 +13,25 @@ type ProcessStep = {
   icon: LucideIcon;
 };
 
-const steps: ProcessStep[] = [
-  {
-    title: "Set Your Circle",
-    description:
-      "Name your Khatm, choose link-only or public, and share in seconds.",
-    icon: UsersRound,
-  },
-  {
-    title: "Claim A Juz",
-    description:
-      "Participants choose their portion by name with no account friction.",
-    icon: Link2,
-  },
-  {
-    title: "Track Completion",
-    description: "Progress is updated live so everyone can see what remains.",
-    icon: CheckCircle2,
-  },
-];
-
-export default function HowItWorks() {
+export default async function HowItWorks() {
+  const t = await getTranslations("HowItWorks");
+  const steps: ProcessStep[] = [
+    {
+      title: t("stepOneTitle"),
+      description: t("stepOneDescription"),
+      icon: UsersRound,
+    },
+    {
+      title: t("stepTwoTitle"),
+      description: t("stepTwoDescription"),
+      icon: Link2,
+    },
+    {
+      title: t("stepThreeTitle"),
+      description: t("stepThreeDescription"),
+      icon: CheckCircle2,
+    },
+  ];
   return (
     <section
       className="landing-section landing-process"
@@ -41,10 +40,10 @@ export default function HowItWorks() {
       <GeometricRosette className="landing-process-rosette" />
       <header className="landing-process-header">
         <div>
-          <p className="landing-eyebrow">A clear path</p>
-          <h2 id="process-title">How It Works</h2>
+          <p className="landing-eyebrow">{t("eyebrow")}</p>
+          <h2 id="process-title">{t("title")}</h2>
         </div>
-        <p>Simple, focused, and designed for spiritual collaboration.</p>
+        <p>{t("description")}</p>
       </header>
 
       <ol className="landing-process-steps">

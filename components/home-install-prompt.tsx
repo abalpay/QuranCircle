@@ -23,7 +23,7 @@ export default function HomeInstallPrompt() {
             type="button"
             onClick={() => setIsOpen(true)}
             className="home-install-pill"
-            aria-label="Open install instructions"
+            aria-label={t("openInstructions")}
           >
             <Smartphone className="h-3.5 w-3.5" aria-hidden="true" />
             <span>{platform === "ios" ? t("addToHomeScreen") : t("installApp")}</span>
