@@ -65,6 +65,10 @@ type LocaleLayoutProps = Readonly<{
   params: Promise<{ locale: string }>;
 }>;
 
+// Nonce-based CSP requires each HTML response to be rendered with the
+// request-specific nonce supplied by proxy.ts.
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
