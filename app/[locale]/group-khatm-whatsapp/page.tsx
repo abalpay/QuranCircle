@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
 import { Link } from "@/i18n/navigation";
 import {
   ArrowRight,
@@ -119,7 +120,7 @@ export default async function GroupKhatmWhatsappPage({
         url: toAbsoluteUrl(homePath),
         logo: {
           "@type": "ImageObject",
-          url: toAbsoluteUrl("/quran-icon.png"),
+          url: toAbsoluteUrl(BRAND_LOGO_PATH),
           width: 512,
           height: 512,
         },

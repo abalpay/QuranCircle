@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import BrandMark from "@/components/brand-mark";
+import { BRAND_COLORS } from "@/lib/brand";
 
 export const runtime = "edge";
 
@@ -15,22 +17,10 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: 6,
-          background: "linear-gradient(135deg, #17634f 0%, #163f38 100%)",
+          background: BRAND_COLORS.deep,
         }}
       >
-        <div
-          style={{
-            fontSize: 22,
-            fontWeight: 700,
-            color: "white",
-            display: "flex",
-            fontFamily: "sans-serif",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Q
-        </div>
+        <BrandMark variant="on-dark" width="27" height="27" />
       </div>
     ),
     { ...size }

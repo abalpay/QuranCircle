@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">QuranCircle Continuum Q concept</title>
+  <desc id="desc">A continuous isometric loop in violet, blue, and aqua forms a bold letter Q.</desc>
+
+  <path d="M80 7 146 45l-31 18-35-20-35 20-31-18Z" fill="#7C5CFC"/>
+  <path d="m14 45 31 18v40l35 20v30l-66-38Z" fill="#3157D5"/>
+  <path d="m146 45-31 18v40l-35 20v30l66-38Z" fill="#17B8B1"/>
+  <path d="m45 63 35-20 35 20-35 20Z" fill="#F6F7FF"/>
+  <path d="m45 63 35 20v40l-35-20Z" fill="#DDE3FF"/>
+  <path d="m115 63-35 20v40l35-20Z" fill="#C7F0EC"/>
+  <path d="m96 111 21-12 34 36-23 20Z" fill="#FFB45B"/>
+</svg>

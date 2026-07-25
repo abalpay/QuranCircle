@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-test("optimizes the bundled Quran icon", async ({ request }) => {
+test("optimizes the bundled QuranCircle icon", async ({ request }) => {
   const response = await request.get(
-    "/_next/image?url=%2Fquran-icon.png&w=48&q=75"
+    "/_next/image?url=%2Fbrand%2Fqurancircle-icon-512.png&w=48&q=75"
   );
 
   expect(response.status()).toBe(200);

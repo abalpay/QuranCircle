@@ -23,10 +23,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import type { AppLocale } from "@/i18n/routing";
 import { localeOptions } from "@/i18n/locale-config";
+import BrandMark from "@/components/brand-mark";
 
 export default function Header() {
   const pathname = usePathname();
@@ -61,14 +61,10 @@ export default function Header() {
           href="/"
           className="group inline-flex shrink-0 items-center gap-3"
         >
-          <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[hsl(var(--quran-gold)/0.52)] bg-white/[0.045] shadow-[inset_0_1px_0_hsl(150_30%_96%/0.09)] transition-transform duration-200 group-hover:scale-[1.03]">
-            <Image
-              src="/quran-icon.png"
-              alt=""
-              width={25}
-              height={25}
-            />
-          </span>
+          <BrandMark
+            variant="on-dark"
+            className="h-11 w-11 shrink-0 transition-transform duration-200 group-hover:scale-[1.035]"
+          />
           <span className="leading-none">
             <span className="block font-heading text-[1.55rem] text-[hsl(150_30%_96%)] sm:text-[1.65rem]">
               QuranCircle

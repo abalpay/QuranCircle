@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
 import AnalyticsLink from "@/components/analytics-link";
 import CreateCircleAction from "@/components/create-circle-action";
 import KhatmMessageTemplates from "@/components/khatm-message-templates";
@@ -117,7 +118,7 @@ export default async function KhatmCoordinationPage({
         url: toAbsoluteUrl(localizedRoot),
         logo: {
           "@type": "ImageObject",
-          url: toAbsoluteUrl("/quran-icon.png"),
+          url: toAbsoluteUrl(BRAND_LOGO_PATH),
           width: 512,
           height: 512,
         },
