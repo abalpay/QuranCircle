@@ -2,6 +2,10 @@ import { NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { updateSession } from "@/lib/supabase/proxy";
 import { routing } from "@/i18n/routing";
+import {
+  isViewportDiagnosticsEnabled,
+  VIEWPORT_DIAGNOSTICS_REQUEST_HEADER,
+} from "@/lib/viewport-diagnostics";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -49,6 +53,11 @@ export async function proxy(request: NextRequest) {
 
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
+  if (isViewportDiagnosticsEnabled(request.nextUrl.searchParams)) {
+    requestHeaders.set(VIEWPORT_DIAGNOSTICS_REQUEST_HEADER, "1");
+  } else {
+    requestHeaders.delete(VIEWPORT_DIAGNOSTICS_REQUEST_HEADER);
+  }
 
   const localizedRequest = new NextRequest(request, {
     headers: requestHeaders,

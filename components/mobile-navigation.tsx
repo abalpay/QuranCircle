@@ -40,6 +40,7 @@ export default function MobileNavigation() {
       <nav
         aria-label={t("mobileNavigation")}
         className="mobile-bottom-nav lg:hidden"
+        data-mobile-navigation
       >
         <div className="mobile-bottom-nav-surface">
           <Link
