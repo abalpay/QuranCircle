@@ -35,4 +35,25 @@ describe("application proxy security headers", () => {
     expect(requestCsp).not.toContain("'unsafe-eval'");
     expect(response.headers.get("Content-Security-Policy")).toBe(requestCsp);
   });
+
+  it("forwards viewport diagnostics only for the explicit query opt-in", async () => {
+    const enabledRequest = new NextRequest(
+      "https://qurancircle.test/browse?viewportDebug=1"
+    );
+    await proxy(enabledRequest);
+
+    const enabledHeaders = proxyMocks.updateSession.mock.calls[0]?.[1] as Headers;
+    expect(enabledHeaders.get("x-qurancircle-viewport-debug")).toBe("1");
+
+    proxyMocks.updateSession.mockClear();
+    const disabledRequest = new NextRequest("https://qurancircle.test/browse", {
+      headers: {
+        "x-qurancircle-viewport-debug": "1",
+      },
+    });
+    await proxy(disabledRequest);
+
+    const disabledHeaders = proxyMocks.updateSession.mock.calls[0]?.[1] as Headers;
+    expect(disabledHeaders.has("x-qurancircle-viewport-debug")).toBe(false);
+  });
 });

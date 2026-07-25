@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import {
   Manrope,
   Cormorant_Garamond,
@@ -32,6 +33,7 @@ import {
   getOpenGraphLocale,
 } from "@/i18n/locale-config";
 import { BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
+import { VIEWPORT_DIAGNOSTICS_REQUEST_HEADER } from "@/lib/viewport-diagnostics";
 
 const siteUrl = getSiteUrl();
 const socialImageUrl = toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH);
@@ -140,7 +142,13 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
-  const messages = await getMessages();
+  const [messages, requestHeaders] = await Promise.all([
+    getMessages(),
+    headers(),
+  ]);
+  const viewportDiagnosticsEnabled =
+    requestHeaders.get(VIEWPORT_DIAGNOSTICS_REQUEST_HEADER) === "1";
+  const nonce = requestHeaders.get("x-nonce") ?? undefined;
 
   return (
     <html
@@ -155,7 +163,10 @@ export default async function LocaleLayout({
           <NavigationProgress />
           <AuthProvider>
             <AuthModalProvider>
-              <div className="relative min-h-screen overflow-x-clip bg-quran-bg">
+              <div
+                className="relative min-h-screen overflow-x-clip bg-quran-bg"
+                data-app-shell
+              >
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -165,7 +176,10 @@ export default async function LocaleLayout({
                   <div className="absolute -right-28 bottom-12 h-72 w-72 rounded-full bg-[hsl(var(--quran-green)/0.14)] blur-3xl" />
                 </div>
                 <Header />
-                <div className="relative flex min-h-screen flex-col">
+                <div
+                  className="relative flex min-h-screen flex-col"
+                  data-content-shell
+                >
                   {children}
                   <Footer />
                 </div>
@@ -174,6 +188,14 @@ export default async function LocaleLayout({
               <Suspense fallback={null}>
                 <AuthErrorToast />
               </Suspense>
+              {viewportDiagnosticsEnabled ? (
+                <script
+                  defer
+                  nonce={nonce}
+                  src="/viewport-diagnostics.js"
+                  suppressHydrationWarning
+                />
+              ) : null}
               <Toaster />
               {isVercelDeployment ? (
                 <>
