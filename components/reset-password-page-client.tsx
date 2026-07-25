@@ -82,7 +82,7 @@ export default function ResetPasswordPageClient() {
 
   return (
     <main className="page-shell flex grow items-center justify-center">
-      <section className="app-state-card max-w-lg text-left">
+      <section className="app-state-card max-w-lg text-start">
         <div className="space-y-6">
           <div>
             <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-[1rem] border border-quran-border/60 bg-quran-green/[0.075] text-quran-green">

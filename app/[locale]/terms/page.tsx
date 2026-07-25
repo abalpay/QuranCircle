@@ -3,19 +3,23 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ScrollText } from "lucide-react";
 import AppPageHero from "@/components/app-page-hero";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 export async function generateMetadata({
   params,
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "TermsPage" });
-  const canonical = locale === "tr" ? "/tr/terms" : "/terms";
+  const canonical = getLocalizedPath(locale, "/terms");
   return {
     title: t("title"),
     description: t("metadataDescription"),
     alternates: {
       canonical,
-      languages: { en: "/terms", tr: "/tr/terms" },
+      languages: getLanguageAlternates("/terms"),
     },
     openGraph: {
       title: `${t("title")} - QuranCircle`,

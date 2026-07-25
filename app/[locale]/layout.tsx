@@ -26,6 +26,11 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import {
+  getLocaleDirection,
+  getLocalizedPath,
+  getOpenGraphLocale,
+} from "@/i18n/locale-config";
 import { BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
 
 const siteUrl = getSiteUrl();
@@ -83,7 +88,7 @@ export async function generateMetadata({
   }
 
   const t = await getTranslations({ locale, namespace: "Metadata" });
-  const localeUrl = locale === "tr" ? `${siteUrl}/tr` : siteUrl;
+  const localeUrl = toAbsoluteUrl(getLocalizedPath(locale));
 
   return {
     metadataBase: new URL(siteUrl),
@@ -95,7 +100,7 @@ export async function generateMetadata({
     manifest: "/manifest.json",
     openGraph: {
       type: "website",
-      locale: locale === "tr" ? "tr_TR" : "en_US",
+      locale: getOpenGraphLocale(locale),
       url: localeUrl,
       siteName: "QuranCircle",
       title: t("siteTitle"),
@@ -138,7 +143,11 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} data-scroll-behavior="smooth">
+    <html
+      lang={locale}
+      dir={getLocaleDirection(locale)}
+      data-scroll-behavior="smooth"
+    >
       <body
         className={`${manrope.variable} ${cormorantGaramond.variable} ${notoNaskhArabic.variable} ${amiri.variable} font-sans antialiased`}
       >

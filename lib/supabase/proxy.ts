@@ -5,6 +5,7 @@ import {
   SHORT_CODE_MIN_LENGTH,
   SHORT_CODE_REGEX,
 } from "@/lib/constants/short-code";
+import { routing } from "@/i18n/routing";
 
 function copyCookies(from: NextResponse, to: NextResponse) {
   for (const cookie of from.cookies.getAll()) {
@@ -30,17 +31,30 @@ function getAuthRedirectPath(pathname: string) {
 }
 
 function getAppPathname(pathname: string) {
-  return pathname.replace(/^\/(?:en|tr)(?=\/|$)/, "") || "/";
+  const localePrefix = routing.locales.find(
+    (locale) =>
+      pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
+  );
+
+  return localePrefix
+    ? pathname.slice(localePrefix.length + 1) || "/"
+    : pathname;
 }
 
 function localizeRedirectPath(pathname: string, requestPathname: string) {
-  if (requestPathname !== "/tr" && !requestPathname.startsWith("/tr/")) {
+  const locale = routing.locales.find(
+    (candidate) =>
+      requestPathname === `/${candidate}` ||
+      requestPathname.startsWith(`/${candidate}/`),
+  );
+
+  if (!locale || locale === routing.defaultLocale) {
     return pathname;
   }
 
-  if (pathname === "/") return "/tr";
-  if (pathname.startsWith("/?")) return `/tr${pathname.slice(1)}`;
-  return `/tr${pathname}`;
+  if (pathname === "/") return `/${locale}`;
+  if (pathname.startsWith("/?")) return `/${locale}${pathname.slice(1)}`;
+  return `/${locale}${pathname}`;
 }
 
 function getShortCodeFromPath(pathname: string) {

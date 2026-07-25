@@ -112,13 +112,13 @@ export default function UserDashboard() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="quran-badge">
-              <Layers3 className="mr-2 h-3.5 w-3.5" />
+              <Layers3 className="me-2 h-3.5 w-3.5" />
               {activeCircles.length} {t("active")}
             </span>
             <Button asChild variant="outline" className="rounded-full border-quran-border bg-white/80">
               <Link href="/my-circles">
                 {t("viewAll")}
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ms-2 h-4 w-4" />
               </Link>
             </Button>
           </div>

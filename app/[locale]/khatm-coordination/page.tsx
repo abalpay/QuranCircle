@@ -22,14 +22,17 @@ import KhatmProductPreview from "@/components/khatm-product-preview";
 import { Button } from "@/components/ui/button";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 export async function generateMetadata({
   params,
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "KhatmGuide" });
-  const canonical =
-    locale === "tr" ? "/tr/khatm-coordination" : "/khatm-coordination";
+  const canonical = getLocalizedPath(locale, "/khatm-coordination");
 
   return {
     title: t("metadataTitle"),
@@ -37,10 +40,7 @@ export async function generateMetadata({
     keywords: t("metadataKeywords").split(","),
     alternates: {
       canonical,
-      languages: {
-        en: "/khatm-coordination",
-        tr: "/tr/khatm-coordination",
-      },
+      languages: getLanguageAlternates("/khatm-coordination"),
     },
     openGraph: {
       type: "article",
@@ -88,9 +88,9 @@ export default async function KhatmCoordinationPage({
   setRequestLocale(locale);
 
   const t = await getTranslations("KhatmGuide");
-  const localizedRoot = locale === "tr" ? "/tr" : "/";
+  const localizedRoot = getLocalizedPath(locale);
   const pageUrl = toAbsoluteUrl(
-    locale === "tr" ? "/tr/khatm-coordination" : "/khatm-coordination",
+    getLocalizedPath(locale, "/khatm-coordination"),
   );
   const faqItems = faqKeys.map((key) => ({
     question: t(`faq.${key}Question`),
@@ -165,8 +165,8 @@ export default async function KhatmCoordinationPage({
 
       <article>
         <header className="hero-pattern relative overflow-hidden rounded-[2rem] border border-quran-border/50 px-5 py-10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
-          <div className="relative z-10 grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_17rem] lg:text-left">
-            <div className="text-center lg:text-left">
+          <div className="relative z-10 grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_17rem] lg:text-start">
+            <div className="text-center lg:text-start">
               <nav
                 aria-label={t("breadcrumbAriaLabel")}
                 className="mb-8 flex items-center justify-center gap-2 text-sm text-quran-muted lg:justify-start"
@@ -182,7 +182,7 @@ export default async function KhatmCoordinationPage({
               </nav>
 
               <span className="quran-badge">
-                <BookOpenCheck className="mr-2 h-3.5 w-3.5" />
+                <BookOpenCheck className="me-2 h-3.5 w-3.5" />
                 {t("eyebrow")}
               </span>
               <h1 className="font-heading mt-5 max-w-4xl text-4xl leading-[1.05] text-quran-deep sm:text-5xl lg:text-[3.65rem]">
@@ -367,7 +367,7 @@ export default async function KhatmCoordinationPage({
                   <div className="flex items-start gap-4">
                     <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-quran-green/10 text-quran-green">
                       <Icon className="h-5 w-5" />
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-quran-gold text-[0.65rem] font-bold text-white">
+                      <span className="absolute -end-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-quran-gold text-[0.65rem] font-bold text-white">
                         {index + 1}
                       </span>
                     </span>

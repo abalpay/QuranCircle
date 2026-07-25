@@ -71,4 +71,18 @@ describe("public circle metadata", () => {
       ],
     });
   });
+
+  it("uses the Arabic path and Open Graph locale", async () => {
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: "ar", shortCode: "family-khatm" }),
+    });
+
+    expect(metadata.alternates?.canonical).toBe(
+      "https://www.qurancircle.io/ar/s/family-khatm",
+    );
+    expect(metadata.openGraph).toMatchObject({
+      url: "https://www.qurancircle.io/ar/s/family-khatm",
+      locale: "ar_AR",
+    });
+  });
 });

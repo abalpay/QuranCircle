@@ -151,7 +151,7 @@ export default async function KhatmProductPreview() {
               <li key={label} className="flex items-start gap-3">
                 <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-quran-green/10 text-quran-green">
                   <StepIcon className="h-4 w-4" />
-                  <span className="absolute -right-1 -top-1 text-[0.6rem] font-bold text-quran-gold">
+                  <span className="absolute -end-1 -top-1 text-[0.6rem] font-bold text-quran-gold">
                     {index + 1}
                   </span>
                 </span>

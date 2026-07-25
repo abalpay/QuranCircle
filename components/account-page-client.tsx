@@ -426,7 +426,7 @@ export default function AccountPageClient() {
           >
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="rounded-full">
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="me-2 h-4 w-4" />
                 {t("deleteAccount")}
               </Button>
             </AlertDialogTrigger>

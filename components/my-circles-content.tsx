@@ -206,7 +206,7 @@ export default function MyCirclesContent() {
             className="w-full rounded-full"
             onClick={() => setIsCreateOpen(true)}
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="me-2 h-4 w-4" />
             {t("createCircle")}
           </Button>
         </div>
@@ -298,7 +298,7 @@ export default function MyCirclesContent() {
                   </p>
                   {activeTab === "active" && (
                     <Button className="mt-6 rounded-full" onClick={() => setIsCreateOpen(true)}>
-                      <Plus className="mr-2 h-4 w-4" />
+                      <Plus className="me-2 h-4 w-4" />
                       {t("createCircle")}
                     </Button>
                   )}
@@ -314,7 +314,7 @@ export default function MyCirclesContent() {
                   <div className="mt-6 flex flex-wrap justify-center gap-2">
                     <Button asChild className="rounded-full">
                       <Link href="/browse">
-                        <Globe2 className="mr-2 h-4 w-4" />
+                        <Globe2 className="me-2 h-4 w-4" />
                         {t("browseCircles")}
                       </Link>
                     </Button>
@@ -333,7 +333,7 @@ export default function MyCirclesContent() {
                   </p>
                   <Button asChild className="mt-6 rounded-full">
                     <Link href="/browse">
-                      <Users2 className="mr-2 h-4 w-4" />
+                      <Users2 className="me-2 h-4 w-4" />
                       {t("exploreCircles")}
                     </Link>
                   </Button>

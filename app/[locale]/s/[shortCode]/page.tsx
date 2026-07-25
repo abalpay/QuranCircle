@@ -6,6 +6,7 @@ import KhatimPageClient from "@/components/khatim-page-client";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
+import { getOpenGraphLocale } from "@/i18n/locale-config";
 
 const SNAPSHOT_WINDOW_KHATM_LIMIT = 3;
 
@@ -53,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url,
       type: "website",
       siteName: "QuranCircle",
-      locale: locale === "tr" ? "tr_TR" : "en_US",
+      locale: getOpenGraphLocale(locale),
       images: [
         {
           url: ogImageUrl,

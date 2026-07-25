@@ -1,7 +1,7 @@
 "use client";
 
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { Home, Layers3, Compass, UserCircle, LogOut, Settings, Globe2 } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { Home, Layers3, Compass, UserCircle, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useState } from "react";
@@ -12,23 +12,15 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
+import LanguageSelect from "@/components/language-select";
 
 export default function MobileNavigation() {
   const pathname = usePathname();
-  const router = useRouter();
-  const locale = useLocale();
   const t = useTranslations("MobileNav");
   const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  const handleLanguageSwitch = () => {
-    const newLocale = locale === "en" ? "tr" : "en";
-    router.replace(`${pathname}${window.location.search}`, {
-      locale: newLocale,
-    });
-  };
 
   const displayName =
     (isAuthenticatedUser && (user?.user_metadata?.username as string)) ||
@@ -121,13 +113,7 @@ export default function MobileNavigation() {
               <Settings className="h-4 w-4" />
               {t("accountSettings")}
             </Link>
-            <button
-              onClick={handleLanguageSwitch}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/70 border border-quran-border px-4 py-3 text-sm font-medium text-quran-deep transition-colors active:bg-white"
-            >
-              <Globe2 className="h-4 w-4" />
-              {t("language")}: {locale === "en" ? t("english") : t("turkish")}
-            </button>
+            <LanguageSelect />
             <button
               onClick={() => {
                 setIsProfileOpen(false);

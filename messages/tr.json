@@ -120,6 +120,9 @@
     "switchToTurkish": "Türkçeye geç",
     "switchToEnglish": "İngilizceye geç"
   },
+  "LanguageSelect": {
+    "label": "Dil"
+  },
   "Common": {
     "khatm": "Hatim",
     "juz": "Cüz",

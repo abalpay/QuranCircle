@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { AppLocale } from "@/i18n/routing";
 
 vi.mock("next-intl/server", () => ({
   getTranslations: vi.fn(
@@ -6,12 +7,14 @@ vi.mock("next-intl/server", () => ({
       locale,
       namespace,
     }: {
-      locale: "en" | "tr";
+      locale: AppLocale;
       namespace: string;
     }) => {
       const messages =
         locale === "tr"
           ? (await import("@/messages/tr.json")).default
+          : locale === "ar"
+            ? (await import("@/messages/ar.json")).default
           : (await import("@/messages/en.json")).default;
       const namespaceMessages = messages[
         namespace as keyof typeof messages
@@ -85,5 +88,19 @@ describe("SEO resource metadata", () => {
     expect(aboutMetadata.openGraph?.url).toBe("/about");
     expect(whatsappMetadata.openGraph?.url).toBe("/group-khatm-whatsapp");
     expect(ramadanMetadata.openGraph?.url).toBe("/ramadan-group-khatm");
+  });
+
+  it("publishes Arabic canonicals and language alternatives", async () => {
+    const metadata = await generateAboutMetadata({
+      params: Promise.resolve({ locale: "ar" }),
+    });
+
+    expect(metadata.alternates?.canonical).toBe("/ar/about");
+    expect(metadata.alternates?.languages).toEqual({
+      en: "/about",
+      tr: "/tr/about",
+      ar: "/ar/about",
+    });
+    expect(metadata.openGraph?.url).toBe("/ar/about");
   });
 });

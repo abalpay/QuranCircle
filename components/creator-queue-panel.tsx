@@ -129,7 +129,7 @@ export default function CreatorQueuePanel({
               {t("searchLabel")}
             </label>
             <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-quran-muted" />
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-quran-muted" />
               <Input
                 id="creator-queue-search"
                 value={query}
@@ -137,7 +137,7 @@ export default function CreatorQueuePanel({
                   setQuery(event.target.value);
                   setVisibleRows(INITIAL_VISIBLE_ROWS);
                 }}
-                className="pl-9"
+                className="ps-9"
                 placeholder={t("searchPlaceholder")}
               />
             </div>
@@ -213,7 +213,7 @@ export default function CreatorQueuePanel({
               className="min-h-10 justify-start rounded-lg px-2 text-quran-muted hover:bg-quran-border/30 hover:text-quran-deep"
               onClick={clearFilters}
             >
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              <SlidersHorizontal className="me-2 h-4 w-4" />
               {t("clearFilters")}
             </Button>
           </div>

@@ -131,7 +131,7 @@ export default function FloatingClaimBar({
           </span>
         </div>
 
-        <Button size="sm" className="ml-1 rounded-full" onClick={onClaim}>
+        <Button size="sm" className="ms-1 rounded-full" onClick={onClaim}>
           {t("claim")}
         </Button>
       </div>

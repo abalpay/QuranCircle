@@ -79,7 +79,7 @@ export default function KhatmMessageTemplates() {
           >
             <span
               aria-hidden
-              className="font-heading absolute right-5 top-3 text-5xl text-quran-green/[0.06]"
+              className="font-heading absolute end-5 top-3 text-5xl text-quran-green/[0.06]"
             >
               0{index + 1}
             </span>

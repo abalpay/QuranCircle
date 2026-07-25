@@ -12,6 +12,10 @@ import PublicCircleCta from "@/components/landing/public-circle-cta";
 import { getCommunityStats } from "@/lib/actions/stats";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 import { BRAND_LOGO_PATH } from "@/lib/brand";
 
 export async function generateMetadata({
@@ -19,7 +23,7 @@ export async function generateMetadata({
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "HomeMetadata" });
-  const canonical = locale === "tr" ? "/tr" : "/";
+  const canonical = getLocalizedPath(locale);
 
   return {
     metadataBase: new URL(toAbsoluteUrl("/")),
@@ -34,7 +38,7 @@ export async function generateMetadata({
     ],
     alternates: {
       canonical,
-      languages: { en: "/", tr: "/tr" },
+      languages: getLanguageAlternates(),
     },
     openGraph: {
       title: t("openGraphTitle"),
@@ -52,7 +56,7 @@ export default async function HomePage({ params }: LocalePageProps) {
     getCommunityStats(),
     getTranslations("MarketingHome"),
   ]);
-  const localizedHomeUrl = toAbsoluteUrl(locale === "tr" ? "/tr" : "/");
+  const localizedHomeUrl = toAbsoluteUrl(getLocalizedPath(locale));
 
   const structuredData = [
     {

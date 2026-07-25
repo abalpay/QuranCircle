@@ -17,14 +17,17 @@ import {
 import CreateCircleAction from "@/components/create-circle-action";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 export async function generateMetadata({
   params,
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "RamadanGuide" });
-  const canonical =
-    locale === "tr" ? "/tr/ramadan-group-khatm" : "/ramadan-group-khatm";
+  const canonical = getLocalizedPath(locale, "/ramadan-group-khatm");
 
   return {
     title: t("metadata.title"),
@@ -32,10 +35,7 @@ export async function generateMetadata({
     keywords: t("metadata.keywords").split(","),
     alternates: {
       canonical,
-      languages: {
-        en: "/ramadan-group-khatm",
-        tr: "/tr/ramadan-group-khatm",
-      },
+      languages: getLanguageAlternates("/ramadan-group-khatm"),
     },
     openGraph: {
       type: "article",
@@ -84,8 +84,8 @@ export default async function RamadanGroupKhatmPage({
     { question: t("faq.items.item4.question"), answer: t("faq.items.item4.answer") },
     { question: t("faq.items.item5.question"), answer: t("faq.items.item5.answer") },
   ];
-  const pagePath =
-    locale === "tr" ? "/tr/ramadan-group-khatm" : "/ramadan-group-khatm";
+  const pagePath = getLocalizedPath(locale, "/ramadan-group-khatm");
+  const homePath = getLocalizedPath(locale);
 
   const pageUrl = toAbsoluteUrl(pagePath);
   const structuredData = [
@@ -101,12 +101,12 @@ export default async function RamadanGroupKhatmPage({
       author: {
         "@type": "Organization",
         name: "QuranCircle",
-        url: toAbsoluteUrl(locale === "tr" ? "/tr" : "/"),
+        url: toAbsoluteUrl(homePath),
       },
       publisher: {
         "@type": "Organization",
         name: "QuranCircle",
-        url: toAbsoluteUrl(locale === "tr" ? "/tr" : "/"),
+        url: toAbsoluteUrl(homePath),
         logo: {
           "@type": "ImageObject",
           url: toAbsoluteUrl(BRAND_LOGO_PATH),
@@ -123,7 +123,7 @@ export default async function RamadanGroupKhatmPage({
           "@type": "ListItem",
           position: 1,
           name: "QuranCircle",
-          item: toAbsoluteUrl(locale === "tr" ? "/tr" : "/"),
+          item: toAbsoluteUrl(homePath),
         },
         {
           "@type": "ListItem",
@@ -180,7 +180,7 @@ export default async function RamadanGroupKhatmPage({
               </nav>
 
               <span className="quran-badge">
-                <MoonStar className="mr-2 h-3.5 w-3.5" />
+                <MoonStar className="me-2 h-3.5 w-3.5" />
                 {t("badge")}
               </span>
               <h1 className="font-heading mt-5 max-w-4xl text-4xl leading-[1.05] text-quran-deep sm:text-5xl lg:text-[3.65rem]">
