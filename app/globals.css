@@ -1809,10 +1809,6 @@
   background: hsl(var(--quran-bg));
 }
 
-.home-page-shell + footer {
-  display: none;
-}
-
 .landing-hero {
   position: relative;
   isolation: isolate;

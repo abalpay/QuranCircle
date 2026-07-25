@@ -87,6 +87,18 @@ export default async function PrivacyPage({ params }: LocalePageProps) {
             <span className="app-prose-number">03</span>
             <div>
               <h2 className="font-heading text-3xl text-quran-deep">
+                {t("analyticsTitle")}
+              </h2>
+              <p className="mt-3 max-w-3xl leading-7 text-quran-muted">
+                {t("analyticsDescription")}
+              </p>
+            </div>
+          </section>
+
+          <section className="app-prose-section">
+            <span className="app-prose-number">04</span>
+            <div>
+              <h2 className="font-heading text-3xl text-quran-deep">
                 {t("accessTitle")}
               </h2>
               <p className="mt-3 max-w-3xl leading-7 text-quran-muted">

@@ -363,15 +363,15 @@
     "deletePermanently": "Delete Permanently"
   },
   "MarketingHome": {
-    "eyebrow": "Free group Quran Khatm tracker",
+    "eyebrow": "Free online group Quran Khatm tracker",
     "heroAriaLabel": "Complete a group Quran Khatm, together.",
     "heroLineOne": "Complete a group",
     "heroLineTwo": "Qur’an Khatm,",
     "heroLineThree": "together.",
-    "heroDescription": "QuranCircle is a free group Quran Khatm tracker for families, masjids, and communities. Create one shared circle, let readers claim an available Juz without an account, and follow all 30 portions through completion.",
+    "heroDescription": "QuranCircle is a free online group Quran Khatm tracker for families, masjids, and communities. This simple web app creates one shared circle where readers claim an available Juz without an account and follow all 30 portions through completion.",
     "benefitsLabel": "QuranCircle benefits",
-    "structuredWebsiteDescription": "A free group Quran Khatm tracker for coordinating all 30 Juz.",
-    "structuredAppDescription": "Create and share group Quran Khatm circles, let readers claim Juz, and track completion live.",
+    "structuredWebsiteDescription": "A free online group Quran Khatm tracker for coordinating all 30 Juz.",
+    "structuredAppDescription": "A free online web app to create and share group Quran Khatm circles, let readers claim Juz, and track completion live.",
     "trustLink": "One share link",
     "trustJuz": "All 30 Juz",
     "trustProgress": "Live progress",
@@ -691,14 +691,17 @@
     "ledgerDescription": "Choose an available portion, add your name, and follow the circle's progress together."
   },
   "HomeMetadata": {
-    "title": "Free Group Quran Khatm Tracker | Shared Juz Progress",
-    "description": "Organize a group Quran Khatm with one share link. Let readers claim Juz, track all 30 portions live, and coordinate families, masjids, and communities for free.",
+    "title": "Online Group Quran Khatm Tracker (Free) | QuranCircle",
+    "description": "Create a free online group Quran Khatm. Share one link, let readers claim Juz, and track all 30 portions live with family, masjid, or community.",
     "keywordTracker": "Quran Khatm tracker",
+    "keywordOnlineApp": "online Khatm app",
     "keywordGroupReading": "group Quran reading",
     "keywordJuz": "Juz coordinator",
     "keywordCollective": "collective Quran Khatm",
     "keywordCircle": "Quran circle",
-    "openGraphTitle": "Free Group Quran Khatm Tracker - QuranCircle",
+    "keywordCompletion": "Quran completion tracker",
+    "keywordKhatam": "group Khatam tracker",
+    "openGraphTitle": "Free Online Group Quran Khatm Tracker - QuranCircle",
     "openGraphDescription": "Create one link, let readers claim Juz, and track your group's complete Quran Khatm live."
   },
   "ContactPage": {
@@ -729,6 +732,8 @@
     "collectedDescription": "We store account details required for authentication and the circle data needed to track Khatm progress, including circle names, optional descriptions, and participant claims.",
     "usageTitle": "How Data Is Used",
     "usageDescription": "Data is used to provide core product functionality: creating circles, joining circles, assigning portions, and showing completion progress.",
+    "analyticsTitle": "Privacy-Friendly Site Analytics",
+    "analyticsDescription": "We use Vercel Web Analytics, which Vercel describes as cookie-free and anonymized, plus Speed Insights to understand aggregate visits, product usage, and site performance. We do not configure analytics cookies or persistent visitor attribution. Analytics events do not contain circle names, participant names, descriptions, short codes, or reading details. We separately record the first time a Khatm is completed as part of the product's operational data.",
     "accessTitle": "Data Access and Deletion",
     "accessDescription": "If you need account-related assistance, contact the project maintainers through the official contact page."
   },

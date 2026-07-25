@@ -56,6 +56,7 @@ export interface Database {
           is_deleted: boolean;
           archived_at: string | null;
           deleted_at: string | null;
+          completed_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -66,6 +67,7 @@ export interface Database {
           is_deleted?: boolean;
           archived_at?: string | null;
           deleted_at?: string | null;
+          completed_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -76,6 +78,7 @@ export interface Database {
           is_deleted?: boolean;
           archived_at?: string | null;
           deleted_at?: string | null;
+          completed_at?: string | null;
           created_at?: string;
         };
       };

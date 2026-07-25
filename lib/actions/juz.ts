@@ -25,6 +25,10 @@ type ClaimBatchResult = {
   new_khatm_created?: boolean;
 };
 
+type MarkJuzReadResult = {
+  newly_completed?: boolean;
+};
+
 function asNumberArray(value: unknown): number[] {
   if (!Array.isArray(value)) return [];
   return value
@@ -116,17 +120,24 @@ export async function markJuzAsRead(shortCode: string, juzId: string) {
   if (!parsed.success) return { error: "Invalid input" };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("mark_juz_read", {
-    p_short_code: parsed.data.shortCode,
-    p_juz_id: parsed.data.juzId,
-  });
+  const { data, error } = await supabase.rpc(
+    "mark_juz_read_with_completion",
+    {
+      p_short_code: parsed.data.shortCode,
+      p_juz_id: parsed.data.juzId,
+    },
+  );
 
   if (error) {
     return { error: error.message || "Failed to mark juz as read" };
   }
 
   revalidatePath(`/s/${shortCode}`);
-  return {};
+  const result = (data ?? {}) as MarkJuzReadResult;
+
+  return {
+    newlyCompleted: Boolean(result.newly_completed),
+  };
 }
 
 export async function unmarkJuzAsRead(shortCode: string, juzId: string) {

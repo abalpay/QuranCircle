@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { trackProductEvent } from "@/lib/analytics";
 
 type Juz = JuzSnapshot;
 type Khatm = KhatmSnapshot;
@@ -202,6 +203,9 @@ export default function KhatmCard({
       return;
     }
     toast.success(t("juzMarkedRead"));
+    if (result.newlyCompleted) {
+      trackProductEvent("Khatm Completed", {});
+    }
     await onRefresh();
   };
 

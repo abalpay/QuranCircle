@@ -194,6 +194,122 @@ describe("RPC contract checks", () => {
     expect((error?.message ?? "").toLowerCase()).not.toContain("permission");
   });
 
+  it("counts a Khatm's first completion exactly once", async () => {
+    const client = await createAuthenticatedClient();
+    const token = randomUUID().replace(/-/g, "").slice(0, 8);
+    const shortCode = `SEO${token}`.slice(0, 24);
+    let eventId: string | undefined;
+
+    try {
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      expect(user).toBeTruthy();
+      if (!user) throw new Error("Completion metrics contract user was not found");
+
+      const { data: createdEvent, error: createError } = await client
+        .rpc("create_event_with_initial_khatm", {
+          p_name: "Completion metrics contract circle",
+          p_description: null,
+          p_is_public: false,
+          p_short_code: shortCode,
+        })
+        .single();
+
+      assertNoFunctionSignatureDrift(
+        createError,
+        "create_event_with_initial_khatm",
+      );
+      expect(createError).toBeNull();
+      eventId = (createdEvent as { event_id?: string } | null)?.event_id;
+      expect(eventId).toBeTruthy();
+      if (!eventId) throw new Error("Completion metrics event was not created");
+
+      const { data: khatm, error: khatmError } = await admin
+        .from("khatms")
+        .select("id")
+        .eq("event_id", eventId)
+        .single();
+      expect(khatmError).toBeNull();
+      expect(khatm?.id).toBeTruthy();
+      if (!khatm?.id) throw new Error("Initial Khatm was not created");
+
+      const now = new Date().toISOString();
+      const { error: firstTwentyNineError } = await admin
+        .from("juzs")
+        .update({
+          claimed_by_name: "SEO Contract",
+          claimed_by_user_id: user.id,
+          status: "read",
+          claimed_at: now,
+          read_at: now,
+        })
+        .eq("khatm_id", khatm.id)
+        .lt("juz_number", 30);
+      expect(firstTwentyNineError).toBeNull();
+
+      const { data: finalJuz, error: finalJuzError } = await admin
+        .from("juzs")
+        .update({
+          claimed_by_name: "SEO Contract",
+          claimed_by_user_id: user.id,
+          status: "claimed",
+          claimed_at: now,
+          read_at: null,
+        })
+        .eq("khatm_id", khatm.id)
+        .eq("juz_number", 30)
+        .select("id")
+        .single();
+      expect(finalJuzError).toBeNull();
+      expect(finalJuz?.id).toBeTruthy();
+      if (!finalJuz?.id) throw new Error("Final Juz fixture was not created");
+
+      const { data: firstCompletion, error: firstCompletionError } =
+        await client.rpc("mark_juz_read_with_completion", {
+          p_short_code: shortCode,
+          p_juz_id: finalJuz.id,
+        });
+      assertNoFunctionSignatureDrift(
+        firstCompletionError,
+        "mark_juz_read_with_completion",
+      );
+      expect(firstCompletionError).toBeNull();
+      expect(firstCompletion).toMatchObject({
+        newly_completed: true,
+      });
+
+      const { data: completedKhatm, error: completedKhatmError } = await admin
+        .from("khatms")
+        .select("completed_at")
+        .eq("id", khatm.id)
+        .single();
+      expect(completedKhatmError).toBeNull();
+      expect(completedKhatm?.completed_at).toBeTruthy();
+
+      const { error: unmarkError } = await client.rpc("unmark_juz_read", {
+        p_short_code: shortCode,
+        p_juz_id: finalJuz.id,
+      });
+      expect(unmarkError).toBeNull();
+
+      const { data: repeatCompletion, error: repeatCompletionError } =
+        await client.rpc("mark_juz_read_with_completion", {
+          p_short_code: shortCode,
+          p_juz_id: finalJuz.id,
+        });
+      expect(repeatCompletionError).toBeNull();
+      expect(repeatCompletion).toMatchObject({
+        newly_completed: false,
+      });
+    } finally {
+      if (eventId) {
+        await admin.from("events").delete().eq("id", eventId);
+      }
+      await client.auth.signOut();
+    }
+  });
+
   it("keeps the account-cleanup rollout RPC non-mutating", async () => {
     const client = await createAuthenticatedClient();
     const token = randomUUID().replace(/-/g, "").slice(0, 8);

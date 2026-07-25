@@ -427,6 +427,9 @@ export default function KhatimPageClient({
           return;
         }
         toast.success(tPage("juzMarkedRead"));
+        if (result.newlyCompleted) {
+          trackProductEvent("Khatm Completed", {});
+        }
         await refreshEvent();
       } catch (error) {
         console.error("[QuranCircle] Failed to mark juz as read:", error);
