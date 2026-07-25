@@ -31,7 +31,10 @@ type ProductEvent =
     }
   | {
       name: "Circle Created";
-      properties: { visibility: "public" | "link_only"; source: string };
+      properties: {
+        visibility: "public" | "link_only";
+        source: string;
+      };
     }
   | {
       name: "Guide Content Copied";
@@ -42,6 +45,10 @@ type ProductEvent =
   | {
       name: "Circle Invite Shared" | "Circle Invite Copied";
       properties: { visibility: "public" | "link_only" };
+    }
+  | {
+      name: "Khatm Completed";
+      properties: Record<string, never>;
     };
 
 export function trackProductEvent<T extends ProductEvent>(

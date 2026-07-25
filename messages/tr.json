@@ -363,15 +363,15 @@
     "deletePermanently": "Kalıcı Olarak Sil"
   },
   "MarketingHome": {
-    "eyebrow": "Ücretsiz grup hatmi takip uygulaması",
+    "eyebrow": "Ücretsiz online grup hatim takip uygulaması",
     "heroAriaLabel": "Grupça Kur'an'ı birlikte hatmedin.",
     "heroLineOne": "Kur'an'ı grupça",
     "heroLineTwo": "birlikte okuyun,",
     "heroLineThree": "birlikte hatmedin.",
-    "heroDescription": "QuranCircle; aileler, camiler ve topluluklar için ücretsiz bir grup hatim takip uygulamasıdır. Tek bir ortak halka oluşturun, okuyucuların hesap açmadan müsait bir cüzü sahiplenmesini sağlayın ve 30 cüzün tamamlanmasını birlikte takip edin.",
+    "heroDescription": "QuranCircle; aileler, camiler ve topluluklar için ücretsiz bir online grup hatim takip uygulamasıdır. Bu sade web uygulamasında tek bir ortak halka oluşturun, okuyucular hesap açmadan müsait cüzleri sahiplensin ve 30 cüzün tamamlanmasını birlikte takip etsin.",
     "benefitsLabel": "QuranCircle'ın sağladıkları",
-    "structuredWebsiteDescription": "30 cüzün tamamını koordine etmek için ücretsiz grup hatim takip uygulaması.",
-    "structuredAppDescription": "Grup hatim halkaları oluşturup paylaşın, okuyucular cüz sahiplensin ve tamamlanmayı anlık takip edin.",
+    "structuredWebsiteDescription": "30 cüzün tamamını koordine etmek için ücretsiz online grup hatim takip uygulaması.",
+    "structuredAppDescription": "Grup hatim halkaları oluşturup paylaşmak, okuyucuların cüz sahiplenmesini ve tamamlanmayı anlık takip etmek için ücretsiz web uygulaması.",
     "trustLink": "Tek paylaşım bağlantısı",
     "trustJuz": "30 cüzün tamamı",
     "trustProgress": "Canlı ilerleme",
@@ -691,14 +691,17 @@
     "ledgerDescription": "Müsait bir cüz seçin, adınızı ekleyin ve halkanın ilerlemesini birlikte takip edin."
   },
   "HomeMetadata": {
-    "title": "Ücretsiz Grup Hatim Takip Uygulaması | Ortak Cüz Takibi",
-    "description": "Tek bir bağlantıyla grup hatmi düzenleyin. Okuyucular cüz sahiplensin, 30 cüzün ilerlemesini anlık takip edin; aileleri, camileri ve toplulukları ücretsiz koordine edin.",
+    "title": "Ücretsiz Online Grup Hatim Takip Uygulaması | QuranCircle",
+    "description": "Ücretsiz online grup hatmi oluşturun. Tek bağlantı paylaşın, okuyucular cüz sahiplensin; aile, cami veya topluluğunuzla 30 cüzü anlık takip edin.",
     "keywordTracker": "hatim takip uygulaması",
+    "keywordOnlineApp": "online hatim uygulaması",
     "keywordGroupReading": "grup Kur'an okuma",
     "keywordJuz": "cüz dağıtımı",
     "keywordCollective": "toplu Kur'an hatmi",
     "keywordCircle": "Kur'an halkası",
-    "openGraphTitle": "Ücretsiz Grup Hatim Takip Uygulaması - QuranCircle",
+    "keywordCompletion": "Kur'an hatim takip uygulaması",
+    "keywordKhatam": "grup hatim takip",
+    "openGraphTitle": "Ücretsiz Online Grup Hatim Takip Uygulaması - QuranCircle",
     "openGraphDescription": "Tek bir bağlantı oluşturun, okuyucular cüz sahiplensin ve grubunuzun hatim ilerlemesini anlık takip edin."
   },
   "ContactPage": {
@@ -729,6 +732,8 @@
     "collectedDescription": "Kimlik doğrulama için gerekli hesap bilgilerini ve hatim ilerlemesini takip etmek için gereken halka verilerini saklarız. Bunlara halka adları, isteğe bağlı açıklamalar ve katılımcıların cüz seçimleri dahildir.",
     "usageTitle": "Verilerin Kullanımı",
     "usageDescription": "Veriler temel ürün işlevlerini sağlamak için kullanılır: halka oluşturmak, halkaya katılmak, cüz sahiplenmek ve tamamlanma ilerlemesini göstermek.",
+    "analyticsTitle": "Gizlilik Odaklı Site Analizleri",
+    "analyticsDescription": "Toplu ziyaretleri, ürün kullanımını ve site performansını anlamak için Vercel'in çerezsiz ve anonim olarak tanımladığı Web Analytics ile Speed Insights'ı kullanırız. Analiz çerezleri veya kalıcı ziyaretçi ilişkilendirmesi yapılandırmayız. Analiz olayları halka adlarını, katılımcı adlarını, açıklamaları, kısa kodları veya okuma ayrıntılarını içermez. Ayrıca ürünün operasyonel verilerinin bir parçası olarak bir hatmin ilk tamamlanma zamanını kaydederiz.",
     "accessTitle": "Verilere Erişim ve Silme",
     "accessDescription": "Hesabınızla ilgili yardıma ihtiyacınız varsa resmî iletişim sayfasından proje ekibine ulaşın."
   },

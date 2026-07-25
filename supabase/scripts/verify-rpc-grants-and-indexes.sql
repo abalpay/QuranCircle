@@ -28,6 +28,7 @@ WHERE rp.routine_schema IN ('public', 'private')
     'claim_juz_batch',
     'unclaim_juz',
     'mark_juz_read',
+    'mark_juz_read_with_completion',
     'unmark_juz_read',
     'list_user_events_with_progress',
     'list_my_circles_with_progress',
@@ -90,6 +91,12 @@ BEGIN
   END IF;
   IF has_function_privilege('anon', 'public.mark_juz_read(text,uuid)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: anon can execute mark_juz_read';
+  END IF;
+  IF has_function_privilege('anon', 'public.mark_juz_read_with_completion(text,uuid)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: anon can execute mark_juz_read_with_completion';
+  END IF;
+  IF NOT has_function_privilege('authenticated', 'public.mark_juz_read_with_completion(text,uuid)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: authenticated cannot execute mark_juz_read_with_completion';
   END IF;
   IF has_function_privilege('anon', 'public.unmark_juz_read(text,uuid)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: anon can execute unmark_juz_read';
@@ -233,6 +240,35 @@ BEGIN
     RAISE EXCEPTION 'FAILED: events_public_created_at_id_idx is missing';
   END IF;
 
+  SELECT EXISTS (
+    SELECT 1
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public'
+      AND c.relname = 'khatms_completed_at_idx'
+  )
+  INTO v_exists;
+  IF NOT v_exists THEN
+    RAISE EXCEPTION 'FAILED: khatms_completed_at_idx is missing';
+  END IF;
+
   RAISE NOTICE 'PASS: index assertions succeeded.';
+END
+$$;
+
+-- 5) Product outcome schema assertions.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'khatms'
+      AND column_name = 'completed_at'
+  ) THEN
+    RAISE EXCEPTION 'FAILED: khatms.completed_at is missing';
+  END IF;
+
+  RAISE NOTICE 'PASS: product outcome schema assertions succeeded.';
 END
 $$;

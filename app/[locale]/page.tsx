@@ -31,10 +31,13 @@ export async function generateMetadata({
     description: t("description"),
     keywords: [
       t("keywordTracker"),
+      t("keywordOnlineApp"),
       t("keywordGroupReading"),
       t("keywordJuz"),
       t("keywordCollective"),
       t("keywordCircle"),
+      t("keywordCompletion"),
+      t("keywordKhatam"),
     ],
     alternates: {
       canonical,
@@ -79,8 +82,17 @@ export default async function HomePage({ params }: LocalePageProps) {
       name: "QuranCircle",
       applicationCategory: "LifestyleApplication",
       operatingSystem: "Any",
+      browserRequirements: "Requires JavaScript and a modern web browser.",
+      inLanguage: locale,
+      isAccessibleForFree: true,
       url: localizedHomeUrl,
       description: tMarketing("structuredAppDescription"),
+      featureList: [
+        tMarketing("trustLink"),
+        tMarketing("trustJuz"),
+        tMarketing("trustProgress"),
+        tMarketing("trustAccess"),
+      ],
       offers: {
         "@type": "Offer",
         price: "0",

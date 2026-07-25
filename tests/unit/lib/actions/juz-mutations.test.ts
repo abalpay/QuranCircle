@@ -67,16 +67,22 @@ describe("juz mutation actions", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("calls mark_juz_read and revalidates on success", async () => {
-    const rpc = mockRpc({ data: {}, error: null });
+  it("returns the authoritative first-completion result and revalidates", async () => {
+    const rpc = mockRpc({
+      data: {
+        updated: true,
+        newly_completed: true,
+      },
+      error: null,
+    });
 
     const result = await markJuzAsRead(
       "E2ESMOKE1",
       "11111111-1111-4111-8111-111111111111"
     );
 
-    expect(result).toEqual({});
-    expect(rpc).toHaveBeenCalledWith("mark_juz_read", {
+    expect(result).toEqual({ newlyCompleted: true });
+    expect(rpc).toHaveBeenCalledWith("mark_juz_read_with_completion", {
       p_short_code: "E2ESMOKE1",
       p_juz_id: "11111111-1111-4111-8111-111111111111",
     });
