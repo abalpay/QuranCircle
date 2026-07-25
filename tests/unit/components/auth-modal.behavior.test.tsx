@@ -69,17 +69,16 @@ describe("AuthModal behavior", () => {
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 
-  it("switches language from inside the sign-in dialog", async () => {
+  it("switches to Arabic from inside the sign-in dialog", async () => {
     const user = userEvent.setup();
 
     renderAuthModal(<AuthModal isOpen onClose={() => {}} action="login" />);
 
-    await user.click(
-      screen.getByRole("button", { name: "Switch to Turkish" }),
-    );
+    await user.click(screen.getByRole("combobox", { name: "Language" }));
+    await user.click(screen.getByRole("option", { name: "العربية" }));
 
     expect(routerMock.replace).toHaveBeenCalledWith("/browse", {
-      locale: "tr",
+      locale: "ar",
     });
   });
 

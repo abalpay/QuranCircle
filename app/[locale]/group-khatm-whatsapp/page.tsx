@@ -16,16 +16,17 @@ import CreateCircleAction from "@/components/create-circle-action";
 import KhatmMessageTemplates from "@/components/khatm-message-templates";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 export async function generateMetadata({
   params,
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "WhatsappGuide" });
-  const canonical =
-    locale === "tr"
-      ? "/tr/group-khatm-whatsapp"
-      : "/group-khatm-whatsapp";
+  const canonical = getLocalizedPath(locale, "/group-khatm-whatsapp");
 
   return {
     title: t("metadata.title"),
@@ -33,10 +34,7 @@ export async function generateMetadata({
     keywords: t("metadata.keywords").split(","),
     alternates: {
       canonical,
-      languages: {
-        en: "/group-khatm-whatsapp",
-        tr: "/tr/group-khatm-whatsapp",
-      },
+      languages: getLanguageAlternates("/group-khatm-whatsapp"),
     },
     openGraph: {
       type: "article",
@@ -96,10 +94,8 @@ export default async function GroupKhatmWhatsappPage({
       answer: t("faq.items.item4.answer"),
     },
   ];
-  const pagePath =
-    locale === "tr"
-      ? "/tr/group-khatm-whatsapp"
-      : "/group-khatm-whatsapp";
+  const pagePath = getLocalizedPath(locale, "/group-khatm-whatsapp");
+  const homePath = getLocalizedPath(locale);
 
   const pageUrl = toAbsoluteUrl(pagePath);
   const structuredData = [
@@ -115,12 +111,12 @@ export default async function GroupKhatmWhatsappPage({
       author: {
         "@type": "Organization",
         name: "QuranCircle",
-        url: toAbsoluteUrl(locale === "tr" ? "/tr" : "/"),
+        url: toAbsoluteUrl(homePath),
       },
       publisher: {
         "@type": "Organization",
         name: "QuranCircle",
-        url: toAbsoluteUrl(locale === "tr" ? "/tr" : "/"),
+        url: toAbsoluteUrl(homePath),
         logo: {
           "@type": "ImageObject",
           url: toAbsoluteUrl("/quran-icon.png"),
@@ -137,7 +133,7 @@ export default async function GroupKhatmWhatsappPage({
           "@type": "ListItem",
           position: 1,
           name: "QuranCircle",
-          item: toAbsoluteUrl(locale === "tr" ? "/tr" : "/"),
+          item: toAbsoluteUrl(homePath),
         },
         {
           "@type": "ListItem",
@@ -194,7 +190,7 @@ export default async function GroupKhatmWhatsappPage({
               </nav>
 
               <span className="quran-badge">
-                <MessageCircleMore className="mr-2 h-3.5 w-3.5" />
+                <MessageCircleMore className="me-2 h-3.5 w-3.5" />
                 {t("badge")}
               </span>
               <h1 className="font-heading mt-5 max-w-4xl text-4xl leading-[1.05] text-quran-deep sm:text-5xl lg:text-[3.65rem]">
@@ -235,7 +231,7 @@ export default async function GroupKhatmWhatsappPage({
                 </div>
                 <div className="mt-4 space-y-2">
                   <span className="block h-8 w-[82%] rounded-xl rounded-bl-sm bg-quran-green/10" />
-                  <span className="ml-auto block h-10 w-[72%] rounded-xl rounded-br-sm bg-quran-gold/15" />
+                  <span className="ms-auto block h-10 w-[72%] rounded-xl rounded-br-sm bg-quran-gold/15" />
                   <span className="block h-6 w-[62%] rounded-xl rounded-bl-sm bg-quran-green/10" />
                 </div>
                 <span className="mt-auto flex h-9 items-center justify-center rounded-full bg-quran-green text-[0.62rem] font-bold text-white">

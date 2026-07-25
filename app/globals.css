@@ -166,6 +166,22 @@
     background-attachment: fixed;
   }
 
+  html[dir="rtl"] body {
+    font-family:
+      var(--font-arabic), var(--font-body), "Segoe UI", "Tahoma", sans-serif;
+    line-height: 1.7;
+  }
+
+  html[dir="rtl"] .font-heading {
+    font-family:
+      var(--font-arabic), var(--font-amiri), "Tahoma", serif;
+    letter-spacing: 0;
+  }
+
+  html[dir="rtl"] :is(input, textarea) {
+    text-align: start;
+  }
+
   @media (max-width: 768px) {
     body {
       background-attachment: scroll;
@@ -191,7 +207,7 @@
   .arabic-text {
     font-family:
       var(--font-arabic), var(--font-body), "Segoe UI", "Tahoma", sans-serif;
-    @apply text-right text-xl leading-relaxed font-semibold;
+    @apply text-end text-xl leading-relaxed font-semibold;
   }
 
   .page-shell {
@@ -369,7 +385,7 @@
   }
 
   .hero-sanctuary-copy {
-    @apply relative z-[1] flex flex-col items-start justify-center px-10 py-20 text-left lg:px-16 xl:px-20;
+    @apply relative z-[1] flex flex-col items-start justify-center px-10 py-20 text-start lg:px-16 xl:px-20;
   }
 
   .hero-sanctuary-bismillah {
@@ -424,7 +440,7 @@
   }
 
   .hero-sanctuary-art {
-    @apply relative flex min-w-0 items-center justify-center overflow-hidden border-l;
+    @apply relative flex min-w-0 items-center justify-center overflow-hidden border-s;
     border-color: hsl(158 34% 72% / 0.11);
     background:
       radial-gradient(
@@ -437,7 +453,7 @@
 
   .hero-sanctuary-art::before {
     content: '';
-    @apply pointer-events-none absolute inset-y-12 left-0 w-px;
+    @apply pointer-events-none absolute inset-y-12 start-0 w-px;
     background: linear-gradient(
       180deg,
       transparent,
@@ -453,7 +469,7 @@
 
   .hero-product-frame::before {
     content: '';
-    @apply pointer-events-none absolute -right-40 -bottom-44 -z-10 aspect-square w-[38rem] rotate-12 rounded-full;
+    @apply pointer-events-none absolute -end-40 -bottom-44 -z-10 aspect-square w-[38rem] rotate-12 rounded-full;
     opacity: 0.28;
     background:
       repeating-conic-gradient(
@@ -718,7 +734,7 @@
   }
 
   .hero-product-footer button {
-    @apply absolute right-4 rounded-full px-2 py-1 normal-case tracking-normal;
+    @apply absolute end-4 rounded-full px-2 py-1 normal-case tracking-normal;
     color: hsl(var(--quran-green));
     background: hsl(var(--quran-green) / 0.07);
   }
@@ -766,7 +782,7 @@
 
   .landing-panel::before {
     content: '';
-    @apply pointer-events-none absolute -right-24 -top-28 -z-10 h-80 w-80;
+    @apply pointer-events-none absolute -end-24 -top-28 -z-10 h-80 w-80;
     background: center / contain no-repeat
       url("data:image/svg+xml,%3Csvg width='320' height='320' viewBox='0 0 320 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23125e4d' stroke-width='1.2' opacity='.45'%3E%3Ccircle cx='160' cy='160' r='78'/%3E%3Ccircle cx='160' cy='160' r='112'/%3E%3Crect x='82' y='82' width='156' height='156'/%3E%3Crect x='82' y='82' width='156' height='156' transform='rotate(45 160 160)'/%3E%3Cpath d='M160 18l32 64 70-24-24 70 64 32-64 32 24 70-70-24-32 64-32-64-70 24 24-70-64-32 64-32-24-70 70 24z'/%3E%3C/g%3E%3C/svg%3E");
     opacity: 0.14;
@@ -775,7 +791,7 @@
 
   .landing-panel::after {
     content: '';
-    @apply pointer-events-none absolute left-8 top-0 h-[2px] w-28 sm:left-10 sm:w-36;
+    @apply pointer-events-none absolute start-8 top-0 h-[2px] w-28 sm:start-10 sm:w-36;
     background: linear-gradient(
       90deg,
       hsl(var(--quran-green)),
@@ -862,7 +878,7 @@
   }
 
   .process-heading {
-    @apply mb-10 grid items-end gap-5 border-b pb-8 text-left md:grid-cols-[0.85fr_1.15fr] md:gap-12;
+    @apply mb-10 grid items-end gap-5 border-b pb-8 text-start md:grid-cols-[0.85fr_1.15fr] md:gap-12;
     border-color: hsl(var(--quran-border) / 0.58);
   }
 
@@ -987,7 +1003,7 @@
 
   .stats-bar::after {
     content: '';
-    @apply pointer-events-none absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rotate-45;
+    @apply pointer-events-none absolute -start-3 top-1/2 h-6 w-6 -translate-y-1/2 rotate-45;
     border: 1px solid hsl(var(--quran-green) / 0.22);
   }
 
@@ -1025,7 +1041,7 @@
   }
 
   .step-connector {
-    @apply absolute left-5 top-10 w-px;
+    @apply absolute start-5 top-10 w-px;
     height: calc(100% + 1.5rem);
     background: linear-gradient(
       180deg,
@@ -1233,7 +1249,7 @@
     }
 
     .hero-sanctuary-copy {
-      @apply items-start px-6 pt-14 pb-12 text-left sm:px-9;
+      @apply items-start px-6 pt-14 pb-12 text-start sm:px-9;
     }
 
     .hero-sanctuary-bismillah {
@@ -1518,7 +1534,7 @@
 
   .app-page-hero::before {
     content: '';
-    @apply pointer-events-none absolute -right-20 -top-24 -z-10 h-80 w-80;
+    @apply pointer-events-none absolute -end-20 -top-24 -z-10 h-80 w-80;
     background: center / contain no-repeat
       url("data:image/svg+xml,%3Csvg width='320' height='320' viewBox='0 0 320 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23125e4d' stroke-width='1.2' opacity='.42'%3E%3Ccircle cx='160' cy='160' r='78'/%3E%3Ccircle cx='160' cy='160' r='112'/%3E%3Crect x='82' y='82' width='156' height='156'/%3E%3Crect x='82' y='82' width='156' height='156' transform='rotate(45 160 160)'/%3E%3Cpath d='M160 18l32 64 70-24-24 70 64 32-64 32 24 70-70-24-32 64-32-64-70 24 24-70-64-32 64-32-24-70 70 24z'/%3E%3C/g%3E%3C/svg%3E");
     opacity: 0.13;
@@ -1527,7 +1543,7 @@
 
   .app-page-hero::after {
     content: '';
-    @apply pointer-events-none absolute left-6 top-0 h-[2px] w-28 sm:left-9 sm:w-40 lg:left-12;
+    @apply pointer-events-none absolute start-6 top-0 h-[2px] w-28 sm:start-9 sm:w-40 lg:start-12;
     background: linear-gradient(
       90deg,
       hsl(var(--quran-green)),
@@ -1624,7 +1640,7 @@
 
   .app-empty-state::before {
     content: '';
-    @apply pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full;
+    @apply pointer-events-none absolute -end-20 -top-24 h-64 w-64 rounded-full;
     background: hsl(var(--quran-light-green) / 0.09);
     filter: blur(18px);
   }

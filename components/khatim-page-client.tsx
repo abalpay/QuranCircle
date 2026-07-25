@@ -845,12 +845,12 @@ export default function KhatimPageClient({
               <span className="quran-badge">
                 {event.is_public ? (
                   <>
-                    <Globe2 className="mr-2 h-3.5 w-3.5" />
+                    <Globe2 className="me-2 h-3.5 w-3.5" />
                     {tPage("publicCircle")}
                   </>
                 ) : (
                   <>
-                    <Link2 className="mr-2 h-3.5 w-3.5" />
+                    <Link2 className="me-2 h-3.5 w-3.5" />
                     {tPage("linkOnlyCircle")}
                   </>
                 )}
@@ -858,12 +858,12 @@ export default function KhatimPageClient({
               <span className="quran-badge">
                 {event.is_archived ? (
                   <>
-                    <Archive className="mr-2 h-3.5 w-3.5" />
+                    <Archive className="me-2 h-3.5 w-3.5" />
                     {tPage("archived")}
                   </>
                 ) : (
                   <>
-                    <ShieldCheck className="mr-2 h-3.5 w-3.5" />
+                    <ShieldCheck className="me-2 h-3.5 w-3.5" />
                     {tPage("openForClaims")}
                   </>
                 )}
@@ -889,9 +889,9 @@ export default function KhatimPageClient({
                       size="sm"
                       className="rounded-full border-quran-border bg-white/80 px-4"
                     >
-                      <Share2 className="mr-2 h-4 w-4" />
+                      <Share2 className="me-2 h-4 w-4" />
                       {tPage("share")}
-                      <ChevronDown className="ml-1.5 h-3.5 w-3.5 text-quran-muted" />
+                      <ChevronDown className="ms-1.5 h-3.5 w-3.5 text-quran-muted" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -931,12 +931,12 @@ export default function KhatimPageClient({
                       <DropdownMenuItem onClick={handleArchiveToggle}>
                         {event.is_archived ? (
                           <>
-                            <ArchiveRestore className="mr-2 h-4 w-4" />
+                            <ArchiveRestore className="me-2 h-4 w-4" />
                             {tPage("unarchiveKhatim")}
                           </>
                         ) : (
                           <>
-                            <Archive className="mr-2 h-4 w-4" />
+                            <Archive className="me-2 h-4 w-4" />
                             {tPage("archiveKhatim")}
                           </>
                         )}
@@ -946,7 +946,7 @@ export default function KhatimPageClient({
                         className="text-red-600 focus:text-red-600"
                         onClick={() => setIsDeleteDialogOpen(true)}
                       >
-                        <Trash2 className="mr-2 h-4 w-4" />
+                        <Trash2 className="me-2 h-4 w-4" />
                         {tPage("deleteKhatim")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -970,7 +970,7 @@ export default function KhatimPageClient({
               className="shrink-0 rounded-full border-amber-300 text-amber-800 hover:bg-amber-100"
               onClick={handleArchiveToggle}
             >
-              <ArchiveRestore className="mr-2 h-4 w-4" />
+              <ArchiveRestore className="me-2 h-4 w-4" />
               {tPage("unarchive")}
             </Button>
           )}

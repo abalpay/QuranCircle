@@ -31,7 +31,7 @@ export default function HeroActions({ theme = "light" }: HeroActionsProps) {
             : "h-12 w-full rounded-full px-8 text-base font-medium text-primary-foreground shadow-[0_14px_26px_-18px_var(--color-quran-deep)] transition-transform hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
         }
       >
-        <Plus className="mr-2 h-5 w-5" />
+        <Plus className="me-2 h-5 w-5" />
         {t("startAKhatm")}
       </CreateCircleAction>
       <Button
@@ -49,7 +49,7 @@ export default function HeroActions({ theme = "light" }: HeroActionsProps) {
           analyticsAction="browse_circles"
           analyticsSource="home_browse"
         >
-          <Compass className="mr-2 h-5 w-5" />
+          <Compass className="me-2 h-5 w-5" />
           {t("explorePublic")}
         </AnalyticsLink>
       </Button>

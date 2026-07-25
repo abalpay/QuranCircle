@@ -4,19 +4,23 @@ import { Link } from "@/i18n/navigation";
 import { ArrowUpRight, Clock3, Github, MessageCircleMore } from "lucide-react";
 import AppPageHero from "@/components/app-page-hero";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 export async function generateMetadata({
   params,
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "ContactPage" });
-  const canonical = locale === "tr" ? "/tr/contact" : "/contact";
+  const canonical = getLocalizedPath(locale, "/contact");
   return {
     title: t("title"),
     description: t("metadataDescription"),
     alternates: {
       canonical,
-      languages: { en: "/contact", tr: "/tr/contact" },
+      languages: getLanguageAlternates("/contact"),
     },
     openGraph: {
       title: t("metadataTitle"),

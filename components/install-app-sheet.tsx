@@ -92,13 +92,13 @@ export default function InstallAppSheet({
         <button
           type="button"
           onClick={handleDismiss}
-          className="absolute right-2 top-2 inline-flex size-11 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
+          className="absolute end-2 top-2 inline-flex size-11 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
           aria-label={t("close")}
         >
           <X className="h-4 w-4" />
         </button>
 
-        <div className="pr-8">
+        <div className="pe-8">
           <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-quran-border/70 bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-quran-muted">
             <Smartphone className="h-3.5 w-3.5" />
             {t("installApp")}
@@ -160,7 +160,7 @@ export default function InstallAppSheet({
               className="h-10 flex-1 rounded-full px-4 text-sm font-semibold"
               onClick={handleNativeInstall}
             >
-              <Download className="mr-2 h-4 w-4" />
+              <Download className="me-2 h-4 w-4" />
               {t("installButton")}
             </Button>
           )}
@@ -172,7 +172,7 @@ export default function InstallAppSheet({
               className="h-10 flex-1 rounded-full border-quran-border bg-white/75 px-4 text-sm text-quran-deep hover:bg-white"
               onClick={handleManualDone}
             >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
+              <CheckCircle2 className="me-2 h-4 w-4" />
               {t("iAddedIt")}
             </Button>
           )}

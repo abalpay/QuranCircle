@@ -14,19 +14,23 @@ import AppPageHero from "@/components/app-page-hero";
 import CreateCircleAction from "@/components/create-circle-action";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 export async function generateMetadata({
   params,
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "AboutPage" });
-  const canonical = locale === "tr" ? "/tr/about" : "/about";
+  const canonical = getLocalizedPath(locale, "/about");
   return {
     title: t("metadataTitle"),
     description: t("metadataDescription"),
     alternates: {
       canonical,
-      languages: { en: "/about", tr: "/tr/about" },
+      languages: getLanguageAlternates("/about"),
     },
     openGraph: {
       title: t("openGraphTitle"),
@@ -49,8 +53,8 @@ export default async function AboutPage({ params }: LocalePageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("AboutPage");
 
-  const pageUrl = toAbsoluteUrl(locale === "tr" ? "/tr/about" : "/about");
-  const homeUrl = toAbsoluteUrl(locale === "tr" ? "/tr" : "/");
+  const pageUrl = toAbsoluteUrl(getLocalizedPath(locale, "/about"));
+  const homeUrl = toAbsoluteUrl(getLocalizedPath(locale));
   const productFacts = [
     { label: t("cost"), value: t("freeToUse"), icon: Check },
     {

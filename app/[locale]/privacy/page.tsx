@@ -3,19 +3,23 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ShieldCheck } from "lucide-react";
 import AppPageHero from "@/components/app-page-hero";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 export async function generateMetadata({
   params,
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "PrivacyPage" });
-  const canonical = locale === "tr" ? "/tr/privacy" : "/privacy";
+  const canonical = getLocalizedPath(locale, "/privacy");
   return {
     title: t("title"),
     description: t("metadataDescription"),
     alternates: {
       canonical,
-      languages: { en: "/privacy", tr: "/tr/privacy" },
+      languages: getLanguageAlternates("/privacy"),
     },
     openGraph: {
       title: `${t("title")} - QuranCircle`,

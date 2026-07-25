@@ -70,6 +70,24 @@ describe("updateSession", () => {
     );
   });
 
+  it("preserves the Arabic route prefix in auth redirects", async () => {
+    supabaseMocks.getUser.mockResolvedValue({
+      data: { user: null },
+    });
+
+    const accountResponse = await updateSession(buildRequest("/ar/account"));
+    const resetResponse = await updateSession(
+      buildRequest("/ar/reset-password"),
+    );
+
+    expect(accountResponse.headers.get("location")).toBe(
+      "https://quran-circle.test/ar",
+    );
+    expect(resetResponse.headers.get("location")).toBe(
+      "https://quran-circle.test/ar?error=auth",
+    );
+  });
+
   it("redirects anonymous users away from reset password", async () => {
     supabaseMocks.getUser.mockResolvedValue({
       data: { user: { id: "anon-user", is_anonymous: true } },

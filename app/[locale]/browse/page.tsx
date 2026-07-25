@@ -5,6 +5,10 @@ import { Globe2 } from "lucide-react";
 import BrowseEvents from "@/components/browse-events";
 import AppPageHero from "@/components/app-page-hero";
 import type { LocalePageProps } from "@/i18n/routing";
+import {
+  getLanguageAlternates,
+  getLocalizedPath,
+} from "@/i18n/locale-config";
 
 const INITIAL_PUBLIC_CIRCLES_LIMIT = 12;
 
@@ -13,14 +17,14 @@ export async function generateMetadata({
 }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "BrowsePage" });
-  const canonical = locale === "tr" ? "/tr/browse" : "/browse";
+  const canonical = getLocalizedPath(locale, "/browse");
 
   return {
     title: t("metadataTitle"),
     description: t("metadataDescription"),
     alternates: {
       canonical,
-      languages: { en: "/browse", tr: "/tr/browse" },
+      languages: getLanguageAlternates("/browse"),
     },
     openGraph: {
       title: `${t("metadataTitle")} - QuranCircle`,

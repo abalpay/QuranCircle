@@ -101,7 +101,7 @@ export default function BrowseEvents({ initialPage }: Props) {
           <label htmlFor="circle-search" className="sr-only">
             {t("searchLabel")}
           </label>
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="circle-search"
             name="circle-search"
@@ -111,7 +111,7 @@ export default function BrowseEvents({ initialPage }: Props) {
             placeholder={t("searchCircles")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="rounded-full border-quran-border bg-white/85 pl-10"
+            className="rounded-full border-quran-border bg-white/85 ps-10"
           />
         </form>
         <DropdownMenu>

@@ -120,6 +120,9 @@
     "switchToTurkish": "Switch to Turkish",
     "switchToEnglish": "Switch to English"
   },
+  "LanguageSelect": {
+    "label": "Language"
+  },
   "Common": {
     "khatm": "Khatm",
     "juz": "Juz",

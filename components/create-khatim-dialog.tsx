@@ -88,7 +88,7 @@ export default function CreateKhatimDialog({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[calc(100%-1.5rem)] rounded-[1.75rem] border-quran-border bg-quran-card p-5 sm:max-w-md sm:p-6">
-        <DialogHeader className="text-left">
+        <DialogHeader className="text-start">
           <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-quran-green/14 text-quran-green">
             <CirclePlus className="h-5 w-5" />
           </div>
@@ -164,7 +164,7 @@ export default function CreateKhatimDialog({
             <Button type="submit" disabled={isSubmitting} className="rounded-full">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
                   {t("creating")}
                 </>
               ) : (

@@ -26,7 +26,8 @@ test.describe("Turkish locale routing", () => {
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Giriş Yap", exact: true }).click();
-    await page.getByRole("button", { name: "İngilizceye geç" }).click();
+    await page.getByRole("combobox", { name: "Dil" }).click();
+    await page.getByRole("option", { name: "English" }).click();
     await expect.poll(() => new URL(page.url()).pathname).toBe("/browse");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(

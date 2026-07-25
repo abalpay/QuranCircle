@@ -25,11 +25,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Globe2, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { createPasswordSchema } from "@/lib/auth/password-policy";
 import { trackProductEvent } from "@/lib/analytics";
-import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import LanguageSelect from "@/components/language-select";
 
 const MERGE_PREPARATION_BLOCK_MESSAGE =
   "Could not secure claim transfer, retry required.";
@@ -121,10 +121,6 @@ export default function AuthModal({
   onSuccess,
 }: AuthModalProps) {
   const t = useTranslations("AuthModal");
-  const languageT = useTranslations("MobileNav");
-  const locale = useLocale();
-  const pathname = usePathname();
-  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<
     "login" | "register" | "forgot-password" | null
   >(null);
@@ -136,12 +132,6 @@ export default function AuthModal({
   const [forgotPasswordSubmitting, setForgotPasswordSubmitting] =
     useState(false);
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
-
-  const handleLanguageSwitch = () => {
-    router.replace(`${pathname}${window.location.search}`, {
-      locale: locale === "en" ? "tr" : "en",
-    });
-  };
 
   const loginSchema = z.object({
     email: z.string().email(t("invalidEmail")),
@@ -253,7 +243,7 @@ export default function AuthModal({
       }}
     >
       <DialogContent className="sm:max-w-md rounded-3xl border-quran-border bg-quran-card p-5 sm:p-6">
-        <DialogHeader className="text-left">
+        <DialogHeader className="text-start">
           <DialogTitle className="font-heading text-3xl text-quran-deep">
             {activeTab === "forgot-password"
               ? t("resetPassword")
@@ -270,21 +260,7 @@ export default function AuthModal({
           </DialogDescription>
         </DialogHeader>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleLanguageSwitch}
-          aria-label={
-            locale === "en"
-              ? languageT("switchToTurkish")
-              : languageT("switchToEnglish")
-          }
-          className="min-h-11 w-full rounded-full border-quran-border bg-white/70"
-        >
-          <Globe2 className="h-4 w-4" aria-hidden="true" />
-          {languageT("language")}:{" "}
-          {locale === "en" ? languageT("turkish") : languageT("english")}
-        </Button>
+        <LanguageSelect className="rounded-full" />
 
         {activeTab === "forgot-password" ? (
           forgotPasswordSuccess ? (
@@ -432,7 +408,7 @@ export default function AuthModal({
                     />
                     <button
                       type="button"
-                      className="inline-flex min-h-11 items-center rounded-full px-1 text-left text-sm text-primary hover:underline"
+                      className="inline-flex min-h-11 items-center rounded-full px-1 text-start text-sm text-primary hover:underline"
                       onClick={() => setActiveTab("forgot-password")}
                     >
                       {t("forgotPassword")}
@@ -444,7 +420,7 @@ export default function AuthModal({
                     >
                       {loginForm.formState.isSubmitting ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="me-2 h-4 w-4 animate-spin" />
                           {t("loggingIn")}
                         </>
                       ) : (
@@ -543,7 +519,7 @@ export default function AuthModal({
                     >
                       {registerForm.formState.isSubmitting ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="me-2 h-4 w-4 animate-spin" />
                           {t("creatingAccount")}
                         </>
                       ) : (

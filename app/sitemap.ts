@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
+import { routing } from "@/i18n/routing";
+import { getLocalizedPath } from "@/i18n/locale-config";
 
 const FALLBACK_STATIC_LASTMOD = "2026-07-24T00:00:00.000Z";
 
@@ -41,25 +43,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ] as const;
 
   return pages.flatMap(({ path, changeFrequency, priority }) => {
-    const englishUrl = `${baseUrl}${path}`;
-    const turkishUrl = `${baseUrl}/tr${path}`;
-    const languages = { en: englishUrl, tr: turkishUrl };
+    const languages = Object.fromEntries(
+      routing.locales.map((locale) => {
+        const localizedPath = getLocalizedPath(locale, path || "/");
+        return [
+          locale,
+          `${baseUrl}${localizedPath === "/" ? "" : localizedPath}`,
+        ];
+      }),
+    );
 
-    return [
-      {
-        url: englishUrl,
+    return routing.locales.map((locale) => ({
+        url: languages[locale],
         lastModified: staticLastModified,
         changeFrequency,
         priority,
         alternates: { languages },
-      },
-      {
-        url: turkishUrl,
-        lastModified: staticLastModified,
-        changeFrequency,
-        priority,
-        alternates: { languages },
-      },
-    ];
+      }));
   });
 }

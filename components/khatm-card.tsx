@@ -329,7 +329,7 @@ export default function KhatmCard({
       <button
         type="button"
         onClick={() => setExpanded(true)}
-        className="quran-card flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-quran-card/80 sm:p-5"
+        className="quran-card flex w-full items-center justify-between p-4 text-start transition-colors hover:bg-quran-card/80 sm:p-5"
       >
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100">
@@ -339,7 +339,7 @@ export default function KhatmCard({
             <span className="text-sm font-semibold text-quran-deep">
               {t("khatmNumber", { number: khatm.khatm_number })}
             </span>
-            <span className="ml-2 text-xs text-quran-muted">
+            <span className="ms-2 text-xs text-quran-muted">
               {activeFilter === "mine" && !hasMatches && t("noMyJuzInKhatm")}
               {activeFilter === "mine" && hasMatches && t("myJuzCount", { count: matchingCount })}
               {activeFilter === "available" && !hasMatches && t("noAvailableInKhatm")}
@@ -380,7 +380,7 @@ export default function KhatmCard({
             >
               <ChevronUp className="h-5 w-5" />
             </button>
-            <div className="text-right">
+            <div className="text-end">
               <span className="block font-heading text-4xl text-quran-green">
                 {claimProgress}%
               </span>

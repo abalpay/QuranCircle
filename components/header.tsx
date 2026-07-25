@@ -26,6 +26,7 @@ import {
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import type { AppLocale } from "@/i18n/routing";
+import { localeOptions } from "@/i18n/locale-config";
 
 export default function Header() {
   const pathname = usePathname();
@@ -80,7 +81,7 @@ export default function Header() {
 
         <nav
           aria-label={t("primaryNavigation")}
-          className="ml-4 hidden items-center gap-1 lg:flex"
+          className="ms-4 hidden items-center gap-1 lg:flex"
         >
           {primaryNavigation.map(({ href, label, icon: Icon }) => {
             const isActive =
@@ -101,7 +102,7 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-2">
           {isAuthenticatedUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -110,9 +111,9 @@ export default function Header() {
                   size="sm"
                   className="hidden rounded-full border border-white/12 bg-white/[0.06] px-4 text-[hsl(150_30%_94%)] hover:bg-white/[0.1] hover:text-white lg:flex"
                 >
-                  <UserCircle className="mr-2 h-4 w-4 text-[hsl(var(--quran-light-green))]" />
+                  <UserCircle className="me-2 h-4 w-4 text-[hsl(var(--quran-light-green))]" />
                   <span className="text-sm">{t("salam")}, {displayName}</span>
-                  <ChevronDown className="ml-1 h-3 w-3" />
+                  <ChevronDown className="ms-1 h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -123,38 +124,39 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/my-circles">
-                    <Layers3 className="mr-2 h-4 w-4" />
+                    <Layers3 className="me-2 h-4 w-4" />
                     {t("myCircles")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/account">
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Settings className="me-2 h-4 w-4" />
                     {t("accountSettings")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => setLocale("en")}
-                  disabled={locale === "en"}
-                >
-                  <Globe2 className="mr-2 h-4 w-4" />
-                  {t("english")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setLocale("tr")}
-                  disabled={locale === "tr"}
-                >
-                  <Globe2 className="mr-2 h-4 w-4" />
-                  {t("turkish")}
-                </DropdownMenuItem>
+                {localeOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option.locale}
+                    onClick={() => setLocale(option.locale)}
+                    disabled={locale === option.locale}
+                  >
+                    <Globe2 className="me-2 h-4 w-4" />
+                    <span
+                      lang={option.locale}
+                      dir={option.locale === "ar" ? "rtl" : "ltr"}
+                    >
+                      {option.label}
+                    </span>
+                  </DropdownMenuItem>
+                ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => signOut()}
                   className="text-red-600 focus:bg-red-50 focus:text-red-700"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="me-2 h-4 w-4" />
                   {t("logOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
