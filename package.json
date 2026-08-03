@@ -66,7 +66,7 @@
       "brace-expansion": "1.1.16"
     },
     "picomatch": "4.0.4",
-    "postcss": "8.5.14",
+    "postcss": "8.5.25",
     "qs": "6.15.3",
     "sharp": "0.35.3"
   },
