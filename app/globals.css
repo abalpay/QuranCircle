@@ -1810,9 +1810,11 @@
 }
 
 .landing-hero {
+  --landing-header-height: 4.3125rem;
+  --landing-available-height: calc(100dvh - var(--landing-header-height));
   position: relative;
   isolation: isolate;
-  min-height: 46rem;
+  min-height: max(42rem, var(--landing-available-height));
   overflow: hidden;
   color: hsl(42 42% 96%);
   background:
@@ -1917,9 +1919,9 @@
   align-items: center;
   gap: clamp(2.5rem, 4vw, 4.5rem);
   width: min(100%, 88rem);
-  min-height: 48rem;
+  min-height: max(42rem, var(--landing-available-height));
   margin-inline: auto;
-  padding: 4rem 2.5rem 6.25rem;
+  padding: clamp(0.5rem, 1.25dvh, 2rem) 2.5rem 4.15rem;
 }
 
 .landing-hero-copy {
@@ -2190,6 +2192,50 @@
   background: hsl(42 45% 99% / 0.56);
   box-shadow: inset 0 1px 0 white;
   letter-spacing: 0.14em;
+}
+
+/*
+ * On wide screens the product preview is limited by both axes. Its contents
+ * determine its height, so a width-only cap makes it overflow shorter laptop
+ * viewports. The dvh cap follows the usable browser viewport (including mobile
+ * browser chrome changes), while the floor keeps the demo legible when a
+ * landscape window is unusually short. Mobile/tablet layouts below 960px use
+ * natural document flow instead of trying to force the hero into one screen.
+ */
+@media (min-width: 961px) {
+  .landing-hero-preview .hero-product-card {
+    max-width: min(40rem, max(27.5rem, 59dvh));
+  }
+
+  .landing-hero-preview .hero-product-header {
+    padding: clamp(0.95rem, 1.8dvh, 1.3rem)
+      clamp(1.1rem, 2.2dvh, 1.5rem)
+      clamp(0.75rem, 1.45dvh, 1rem);
+  }
+
+  .landing-hero-preview .hero-product-heading {
+    margin-top: clamp(0.6rem, 1.2dvh, 0.9rem);
+  }
+
+  .landing-hero-preview .hero-product-legend {
+    padding-block: clamp(0.52rem, 1dvh, 0.72rem);
+  }
+
+  .landing-hero-preview .hero-product-grid {
+    gap: clamp(0.4rem, 0.8dvh, 0.56rem);
+    padding: clamp(0.75rem, 1.25dvh, 1.05rem)
+      clamp(0.9rem, 1.7dvh, 1.35rem)
+      clamp(0.85rem, 1.45dvh, 1.2rem);
+  }
+
+  .landing-hero-preview .hero-product-tile {
+    aspect-ratio: 1.08 / 1;
+  }
+
+  .landing-hero-preview .hero-product-footer {
+    min-height: clamp(2.8rem, 5.4dvh, 3.4rem);
+    padding-block: clamp(0.55rem, 1.2dvh, 0.75rem);
+  }
 }
 
 .landing-light-canvas {
