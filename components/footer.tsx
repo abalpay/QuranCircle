@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import BrandMark from "@/components/brand-mark";
+import FooterLanguageNavigation from "@/components/footer-language-navigation";
 
 export default async function Footer() {
   const t = await getTranslations("Footer");
@@ -49,6 +50,11 @@ export default async function Footer() {
             </Link>
           ))}
         </nav>
+
+        <FooterLanguageNavigation
+          ariaLabel={t("languageNavigation")}
+          className="mt-3 flex flex-wrap items-center gap-x-1 text-sm font-medium text-[hsl(158_16%_76%)]"
+        />
       </div>
 
       <div className="mx-auto px-5 pb-[calc(env(safe-area-inset-bottom)+7rem)] pt-7 lg:hidden">
@@ -80,6 +86,10 @@ export default async function Footer() {
             {t("terms")}
           </Link>
         </nav>
+        <FooterLanguageNavigation
+          ariaLabel={t("languageNavigation")}
+          className="mt-2 flex flex-wrap items-center gap-x-1 text-sm font-medium text-[hsl(158_16%_76%)]"
+        />
         <p className="mt-3 text-xs text-[hsl(158_12%_66%)]">
           © {new Date().getFullYear()} QuranCircle. {t("allRightsReserved")}
         </p>
