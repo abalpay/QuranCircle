@@ -7,7 +7,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Australia/Melbourne"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
     groups:
       next-react:
         patterns:
@@ -15,22 +15,36 @@ updates:
           - "react"
           - "react-dom"
           - "eslint-config-next"
+          - "next-intl"
+        update-types: [minor, patch]
       supabase:
         patterns:
           - "@supabase/*"
+        update-types: [minor, patch]
       test-tooling:
         dependency-type: "development"
         patterns:
-          - "typescript"
           - "vitest"
           - "@vitest/*"
           - "playwright"
           - "@playwright/*"
           - "jsdom"
+        update-types: [minor, patch]
       production-dependencies:
         dependency-type: "production"
         patterns:
           - "*"
+        update-types: [minor, patch]
+      development-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "typescript"
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

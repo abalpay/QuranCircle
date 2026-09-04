@@ -1,11 +1,7 @@
 import { ImageResponse } from "next/og";
 import BrandMark from "@/components/brand-mark";
 
-export const runtime = "nodejs";
-
-export const alt = "QuranCircle - Read & Complete the Quran Together";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+const size = { width: 1200, height: 630 };
 
 // Color tokens from globals.css (HSL → hex approximations)
 const colors = {
@@ -17,7 +13,7 @@ const colors = {
   muted: "#526b64", // hsl(162 13% 37%)
 };
 
-export default async function OGImage() {
+export default async function createOgImage() {
   return new ImageResponse(
     (
       <div
