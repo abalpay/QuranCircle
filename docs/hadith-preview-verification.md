@@ -1,4 +1,23 @@
-# Final bounded fix report
+# Hadith preview verification
+
+## Final controller checks (2026-09-04)
+
+- Final implementation commit: `868d6f1`; maintenance main merge: `5b951d9`, source-tree-identical to the tested `a613976`. Main remained clean and contains no reader implementation.
+- `npm test`: **302 tests across 51 files passed** on the final implementation.
+- Final full `npm run lint`: passed. The full Chromium browser matrix was rerun on the final implementation and passed.
+- Independent source validation re-extracted retained official XLSX and verified SHA256, all fields, source order and taxonomy membership for **8,060 documents**. This is structural fidelity, not scholarly approval.
+- Chromium browser checks: exact English/Turkish/Arabic title, body, paired Arabic and notices; 320/390/1440px layouts, CSS zoom 200%, reachable bottom controls, pagination/context, local saves and text size after reload, feature-only clear, language switching, unavailable-language state, malformed/blocked storage, not-found UI/noindex. No page errors, runtime publisher requests or undersized reader controls were found. CSS zoom is not a claim of native browser-zoom testing.
+- WebKit: English/Turkish/Arabic reader and source notices at 320/390px and landscape, plus all three notices on Sources. Chromium: Tab/Shift+Tab/Enter/Space can operate save and size controls, which persist after reload. No page errors. WebKit keyboard-only navigation was not validated; physical-device testing remains outstanding.
+- Final independent scoped re-review: both P2 findings addressed, no new in-scope regression. Three prior minor observations remain deferred: key-order-sensitive JSON integrity comparison, a focused importer timeout-signal assertion, and dense local-state/control formatting.
+- No merge, push or deployment. Local preview uses ignored placeholder configuration and `next dev --hostname localhost -p 3002`. The only main-checkout cleanup was moving the two Hadith planning documents into this worktree; unrelated maintenance work was preserved.
+
+## Scope decisions
+
+1. Implement the minimal preview before release automation, sitemap/privacy integration, sharing, resume or display modes. Reason: preview before proceeding was requested. Cost if wrong: those capabilities must be added before broader product review.
+2. Start from current main while maintenance was pending, then incorporate its completed merge into the preview only. Cost if wrong: another base update would require integration and retesting. The completed maintenance commit is included.
+3. Accept the existing streamed HTTP200/not-found-view behavior for this unindexed local preview, deferring literal HTTP404 instead of rearranging existing homepage/loading routes. Cost: HTTP clients may see200 for missing pages until the release follow-up.
+
+## Final review fixes and build evidence
 
 Base: `37b9497`. Scope: isolated preview worktree only. No corpus, auth, CSP, proxy, homepage, dependencies, deployment, merge, or push changes. Existing controller-owned `CLAUDE.md` change preserved and excluded from commit.
 

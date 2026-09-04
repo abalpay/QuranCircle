@@ -1,6 +1,6 @@
 # Local Hadith reader preview
 
-This branch is an isolated, unmerged preview of a HadeethEnc reader. Its base includes the Next.js 16.3.4/security maintenance changes on `main` at `a613976`. No changes have been deployed.
+This branch is an isolated, unmerged preview of a HadeethEnc reader. Its base includes the Next.js 16.3.4/security maintenance merge on `main` at `5b951d9` (the same source tree as the tested maintenance commit `a613976`). No changes have been deployed.
 
 ## Run locally
 
@@ -42,3 +42,9 @@ Invalid reader/topic links show the localized not-found page. The app's existing
 Publication, merge, scheduled update checks/ownership, sitemap and privacy-policy integration, resume reading, sharing and display-mode controls. Search, audio, nested topics and synced bookmarks are outside the initial reader scope.
 
 See `hadith-source-policy.md` for source/import obligations and the full design/implementation plans in `superpowers/` for the longer-term release checklist.
+
+## Verification
+
+The final implementation passed 302 unit tests, a production build, source-data validation and production feature-flag checks for both HTML and React server responses. Chromium checks cover multilingual browsing, reading, local saves, pagination, unavailable editions and responsive layouts. WebKit checks cover English, Turkish and Arabic readers at phone and landscape sizes, plus all publisher notices. Keyboard save and size controls were verified in Chromium. These are desktop browser-engine tests, not physical-device testing or publication approval.
+
+See [the verification record](hadith-preview-verification.md) for build, trace and transport details. The development server is for local review only; nothing has been pushed, deployed or merged into main.
