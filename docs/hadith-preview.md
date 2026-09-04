@@ -18,12 +18,12 @@ NEXT_PUBLIC_ENABLE_INSTALL_PROMPT=false
 These placeholder settings support the signed-out Hadith preview; authentication and circle/database features require a separately configured local backend. Do not copy production service-role credentials for this preview.
 
 ```sh
-npx next dev --webpack --hostname localhost -p 3002
+npx next dev --hostname localhost -p 3002
 ```
 
 Open `http://localhost:3002/hadith`. Turkish is `/tr/hadith`; Arabic is `/ar/hadith`.
 
-Webpack is used for this local preview: the updated app showed a default-locale redirect loop under Turbopack before Hadith routes were added, while Webpack served the same app correctly. This command does not alter the shared dev script, authentication or CSP.
+Keep the explicit `localhost` hostname aligned with the preview URL. Binding the server to `127.0.0.1` caused a default-locale redirect loop in this setup; both Turbopack and Webpack worked when bound to `localhost`. The preview uses the default Turbopack mode. This command does not alter the shared dev script, authentication or CSP.
 
 ## Review scope
 
