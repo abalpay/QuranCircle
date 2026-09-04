@@ -10,7 +10,7 @@ A collaborative Quran reading platform for community-driven Khatm events. Create
 - **Frictionless participation** — Claim a Juz instantly with silent anonymous auth, no signup required
 - **Real-time progress** — See claims and completions update live across all participants
 - **Mobile-first PWA** — Installable on any device with responsive design and safe area support
-- **Multi-language** — Full English and Turkish localisation via next-intl
+- **Multi-language** — Full English, Turkish, and Arabic localisation via next-intl
 - **Secure by design** — Row Level Security on every table, HMAC-signed merge cookies, rate limiting
 
 ## Tech Stack
@@ -20,22 +20,27 @@ A collaborative Quran reading platform for community-driven Khatm events. Create
 - **Database & Auth** — Supabase (PostgreSQL, Auth, Realtime, Edge Functions)
 - **Email** — Resend (via Supabase Auth Hook)
 - **Hosting** — Vercel
-- **Testing** — Vitest (unit), Playwright (E2E across Chromium + WebKit)
+- **Testing** — Vitest (unit), Playwright (E2E in Chromium)
 
 ## Getting Started
+
+This project requires Node 24.x.
 
 1. Create a [Supabase project](https://supabase.com/dashboard)
 2. Run the migrations in `supabase/migrations/` via the SQL Editor or Supabase CLI
 3. Copy `.env.example` to `.env.local` and fill in your Supabase credentials
 4. Enable **Anonymous Sign-Ins** in Supabase Dashboard > Authentication > Providers
-5. `npm install && npm run dev`
+5. `npm ci && npm run dev`
 
 ```bash
 npm run dev          # Dev server (port 3001)
 npm run build        # Production build
 npm run test:unit    # Vitest unit tests
-npm run test:e2e     # Playwright E2E tests
+npm run test:e2e     # Chromium Playwright E2E tests (with local Supabase env)
 ```
+
+Local agent skills are deliberately untracked. Each developer must install their
+own skills; do not add machine-specific `.cursor/skills/` links to the repository.
 
 ## Architecture
 
@@ -44,7 +49,7 @@ app/                    # Routes and layouts (App Router)
 components/             # React components + shadcn/ui primitives
 lib/actions/            # Server actions (events, juz)
 lib/supabase/           # Supabase clients (client, server, admin)
-messages/               # i18n translation files (en, tr)
+messages/               # i18n translation files (en, tr, ar)
 supabase/migrations/    # SQL migrations
 supabase/functions/     # Edge Functions (email hook)
 tests/                  # Unit + E2E tests

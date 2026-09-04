@@ -62,6 +62,11 @@ Desktop.ini
 # AI / agent configs (local-only)
 .agents/
 .claude/
+/.cursor/skills/
+
+# Local maintenance artifacts
+/backups/
+/.run-agent.sh
 
 # Agent swarm
 .clawdbot/
