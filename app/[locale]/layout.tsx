@@ -34,6 +34,7 @@ import {
 } from "@/i18n/locale-config";
 import { BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
 import { VIEWPORT_DIAGNOSTICS_REQUEST_HEADER } from "@/lib/viewport-diagnostics";
+import { isHadithEnabled } from "@/lib/hadith/feature";
 
 const siteUrl = getSiteUrl();
 const socialImageUrl = toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH);
@@ -175,7 +176,7 @@ export default async function LocaleLayout({
                   <div className="absolute -left-28 top-20 h-64 w-64 rounded-full bg-[hsl(var(--quran-gold)/0.08)] blur-3xl" />
                   <div className="absolute -right-28 bottom-12 h-72 w-72 rounded-full bg-[hsl(var(--quran-green)/0.14)] blur-3xl" />
                 </div>
-                <Header />
+                <Header hadithEnabled={isHadithEnabled()} />
                 <div
                   className="relative flex min-h-screen flex-col"
                   data-content-shell
@@ -183,7 +184,7 @@ export default async function LocaleLayout({
                   {children}
                   <Footer />
                 </div>
-                <MobileNavigation />
+                <MobileNavigation hadithEnabled={isHadithEnabled()} />
               </div>
               <Suspense fallback={null}>
                 <AuthErrorToast />

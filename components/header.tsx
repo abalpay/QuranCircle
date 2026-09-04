@@ -28,11 +28,12 @@ import type { AppLocale } from "@/i18n/routing";
 import { localeOptions } from "@/i18n/locale-config";
 import BrandMark from "@/components/brand-mark";
 
-export default function Header() {
+export default function Header({ hadithEnabled = false }: { hadithEnabled?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("Header");
+  const hadithT = useTranslations("Hadith");
   const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
 
@@ -52,6 +53,7 @@ export default function Header() {
     { href: "/browse", label: t("browse"), icon: Compass },
     { href: "/my-circles", label: t("myCircles"), icon: Layers3 },
     { href: "/khatm-coordination", label: t("guide"), icon: BookOpenCheck },
+    ...(hadithEnabled ? [{ href: "/hadith", label: hadithT("title"), icon: BookOpenCheck }] : []),
   ];
 
   return (

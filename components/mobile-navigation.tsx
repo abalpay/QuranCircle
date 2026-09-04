@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/navigation";
-import { Home, Layers3, Compass, UserCircle, LogOut, Settings } from "lucide-react";
+import { Home, Layers3, Compass, UserCircle, LogOut, Settings, BookOpenCheck } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useState } from "react";
@@ -15,9 +15,10 @@ import {
 import { useTranslations } from "next-intl";
 import LanguageSelect from "@/components/language-select";
 
-export default function MobileNavigation() {
+export default function MobileNavigation({ hadithEnabled = false }: { hadithEnabled?: boolean }) {
   const pathname = usePathname();
   const t = useTranslations("MobileNav");
+  const hadithT = useTranslations("Hadith");
   const { user, isAuthenticatedUser, signOut } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -42,7 +43,7 @@ export default function MobileNavigation() {
         className="mobile-bottom-nav lg:hidden"
         data-mobile-navigation
       >
-        <div className="mobile-bottom-nav-surface">
+        <div className={`mobile-bottom-nav-surface ${hadithEnabled ? "has-hadith" : ""}`}>
           <Link
             href="/"
             aria-current={pathname === "/" ? "page" : undefined}
@@ -73,6 +74,16 @@ export default function MobileNavigation() {
             <Compass aria-hidden="true" />
             <span>{t("browse")}</span>
           </Link>
+          {hadithEnabled && (
+            <Link
+              href="/hadith"
+              aria-current={pathname === "/hadith" || pathname.startsWith("/hadith/") ? "page" : undefined}
+              className={`mobile-bottom-nav-item ${pathname === "/hadith" || pathname.startsWith("/hadith/") ? "is-active" : ""}`}
+            >
+              <BookOpenCheck aria-hidden="true" />
+              <span>{hadithT("title")}</span>
+            </Link>
+          )}
           <button
             type="button"
             onClick={handleProfileTap}
