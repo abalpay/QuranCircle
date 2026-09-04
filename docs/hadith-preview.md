@@ -31,6 +31,8 @@ Keep the explicit `localhost` hostname aligned with the preview URL. Binding the
 - Read Arabic with English or Turkish, plus source explanations and references.
 - Inspect publisher versions and original notices.
 - Adjust text size and save entries on this device.
+- Switch translated editions between Arabic + translation and translation-only reading.
+- Use the desktop section guide or mobile page outline; source line breaks and benefit lists are formatted without rewriting their text.
 - Check desktop and mobile layouts, including Arabic RTL.
 
 The feature is disabled unless the server flag is explicitly enabled. New routes are noindex during this preview. Source material remains subject to HadeethEnc's conditions and requires publication/content review; automated validation is not a scholarly accuracy audit.
@@ -39,12 +41,12 @@ Invalid reader/topic links show the localized not-found page. The app's existing
 
 ## Deferred until after preview feedback
 
-Publication, merge, scheduled update checks/ownership, sitemap and privacy-policy integration, resume reading, sharing and display-mode controls. Search, audio, nested topics and synced bookmarks are outside the initial reader scope.
+Publication, merge, scheduled update checks/ownership, sitemap and privacy-policy integration, resume reading and sharing. Search, audio, nested topics and synced bookmarks are outside the initial reader scope.
 
 See `hadith-source-policy.md` for source/import obligations and the full design/implementation plans in `superpowers/` for the longer-term release checklist.
 
 ## Verification
 
-The final implementation passed 302 unit tests, a production build, source-data validation and production feature-flag checks for both HTML and React server responses. Chromium checks cover multilingual browsing, reading, local saves, pagination, unavailable editions and responsive layouts. WebKit checks cover English, Turkish and Arabic readers at phone and landscape sizes, plus all publisher notices. Keyboard save and size controls were verified in Chromium. These are desktop browser-engine tests, not physical-device testing or publication approval.
+The reader redesign passed 313 unit tests, lint, typecheck, a production build, source-data validation and production feature-flag checks for both HTML and React server responses. Chromium checks cover multilingual browsing, reading, local saves, confirmation/cancellation of clearing data, reading modes and responsive layouts. WebKit checks cover English, Turkish and Arabic readers at 320/390/1440px, source fidelity and publisher notices. Keyboard save and confirmation focus were also verified. These are desktop browser-engine tests, not physical-device testing or publication approval.
 
 See [the verification record](hadith-preview-verification.md) for build, trace and transport details. The development server is for local review only; nothing has been pushed, deployed or merged into main.

@@ -4,5 +4,5 @@ import { requireHadithEnabled } from "@/lib/hadith/guard";
 export default async function SavedPage() {
   requireHadithEnabled();
   const t = await getTranslations("Hadith");
-  return <><h1>{t("saved")}</h1><SavedEntries /></>;
+  return <div className="hadith-utility-page"><header className="hadith-intro"><p className="hadith-eyebrow">{t("library")}</p><h1>{t("saved")}</h1><p>{t("savedIntro")}</p></header><SavedEntries /></div>;
 }

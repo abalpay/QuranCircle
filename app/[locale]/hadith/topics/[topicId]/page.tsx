@@ -15,9 +15,8 @@ export default async function TopicPage({ params, searchParams }: { params: Prom
   if (!result || result.page !== page) notFound();
   const href = (next: number) => ({ pathname: `/hadith/topics/${topicId}`, query: { page: next } });
   return <>
-    <h1>{topicId === "all" ? t("all") : result.topic.title}</h1>
-    <p>{t("entries", { count: result.totalItems })}</p>
-    <ol className="hadith-entry-list" start={(page - 1) * HADITH_PAGE_SIZE + 1}>{result.items.map(item => <li key={item.id}><Link href={{ pathname: hadithPath(item.id), query: { topic: topicId, page } }}>{item.title}</Link></li>)}</ol>
+    <header className="hadith-intro hadith-topic-intro"><Link className="hadith-link" href="/hadith">{t("back")}</Link><h1>{topicId === "all" ? t("all") : result.topic.title}</h1><p>{t("entries", { count: result.totalItems })} <span aria-hidden="true">·</span> {t("page", { page, total: result.totalPages })}</p></header>
+    <ol className="hadith-entry-list" start={(page - 1) * HADITH_PAGE_SIZE + 1}>{result.items.map((item, index) => <li key={item.id}><span className="hadith-entry-number" aria-hidden="true">{String((page - 1) * HADITH_PAGE_SIZE + index + 1).padStart(2, "0")}</span><Link href={{ pathname: hadithPath(item.id), query: { topic: topicId, page } }}>{item.title}</Link><span className="hadith-arrow" aria-hidden="true">→</span></li>)}</ol>
     <nav className="hadith-pagination" aria-label={t("page", { page, total: result.totalPages })}>
       {page > 1 ? <Link href={href(page - 1)}>{t("previous")}</Link> : <span />}
       <span>{t("page", { page, total: result.totalPages })}</span>

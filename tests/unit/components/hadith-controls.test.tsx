@@ -27,6 +27,13 @@ describe("hadith controls", () => {
     render(<SavedEntries />, { wrapper: IntlWrapper });
     expect(screen.getByRole("link", { name: entry.title })).toHaveAttribute("href", "/tr/hadith/4560");
     fireEvent.click(screen.getByRole("button", { name: "Clear Hadith data on this device" }));
+    expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("button", { name: "Clear Hadith data on this device" })).toHaveFocus();
+    expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Clear Hadith data on this device" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear saved data" }));
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
     expect(localStorage.getItem("unrelated")).toBe("keep");
   });
@@ -36,6 +43,15 @@ describe("hadith controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(screen.getByRole("status")).toHaveTextContent("Device storage is unavailable");
     expect(screen.getByText("Readable source")).toBeVisible();
+  });
+  it("switches the reading view without modifying source children or saved data", () => {
+    const { container } = render(<ReaderControls entry={entry} hasArabic><p>Original source</p></ReaderControls>, { wrapper: IntlWrapper });
+    fireEvent.click(screen.getByRole("button", { name: "Translation only" }));
+    expect(container.querySelector(".hadith-reader")).toHaveAttribute("data-mode", "translation");
+    expect(screen.getByText("Original source")).toBeInTheDocument();
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Arabic + translation" }));
+    expect(container.querySelector(".hadith-reader")).toHaveAttribute("data-mode", "bilingual");
   });
   it("shows a visible limit message", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...emptyState(), entries: Array.from({ length: 100 }, (_, id) => ({ ...entry, id: String(id) })) }));

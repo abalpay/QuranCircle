@@ -81,3 +81,4 @@ reports/
 # Hadith source workbooks and candidate snapshots stay local.
 /.hadith-imports/
 /.hadith-staging/
+/.superpowers/hadith-reader-design/

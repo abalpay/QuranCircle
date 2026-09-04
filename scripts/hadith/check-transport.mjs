@@ -20,8 +20,14 @@ for (const locale of ["en", "tr", "ar"]) {
       assert.match(response.headers.get("content-type") ?? "", transport === "rsc" ? /text\/x-component/ : /text\/html/);
       if (enabled === "true") assert.equal(response.status, 200);
       for (const source of sentinels) {
-        const present = representations(source).some(value => body.includes(value));
-        assert.equal(present, enabled === "true", `${pathname} ${transport}: source ${enabled === "true" ? "missing" : "leaked"}`);
+        // Source-preserving paragraph elements interrupt contiguous HTML/RSC strings.
+        // Check every distinctive source line; DOM tests separately verify exact full text/order.
+        const parts = (source.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) ?? []).filter(part => part.trim().length > 10);
+        assert.ok(parts.length, "Source sentinel must contain a distinctive line");
+        for (const part of parts) {
+          const present = representations(part).some(value => body.includes(value));
+          assert.equal(present, enabled === "true", `${pathname} ${transport}: source ${enabled === "true" ? "missing" : "leaked"}`);
+        }
       }
       console.log(JSON.stringify({ enabled, pathname, transport, status: response.status, bytes: Buffer.byteLength(body), sourceAssertions: sentinels.length }));
     }

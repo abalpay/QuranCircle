@@ -2,11 +2,23 @@ import React from "react";
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { SourceText, SourceDetails } from "@/components/hadith/source-text";
+import { SourcePassage } from "@/components/hadith/source-passage";
 import type { TextBlock, Edition } from "@/lib/hadith/types";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 afterEach(cleanup);
 const text: TextBlock = { title: "A <source> title", text: "[Text]\n<script>alert(1)</script>", explanation: "Explanation\n unchanged", benefits: "1. Benefit", grade: "[Grade]", attribution: "[Reference]", wordMeanings: "word: meaning" };
 describe("hadith source rendering", () => {
+  it.each(["First line\nSecond line\n", "First\r\n\r\n  Second", "عَرَبِيّ\nنص", "<script>literal</script>"])("formats source boundaries without changing text: %s", source => {
+    const { container } = render(<SourcePassage text={source} locale="en" />);
+    expect(container.querySelector("[data-source-passage]")?.textContent).toBe(source);
+    expect(container.querySelector("script")).toBeNull();
+  });
+  it("renders benefit lines as a semantic list without adding numbers or losing delimiters", () => {
+    const source = "First benefit\nSecond benefit\n";
+    const { container } = render(<SourcePassage text={source} locale="en" kind="benefits" />);
+    expect(container.querySelectorAll("ul > li")).toHaveLength(2);
+    expect(container.querySelector("ul")?.textContent).toBe(source);
+  });
   it("preserves every field as escaped text", () => {
     const { container } = render(<SourceText text={text} locale="en" />, { wrapper: IntlWrapper });
     for (const value of Object.values(text)) expect(container.textContent).toContain(value);

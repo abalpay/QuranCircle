@@ -1,5 +1,19 @@
 # Hadith preview verification
 
+## Reader design pass (2026-09-04)
+
+Following preview feedback, the library, topic lists, reader, Saved and Sources were redesigned in the same worktree. Existing colors/fonts were retained; no corpus/repository/auth/CSP changes or dependencies were added. Source-provided newline boundaries now receive paragraph spacing and benefit list semantics, preserving the source textContent. No sentence guessing, trimming, rewriting, regrading or generated religious content.
+
+- `npm test`:313 tests/51 files pass; new cases cover exact multiline/CRLF/Arabic/escaped source text, semantic benefit lists, current section navigation, reading mode and clear confirmation/focus.
+- `npm run lint`, `npx tsc --noEmit`, `npm run build`:pass. Build has no broad tracing warning; five Hadith traces retain all8,064 corpus files and exclude unrelated root JSON/scratch/env (89.37–89.39MiB traced sizes, not deployment artifact sizes).
+- `npm run hadith:validate`:all8,060 documents pass; `git diff -- data/hadith` empty.
+- Chromium and WebKit:real records66536 and4560, all en/tr/ar, widths320/390/1440; exact title/body/explanation/benefits/word meanings/paired Arabic/notices; bilingual/translation-only mode where available; no horizontal overflow or visible controls below44px. Chromium additionally checks home,topic4,all page2,Saved,Sources,current navigation,keyboard save,save+size persistence,CSS zoom200%,clear cancel/confirm preserving unrelated storage. Zero page errors and zero runtime publisher requests.
+- Production flagfalse and flagtrue:12 HTML/RSC responses per state for reader4560 and Sources across all locales pass. The transport checker now checks distinctive source lines because formatted source paragraphs span HTML/RSC elements; full source text and ordering are verified separately in DOM tests. The old contiguous-string positive assertion initially failed for this expected markup change, not missing rendered content.
+- Visual review included the requested record66536, long source titles, the topic/library pages, saved empty state and source editions. Mobile repeat branding is reduced on reader pages; the page outline is collapsed until requested. The last mobile spacing change was checked after a clean dev restart. Browser-engine tests do not replace physical-device testing.
+- Source data, default-off behavior and the existing HTTP200 streamed not-found limitation are unchanged. Nothing merged into main, pushed or deployed.
+
+The plan and initial review findings are in `superpowers/plans/2026-09-04-hadith-reader-design.md`. Dev preview remains `http://localhost:3002/hadith/66536?topic=4&page=1`.
+
 ## Final controller checks (2026-09-04)
 
 - Final implementation commit: `868d6f1`; maintenance main merge: `5b951d9`, source-tree-identical to the tested `a613976`. Main remained clean and contains no reader implementation.

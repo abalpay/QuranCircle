@@ -4,11 +4,19 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 import Header from "@/components/header";
 import MobileNavigation from "@/components/mobile-navigation";
+import { HadithSectionNav } from "@/components/hadith/section-nav";
+const route = vi.hoisted(() => ({ pathname: "/hadith/4560" }));
 vi.mock("@/hooks/use-auth", () => ({ useAuth: () => ({ user: null, isAuthenticatedUser: false, signOut: vi.fn() }) }));
 vi.mock("@/hooks/use-auth-modal", () => ({ useAuthModal: () => ({ openAuthModal: vi.fn() }) }));
-vi.mock("@/i18n/navigation", () => ({ Link: ({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props}>{children}</a>, usePathname: () => "/hadith/4560", useRouter: () => ({ replace: vi.fn() }) }));
-afterEach(cleanup);
+vi.mock("@/i18n/navigation", () => ({ Link: ({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props}>{children}</a>, usePathname: () => route.pathname, useRouter: () => ({ replace: vi.fn() }) }));
+afterEach(() => { cleanup(); route.pathname = "/hadith/4560"; });
 describe("Hadith gated navigation", () => {
+  it.each([["/hadith", "Topics"], ["/hadith/topics/4", "Topics"], ["/hadith/topics/all", "All entries"], ["/hadith/saved", "Saved"], ["/hadith/sources", "Sources"]])("marks one current library section for %s", (pathname, label) => {
+    route.pathname = pathname;
+    const { container } = render(<HadithSectionNav />, { wrapper: IntlWrapper });
+    expect(screen.getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
+    expect(container.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
+  });
   it("defaults off in desktop and mobile", () => {
     const { container } = render(<><Header /><MobileNavigation /></>, { wrapper: IntlWrapper });
     expect(screen.queryByRole("link", { name: "Hadith" })).toBeNull();

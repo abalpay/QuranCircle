@@ -1,14 +1,19 @@
 import { useTranslations } from "next-intl";
 import type { Edition, HadithLocale, TextBlock } from "@/lib/hadith/types";
+import { SourcePassage } from "./source-passage";
 
-export function SourceText({ text, locale, title = true, includeText = true }: { text: TextBlock; locale: HadithLocale; title?: boolean; includeText?: boolean }) {
+export function SourceText({ text, locale, title = true, includeText = true, anchors = false }: { text: TextBlock; locale: HadithLocale; title?: boolean; includeText?: boolean; anchors?: boolean }) {
   const t = useTranslations("Hadith");
   return <section className="hadith-source" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
     {title && <h2 className="hadith-source-title">{text.title}</h2>}
-    {includeText && <p className={locale === "ar" ? "hadith-arabic" : "hadith-translation"} lang={locale}>{text.text}</p>}
-    {(["grade", "attribution", "explanation", "benefits", "wordMeanings"] as const).map(key => text[key] ? <section key={key} className="hadith-field">
-      <h3 className="hadith-label">{t(key)}</h3>
-      <p className={locale === "ar" ? "hadith-arabic" : "hadith-translation"}>{text[key]}</p>
+    {includeText && <section className="hadith-narration" id={anchors ? "narration" : undefined}>
+      <h2 className="hadith-label">{t(locale === "ar" ? "arabicText" : "translation")}</h2>
+      <SourcePassage text={text.text} locale={locale} />
+    </section>}
+    <dl className="hadith-reference">{(["grade", "attribution"] as const).map(key => text[key] ? <div key={key}><dt>{t(key)}</dt><dd dir="auto">{text[key]}</dd></div> : null)}</dl>
+    {(["explanation", "benefits", "wordMeanings"] as const).map(key => text[key] ? <section key={key} id={anchors ? key : undefined} className="hadith-field">
+      <h2>{t(key)}</h2>
+      <SourcePassage text={text[key]} locale={locale} kind={key === "benefits" ? "benefits" : "prose"} />
     </section> : null)}
   </section>;
 }
