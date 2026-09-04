@@ -86,3 +86,15 @@ The validated target dependency set is:
 - `typed-rest-client@2.3.1` retained
 
 Avoid `npm audit fix --force`: npm currently proposes downgrading `eslint-config-next` to 15.5.25, which is unnecessary and would misalign it with Next.js 16.2.11. A targeted compatible update reaches zero reported vulnerabilities without that downgrade.
+
+## Upgrade validation addendum — 2026-09-04
+
+The historical zero-audit evidence above predates the Next.js 16.3.4 maintenance
+lockfile. Final validation attempted both `npm audit --fetch-timeout=20000
+--fetch-retries=0` and `npm audit --omit=dev --fetch-timeout=20000
+--fetch-retries=0` once under Node `v24.18.0` / npm `11.16.0`. Each exited 1 after
+20 seconds because npm's `/-/npm/v1/security/advisories/bulk` endpoint timed out;
+neither returned an advisory count. Therefore this addendum makes no current
+zero-vulnerability claim: successful zero-finding results from both scopes are a
+release blocker. No `npm audit fix`, force option, dependency downgrade, or security
+override change was made to work around the unavailable endpoint.

@@ -2,6 +2,20 @@
 
 Last reviewed: 4 September 2026
 
+## Next.js 16.3.4 maintenance release gates
+
+See [the integrated local validation record](../maintenance/2026-09-04-nextjs-16-3-validation.md).
+
+- Status: **Blocked**
+- Both final npm audit scopes timed out at npm's bulk-advisory endpoint. They must
+  each complete with zero findings before this maintenance branch can be released.
+- Local Supabase CLI `2.115.0` differs from CI's pinned `2.109.1`; a later CLI
+  update batch remains separate and pending.
+- Local unit, database, contract, build, and Chromium checks are useful branch
+  evidence, not production smoke-test evidence. The outstanding production, Arabic,
+  indexing, deletion-migration, cleanup, backup, branch, and PR approvals below
+  remain release or follow-up gates as applicable.
+
 This document tracks follow-up work identified after adding Turkish and Arabic
 localization. English, Turkish, and Arabic support is already merged into
 `main` in merge commit `0eaec1c`.
