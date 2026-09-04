@@ -78,7 +78,7 @@ The open PR set has changed: #54 now joins #26, #43, #51 and #52. No PR will be 
 - [ ] Run `npm run lint`, `npx --no-install tsc --noEmit`, `npm run test:unit`, and `npm run build` with NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3101 and local Supabase placeholders. Record pre-existing versus new warnings. Build warnings belong to Task 3; any new incompatibility must be resolved before approval.
 - [ ] Self-review manifest/lockfile drift, commit `chore(deps): upgrade Next.js stack to 16.3.4`, and report commands, exit codes, test counts, warnings, native-script review and exact versions.
 
-**Gate 1:** Independent spec/quality review plus controller inspection of lockfile, scripts and version/audit results. Do not proceed with an invalid npm tree or weakened controls.
+**Gate 1:** Independent spec/quality review plus controller inspection of lockfile, scripts and version/audit results. Do not proceed with an invalid npm tree or weakened controls. Execution ruling: the official advisory POST endpoint timed out under verified Node 24/npm 11 while registry GET worked. Local changes may proceed conditionally with that audit blockage recorded; both audits remain mandatory at the final release gate and unavailable audit results are never reported as zero findings.
 
 ### Task 2: Dependabot policy and repository hygiene
 
