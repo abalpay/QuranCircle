@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 import type { Edition, HadithLocale, TextBlock } from "@/lib/hadith/types";
 import { SourcePassage } from "./source-passage";
 
@@ -18,7 +19,7 @@ export function SourceText({ text, locale, title = true, includeText = true, anc
   </section>;
 }
 
-export function SourceDetails({ edition, sourceUrl }: { edition: Edition; sourceUrl?: string }) {
+export function SourceDetails({ edition, sourceUrl, children }: { edition: Edition; sourceUrl?: string; children?: ReactNode }) {
   const t = useTranslations("Hadith");
   return <aside className="hadith-provenance">
     <p className="hadith-source-credit"><span>{t("sourceCredit")}:</span> <a href={sourceUrl ?? edition.sourceUrl} aria-label={`HadeethEnc · ${t(sourceUrl ? "originalEntry" : "publisher")}`}>HadeethEnc</a><span aria-hidden="true">·</span><span>{t("version")} <bdi>{edition.version}</bdi></span></p>
@@ -31,6 +32,7 @@ export function SourceDetails({ edition, sourceUrl }: { edition: Edition; source
         <a href={edition.downloadUrl}>{t("download")}</a>
         <a href={edition.checkUrl}>{t("check")}</a>
       </div>
+      {children}
     </details>
   </aside>;
 }

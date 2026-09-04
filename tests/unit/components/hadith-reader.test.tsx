@@ -45,4 +45,15 @@ describe("hadith source rendering", () => {
     expect(container.querySelectorAll(".hadith-source-credit")).toHaveLength(1);
     expect(container.querySelector(".hadith-source-credit")?.textContent).toContain("Edition 1.25.0");
   });
+  it("keeps the notice and supplementary Arabic in one initially collapsed disclosure", () => {
+    const edition = { locale: "en", version: "1.25.0", notice: "Complete\noriginal notice", sourceUrl: "https://hadeethenc.com/en", downloadUrl: "https://hadeethenc.com/en/download", checkUrl: "https://hadeethenc.com/en/check", publisherUpdatedAt: "date", retrievedAt: "date", sha256: "abc" } satisfies Edition;
+    const { container } = render(<SourceDetails edition={edition}><SourceText text={text} locale="ar" includeText={false} /></SourceDetails>, { wrapper: IntlWrapper });
+    const disclosure = container.querySelector("details")!;
+    expect(container.querySelectorAll("details")).toHaveLength(1);
+    expect(disclosure).not.toHaveAttribute("open");
+    expect(disclosure.querySelector("summary")).toHaveTextContent("Source details");
+    expect(disclosure.textContent).toContain(edition.notice);
+    for (const [key, value] of Object.entries(text)) if (key !== "text") expect(disclosure.textContent).toContain(value);
+    expect(container.querySelector(".hadith-source-credit")?.closest("details")).toBeNull();
+  });
 });

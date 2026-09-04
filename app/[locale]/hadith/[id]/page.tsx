@@ -39,8 +39,9 @@ export default async function ReaderPage({ params, searchParams }: { params: Pro
     <ReaderControls key={`${locale}:${id}`} hasArabic={!!document.arabic} entry={{ id, title: document.text.title, locale, version: document.editionVersion }}>
       {document.arabic && <section className="hadith-original" lang="ar" dir="rtl"><h2 className="hadith-label">{t("arabicText")}</h2><SourcePassage text={document.arabic.text} locale="ar" /></section>}
       <SourceText text={document.text} locale={locale} title={false} anchors />
-      {document.arabic && <details className="hadith-paired-details"><summary>{t("arabicMetadata")}</summary><SourceText text={document.arabic} locale="ar" includeText={false} /></details>}
-      <div id="source"><SourceDetails edition={edition} sourceUrl={document.sourceUrl} /></div>
+      <div id="source"><SourceDetails edition={edition} sourceUrl={document.sourceUrl}>
+        {document.arabic && <section className="hadith-source-supplement"><h2 className="hadith-label">{t("arabicMetadata")}</h2><SourceText text={document.arabic} locale="ar" includeText={false} /></section>}
+      </SourceDetails></div>
     </ReaderControls>
     <nav className="hadith-pagination" aria-label={t("title")}>
       {result.previousId ? <Link href={readerHref(result.previousId)}>{t("previous")}</Link> : <span />}

@@ -95,9 +95,10 @@ ul.hadith-entry-list li { grid-template-columns: minmax(0, 1fr) auto; align-item
 .hadith-benefits { list-style: disc; padding-inline-start: 1.25rem; }
 .hadith-benefits li { padding-inline-start: .4rem; margin-block: 1rem; white-space: pre-wrap; }
 .hadith-benefits li::marker { color: hsl(var(--quran-gold)); }
-.hadith-paired-details, .hadith-provenance { border-top: 1px solid var(--hadith-line); padding-block: 1.25rem; font-size: .8rem; line-height: 1.8; }
+.hadith-provenance { border-top: 1px solid var(--hadith-line); padding-block: 1.25rem; font-size: .8rem; line-height: 1.8; }
 .hadith-shell summary { cursor: pointer; padding-block: .75rem; font-weight: 600; }
-.hadith-paired-details[open] > .hadith-source { padding-top: 1.25rem; }
+.hadith-source-supplement { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--hadith-line); }
+.hadith-source-supplement > .hadith-source { padding-top: 1.25rem; }
 .hadith-provenance .hadith-source-credit { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; font-weight: 400; color: hsl(var(--quran-muted)); }
 .hadith-provenance dt { font-weight: 600; margin-top: 1rem; }
 .hadith-provenance dd { margin-bottom: .5rem; }
