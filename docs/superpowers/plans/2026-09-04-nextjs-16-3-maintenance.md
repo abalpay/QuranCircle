@@ -112,7 +112,7 @@ The open PR set has changed: #54 now joins #26, #43, #51 and #52. No PR will be 
 
 ### Task 3: Metadata and icon build warnings
 
-**Files:** Move shared image implementation from app/opengraph-image.tsx to lib/og-image.tsx; create app/opengraph-image/route.ts; modify app/icon.tsx and app/apple-icon.tsx; create tests/e2e/metadata-assets.spec.ts. Keep lib/brand.ts and locale layout public contracts unchanged.
+**Files:** Move shared image implementation from app/opengraph-image.tsx to lib/og-image.tsx; create app/opengraph-image/route.ts; modify app/icon.tsx and app/apple-icon.tsx; create tests/e2e/metadata-assets.spec.ts. Execution finding also requires app/[locale]/page.tsx and tests/unit/app/home-seo-metadata.test.ts for missing homepage OG image regression. Keep lib/brand.ts and locale layout public contracts unchanged.
 
 **Interfaces:** /opengraph-image remains a 1200x630 PNG; /icon a 32x32 PNG; /apple-icon a 180x180 PNG. Explicit absolute OG/Twitter metadata continues to use BRAND_SOCIAL_IMAGE_PATH. Localized public-circle image routes remain untouched.
 
@@ -127,6 +127,16 @@ expect(body.readUInt32BE(20)).toBe(height);
 ```
 
 - [ ] Add rendered metadata assertions for /, /tr, /ar using an HTML-limited bot user agent so metadata is in the head. Assert canonical and social image origins match NEXT_PUBLIC_SITE_URL; html lang and dir match en/ltr, tr/ltr and ar/rtl. Assert no root 404 metadata references a fallback localhost origin different from the configured origin. Use real HTTP/DOM outputs, not source-text assertions.
+- [ ] Execution finding: homepage page-level openGraph replaces layout openGraph by shallow merge, losing images (also observed in existing production HTML). Add BRAND_SOCIAL_IMAGE_PATH to its existing brand import and declare the following field in its openGraph object; add a unit regression asserting this image in all three locale metadata results. This is a focused metadata correction, not a layout or SEO-content refactor.
+
+```ts
+images: [{
+  url: toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH),
+  width: 1200,
+  height: 630,
+  alt: "QuranCircle",
+}],
+```
 - [ ] If warning persists, move the existing OG JSX unchanged to lib/og-image.tsx, remove metadata-only exports that are no longer consumed, and use a standard route handler:
 
 ```ts
