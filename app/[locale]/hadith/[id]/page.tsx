@@ -31,11 +31,10 @@ export default async function ReaderPage({ params, searchParams }: { params: Pro
     <aside className="hadith-reading-rail">
       <Link className="hadith-link" href={{ pathname: `/hadith/topics/${topicId}`, query: { page } }}><span className="hadith-back-arrow" aria-hidden="true">←</span>{t("back")}</Link>
       <nav aria-label={t("onThisPage")}><p className="hadith-label">{t("onThisPage")}</p>{outline}</nav>
-      <p className="hadith-rail-credit">HadeethEnc<br />{t("version")} <bdi>{edition.version}</bdi></p>
     </aside>
     <article className="hadith-reading-article">
     <a className="hadith-skip" href="#narration">{t("skipReader")}</a>
-    <header className="hadith-reader-heading"><p className="hadith-eyebrow"><bdi>{t("entryId", { id })}</bdi></p><h1 className="hadith-reader-title" data-long-title={document.text.title.length > 160 || undefined} lang={locale}>{document.text.title}</h1>{languages}</header>
+    <header className="hadith-reader-heading"><h1 className="hadith-reader-title" data-long-title={document.text.title.length > 160 || undefined} lang={locale}>{document.text.title}</h1>{languages}</header>
     <details className="hadith-mobile-outline"><summary>{t("onThisPage")}</summary><nav aria-label={t("onThisPage")}>{outline}</nav></details>
     <ReaderControls key={`${locale}:${id}`} hasArabic={!!document.arabic} entry={{ id, title: document.text.title, locale, version: document.editionVersion }}>
       {document.arabic && <section className="hadith-original" lang="ar" dir="rtl"><h2 className="hadith-label">{t("arabicText")}</h2><SourcePassage text={document.arabic.text} locale="ar" /></section>}

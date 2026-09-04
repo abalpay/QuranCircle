@@ -34,6 +34,15 @@ describe("hadith source rendering", () => {
     const { container } = render(<SourceDetails edition={edition} />, { wrapper: IntlWrapper });
     expect(container.textContent).toContain(edition.notice);
     expect(container.textContent).toContain("v1");
-    expect(container.querySelectorAll("a")).toHaveLength(3);
+    expect(container.querySelectorAll("a")).toHaveLength(4);
+    expect(screen.getByRole("link", { name: "HadeethEnc · Publisher" })).toHaveAttribute("href", edition.sourceUrl);
+    expect(container.querySelector(".hadith-source-credit")?.textContent).toContain("Source:");
+  });
+  it("uses the single source credit as the original-entry link", () => {
+    const edition = { locale: "en", version: "1.25.0", notice: "Complete original notice", sourceUrl: "https://hadeethenc.com/en", downloadUrl: "https://hadeethenc.com/en/download", checkUrl: "https://hadeethenc.com/en/check", publisherUpdatedAt: "date", retrievedAt: "date", sha256: "abc" } satisfies Edition;
+    const { container } = render(<SourceDetails edition={edition} sourceUrl="https://hadeethenc.com/en/browse/hadith/4560" />, { wrapper: IntlWrapper });
+    expect(screen.getByRole("link", { name: "HadeethEnc · Original entry" })).toHaveAttribute("href", "https://hadeethenc.com/en/browse/hadith/4560");
+    expect(container.querySelectorAll(".hadith-source-credit")).toHaveLength(1);
+    expect(container.querySelector(".hadith-source-credit")?.textContent).toContain("Edition 1.25.0");
   });
 });

@@ -21,8 +21,7 @@ export function SourceText({ text, locale, title = true, includeText = true, anc
 export function SourceDetails({ edition, sourceUrl }: { edition: Edition; sourceUrl?: string }) {
   const t = useTranslations("Hadith");
   return <aside className="hadith-provenance">
-    <p>HadeethEnc · {t("version")} <bdi>{edition.version}</bdi></p>
-    {sourceUrl && <a className="hadith-link" href={sourceUrl}>{t("originalEntry")}</a>}
+    <p className="hadith-source-credit"><span>{t("sourceCredit")}:</span> <a href={sourceUrl ?? edition.sourceUrl} aria-label={`HadeethEnc · ${t(sourceUrl ? "originalEntry" : "publisher")}`}>HadeethEnc</a><span aria-hidden="true">·</span><span>{t("version")} <bdi>{edition.version}</bdi></span></p>
     <details>
       <summary>{t("sourceDetails")}</summary>
       <p className="hadith-notice" dir="auto">{edition.notice}</p>
