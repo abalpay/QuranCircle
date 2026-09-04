@@ -90,11 +90,14 @@ Avoid `npm audit fix --force`: npm currently proposes downgrading `eslint-config
 ## Upgrade validation addendum — 2026-09-04
 
 The historical zero-audit evidence above predates the Next.js 16.3.4 maintenance
-lockfile. Final validation attempted both `npm audit --fetch-timeout=20000
+lockfile. Initial validation attempted both `npm audit --fetch-timeout=20000
 --fetch-retries=0` and `npm audit --omit=dev --fetch-timeout=20000
 --fetch-retries=0` once under Node `v24.18.0` / npm `11.16.0`. Each exited 1 after
 20 seconds because npm's `/-/npm/v1/security/advisories/bulk` endpoint timed out;
-neither returned an advisory count. Therefore this addendum makes no current
-zero-vulnerability claim: successful zero-finding results from both scopes are a
-release blocker. No `npm audit fix`, force option, dependency downgrade, or security
-override change was made to work around the unavailable endpoint.
+neither returned an advisory count.
+
+One final bounded retry of each unchanged command, with the same 20-second timeout
+and zero retries, subsequently exited 0 and reported `found 0 vulnerabilities` for
+both the full and production-only scopes. This is the current audit evidence for the
+upgraded lockfile. No `npm audit fix`, force option, dependency downgrade, or security
+override change was made to obtain that result.

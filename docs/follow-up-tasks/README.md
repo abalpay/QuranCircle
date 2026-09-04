@@ -6,9 +6,10 @@ Last reviewed: 4 September 2026
 
 See [the integrated local validation record](../maintenance/2026-09-04-nextjs-16-3-validation.md).
 
-- Status: **Blocked**
-- Both final npm audit scopes timed out at npm's bulk-advisory endpoint. They must
-  each complete with zero findings before this maintenance branch can be released.
+- Status: **Externally gated**
+- The final full and production-only npm audit scopes both completed with zero
+  vulnerabilities for the upgraded lockfile. Audit availability is no longer a
+  release blocker; the external approvals listed below remain required.
 - Local Supabase CLI `2.115.0` differs from CI's pinned `2.109.1`; a later CLI
   update batch remains separate and pending.
 - Local unit, database, contract, build, and Chromium checks are useful branch

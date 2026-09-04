@@ -2,11 +2,15 @@
 
 ## Outcome
 
-**Not release-ready.** All executable local application, database, contract, and
-Chromium checks passed after one temporary-artifact lint rerun, but both required
-npm audit scopes timed out at the registry bulk-advisory endpoint. A zero-vulnerability
-result cannot be claimed until both scopes complete successfully. External production
-and content approvals below are also intentionally outstanding.
+**Not release-ready.** All executable local application, database, contract, Chromium,
+and final audit checks passed after one temporary-artifact lint rerun. The required
+full and production-only audits both returned zero vulnerabilities for the upgraded
+lockfile. External production and content approvals below remain intentionally
+outstanding.
+
+Local acceptance evidence is complete. Integration remains separately subject to user
+authorization and the listed external production/content gates; no merge, deployment,
+or production mutation is implied by this record.
 
 This is local branch validation, not a production smoke test or deployment approval.
 No hosted data, production configuration, existing QuranCircle volumes, THRIVE
@@ -55,14 +59,24 @@ environment, CI flags, merge secret, fixed seeded short codes, and
 | `npm run test:unit:coverage` | Pass | 43 files, 234 tests; statements 95.45%, branches 92.55%, functions 98.78%, lines 96.92%. |
 | `npm run test:contracts` | Pass | 1 file, 14 tests in 2.20s. |
 | `CI=1 npm run test:e2e` | Pass | 43 Chromium tests in 54.8s, against `next start`; no skips or retries reported. Playwright printed only its `NO_COLOR` / `FORCE_COLOR` environment warning. |
-| `npm audit --fetch-timeout=20000 --fetch-retries=0` | **Blocked** | One attempt; exited 1 after 20s: registry `/-/npm/v1/security/advisories/bulk` network timeout. No advisory count was returned. |
-| `npm audit --omit=dev --fetch-timeout=20000 --fetch-retries=0` | **Blocked** | One attempt; exited 1 after 20s at the same endpoint. No advisory count was returned. |
+| Initial `npm audit --fetch-timeout=20000 --fetch-retries=0` | Historical blocked attempt | One attempt exited 1 after 20s: registry `/-/npm/v1/security/advisories/bulk` timeout; no advisory count returned. |
+| Initial `npm audit --omit=dev --fetch-timeout=20000 --fetch-retries=0` | Historical blocked attempt | One attempt exited 1 after 20s at the same endpoint; no advisory count returned. |
+| Final `npm audit --fetch-timeout=20000 --fetch-retries=0` | Pass | One bounded retry under Node `v24.18.0` / npm `11.16.0`; exit 0, `found 0 vulnerabilities`. |
+| Final `npm audit --omit=dev --fetch-timeout=20000 --fetch-retries=0` | Pass | One bounded retry under Node `v24.18.0` / npm `11.16.0`; exit 0, `found 0 vulnerabilities`. |
 
-The two audit commands were deliberately attempted once each with the specified
-timeout and zero retries; no repeated timeout loop was used. They are release blockers,
-not zero-audit evidence or waived checks. The temporary first lint failure is retained
-as evidence rather than hidden; its successful rerun occurred after removal of only the
-ignored controller probe.
+The initial two audit commands were deliberately attempted once each with the specified
+timeout and zero retries; no repeated timeout loop was used. The final one-per-scope
+bounded retry produced the current zero-vulnerability evidence above, so audit
+availability is no longer a release blocker. The temporary first lint failure is
+retained as evidence rather than hidden; its successful rerun occurred after removal
+of only the ignored controller probe.
+
+### Next-run validation launcher hygiene
+
+For a future local validation launch, use `env -u NO_COLOR -u FORCE_COLOR CI=1 npm run
+test:e2e` so inherited, conflicting color variables are removed before Playwright
+manages its own output. This is launcher guidance only: it does not suppress
+application warnings or change application, test, or CI configuration.
 
 ### Supplemental rendered-page visual check
 
@@ -116,7 +130,6 @@ mutation was performed.
 
 ## Required external actions before release or follow-up removal
 
-- [ ] Restore registry access and obtain zero findings from both audit scopes above.
 - [ ] Have a qualified native Arabic speaker review all user-facing Arabic copy in
   context on mobile and desktop; update catalog parity and browser evidence for any
   wording change.
