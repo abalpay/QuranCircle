@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AppLocale } from "@/i18n/routing";
+import { BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
+import { toAbsoluteUrl } from "@/lib/site-url";
 
 vi.mock("next-intl/server", () => ({
   getTranslations: vi.fn(
@@ -49,12 +51,24 @@ describe("home SEO metadata", () => {
   });
 
   it("keeps the primary intent localized", async () => {
-    const [turkish, arabic] = await Promise.all([
+    const [english, turkish, arabic] = await Promise.all([
+      generateMetadata({ params: Promise.resolve({ locale: "en" }) }),
       generateMetadata({ params: Promise.resolve({ locale: "tr" }) }),
       generateMetadata({ params: Promise.resolve({ locale: "ar" }) }),
     ]);
 
     expect(turkish.title).toContain("Online Grup Hatim");
     expect(arabic.title).toContain("عبر الإنترنت");
+
+    for (const metadata of [english, turkish, arabic]) {
+      expect(metadata.openGraph?.images).toEqual([
+        {
+          url: toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH),
+          width: 1200,
+          height: 630,
+          alt: "QuranCircle",
+        },
+      ]);
+    }
   });
 });

@@ -1,6 +1,21 @@
 # Follow-up Tasks
 
-Last reviewed: 25 July 2026
+Last reviewed: 4 September 2026
+
+## Next.js 16.3.4 maintenance release gates
+
+See [the integrated local validation record](../maintenance/2026-09-04-nextjs-16-3-validation.md).
+
+- Status: **Externally gated**
+- The final full and production-only npm audit scopes both completed with zero
+  vulnerabilities for the upgraded lockfile. Audit availability is no longer a
+  release blocker; the external approvals listed below remain required.
+- Local Supabase CLI `2.115.0` differs from CI's pinned `2.109.1`; a later CLI
+  update batch remains separate and pending.
+- Local unit, database, contract, build, and Chromium checks are useful branch
+  evidence, not production smoke-test evidence. The outstanding production, Arabic,
+  indexing, deletion-migration, cleanup, backup, branch, and PR approvals below
+  remain release or follow-up gates as applicable.
 
 This document tracks follow-up work identified after adding Turkish and Arabic
 localization. English, Turkish, and Arabic support is already merged into
@@ -87,12 +102,22 @@ Completion criteria:
 
 ## Separate repository maintenance
 
-These items pre-date the localization work and are not blockers for it:
+These open items require a fresh review against current `main`; this repository
+maintenance change does not close, merge, or otherwise mutate them.
 
-- Dependabot PR #21: production dependency updates; older test failure.
-- Dependabot PR #24: test tooling updates; older test failure.
-- Dependabot PR #26: Node type definitions update; older checks passed.
-- Dependabot PR #28: Next.js and React group update; older checks passed.
+| PR | Status | Required follow-up |
+| --- | --- | --- |
+| #26 | Refresh required | Align the Node type definition update with Node 24, not Node 26, then test it. |
+| #43 | Pending framework batch | Treat it as superseded by the Next.js/React framework batch only after that batch merges. |
+| #51 | Policy refresh required | Refresh and re-split it after the Dependabot policy lands, then test the resulting scope. |
+| #52 | Policy refresh required | Refresh and re-split it after the Dependabot policy lands, then test the resulting scope. |
+| #54 | Pending security checkpoint | Treat it as superseded by the security checkpoint only after that checkpoint merges. |
 
-Rebase or refresh each Dependabot PR against current `main` before deciding
-whether to merge it.
+Native dependency changes must include the exact `allowScripts` approvals for
+the reviewed package versions. Review each newly introduced install script
+before explicitly approving it; do not loosen `strict-allow-scripts` as a
+shortcut.
+
+Later dependency batches remain separate, tested maintenance work. This includes
+updating the Supabase CLI pin from 2.109.1 to 2.116.0; it is not silently
+included in this policy change.
