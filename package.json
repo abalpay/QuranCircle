@@ -6,6 +6,8 @@
     "node": "24.x"
   },
   "scripts": {
+    "hadith:import": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/hadith/refresh.mjs",
+    "hadith:validate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/hadith/validate.ts",
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",

@@ -4,6 +4,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/\\[locale\\]/hadith": ["./data/hadith/**/*"],
+    "/\\[locale\\]/hadith/**": ["./data/hadith/**/*"],
+  },
   // Allow local host variants during development tooling (e.g., Playwright).
   allowedDevOrigins: ["localhost", "127.0.0.1"],
   async headers() {

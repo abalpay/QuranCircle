@@ -1,0 +1,10 @@
+export type HadithLocale = "en" | "tr" | "ar";
+export type TextBlock = { title: string; text: string; explanation: string; benefits: string; grade: string; attribution: string; wordMeanings: string };
+export type HadithDocument = { id: string; locale: HadithLocale; editionVersion: string; sourceUrl: string; text: TextBlock; arabic: TextBlock | null; raw: Record<string, string | null> };
+export type Edition = { locale: HadithLocale; version: string; publisherUpdatedAt: string; notice: string; sourceUrl: string; downloadUrl: string; checkUrl: string; sha256: string; retrievedAt: string };
+export type Topic = { id: string; title: string; ids: string[] };
+export type HadithSummary = { id: string; title: string; locales: HadithLocale[] };
+export type Manifest = { schemaVersion: 1; editions: Record<HadithLocale, Edition>; taxonomyRetrievedAt: string; importedCounts: Record<HadithLocale, number> };
+export type LocaleIndex = { entries: Record<string, HadithSummary>; topics: Topic[]; allIds: string[] };
+export type HadithIndex = Record<HadithLocale, LocaleIndex>;
+export type ReaderResult = { kind: "missing" } | { kind: "unavailable"; locales: HadithLocale[] } | { kind: "found"; document: HadithDocument; edition: Edition; locales: HadithLocale[]; previousId: string | null; nextId: string | null; topicId: string; returnPage: number };
