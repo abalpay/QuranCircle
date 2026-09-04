@@ -33,11 +33,7 @@ containers, branches, backups, PRs, or deployments were changed.
 - The CLI reported its already-stopped local imgproxy and pooler services and its
   `2.116.0` update notice. The API and database validation services remained usable.
 
-Official framework references consulted: [Next.js 16.3 release]
-(https://nextjs.org/blog/next-16-3), [Next.js v16.3.4 release notes]
-(https://github.com/vercel/next.js/releases/tag/v16.3.4),
-[metadata shallow merging](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#merging),
-and [cached GET Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers#caching).
+Official framework references consulted: [Next.js 16.3 release](https://nextjs.org/blog/next-16-3), [Next.js v16.3.4 release notes](https://github.com/vercel/next.js/releases/tag/v16.3.4), [metadata shallow merging](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#merging), and [cached GET Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers#caching).
 They support the explicitly tested upgrade behavior: nested metadata is shallowly
 replaced by a later segment, and a GET Route Handler can opt into static caching with
 `dynamic = 'force-static'`.
@@ -153,9 +149,22 @@ The original checkout backups are not present in this isolated worktree. Metadat
 `backups/prod-public-after-2026-02-19-1602.sql` (55,688 bytes), both dated
 2026-02-19. Their contents were never read and the files were untouched.
 
-If approved integration must be rolled back, revert focused maintenance commits in
-reverse order from the integration tip (including this validation record, then
-`42487d0` and `56e4540` as applicable) while retaining security checkpoint `86c1673`.
+### Ordered rollback guidance (do not execute without approval)
+
+For an approved **application-maintenance rollback**, revert these commits in this
+exact reverse-chronological order: `42487d0` (metadata/static-image behavior), then
+`b94dbd7` (repository cleanup and dependency policy), then `56e4540` (Next/React
+dependency alignment). Retain `86c1673` (`fix(deps): checkpoint dependency security
+remediation`) in all rollback paths; it is a required security checkpoint and is not
+part of the framework rollback.
+
+The Task 4 documentation commits `ad30c29` and `cd7b290` are deliberately retained
+as historical validation and shutdown evidence during that application rollback; they
+are not application rollback steps. If a separately approved records-cleanup action is
+required after preserving/exporting that evidence, revert the documentation commits in
+this exact order: `cd7b290`, then `ad30c29`. Planning-history commits `6028bf7`,
+`f806d66`, and `3577101` are likewise retained as historical context.
+
 Do not reset the original checkout or reverse applied database migrations; this plan
 made no schema/deployment change, so no production-data rollback is implied.
 
