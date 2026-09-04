@@ -11,10 +11,16 @@ export function createHadithRepository({ root = path.join(process.cwd(), "data/h
   let manifest: Promise<Manifest> | undefined;
   let index: Promise<HadithIndex> | undefined;
   function getManifest(): Promise<Manifest> {
-    return manifest ??= readJson(path.join(root, "manifest.json")).then((value) => value as Manifest);
+    return manifest ??= readJson(path.join(root, "manifest.json")).then((value) => value as Manifest).catch((error) => {
+      manifest = undefined;
+      throw error;
+    });
   }
   function getIndex(): Promise<HadithIndex> {
-    return index ??= readJson(path.join(root, "index.json")).then((value) => value as HadithIndex);
+    return index ??= readJson(path.join(root, "index.json")).then((value) => value as HadithIndex).catch((error) => {
+      index = undefined;
+      throw error;
+    });
   }
   async function getTopics(locale: HadithLocale): Promise<Topic[]> {
     assertLocale(locale);

@@ -59,6 +59,17 @@ function fixture() {
   return { repo: createHadithRepository({ root: "/fixture", readJson }), readJson };
 }
 describe("local repository", () => {
+  it.each(["getManifest", "getIndex"] as const)("retries rejected %s reads and retains fulfilled caches", async method => {
+    const { repo, readJson } = fixture();
+    readJson.mockRejectedValueOnce(new Error("temporary filesystem failure"));
+    const first = repo[method]();
+    expect(repo[method]()).toBe(first);
+    await expect(first).rejects.toThrow("temporary filesystem failure");
+    const recovered = await repo[method]();
+    expect(recovered).toBeTruthy();
+    expect(await repo[method]()).toBe(recovered);
+    expect(readJson).toHaveBeenCalledTimes(2);
+  });
   it("paginates 20 entries and clamps invalid/out-of-range pages", async () => {
     const { repo } = fixture();
     expect((await repo.getTopicPage("en", "1", 0))?.items).toHaveLength(20);
