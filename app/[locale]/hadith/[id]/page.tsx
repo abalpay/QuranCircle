@@ -7,7 +7,9 @@ import { assertLocale, hadithPath } from "@/lib/hadith/paths";
 import { ReaderControls } from "@/components/hadith/reader-controls";
 import { SourceText, SourceDetails } from "@/components/hadith/source-text";
 
+import { requireHadithEnabled } from "@/lib/hadith/guard";
 export default async function ReaderPage({ params, searchParams }: { params: Promise<{ locale: string; id: string }>; searchParams: Promise<{ topic?: string | string[]; page?: string | string[] }> }) {
+  requireHadithEnabled();
   const [{ locale, id }, query] = await Promise.all([params, searchParams]); assertLocale(locale);
   if (!/^[0-9]+$/.test(id)) notFound();
   const [result, t] = await Promise.all([getReader(locale, id, typeof query.topic === "string" ? query.topic : undefined), getTranslations("Hadith")]);

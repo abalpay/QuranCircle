@@ -4,7 +4,9 @@ import { Link } from "@/i18n/navigation";
 import { getTopicPage, HADITH_PAGE_SIZE } from "@/lib/hadith/repository";
 import { assertLocale, hadithPath } from "@/lib/hadith/paths";
 
+import { requireHadithEnabled } from "@/lib/hadith/guard";
 export default async function TopicPage({ params, searchParams }: { params: Promise<{ locale: string; topicId: string }>; searchParams: Promise<{ page?: string | string[] }> }) {
+  requireHadithEnabled();
   const [{ locale, topicId }, query] = await Promise.all([params, searchParams]); assertLocale(locale);
   if (query.page !== undefined && (typeof query.page !== "string" || !/^[1-9][0-9]*$/.test(query.page))) notFound();
   const page = query.page === undefined ? 1 : Number(query.page);

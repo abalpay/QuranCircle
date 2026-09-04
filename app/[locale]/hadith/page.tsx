@@ -3,7 +3,9 @@ import { Link } from "@/i18n/navigation";
 import { getTopics, getTopicPage } from "@/lib/hadith/repository";
 import { assertLocale } from "@/lib/hadith/paths";
 
+import { requireHadithEnabled } from "@/lib/hadith/guard";
 export default async function HadithHome({ params }: { params: Promise<{ locale: string }> }) {
+  requireHadithEnabled();
   const { locale } = await params; assertLocale(locale);
   const [t, topics, all] = await Promise.all([getTranslations("Hadith"), getTopics(locale), getTopicPage(locale, "all", 1)]);
   return <>
