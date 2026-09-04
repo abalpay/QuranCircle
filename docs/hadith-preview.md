@@ -35,6 +35,8 @@ Keep the explicit `localhost` hostname aligned with the preview URL. Binding the
 
 The feature is disabled unless the server flag is explicitly enabled. New routes are noindex during this preview. Source material remains subject to HadeethEnc's conditions and requires publication/content review; automated validation is not a scholarly accuracy audit.
 
+Invalid reader/topic links show the localized not-found page. The app's existing locale-level loading boundary can stream HTTP 200 before the route discovers that it is missing; Next then emits the not-found view and noindex. Literal HTTP 404 handling is a release follow-up, not a claim of this preview. Existing homepage/loading routes have not been rearranged.
+
 ## Deferred until after preview feedback
 
 Publication, merge, scheduled update checks/ownership, sitemap and privacy-policy integration, resume reading, sharing and display-mode controls. Search, audio, nested topics and synced bookmarks are outside the initial reader scope.

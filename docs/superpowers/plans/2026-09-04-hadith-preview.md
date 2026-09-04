@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-04-hadeethenc-reader.md`. This minimal-preview scope defers release-only workflow/sitemap/privacy integration, sharing, resume, and translation-only view. It retains topic browsing, all entries, bilingual reading, source metadata, local saves and size controls.
 
+**Preview routing clarification:** Invalid/missing routes must invoke Next's localized `notFound()` view and emit noindex. The existing locale-level loading boundary may commit HTTP 200 before that result; this documented streaming behavior is accepted for this unindexed local preview, with literal transport 404 deferred to release review. Do not move or refactor the existing homepage/locale loading routes to change it in this feature. References to 404 below mean the not-found result, not an assertion that streamed headers can be changed after sending.
+
 ## Global Constraints
 
 - Work only in `/Users/ahmet/Documents/Alpaylabs/QuranCircle-worktrees/hadith-reader-preview` on `codex/hadith-reader-preview`. Never push, merge, deploy, create a scheduled workflow, or edit the main checkout.
