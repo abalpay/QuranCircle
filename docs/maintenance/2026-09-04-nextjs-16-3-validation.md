@@ -33,6 +33,15 @@ containers, branches, backups, PRs, or deployments were changed.
 - The CLI reported its already-stopped local imgproxy and pooler services and its
   `2.116.0` update notice. The API and database validation services remained usable.
 
+Official framework references consulted: [Next.js 16.3 release]
+(https://nextjs.org/blog/next-16-3), [Next.js v16.3.4 release notes]
+(https://github.com/vercel/next.js/releases/tag/v16.3.4),
+[metadata shallow merging](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#merging),
+and [cached GET Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers#caching).
+They support the explicitly tested upgrade behavior: nested metadata is shallowly
+replaced by a later segment, and a GET Route Handler can opt into static caching with
+`dynamic = 'force-static'`.
+
 ## Final local evidence
 
 Every command used the Node 24 fnm path. The app checks used the real local stack
@@ -69,6 +78,20 @@ visually inspected the English, Turkish, and Arabic screenshots and found no obv
 regression; the probe stopped its own server successfully. The ignored SDD evidence is
 `visual-smoke.py`, `mobile-en.png`, `mobile-tr.png`, and `mobile-ar.png`. This is
 supplemental local evidence, not production browser smoke coverage.
+
+### Fresh-stack shutdown and isolation verification
+
+After all local checks and the independent visual probe, the fresh stack alone was
+stopped with `supabase stop --workdir /tmp/qurancircle-next163-db.cED3fK` (project
+filter `QuranCircle_next163_20260904`, backup enabled). Docker then showed zero fresh
+QuranCircle containers and three retained fresh-stack volumes:
+`supabase_db_QuranCircle_next163_20260904`,
+`supabase_edge_runtime_QuranCircle_next163_20260904`, and
+`supabase_storage_QuranCircle_next163_20260904`. Existing
+`supabase_*_THRIVE_Platform` services remained up, including the database, Studio,
+Kong, auth, storage, realtime, and analytics services on their existing 54421–54427
+ports. No old QuranCircle volume or THRIVE service was stopped, deleted, or otherwise
+modified.
 
 ## Read-only production evidence (not rollout acceptance)
 
