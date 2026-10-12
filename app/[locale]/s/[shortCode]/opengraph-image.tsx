@@ -41,6 +41,7 @@ export default async function OGImage({
     const supabase = createAnonClient();
     const { data } = await supabase.rpc("get_event_snapshot_by_shortcode", {
       p_short_code: shortCode,
+      p_khatm_limit: 1,
     });
 
     if (data && typeof data === "object") {

@@ -15,7 +15,7 @@ const shortCodeSchema = z
   .max(SHORT_CODE_MAX_LENGTH)
   .regex(SHORT_CODE_REGEX);
 const uuidSchema = z.string().uuid();
-const claimerNameSchema = z.string().min(1).max(100).trim();
+const claimerNameSchema = z.string().trim().min(1).max(100);
 const juzNumberSchema = z.number().int().min(1).max(30);
 const juzNumbersSchema = z.array(juzNumberSchema).min(1).max(30);
 

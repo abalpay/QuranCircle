@@ -22,8 +22,8 @@ const shortCodeSchema = z
   .regex(SHORT_CODE_REGEX);
 
 const createEventSchema = z.object({
-  name: z.string().min(1).max(200).trim(),
-  description: z.string().max(2000).trim().optional(),
+  name: z.string().trim().min(1).max(200),
+  description: z.string().trim().max(2000).optional(),
   isPublic: z.boolean().optional(),
 });
 
@@ -64,7 +64,7 @@ export type PublicEventsPage = {
 };
 
 function normalizeKhatmLimit(limit: number | null | undefined) {
-  if (limit === null) return null;
+  if (limit === null) return EVENT_SNAPSHOT_DEFAULT_KHATM_LIMIT;
   if (typeof limit !== "number" || !Number.isFinite(limit)) {
     return EVENT_SNAPSHOT_DEFAULT_KHATM_LIMIT;
   }

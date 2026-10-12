@@ -1,103 +1,74 @@
-# Dependency Security Review
+# Dependency vulnerability review
 
-Date: 2026-09-03
+Reviewed: 15 September 2026. Repository: `abalpay/QuranCircle`.
+Local commit: `5b951d9a501cf083e1fda7f1946d2d522dfe1165`.
 
-## Executive summary
+## Remediation completed locally — 15 September 2026
 
-Before the targeted remediation, `npm audit` reported 13 affected dependency entries: 10 high and 3 moderate. Those entries collapsed to four root dependency families and seven unique advisories, all in development-only packages.
+Applied in priority order: sharp **0.35.4**, js-yaml **4.3.2**, then Vitest and coverage **4.1.11**. Updated the sharp script permission and regenerated the lockfile. npm also refreshed compatible transitive Vite/Rolldown dependencies during Vitest resolution.
 
-The application bundle and production dependency tree were not exposed to these findings. The risk was concentrated in local development and CI, particularly when tooling processed attacker-controlled repository content. Remediation was warranted because the standard pull-request workflow installs dependencies and runs lint/build tasks on submitted code (`.github/workflows/test.yml:3-8,39-40,70-77`).
+Validation:
 
-Status: **Resolved on 2026-09-03.** Both the full audit and `npm audit --omit=dev` now report zero vulnerabilities. The non-breaking remediation did not change the direct Next.js, ESLint, Stryker, or `typed-rest-client` versions.
+- Clean `npm ci` passed; installed Next.js now matches the declared **16.3.4**.
+- Full lockfile and production-only audits both report **zero vulnerabilities**.
+- Confirmed native sharp **0.35.4** loads libheif **1.23.2**.
+- Lint and production build passed.
+- Unit coverage: **234 tests across 43 files passed**; 96.92% line coverage, with all configured thresholds met.
+- Existing image-optimization Playwright test passed against `next start` using the production build and local placeholder service settings. No live database was needed for this image-only test.
+- Full database-backed E2E and contract suites were not run.
 
-## High upstream severity / medium project risk
+Changes are local; they have not been committed, merged, or deployed. GitHub alerts will need verification after these changes reach the default branch. The findings below preserve the original pre-fix review.
 
-### DEP-001: `brace-expansion` denial of service
+## Original review summary
 
-- Rule ID: REACT-SUPPLY-001 / DEP-001
-- Status: Resolved
-- Severity: Medium in this project; upstream severity High
-- Advisories: [GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg), [GHSA-rgw5-rvv9-x895](https://github.com/advisories/GHSA-rgw5-rvv9-x895)
-- Location: `package.json:65-66`; `package-lock.json:5243-5247`, `6340-6344`, `7276-7280`
-- Evidence: The lockfile previously contained vulnerable versions 1.1.16, 2.1.2, and 5.0.7. It now resolves patched versions 1.1.18, 2.1.4, and 5.0.9.
-- Dependency paths:
-  - ESLint and its plugins -> `minimatch@3.1.5` -> `brace-expansion@1.1.18`
-  - `eslint-config-next` -> TypeScript ESLint -> `minimatch@9.0.9` -> `brace-expansion@2.1.4`
-  - Stryker -> `minimatch@10.2.5` -> `brace-expansion@5.0.9`
-- Impact: Crafted brace/glob patterns can exhaust memory or block the event loop. In this repository the package is only used by development tooling, so the realistic impact is a local or CI denial of service rather than a production outage.
-- Fix applied: Updated the explicit 1.x override to 1.1.18 and refreshed the other compatible transitive versions to 2.1.4 and 5.0.9.
-- Mitigation: No longer required after the update; existing CI timeouts remain useful defense in depth.
-- False-positive notes: npm propagates this root issue through `minimatch`, ESLint, `eslint-config-next`, and multiple plugins. Those propagated entries account for most of the 10 high findings; they are not separate vulnerabilities.
+GitHub has **five open Dependabot alerts covering three distinct advisories**: two high severity and one moderate severity. All three affect versions in the committed npm lockfile. Patch releases are available for each. Prioritize sharp because it is a production dependency.
 
-### DEP-002: `browserslist` memory exhaustion and malicious stats-file handling
+The explicit lockfile audit reports seven affected package entries (four high, three moderate). These include parent packages inheriting a dependency's vulnerability; they are not seven separate security flaws. No critical-rated package findings were returned. This review identifies known dependency advisories, not evidence of compromise or a complete application penetration test.
 
-- Rule ID: REACT-SUPPLY-001 / DEP-002
-- Status: Resolved
-- Severity: Medium in this project; upstream severity High
-- Advisories: [GHSA-c83g-rgw3-j3cx](https://github.com/advisories/GHSA-c83g-rgw3-j3cx), [GHSA-73wf-gq98-2v4g](https://github.com/advisories/GHSA-73wf-gq98-2v4g)
-- Location: `package-lock.json:7300-7304`; `.github/workflows/test.yml:7,76-77`
-- Evidence: Stryker's Babel toolchain previously installed vulnerable `browserslist@4.28.1`; it now resolves patched `browserslist@4.28.8`. The pull-request workflow runs the production build, which can invoke Browserslist through build tooling. No `browserslist-stats.json` file is currently tracked.
-- Impact: Repeated attacker-influenced queries can cause unbounded memory growth, while a malicious custom stats file can crash tooling or alter a newly-created object's prototype. Exposure is limited to build/development processes, but a malicious repository change could disrupt CI.
-- Fix applied: Refreshed the lockfile to `browserslist@4.28.8` (4.28.7 is the first patched release).
-- Mitigation: Review unexpected `browserslist-stats.json` additions and retain CI timeouts/resource limits.
-- False-positive notes: The application does not call Browserslist at runtime and has no custom Browserslist stats file, so remote production exploitation is not evident.
+## High severity
 
-## Moderate upstream severity / low project risk
+### 1. sharp 0.35.3 — vulnerable image decoder
 
-### DEP-003: `@humanfs/node` symlink-following file disclosure
+- Evidence: `package.json:71`, `package-lock.json:11846`; dependency path `next → sharp`.
+- [GitHub alert #26](https://github.com/abalpay/QuranCircle/security/dependabot/26).
+- The upstream libheif defects can cause memory corruption and possible code execution on glibc Linux under certain conditions when processing untrusted images. [Advisory](https://github.com/advisories/GHSA-rgj7-g3m4-5g8c).
+- Application relevance: `components/landing/verse-callout.tsx:10` uses Next.js image optimization for a bundled PNG. `next.config.ts` has no remote image allowlist. This limits the evident input surface, but does not establish that the deployed decoder cannot receive hostile content. Deployment binaries and attacker-controlled image reachability were not verified.
+- Fix: change the sharp override to **0.35.4 or later**, regenerate the lockfile, and update the version-specific `allowScripts` entry at `package.json:82` if retaining that policy. Rebuild and redeploy. For a deployment using global libheif, verify that library is at least 1.23.2.
+- npm also flags `next` through this dependency; the audit did not identify a separate Next.js advisory.
 
-- Rule ID: REACT-SUPPLY-001 / DEP-003
-- Status: Resolved
-- Severity: Low in this project; upstream severity Moderate
-- Advisory: [GHSA-p498-v437-472g](https://github.com/advisories/GHSA-p498-v437-472g)
-- Location: `package-lock.json:1095-1104`; `package.json:56`
-- Evidence: ESLint previously installed development-only `@humanfs/node@0.16.7`; the lockfile now resolves patched `@humanfs/node@0.16.8`. Search of the installed ESLint and `@eslint` sources found no caller of the vulnerable `copy()` or `copyAll()` methods.
-- Impact: A symlink in an attacker-controlled source tree could make a copy operation disclose readable files outside that tree. No reachable copy operation was identified in the current ESLint path, so practical exploitability here is low.
-- Fix applied: Refreshed the lockfile to `@humanfs/node@0.16.8`.
-- Mitigation: Avoid using repository-provided symlink trees as input to file-copying utilities in privileged developer or CI environments.
-- False-positive notes: The vulnerable methods exist in the installed package, but no application or ESLint call site was found in this dependency tree.
+### 2. js-yaml 4.3.1 — CPU exhaustion
 
-### DEP-004: `qs` denial of service
+- Evidence: `package.json:73`, `package-lock.json:9902`; development dependency path `eslint → @eslint/eslintrc → js-yaml`.
+- [GitHub alert #27](https://github.com/abalpay/QuranCircle/security/dependabot/27).
+- Crafted YAML merge sources can consume excessive CPU despite the parser's merge limit. [Advisory](https://github.com/advisories/GHSA-2883-xcg3-v3hh).
+- Application relevance: found in development tooling; no direct js-yaml use found in the searched application code. Exposure requires tooling to parse attacker-controlled YAML. This is not an established public website denial-of-service route.
+- Fix: change the override to **4.3.2 or later within the compatible v4 line**, then regenerate the lockfile. The existing exact override prevents normal dependency resolution from selecting the patch.
+- The lockfile audit also flags parent `@eslint/eslintrc` through this issue.
 
-- Rule ID: REACT-SUPPLY-001 / DEP-004
-- Status: Resolved
-- Severity: Low in this project; upstream severity Moderate
-- Advisories: [GHSA-x5fp-wj9c-mxmx](https://github.com/advisories/GHSA-x5fp-wj9c-mxmx), [GHSA-4mjr-xmp4-gh2g](https://github.com/advisories/GHSA-4mjr-xmp4-gh2g)
-- Location: `package.json:70`; `package-lock.json:11188-11199`, `12547-12558`
-- Evidence: Stryker's `typed-rest-client@2.3.1` pins an older `qs`, and the project override previously raised it only to vulnerable `qs@6.15.3`. The override now resolves patched `qs@6.16.0`. The dependency is marked development-only.
-- Impact: Specific parse configurations can bypass array limits and allocate excessive memory; a parse/stringify round trip with attacker-controlled object keys can throw. The app does not import this `qs` package, so risk is limited to Stryker tooling rather than request processing in production.
-- Fix applied: Changed the override to `qs@6.16.0`.
-- Mitigation: No longer required after the update; continue treating untrusted query data as hostile input.
-- False-positive notes: npm also marks `typed-rest-client` as affected because it depends on `qs`; that is a propagated entry, not an additional advisory.
+## Moderate severity
 
-## Applied remediation and verification
+### 3. Vitest / @vitest/mocker 4.1.10 — arbitrary file read
 
-1. Changed the nested `brace-expansion` override from 1.1.16 to 1.1.18.
-2. Changed the `qs` override from 6.15.3 to 6.16.0.
-3. Refreshed compatible transitive dependencies, including `@humanfs/node`, `browserslist`, and all installed `brace-expansion` lines.
-4. Verified a clean `npm ci`, zero findings from both audit scopes, lint, 234 unit tests, and a production build.
+- Evidence: `package.json:55`, `package.json:62`, `package-lock.json:6882`, `package-lock.json:6931`, `package-lock.json:13254`.
+- GitHub alerts [#23](https://github.com/abalpay/QuranCircle/security/dependabot/23), [#24](https://github.com/abalpay/QuranCircle/security/dependabot/24), and [#25](https://github.com/abalpay/QuranCircle/security/dependabot/25) share the same advisory.
+- Redirect mocks can read files outside intended boundaries. Unauthenticated exploitation concerns exposed standalone mocker/interceptor plugins; Vitest browser mode uses authenticated RPC. [Advisory](https://github.com/advisories/GHSA-82fw-gwwq-j7x9).
+- Application relevance: unit tests use jsdom and contract tests use Node. No browser-mode configuration or standalone mocker plugin was found in the inspected configuration/application/test files. This is development tooling, with lower demonstrated exposure in this project.
+- Fix: upgrade **vitest and @vitest/coverage-v8 together to 4.1.11**, ensuring transitive `@vitest/mocker` is also patched. Coverage is flagged through its Vitest dependency.
+- Existing [Dependabot PR #62](https://github.com/abalpay/QuranCircle/pull/62) proposes the Vitest update. Its full diff and compatibility were not reviewed; verify coverage alignment before merging.
 
-The validated target dependency set is:
+## Verification and remediation order
 
-- `@humanfs/node@0.16.8`
-- `brace-expansion@1.1.18`, `2.1.4`, and `5.0.9`
-- `browserslist@4.28.8`
-- `qs@6.16.0`
-- `typed-rest-client@2.3.1` retained
+1. Update the two exact overrides and the matching Vitest/coverage pins; regenerate `package-lock.json` without a forced major upgrade.
+2. Perform a clean install. Local `node_modules` currently contains Next.js **16.2.11**, whereas both the manifest and lockfile specify **16.3.4**. `npm ls` reports this mismatch, so the current installation is unsuitable for validating the declared dependency set.
+3. Run `npm audit --package-lock-only` and `npm audit --omit=dev`, confirming these advisories disappear.
+4. Run lint, unit coverage, production build, and the existing `tests/e2e/image-optimization.spec.ts` against the rebuilt application. Verify contract tests only with the repository's safe test target configured.
+5. Merge and redeploy the tested patch; confirm GitHub closes all five alerts after rescanning the default branch.
 
-Avoid `npm audit fix --force`: npm currently proposes downgrading `eslint-config-next` to 15.5.25, which is unnecessary and would misalign it with Next.js 16.2.11. A targeted compatible update reaches zero reported vulnerabilities without that downgrade.
+## Review scope and evidence
 
-## Upgrade validation addendum — 2026-09-04
-
-The historical zero-audit evidence above predates the Next.js 16.3.4 maintenance
-lockfile. Initial validation attempted both `npm audit --fetch-timeout=20000
---fetch-retries=0` and `npm audit --omit=dev --fetch-timeout=20000
---fetch-retries=0` once under Node `v24.18.0` / npm `11.16.0`. Each exited 1 after
-20 seconds because npm's `/-/npm/v1/security/advisories/bulk` endpoint timed out;
-neither returned an advisory count.
-
-One final bounded retry of each unchanged command, with the same 20-second timeout
-and zero retries, subsequently exited 0 and reported `found 0 vulnerabilities` for
-both the full and production-only scopes. This is the current audit evidence for the
-upgraded lockfile. No `npm audit fix`, force option, dependency downgrade, or security
-override change was made to obtain that result.
+- Retrieved all open GitHub Dependabot alerts (five results, below the 100-result page size) and checked the published advisory details.
+- Audited the root npm dependency tree and explicitly audited the committed lockfile. The installed-tree audit returned six affected entries; the lockfile audit returned seven, adding `@eslint/eslintrc` as an affected parent.
+- The installed production-only audit returned `sharp` and its parent `next` (two high entries, one underlying advisory).
+- Inspected dependency paths, image configuration/use, test configuration, and Dependabot configuration. Weekly npm and GitHub Actions updates are already configured in `.github/dependabot.yml`.
+- No dependency changes, fixes, merges, deployments, or exploit attempts were performed. No regression tests were run because this was a review. The GitHub email itself was not available; its exact contents were not verified.
+- Findings reflect available advisory data on the review date. An absence of an audit finding does not guarantee that a dependency has no undiscovered vulnerabilities. Non-npm tooling and deployment system libraries were not independently scanned.
