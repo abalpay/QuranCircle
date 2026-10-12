@@ -79,6 +79,11 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit:coverage
 
+      - name: Run security regressions
+        run: |
+          npm run test:security:email
+          npm run test:security:db
+
       - name: Run DB contract checks
         run: npm run test:contracts
 
