@@ -126,7 +126,7 @@ describe("updateSession", () => {
 
     expect(supabaseMocks.rpc).toHaveBeenCalledWith(
       "get_event_snapshot_by_shortcode",
-      { p_short_code: "VALID123" }
+      { p_short_code: "VALID123", p_khatm_limit: 1 }
     );
     expect(response.status).toBe(404);
     expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");

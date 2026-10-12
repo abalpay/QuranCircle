@@ -46,6 +46,15 @@ describe("getEventByShortCodeResult", () => {
     expect(createClient).not.toHaveBeenCalled();
   });
 
+  it("bounds an explicit null history limit to the default", async () => {
+    const rpc = mockSnapshotRpc({ data: null, error: null });
+    await getEventByShortCodeResult("VALID123", { khatmLimit: null });
+    expect(rpc).toHaveBeenCalledWith("get_event_snapshot_by_shortcode", {
+      p_short_code: "VALID123",
+      p_khatm_limit: 3,
+    });
+  });
+
   it("returns upstream_error on RPC failure", async () => {
     const rpc = mockSnapshotRpc({
       data: null,
@@ -132,4 +141,3 @@ describe("getEventByShortCode", () => {
     expect(result).toBeNull();
   });
 });
-

@@ -140,6 +140,7 @@ export async function updateSession(
         "get_event_snapshot_by_shortcode",
         {
           p_short_code: shortCode,
+          p_khatm_limit: 1,
         },
       );
 
