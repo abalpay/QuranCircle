@@ -142,11 +142,13 @@ export default function KhatimPageClient({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
     setShouldNudgeMyJuz(window.localStorage.getItem(MY_JUZ_NUDGE_KEY) !== "1");
   }, []);
 
   useEffect(() => {
     if (displayFilter !== "mine") return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
     if (showMyJuzNudge) setShowMyJuzNudge(false);
     if (shouldNudgeMyJuz && typeof window !== "undefined") {
       window.localStorage.setItem(MY_JUZ_NUDGE_KEY, "1");
@@ -157,12 +159,14 @@ export default function KhatimPageClient({
   useEffect(() => {
     if (pendingFilter === null) return;
     if (pendingFilter !== urlFilter) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
     setPendingFilter(null);
   }, [pendingFilter, urlFilter]);
 
   useEffect(() => {
     if (pendingMineView === null) return;
     if (pendingMineView !== urlMineView) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
     setPendingMineView(null);
   }, [pendingMineView, urlMineView]);
 
@@ -177,6 +181,7 @@ export default function KhatimPageClient({
   useEffect(() => {
     if (displayFilter === "mine") return;
     if (pendingMineView === null) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
     setPendingMineView(null);
   }, [displayFilter, pendingMineView]);
 
