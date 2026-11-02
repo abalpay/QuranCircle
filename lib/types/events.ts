@@ -64,4 +64,6 @@ export type MyCircleWithProgress = {
   my_claimed: number;
   my_read: number;
   last_activity_at: string;
+  /** A fully claimed, still open khatm in a circle that is not archived (D5.2). */
+  has_khatm_ready_to_complete: boolean;
 };

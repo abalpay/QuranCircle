@@ -676,7 +676,8 @@
     "noCirclesFound": "Halka bulunamadı",
     "noCirclesDescription": "Etkinliğinizi burada görmek için bir halkaya katılıp cüz sahiplenin.",
     "exploreCircles": "Halkaları Keşfet",
-    "archivedHistory": "Geçmişinizde {count} arşivlenmiş halka var. İncelemek için Arşivlenen sekmesine geçin."
+    "archivedHistory": "Geçmişinizde {count} arşivlenmiş halka var. İncelemek için Arşivlenen sekmesine geçin.",
+    "readyToComplete": "Tamamlanmaya hazır"
   },
   "BrowsePage": {
     "metadataTitle": "Açık Hatim Halkalarını Keşfedin",

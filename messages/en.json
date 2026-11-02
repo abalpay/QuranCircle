@@ -676,7 +676,8 @@
     "noCirclesFound": "No circles found",
     "noCirclesDescription": "Join a circle and claim a Juz to see your activity appear here.",
     "exploreCircles": "Explore Circles",
-    "archivedHistory": "{count, plural, one {# archived circle in your history. Switch to the Archived tab to review it.} other {# archived circles in your history. Switch to the Archived tab to review them.}}"
+    "archivedHistory": "{count, plural, one {# archived circle in your history. Switch to the Archived tab to review it.} other {# archived circles in your history. Switch to the Archived tab to review them.}}",
+    "readyToComplete": "Ready to complete"
   },
   "BrowsePage": {
     "metadataTitle": "Browse Community Khatms",

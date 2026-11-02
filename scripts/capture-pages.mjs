@@ -185,6 +185,8 @@ const PAGES = [
   { name: "my-circles-signed-out", path: "/my-circles", full: true },
   { name: "my-circles-empty", path: "/my-circles", auth: "empty", full: true },
   { name: "my-circles-filled", path: "/my-circles", auth: ORGANIZER, full: true },
+  // #80: the organizer's circles, DSGREADY carries the quiet "Ready to complete" marker.
+  { name: "my-circles-ready", path: "/my-circles", auth: ORGANIZER, full: true },
   { name: "account", path: "/account", auth: ORGANIZER, full: true },
   { name: "about", path: "/about", full: true },
   { name: "contact", path: "/contact", full: true },

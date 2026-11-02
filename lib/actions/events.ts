@@ -458,6 +458,7 @@ export async function getMyCircles(): Promise<MyCircleWithProgress[]> {
       my_claimed: number;
       my_read: number;
       last_activity_at: string;
+      has_khatm_ready_to_complete?: boolean | null;
     }>
   ).map((circle) => ({
     ...circle,
@@ -467,6 +468,7 @@ export async function getMyCircles(): Promise<MyCircleWithProgress[]> {
     my_claimed: Number(circle.my_claimed ?? 0),
     my_read: Number(circle.my_read ?? 0),
     last_activity_at: circle.last_activity_at ?? circle.created_at,
+    has_khatm_ready_to_complete: Boolean(circle.has_khatm_ready_to_complete),
   }));
 }
 
