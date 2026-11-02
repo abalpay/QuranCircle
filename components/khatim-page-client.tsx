@@ -456,14 +456,16 @@ export default function KhatimPageClient({
         { numbers: [...claimedNumbers].sort((a, b) => a - b).join(", ") }
       );
 
-      if (newKhatmCreated && displayFilter === "available") {
+      if (newKhatmCreated) {
         const baselineKhatmId = latestKhatmIdRef.current;
-        toast.success(message, {
+        toast.success(`${message} ${tPage("newKhatmStarted")}`, {
           duration: CLAIM_CONFIRMATION_MS,
-          action: {
-            label: tPage("jumpToNewKhatm"),
-            onClick: () => jumpToLatestKhatm(baselineKhatmId),
-          },
+          ...(displayFilter !== "mine" && {
+            action: {
+              label: tPage("jumpToNewKhatm"),
+              onClick: () => jumpToLatestKhatm(baselineKhatmId),
+            },
+          }),
         });
         return;
       }
@@ -912,6 +914,7 @@ export default function KhatimPageClient({
 
       <YourJuzBlock
         khatms={event.khatms}
+        isReadOnly={event.is_archived}
         onDone={handleCreatorMarkRead}
         onUndo={handleCreatorUnmarkRead}
         onUnclaim={handleCreatorUnclaim}
@@ -938,7 +941,11 @@ export default function KhatimPageClient({
       )}
 
       <section className="app-toolbar">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
+        <p
+          id="juz-filters-start"
+          tabIndex={-1}
+          className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold outline-none"
+        >
           {t("juzFilters")}
         </p>
         <div
@@ -1066,7 +1073,7 @@ export default function KhatimPageClient({
         </section>
       )}
 
-      {!showCreatorQueue && (
+      {!showCreatorQueue && displayFilter !== "mine" && (
         <div className="space-y-8">
           {event.khatms.map((khatm, index) => {
             const hasNewerKhatm = index < event.khatms.length - 1;

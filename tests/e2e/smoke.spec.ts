@@ -7,17 +7,25 @@ test.describe.configure({ mode: "serial" });
 
 test.use({ viewport: { width: 390, height: 844 } });
 
-async function dismissInstallPromptIfVisible(page: Page) {
-  const notNowButton = page.getByRole("button", { name: "Not now" });
-  const promptVisible = await notNowButton.isVisible().catch(() => false);
-  if (!promptVisible) return;
+/** Unclaim through the confirm dialog (a claim must never be left behind). */
+async function unclaimFirstJuz(page: Page) {
+  await page.getByRole("button", { name: "Unclaim", exact: true }).first().click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Unclaim", exact: true })
+    .click();
+}
 
-  await notNowButton.click();
-  await expect(
-    page.getByRole("heading", {
-      name: /Install QuranCircle|Keep your circle one tap away/,
-    })
-  ).toHaveCount(0);
+async function cleanupClaims(page: Page) {
+  try {
+    const unclaim = page.getByRole("button", { name: "Unclaim", exact: true });
+    while (await unclaim.first().isVisible({ timeout: 1_000 })) {
+      await unclaimFirstJuz(page);
+      await page.waitForTimeout(500);
+    }
+  } catch {
+    // best effort: the page may already be closed after a failure
+  }
 }
 
 test("home, browse, and my circles pages load without forced sign-in", async ({ page }) => {
@@ -60,80 +68,85 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
     page.getByRole("button", { name: /All \(\d+\)/ })
   ).toHaveAttribute("aria-pressed", "true");
 
-  const selectableJuz = page.locator('[title^="Tap to select Juz"]').first();
-  await expect(selectableJuz).toBeVisible();
-  const selectableTitle = await selectableJuz.getAttribute("title");
-  const selectedJuzNumber = Number(selectableTitle?.match(/Juz (\d+)/)?.[1] ?? 0);
-  expect(selectedJuzNumber).toBeGreaterThan(0);
-  await selectableJuz.click();
-  await expect(page.getByText("1 Juz selected")).toBeVisible();
+  try {
+    const selectableJuz = page.locator('[title^="Tap to select Juz"]').first();
+    await expect(selectableJuz).toBeVisible();
+    const selectableTitle = await selectableJuz.getAttribute("title");
+    const selectedJuzNumber = Number(selectableTitle?.match(/Juz (\d+)/)?.[1] ?? 0);
+    expect(selectedJuzNumber).toBeGreaterThan(0);
+    await selectableJuz.click();
+    await expect(page.getByText("1 Juz selected")).toBeVisible();
 
-  await page.getByRole("button", { name: "Claim" }).click();
-  await page.getByLabel("Your Name").fill("Smoke Tester");
-  await page.getByRole("button", { name: "Claim Juz" }).click();
+    await page.getByRole("button", { name: "Claim", exact: true }).click();
+    await page.getByLabel("Your Name").fill("Smoke Tester");
+    await page.getByRole("button", { name: "Claim Juz" }).click();
 
-  await expect(page.getByRole("button", { name: /All \(\d+\)/ })).toHaveAttribute(
-    "aria-pressed",
-    "true"
-  );
-  await expect(page.getByTitle(new RegExp(`Juz ${selectedJuzNumber} .*Smoke`)).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /All \(\d+\)/ })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    await expect(
+      page
+        .getByRole("img", {
+          name: new RegExp(`^Juz ${selectedJuzNumber}, Reading, Smoke Tester \\(you\\)$`),
+        })
+        .first()
+    ).toBeVisible();
 
-  await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
-  await page.getByRole("button", { name: "Go to My Juz" }).click();
+    // The confirmation and the Your Juz block replace the old "Go to My Juz" step.
+    await expect(page.getByText(/JazakAllah khair/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Juz" })).toBeVisible();
 
-  const myJuzTab = page.getByRole("button", { name: /My Juz \(1\)/ });
-  await expect(myJuzTab).toBeVisible();
-  await expect(myJuzTab).toHaveAttribute("aria-pressed", "true");
-  await expect
-    .poll(() => new URL(page.url()).searchParams.get("filter"))
-    .toBe("mine");
+    const myJuzTab = page.getByRole("button", { name: /My Juz \(1\)/ });
+    await expect(myJuzTab).toBeVisible();
+    await myJuzTab.click();
+    await expect(myJuzTab).toHaveAttribute("aria-pressed", "true");
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get("filter"))
+      .toBe("mine");
 
-  const quranLink = page.getByRole("link", {
-    name: new RegExp(
-      `Open Juz ${selectedJuzNumber} on Quran\\.com \\(opens in new tab\\)`
-    ),
-  });
-  await expect(quranLink).toBeVisible();
-  await expect(quranLink).toHaveAttribute(
-    "href",
-    `https://quran.com/juz/${selectedJuzNumber}`
-  );
-  await expect(quranLink).toHaveAttribute("target", "_blank");
+    const quranLink = page.getByRole("link", {
+      name: new RegExp(
+        `Open Juz ${selectedJuzNumber} on Quran\\.com \\(opens in a new tab\\)`
+      ),
+    });
+    await expect(quranLink).toBeVisible();
+    await expect(quranLink).toHaveAttribute(
+      "href",
+      `https://quran.com/juz/${selectedJuzNumber}`
+    );
+    await expect(quranLink).toHaveAttribute("target", "_blank");
 
-  await dismissInstallPromptIfVisible(page);
-  await page.getByRole("button", { name: "Unclaim" }).click();
-  await expect(page.getByText("No My Juz in this khatm")).toBeVisible();
+    await unclaimFirstJuz(page);
+    await expect(page.getByRole("heading", { name: "Your Juz" })).toHaveCount(0);
+    await expect(
+      page.getByText("Claimed on another phone? Ask the organizer to mark it Done.")
+    ).toBeVisible();
+  } finally {
+    await cleanupClaims(page);
+  }
 });
 
-test("my juz onboarding CTA is not repeated after it has been seen", async ({ page }) => {
+test("a claim shows the Your Juz block and no install sheet or onboarding CTA", async ({
+  page,
+}) => {
   await page.goto(`/s/${smokeShortCode}`);
 
-  await page.getByTitle(/^Tap to select Juz \d+$/).first().click();
-  await page.getByRole("button", { name: "Claim" }).click();
-  await page.getByLabel("Your Name").fill("Smoke Tester");
-  await page.getByRole("button", { name: "Claim Juz" }).click();
+  try {
+    await page.getByTitle(/^Tap to select Juz \d+$/).first().click();
+    await page.getByRole("button", { name: "Claim", exact: true }).click();
+    await page.getByLabel("Your Name").fill("Smoke Tester");
+    await page.getByRole("button", { name: "Claim Juz" }).click();
 
-  await dismissInstallPromptIfVisible(page);
-  await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
-  await page.getByRole("button", { name: "Go to My Juz" }).click();
-  await expect
-    .poll(() => new URL(page.url()).searchParams.get("filter"))
-    .toBe("mine");
-  await dismissInstallPromptIfVisible(page);
-  await page.getByRole("button", { name: "Unclaim" }).click();
+    await expect(page.getByRole("heading", { name: "Your Juz" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Go to My Juz" })).toHaveCount(0);
 
-  await page.getByRole("button", { name: /All \(\d+\)/ }).click();
-  await page.getByTitle(/^Tap to select Juz \d+$/).first().click();
-  await page.getByRole("button", { name: "Claim" }).click();
-  await page.getByLabel("Your Name").fill("Smoke Tester");
-  await page.getByRole("button", { name: "Claim Juz" }).click();
-
-  await dismissInstallPromptIfVisible(page);
-  await expect(page.getByRole("button", { name: "Go to My Juz" })).toHaveCount(0);
-
-  await page.getByRole("button", { name: /My Juz \(1\)/ }).click();
-  await dismissInstallPromptIfVisible(page);
-  await page.getByRole("button", { name: "Unclaim" }).click();
+    // Your Juz is there in every tab.
+    await page.getByRole("button", { name: /Available \(\d+\)/ }).click();
+    await expect(page.getByRole("heading", { name: "Your Juz" })).toBeVisible();
+  } finally {
+    await cleanupClaims(page);
+  }
 });
 
 test("global filter persists in URL across reload", async ({ page }) => {
@@ -200,31 +213,32 @@ test("non-creators ignore creator mineView query", async ({ page }) => {
 
 test("claimed tiles in grid do not mark juz as read", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}`);
-  const selectableJuz = page.locator('[title^="Tap to select Juz"]').first();
-  await expect(selectableJuz).toBeVisible();
-  const selectableTitle = await selectableJuz.getAttribute("title");
-  const selectedJuzNumber = Number(selectableTitle?.match(/Juz (\d+)/)?.[1] ?? 0);
-  expect(selectedJuzNumber).toBeGreaterThan(0);
-  await selectableJuz.click();
-  await page.getByRole("button", { name: "Claim" }).click();
-  await page.getByLabel("Your Name").fill("Smoke Tester");
-  await page.getByRole("button", { name: "Claim Juz" }).click();
+  try {
+    const selectableJuz = page.locator('[title^="Tap to select Juz"]').first();
+    await expect(selectableJuz).toBeVisible();
+    const selectableTitle = await selectableJuz.getAttribute("title");
+    const selectedJuzNumber = Number(selectableTitle?.match(/Juz (\d+)/)?.[1] ?? 0);
+    expect(selectedJuzNumber).toBeGreaterThan(0);
+    await selectableJuz.click();
+    await page.getByRole("button", { name: "Claim", exact: true }).click();
+    await page.getByLabel("Your Name").fill("Smoke Tester");
+    await page.getByRole("button", { name: "Claim Juz" }).click();
 
-  await dismissInstallPromptIfVisible(page);
-  await expect(page.getByRole("button", { name: "Go to My Juz" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Juz" })).toBeVisible();
 
-  await page.getByRole("button", { name: /All \(\d+\)/ }).click();
-  await page
-    .getByTitle(new RegExp(`Juz ${selectedJuzNumber} .*Smoke`))
-    .first()
-    .click();
+    await page
+      .getByRole("img", {
+        name: new RegExp(`^Juz ${selectedJuzNumber}, Reading, Smoke Tester`),
+      })
+      .first()
+      .click();
 
-  await page.getByRole("button", { name: /My Juz \(1\)/ }).click();
-  await dismissInstallPromptIfVisible(page);
-  await expect(page.getByRole("button", { name: "Mark Read" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Undo" })).toHaveCount(0);
-
-  await page.getByRole("button", { name: "Unclaim" }).click();
+    // Tapping the tile changed nothing; Done only exists in Your Juz.
+    await expect(page.getByRole("button", { name: "Done", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Undo" })).toHaveCount(0);
+  } finally {
+    await cleanupClaims(page);
+  }
 });
 
 test("anonymous users are blocked from account and create-circle management", async ({
@@ -245,7 +259,7 @@ test("archived circles block claim interactions", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "E2E Archived Circle" })
   ).toBeVisible();
-  await page.getByTitle("Juz 1", { exact: true }).first().click();
+  await page.getByRole("img", { name: "Juz 1, Available" }).first().click();
   await expect(page.getByText("1 Juz selected")).toHaveCount(0);
 });
 

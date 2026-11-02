@@ -9,7 +9,6 @@ import { claimMultipleJuz } from "@/lib/actions/juz";
 import {
   getKhatmMatches,
   getAvailableRows,
-  getMineRows,
   type GlobalFilter,
 } from "@/lib/event-filters";
 import type { JuzSnapshot, KhatmSnapshot } from "@/lib/types/events";
@@ -60,7 +59,6 @@ export default function KhatmCard({
   });
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const availableJuzs = useMemo(() => getAvailableRows(khatm), [khatm]);
-  const myJuzs = useMemo(() => getMineRows(khatm), [khatm]);
   const matchingJuzs = useMemo(
     () => getKhatmMatches(khatm, activeFilter),
     [activeFilter, khatm]
@@ -203,8 +201,6 @@ export default function KhatmCard({
               {t("khatmNumber", { number: khatm.khatm_number })}
             </span>
             <span className="ms-2 text-xs text-quran-muted">
-              {activeFilter === "mine" && !hasMatches && t("noMyJuzInKhatm")}
-              {activeFilter === "mine" && hasMatches && t("myJuzCount", { count: matchingCount })}
               {activeFilter === "available" && !hasMatches && t("noAvailableInKhatm")}
               {activeFilter === "available" && hasMatches && t("availableCount", { count: matchingCount })}
               {activeFilter === "all" && (
@@ -262,14 +258,6 @@ export default function KhatmCard({
           <p className="mb-4 text-sm text-quran-muted">
             {t("tapToSelect")}
           </p>
-        )}
-
-        {activeFilter === "mine" && hasMatches && renderJuzGrid(myJuzs)}
-
-        {activeFilter === "mine" && !hasMatches && (
-          <div className="px-2 py-8 text-center">
-            <p className="text-base text-quran-deep">{t("noMyJuz")}</p>
-          </div>
         )}
 
         {activeFilter === "all" && renderJuzGrid(khatm.juzs)}

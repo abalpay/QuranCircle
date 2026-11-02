@@ -208,12 +208,9 @@
   "KhatmCard": {
     "khatmNumber": "Khatm #{number}",
     "tapToSelect": "Tap Juz to select, then press Claim.",
-    "noMyJuz": "You haven't claimed any juz in this khatm.",
     "noAvailableJuz": "No available juz in this khatm.",
     "checkNextKhatm": "Check the next khatm for newly available juz.",
     "collapseKhatm": "Collapse khatm",
-    "noMyJuzInKhatm": "No My Juz in this khatm",
-    "myJuzCount": "{count} in My Juz",
     "noAvailableInKhatm": "No available juz in this khatm",
     "availableCount": "{count} Available",
     "khatmArchived": "This Khatim is archived",
@@ -283,7 +280,7 @@
     "rowsShown": "{count} creator queue rows shown.",
     "noMatches": "No rows match your current filters.",
     "khatmJuz": "Khatm #{khatm} · Juz {juz}",
-    "by": "by {name}",
+    "by": "by <bdi>{name}</bdi>",
     "nameUnavailable": "name unavailable",
     "markRead": "Done",
     "undo": "Undo",
@@ -341,7 +338,8 @@
     "showingKhatms": "Showing {loaded} of {total} Khatm cycles",
     "juzClaimedConfirm": "Juz {numbers} is yours. JazakAllah khair. When you finish, you can tap Done here.",
     "juzClaimedConfirmMany": "Juz {numbers} are yours. JazakAllah khair. When you finish, you can tap Done here.",
-    "otherPhoneHint": "Claimed on another phone? Ask the organizer to mark it Done."
+    "otherPhoneHint": "Claimed on another phone? Ask the organizer to mark it Done.",
+    "newKhatmStarted": "A new khatm has started."
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Delete Khatim?",
@@ -1055,6 +1053,7 @@
     "title": "Unclaim Juz {number}?",
     "description": "It will become available for someone else to take.",
     "keep": "Keep it",
-    "confirm": "Unclaim"
+    "confirm": "Unclaim",
+    "titleFrom": "Unclaim Juz {number} from {name}?"
   }
 }

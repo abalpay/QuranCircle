@@ -46,4 +46,25 @@ describe("JuzCard", () => {
     expect(screen.queryByRole("button")).toBeNull();
     expect(screen.getByRole("img", { name: "Juz 4, Available" })).toBeTruthy();
   });
+
+  it("shows Selected as a ringed white tile with no check, announced once via aria-pressed", () => {
+    render(
+      <JuzCard
+        juz={{ ...base, status: "unclaimed", claimed_by_name: null }}
+        onClaim={vi.fn()}
+        isReadOnly={false}
+        isSelected
+      />,
+      { wrapper: IntlWrapper }
+    );
+    const tile = screen.getByRole("button", { name: "Tap to select Juz 4" });
+    expect(tile.getAttribute("aria-pressed")).toBe("true");
+    expect(tile.className).toContain("ring-quran-green");
+    expect(tile.querySelector("svg")).toBeNull();
+  });
+
+  it("gives Done a stronger tint than Reading", () => {
+    renderCard({ ...base, status: "read", claimed_by_name: "Omar", is_mine: false });
+    expect(screen.getByRole("img").className).toContain("bg-emerald-100");
+  });
 });

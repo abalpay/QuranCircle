@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Check, CheckCircle2 } from "lucide-react";
+import { BookOpen, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { textScript } from "@/lib/text-script";
 import { useTranslations } from "next-intl";
@@ -41,11 +41,10 @@ export default function JuzCard({
       ? t("stateReading")
       : t("stateAvailable");
 
-  const label = isSelected
-    ? t("selected", { number: juz.juz_number })
-    : canClaim
-      ? t("selectJuz", { number: juz.juz_number })
-      : fullName
+  // aria-pressed already says "selected"; the visible title spells it out.
+  const label = canClaim
+    ? t("selectJuz", { number: juz.juz_number })
+    : fullName
         ? t(isMine ? "tileByMine" : "tileBy", {
             number: juz.juz_number,
             state,
@@ -65,9 +64,9 @@ export default function JuzCard({
             !canClaim && "opacity-70",
           ],
         isSelected &&
-          "cursor-pointer -translate-y-0.5 border-quran-green bg-quran-green/10 shadow-md ring-2 ring-quran-green motion-reduce:translate-y-0",
+          "cursor-pointer -translate-y-0.5 border-quran-green bg-white shadow-md ring-2 ring-quran-green motion-reduce:translate-y-0",
         isClaimed && "border-amber-300/70 bg-amber-50",
-        isRead && "border-emerald-300/70 bg-emerald-50",
+        isRead && "border-emerald-600/60 bg-emerald-100",
         isMine && "ring-2 ring-quran-green"
       )}
       onClick={() => {
@@ -83,7 +82,7 @@ export default function JuzCard({
       tabIndex={canClaim ? 0 : undefined}
       aria-pressed={canClaim ? isSelected : undefined}
       aria-label={label}
-      title={label}
+      title={isSelected ? t("selected", { number: juz.juz_number }) : label}
     >
       {/* Marks: "You" in words (never colour alone); state as an icon */}
       {isMine && (
@@ -92,11 +91,6 @@ export default function JuzCard({
           className="absolute start-1 top-1 rounded bg-quran-green px-1 text-xs font-semibold leading-4 text-white"
         >
           {t("you")}
-        </span>
-      )}
-      {isSelected && (
-        <span className="absolute end-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-quran-green text-white">
-          <Check className="h-2.5 w-2.5" strokeWidth={3} />
         </span>
       )}
       {isClaimed && (
@@ -108,7 +102,7 @@ export default function JuzCard({
       {isRead && (
         <CheckCircle2
           aria-hidden="true"
-          className="absolute end-1.5 top-1.5 h-3.5 w-3.5 text-emerald-700"
+          className="absolute end-1 top-1 size-4 text-emerald-800"
         />
       )}
 
@@ -132,7 +126,7 @@ export default function JuzCard({
           aria-hidden="true"
           dir="auto"
           data-script={textScript(firstName)}
-          className="mt-1 block max-w-full truncate text-xs font-medium leading-4 text-quran-deep"
+          className="mt-1 block max-w-full truncate text-xs font-medium leading-4 text-quran-deep data-[script=arabic]:text-[13px]"
         >
           {firstName}
         </span>

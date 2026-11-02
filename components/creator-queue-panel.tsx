@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   type CreatorManageRow,
   type CreatorQueueFilters,
@@ -48,6 +48,8 @@ export default function CreatorQueuePanel({
   const [onlyMine, setOnlyMine] = useState(false);
   const [visibleRows, setVisibleRows] = useState(INITIAL_VISIBLE_ROWS);
   const [unclaiming, setUnclaiming] = useState<CreatorManageRow | null>(null);
+  const confirmedRef = useRef(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   const khatmOptions = useMemo(
     () =>
@@ -83,10 +85,15 @@ export default function CreatorQueuePanel({
   };
 
   return (
-    <section className="quran-card p-6 sm:p-7">
+    <section aria-labelledby="creator-queue-heading" className="quran-card p-6 sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-heading text-2xl text-quran-deep sm:text-3xl">
+          <h2
+            id="creator-queue-heading"
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-heading text-2xl text-quran-deep outline-none sm:text-3xl"
+          >
             {t("title")}
           </h2>
           <p className="mt-2 text-sm text-quran-muted">
@@ -263,7 +270,10 @@ export default function CreatorQueuePanel({
                     {row.status === "read" ? t("readStatus") : t("claimedStatus")}
                   </span>
                   <span dir="auto" className="text-quran-muted">
-                    {row.claimedByName ? t("by", { name: row.claimedByName }) : t("nameUnavailable")}
+                    {row.claimedByName ? t.rich("by", {
+                        name: row.claimedByName,
+                        bdi: (chunks) => <bdi>{chunks}</bdi>,
+                      }) : t("nameUnavailable")}
                   </span>
                   {row.isMine && (
                     <span className="rounded-full bg-quran-green/10 px-2 py-0.5 text-[10px] font-medium text-quran-green">
@@ -321,9 +331,17 @@ export default function CreatorQueuePanel({
 
       <UnclaimConfirmDialog
         juzNumber={unclaiming?.juzNumber ?? null}
+        readerName={unclaiming?.claimedByName}
         onCancel={() => setUnclaiming(null)}
+        onCloseAutoFocus={(event) => {
+          if (!confirmedRef.current) return;
+          confirmedRef.current = false;
+          event.preventDefault();
+          headingRef.current?.focus();
+        }}
         onConfirm={() => {
           if (unclaiming) onUnclaim(unclaiming.juzId);
+          confirmedRef.current = true;
           setUnclaiming(null);
         }}
       />

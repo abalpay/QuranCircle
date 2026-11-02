@@ -109,8 +109,8 @@ export function withMineViewQuery(
 
 /**
  * Tab counts. "All" is the khatm in front (the latest), not every loaded khatm;
- * "Available" counts what the Available tab lists (open Juz of khatms that still
- * accept claims); "My Juz" spans khatms because the Your Juz block does.
+ * "Available" counts Juz that can still be claimed (unclaimed Juz of khatms that
+ * are not completed); "My Juz" spans khatms because the Your Juz block does.
  */
 export function getEventFilterCounts(
   event: Pick<EventSnapshot, "khatms">

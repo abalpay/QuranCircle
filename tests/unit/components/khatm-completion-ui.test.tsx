@@ -131,7 +131,8 @@ describe("completed khatm UI (D6)", () => {
     );
     fireEvent.click(screen.getAllByText("Unclaim")[0]);
     expect(onUnclaim).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Unclaim", hidden: false }));
+    expect(screen.getByText(/^Unclaim Juz \d+ from .*Me.*\?$/)).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: "Unclaim" }).at(-1)!);
     expect(onUnclaim).toHaveBeenCalledTimes(1);
   });
 });

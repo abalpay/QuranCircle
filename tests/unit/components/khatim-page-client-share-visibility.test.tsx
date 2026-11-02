@@ -14,7 +14,11 @@ const {
   searchParamsMock,
   shareCircleInviteMock,
   trackProductEventMock,
+  ensureSessionMock,
+  markJuzAsReadMock,
 } = vi.hoisted(() => ({
+  ensureSessionMock: vi.fn(() => new Promise(() => {})),
+  markJuzAsReadMock: vi.fn(),
   copyCircleLinkMock: vi.fn(),
   replaceMock: vi.fn(),
   searchParamsMock: { value: "" },
@@ -49,13 +53,13 @@ vi.mock("@/lib/supabase/client", () => ({
 
 vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => ({
-    ensureSession: vi.fn(() => new Promise(() => {})),
+    ensureSession: ensureSessionMock,
     user: null,
   }),
 }));
 
 vi.mock("@/lib/actions/juz", () => ({
-  markJuzAsRead: vi.fn(),
+  markJuzAsRead: markJuzAsReadMock,
   unmarkJuzAsRead: vi.fn(),
   unclaimJuz: vi.fn(),
 }));
@@ -304,6 +308,47 @@ describe("KhatimPageClient share/settings visibility", () => {
         { wrapper: IntlWrapper }
       );
       expect(screen.queryByRole("heading", { name: "Your Juz" })).not.toBeInTheDocument();
+    });
+
+    it("pressing Done in Your Juz marks that Juz read", async () => {
+      const user = userEvent.setup();
+      // The page also calls ensureSession on mount, so resolve persistently.
+      ensureSessionMock.mockResolvedValue({ id: "user-1" });
+      markJuzAsReadMock.mockResolvedValueOnce({});
+      const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: "" });
+      vi.stubGlobal("fetch", fetchMock);
+      render(
+        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
+        { wrapper: IntlWrapper }
+      );
+      await user.click(screen.getByRole("button", { name: "Done" }));
+      await waitFor(() => expect(markJuzAsReadMock).toHaveBeenCalledWith("ABCDEFGH", "j5"));
+      vi.unstubAllGlobals();
+      ensureSessionMock.mockImplementation(() => new Promise(() => {}));
+    });
+
+    it("freezes Your Juz on an archived circle", () => {
+      render(
+        <KhatimPageClient
+          event={buildEvent({ is_archived: true, khatms: [ownKhatm] })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.getByRole("heading", { name: "Your Juz" })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Done" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Unclaim" })).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /Open Juz 5 on Quran\.com/ })).toBeInTheDocument();
+    });
+
+    it("does not repeat the tiles under Your Juz in the My Juz tab", () => {
+      searchParamsMock.value = "filter=mine";
+      render(
+        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.getByRole("heading", { name: "Your Juz" })).toBeInTheDocument();
+      expect(screen.queryByTestId("khatm-card")).not.toBeInTheDocument();
     });
 
     it("shows the other-phone hint in My Juz only when there are no claims", () => {

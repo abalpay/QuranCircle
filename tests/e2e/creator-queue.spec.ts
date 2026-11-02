@@ -218,8 +218,10 @@ test("creator sees queue sub-tabs and filters with URL sync", async ({ page }) =
   await page.getByRole("button", { name: "Clear filters" }).click();
   await expect(page.getByText("by Creator Owner").first()).toBeVisible();
 
-  await page.getByRole("button", { name: "Mark Read" }).first().click();
-  await expect(page.getByRole("button", { name: "Undo" }).first()).toBeVisible();
+  // Your Juz (above) has its own Done/Undo; scope to the queue.
+  const queue = page.getByRole("region", { name: "Creator Queue" });
+  await queue.getByRole("button", { name: "Done", exact: true }).first().click();
+  await expect(queue.getByRole("button", { name: "Undo" }).first()).toBeVisible();
 
   await page.getByRole("button", { name: /All \(\d+\)/ }).click();
   await expect

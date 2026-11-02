@@ -97,7 +97,7 @@
     "makePublicDesc": "يمكن لأي شخص لديه الرابط الانضمام واختيار جزء.",
     "linkOnly": "الرابط فقط: شارك مع من تريد دعوتهم.",
     "publicVisible": "الحلقات العامة مرئية للجميع في التصفح.",
-    "cancel": "يلغي",
+    "cancel": "إلغاء",
     "create": "إنشاء حلقة",
     "creating": "جارٍ الإنشاء...",
     "circleNameRequired": "اسم الحلقة مطلوب",
@@ -159,7 +159,7 @@
     "typeDelete": "يكتب",
     "toConfirm": "للتأكيد",
     "deletePlaceholder": "يمسح",
-    "cancel": "يلغي",
+    "cancel": "إلغاء",
     "deleting": "جارٍ الحذف...",
     "failedToUpdateProfile": "فشل في تحديث الملف الشخصي",
     "profileUpdated": "تم تحديث الملف الشخصي",
@@ -205,12 +205,9 @@
   "KhatmCard": {
     "khatmNumber": "ختم #{number}",
     "tapToSelect": "اضغط على الجزء لتحديده، ثم اضغط على «حجز».",
-    "noMyJuz": "لم تحجز أي جزء في هذه الختمة.",
     "noAvailableJuz": "لا توجد أجزاء متاحة في هذه الختمة.",
     "checkNextKhatm": "تحقق من الختم التالي لمعرفة الأجزاء المتوفرة حديثا.",
     "collapseKhatm": "طي الختم",
-    "noMyJuzInKhatm": "لا توجد أجزاء في «أجزائي» ضمن هذه الختمة",
-    "myJuzCount": "{count} في أجزائي",
     "noAvailableInKhatm": "لا يوجد جزء موجود في هذا الختم",
     "availableCount": "{count} متاح",
     "khatmArchived": "هذا الختم مؤرشف",
@@ -280,7 +277,7 @@
     "rowsShown": "تم عرض صفوف قائمة انتظار منشئ {count}.",
     "noMatches": "لا توجد صفوف تتطابق مع عوامل التصفية الحالية.",
     "khatmJuz": "ختم #{khatm} · جزء {juz}",
-    "by": "بواسطة {name}",
+    "by": "بواسطة <bdi>{name}</bdi>",
     "nameUnavailable": "الاسم غير متوفر",
     "markRead": "تمّت قراءته",
     "undo": "تراجع",
@@ -338,12 +335,13 @@
     "showingKhatms": "عرض {loaded} لدورات الختم {total}",
     "juzClaimedConfirm": "الجزء {numbers} لك. جزاك الله خيرًا. عند الانتهاء يمكنك الضغط على «تمّت قراءته» هنا.",
     "juzClaimedConfirmMany": "الأجزاء {numbers} لك. جزاك الله خيرًا. عند الانتهاء يمكنك الضغط على «تمّت قراءته» هنا.",
-    "otherPhoneHint": "هل حجزتَ الجزء من هاتف آخر؟ اطلب من المنظِّم وضع علامة «تمّ» عليه."
+    "otherPhoneHint": "هل حجزتَ الجزء من هاتف آخر؟ اطلب من المنظِّم وضع علامة «تمّ» عليه.",
+    "newKhatmStarted": "بدأ ختم جديد."
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "حذف ختم؟",
     "deleteKhatimDesc": "سيؤدي هذا إلى حذف {eventName} وجميع بياناته نهائيًا. لن يتمكن أي شخص لديه الرابط المشترك من الوصول إليه بعد الآن. لا يمكن التراجع عن هذا الإجراء.",
-    "cancel": "يلغي",
+    "cancel": "إلغاء",
     "deleting": "جارٍ الحذف...",
     "deletePermanently": "حذف نهائيا"
   },
@@ -1055,6 +1053,7 @@
     "title": "إلغاء حجز الجزء {number}؟",
     "description": "سيصبح الجزء متاحًا ليحجزه شخص آخر.",
     "keep": "أبقِ الجزء لي",
-    "confirm": "إلغاء الحجز"
+    "confirm": "إلغاء الحجز",
+    "titleFrom": "إلغاء حجز الجزء {number} من {name}؟"
   }
 }

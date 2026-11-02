@@ -208,12 +208,9 @@
   "KhatmCard": {
     "khatmNumber": "Hatim #{number}",
     "tapToSelect": "Seçmek için cüze dokunun, ardından Sahiplen'e basın.",
-    "noMyJuz": "Bu hatimde hiç cüz sahiplenmediniz.",
     "noAvailableJuz": "Bu hatimde müsait cüz yok.",
     "checkNextKhatm": "Yeni müsait cüzler için sonraki hatimi kontrol edin.",
     "collapseKhatm": "Hatimi daralt",
-    "noMyJuzInKhatm": "Bu hatimde sahiplendiğiniz cüz yok",
-    "myJuzCount": "Cüzlerim: {count}",
     "noAvailableInKhatm": "Bu hatimde müsait cüz yok",
     "availableCount": "{count} müsait",
     "khatmArchived": "Bu hatim arşivlenmiştir",
@@ -283,7 +280,7 @@
     "rowsShown": "{count} satır gösteriliyor.",
     "noMatches": "Mevcut filtrelerinizle eşleşen satır yok.",
     "khatmJuz": "Hatim #{khatm} · Cüz {juz}",
-    "by": "{name} tarafından",
+    "by": "<bdi>{name}</bdi> tarafından",
     "nameUnavailable": "ad bilgisi yok",
     "markRead": "Tamamladım",
     "undo": "Geri Al",
@@ -341,7 +338,8 @@
     "showingKhatms": "{loaded} / {total} hatim döngüsü gösteriliyor",
     "juzClaimedConfirm": "Cüz {numbers} artık sizde. Allah razı olsun. Bitirdiğinizde buradaki Tamamladım düğmesine dokunabilirsiniz.",
     "juzClaimedConfirmMany": "Cüz {numbers} artık sizde. Allah razı olsun. Bitirdiğinizde buradaki Tamamladım düğmesine dokunabilirsiniz.",
-    "otherPhoneHint": "Başka bir telefondan mı sahiplendiniz? Düzenleyiciden Tamamlandı olarak işaretlemesini isteyin."
+    "otherPhoneHint": "Başka bir telefondan mı sahiplendiniz? Düzenleyiciden Tamamlandı olarak işaretlemesini isteyin.",
+    "newKhatmStarted": "Yeni bir hatim başladı."
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Hatimi Sil?",
@@ -1055,6 +1053,7 @@
     "title": "Cüz {number} sahipliğinden vazgeçilsin mi?",
     "description": "Cüz, başkasının sahiplenebilmesi için müsait hale gelecek.",
     "keep": "Cüz bende kalsın",
-    "confirm": "Vazgeç"
+    "confirm": "Vazgeç",
+    "titleFrom": "Cüz {number}, {name} adlı kişiden alınsın mı?"
   }
 }
