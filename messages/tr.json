@@ -349,7 +349,8 @@
     "juzClaimedConfirm": "Cüz {numbers} artık sizde. Allah razı olsun. Bitirdiğinizde buradaki Tamamladım düğmesine dokunabilirsiniz.",
     "juzClaimedConfirmMany": "Cüz {numbers} artık sizde. Allah razı olsun. Bitirdiğinizde buradaki Tamamladım düğmesine dokunabilirsiniz.",
     "otherPhoneHint": "Başka bir telefondan mı sahiplendiniz? Düzenleyiciden Tamamlandı olarak işaretlemesini isteyin.",
-    "newKhatmStarted": "Yeni bir hatim başladı."
+    "newKhatmStarted": "Yeni bir hatim başladı.",
+    "khatmComplete": "Hatim {number} tamamlandı"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Hatimi Sil?",
@@ -543,7 +544,8 @@
   },
   "OpenGraphImage": {
     "fallbackCircleName": "Hatim Halkası",
-    "joinCircle": "Bu Hatim Halkasına Katıl"
+    "joinCircle": "Bu Hatim Halkasına Katıl",
+    "khatmComplete": "Hatim {number} tamamlandı"
   },
   "CircleMetadata": {
     "description": "QuranCircle'daki {eventName} hatim halkasına katılın",
@@ -1065,5 +1067,35 @@
     "keep": "Cüz bende kalsın",
     "confirm": "Vazgeç",
     "titleFrom": "Cüz {number}, {name} adlı kişiden alınsın mı?"
+  },
+  "Completion": {
+    "bannerTitle": "30 cüzün hepsi sahiplenildi",
+    "bannerAction": "Hatmi tamamla",
+    "autoOn": "{date} tarihinde otomatik olarak tamamlanır.",
+    "autoAfter": "Son cüz sahiplenildikten yedi gün sonra otomatik olarak tamamlanır.",
+    "confirmTitle": "Hatim {number} tamamlansın mı?",
+    "confirmBody": "Bu, hatmi herkes için tamamlanmış olarak işaretler. Bu işlem geri alınamaz.",
+    "confirmAction": "Hatmi tamamla",
+    "completing": "Tamamlanıyor…",
+    "cancel": "Vazgeç",
+    "error_invalid": "Bu hatim tamamlanamadı. Lütfen sayfayı yenileyip tekrar deneyin.",
+    "error_not_ready": "Hatmin tamamlanabilmesi için 30 cüzün hepsi sahiplenilmiş olmalı.",
+    "error_unauthorized": "Hatmi yalnızca halkayı oluşturan kişi tamamlayabilir.",
+    "error_archived": "Bu halka arşivlendiği için hatim tamamlanamaz.",
+    "error_failed": "Bu hatim tamamlanamadı. Lütfen tekrar deneyin.",
+    "title": "Hatim {number} tamamlandı",
+    "completeShort": "Tamamlandı",
+    "completedOn": "{date} tarihinde tamamlandı",
+    "autoWording": "30 cüzün hepsi üstlenildi.",
+    "duaLabel": "Dua",
+    "duaTranslation": "Rabbimiz, bizden kabul buyur. Şüphesiz sen işitensin, bilensin.",
+    "prayer": "Allah bu hatmi kabul etsin.",
+    "readBy": "Okuyanlar",
+    "takenUpBy": "Üstlenenler",
+    "shareWhatsApp": "WhatsApp'ta paylaş",
+    "shareText": "Elhamdülillah, “{name}” için Hatim {number} tamamlandı. Allah kabul etsin.",
+    "supportLine": "QuranCircle ücretsizdir ve sadaka-i cariye olarak yürütülür. Devam etmesine destek olun, sevabına ortak olun.",
+    "supportLink": "QuranCircle'a destek ol",
+    "opensInNewTab": "(yeni sekmede açılır)"
   }
 }

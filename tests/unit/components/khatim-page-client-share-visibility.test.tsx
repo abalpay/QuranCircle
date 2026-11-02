@@ -251,7 +251,7 @@ describe("KhatimPageClient share/settings visibility", () => {
     );
   });
 
-  it("uses pressed buttons for creator My Juz views", () => {
+  it("puts the creator queue beside All, Available and My Juz, one level (fix 49)", () => {
     searchParamsMock.value = "filter=mine";
 
     render(
@@ -265,12 +265,16 @@ describe("KhatimPageClient share/settings visibility", () => {
       { wrapper: IntlWrapper }
     );
 
-    const viewsGroup = screen.getByRole("group", { name: "My Juz views" });
-    expect(viewsGroup.querySelector("[role='tab']")).not.toBeInTheDocument();
-    expect(viewsGroup.querySelector("[aria-controls]")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "My Juz" })).toHaveAttribute(
+    const filterGroup = screen.getByRole("group", { name: "Juz filters" });
+    expect(screen.queryByRole("group", { name: "My Juz views" })).not.toBeInTheDocument();
+    expect(filterGroup.querySelector("[role='tab']")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "My Juz (0)" })).toHaveAttribute(
       "aria-pressed",
       "true"
+    );
+    expect(screen.getByRole("button", { name: "Creator Queue (0)" })).toHaveAttribute(
+      "aria-pressed",
+      "false"
     );
   });
 

@@ -85,7 +85,7 @@ async function makeCircle({ code, name, description, creator, isPublic = true, a
     if (je) throw new Error(`juzs ${code}: ${je.message}`);
     if (k.completed) {
       let { error: ce } = await admin.from("khatms")
-        .update({ completed_at: daysAgo(1), completion_source: "all_done" }).eq("id", kh.id);
+        .update({ completed_at: daysAgo(1), completion_source: k.completed === "auto" ? "auto" : "all_done" }).eq("id", kh.id);
       // #78 adds completion_source; tolerate its absence.
       if (ce && /completion_source/.test(ce.message)) {
         ({ error: ce } = await admin.from("khatms").update({ completed_at: daysAgo(1) }).eq("id", kh.id));
@@ -132,6 +132,16 @@ async function createFixtures() {
     code: "DSGDONE", name: "Khatm for Aisha Khan", description: DUA, creator: org,
     khatms: [{ n: 1, claims: full(LATIN, "read"), completed: true }],
   });
+  // #80: all 30 claimed, not complete: the organizer sees "Complete the khatm".
+  await makeCircle({
+    code: "DSGREADY", name: "Khatm for Yusuf Al-Rahman", description: DUA, creator: org, openNext: false,
+    khatms: [{ n: 1, claims: full([...LATIN, ...ARABIC]) }],
+  });
+  // #81: completed by the 7-day rule ("all 30 Juz were taken up"), with long and Arabic names.
+  await makeCircle({
+    code: "DSGAUTO", name: "ختمة عن روح المرحومة مريم الصديقي", description: DUA, creator: org, openNext: false,
+    khatms: [{ n: 1, claims: full([...ARABIC, LONG, ...LATIN]), completed: "auto" }],
+  });
   await makeCircle({
     code: "DSGARCH", name: "Khatm for Ibrahim Okafor", description: DUA, creator: org, archived: true,
     khatms: [{ n: 1, claims: names(LATIN, 12) }],
@@ -158,8 +168,15 @@ async function createFixtures() {
 }
 
 const SIGNED_OUT = "out", ORGANIZER = "org", READER_V = "reader";
+// seen: the completion dialog already appeared on this device, so a completed khatm shows its record.
 const circle = (code, views = [SIGNED_OUT, ORGANIZER]) =>
-  views.map((v) => ({ name: `circle-${code.slice(3).toLowerCase()}-${v}`, path: `/s/${code}`, auth: v, full: true }));
+  views.map((v) => ({ name: `circle-${code.slice(3).toLowerCase()}-${v}`, path: `/s/${code}`, auth: v, full: true, seen: true }));
+// The first-visit completion dialog (top, then scrolled to its end).
+const completionDialog = (code, slug, views = [SIGNED_OUT]) =>
+  views.flatMap((v) => [
+    { name: `circle-${slug}-dialog-${v}`, path: `/s/${code}`, auth: v },
+    { name: `circle-${slug}-dialogend-${v}`, path: `/s/${code}`, auth: v, scrollDialog: true },
+  ]);
 
 const PAGES = [
   { name: "home", path: "/", full: true },
@@ -189,7 +206,12 @@ const PAGES = [
   ...circle("DSGPART", [SIGNED_OUT, ORGANIZER, READER_V]),
   ...circle("DSGREADER", [SIGNED_OUT, ORGANIZER, READER_V]),
   ...circle("DSGFULL"),
+  { name: "circle-ready-confirm-org", path: "/s/DSGREADY", dialog: "complete", auth: ORGANIZER },
+  ...circle("DSGREADY", [ORGANIZER, SIGNED_OUT]),
   ...circle("DSGDONE"),
+  ...completionDialog("DSGDONE", "done"),
+  ...circle("DSGAUTO", [SIGNED_OUT]),
+  ...completionDialog("DSGAUTO", "auto"),
   ...circle("DSGARCH"),
   ...circle("DSGMULTI"),
   ...circle("DSGLONG", [SIGNED_OUT, ORGANIZER]),
@@ -218,6 +240,8 @@ async function openDialog(page, kind, locale) {
   if (kind === "claim") {
     await page.getByRole("button", { name: /(Juz|الجزء) 17$/ }).click({ timeout: 5000 });
     await page.getByRole("button", { name: ar ? "حجز" : "Claim", exact: true }).last().click({ timeout: 5000 });
+  } else if (kind === "complete") {
+    await page.getByRole("button", { name: ar ? "إتمام الختمة" : "Complete the khatm" }).click({ timeout: 5000 });
   } else if (kind === "settings") {
     await page.getByRole("button", { name: ar ? "إعدادات الحلقة" : "Circle settings" }).click({ timeout: 5000 });
   } else {
@@ -260,12 +284,24 @@ async function main() {
           storageState: p.auth ? states[p.auth] : undefined,
         });
         await ctx.addCookies([{ name: "NEXT_LOCALE", value: locale, url: BASE }]);
+        if (p.seen) {
+          await ctx.addInitScript(() => {
+            const get = Storage.prototype.getItem;
+            Storage.prototype.getItem = function (k) {
+              return String(k).startsWith("qc:completion-seen:") ? "1" : get.call(this, k);
+            };
+          });
+        }
         const page = await ctx.newPage();
         const file = join(outDir, `${p.name}.${locale}.${tag}.png`);
         try {
           await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}`, { waitUntil: "networkidle", timeout: 45000 });
           await page.waitForTimeout(400);
           if (p.dialog) await openDialog(page, p.dialog, locale);
+          if (p.scrollDialog) {
+            await page.getByRole("dialog").evaluate((el) => el.scrollTo(0, el.scrollHeight));
+            await page.waitForTimeout(200);
+          }
           await page.screenshot({ path: file, fullPage: Boolean(p.full) });
           count += 1;
         } catch (e) {

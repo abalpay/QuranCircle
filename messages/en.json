@@ -349,7 +349,8 @@
     "juzClaimedConfirm": "Juz {numbers} is yours. JazakAllah khair. When you finish, you can tap Done here.",
     "juzClaimedConfirmMany": "Juz {numbers} are yours. JazakAllah khair. When you finish, you can tap Done here.",
     "otherPhoneHint": "Claimed on another phone? Ask the organizer to mark it Done.",
-    "newKhatmStarted": "A new khatm has started."
+    "newKhatmStarted": "A new khatm has started.",
+    "khatmComplete": "Khatm {number} complete"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Delete Khatim?",
@@ -543,7 +544,8 @@
   },
   "OpenGraphImage": {
     "fallbackCircleName": "Khatm Circle",
-    "joinCircle": "Join this Khatm Circle"
+    "joinCircle": "Join this Khatm Circle",
+    "khatmComplete": "Khatm {number} complete"
   },
   "CircleMetadata": {
     "description": "Join the {eventName} Khatm circle on QuranCircle",
@@ -1065,5 +1067,35 @@
     "keep": "Keep it",
     "confirm": "Unclaim",
     "titleFrom": "Unclaim Juz {number} from {name}?"
+  },
+  "Completion": {
+    "bannerTitle": "All 30 Juz are claimed",
+    "bannerAction": "Complete the khatm",
+    "autoOn": "Completes automatically on {date}.",
+    "autoAfter": "Completes automatically seven days after the last Juz was claimed.",
+    "confirmTitle": "Complete Khatm {number}?",
+    "confirmBody": "This marks the khatm complete for everyone. This can’t be undone.",
+    "confirmAction": "Complete khatm",
+    "completing": "Completing…",
+    "cancel": "Cancel",
+    "error_invalid": "Unable to complete this khatm. Please refresh and try again.",
+    "error_not_ready": "All 30 Juz must be claimed before the khatm can be completed.",
+    "error_unauthorized": "Only the organizer can complete a khatm.",
+    "error_archived": "This circle is archived, so the khatm can’t be completed.",
+    "error_failed": "Unable to complete this khatm. Please try again.",
+    "title": "Khatm {number} complete",
+    "completeShort": "Complete",
+    "completedOn": "Completed {date}",
+    "autoWording": "All 30 Juz were taken up.",
+    "duaLabel": "Dua",
+    "duaTranslation": "Our Lord, accept this from us. You are the All-Hearing, the All-Knowing.",
+    "prayer": "May Allah accept this khatm.",
+    "readBy": "Read by",
+    "takenUpBy": "Taken up by",
+    "shareWhatsApp": "Share on WhatsApp",
+    "shareText": "Alhamdulillah, Khatm {number} for “{name}” is complete. May Allah accept it.",
+    "supportLine": "QuranCircle is free and run as sadaqah jariyah. Help keep it running and share in the reward.",
+    "supportLink": "Support QuranCircle",
+    "opensInNewTab": "(opens in a new tab)"
   }
 }

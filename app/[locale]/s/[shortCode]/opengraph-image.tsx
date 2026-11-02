@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import BrandMark from "@/components/brand-mark";
+import { getCircleOgState } from "@/lib/circle-og";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,7 @@ export default async function OGImage({
 
   let eventName = t("fallbackCircleName");
   let eventDescription = "";
+  let completedKhatmNumber: number | null = null;
 
   try {
     const supabase = createAnonClient();
@@ -45,9 +47,10 @@ export default async function OGImage({
     });
 
     if (data && typeof data === "object") {
-      const event = data as { name?: string; description?: string | null };
-      eventName = event.name || eventName;
-      eventDescription = event.description || "";
+      const state = getCircleOgState(data, eventName);
+      eventName = state.name;
+      eventDescription = state.description;
+      completedKhatmNumber = state.completedKhatmNumber;
     }
   } catch {
     // Fallback to defaults
@@ -129,6 +132,19 @@ export default async function OGImage({
             position: "relative",
           }}
         >
+          {completedKhatmNumber !== null ? (
+            <div
+              style={{
+                fontSize: 28,
+                fontWeight: 600,
+                color: colors.gold,
+                fontFamily: "sans-serif",
+                display: "flex",
+              }}
+            >
+              {t("khatmComplete", { number: completedKhatmNumber })}
+            </div>
+          ) : null}
           <div
             style={{
               fontSize: 64,

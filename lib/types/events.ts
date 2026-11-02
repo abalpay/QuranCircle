@@ -13,6 +13,8 @@ export type KhatmSnapshot = {
   read_count: number;
   completed_at: string | null;
   completion_source: "all_done" | "organizer" | "auto" | null;
+  /** Latest claim time; with +7 days it is the auto-completion date. Absent until the snapshot RPC returns it. */
+  last_claimed_at?: string | null;
   juzs: JuzSnapshot[];
 };
 

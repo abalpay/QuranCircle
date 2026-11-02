@@ -5,6 +5,7 @@ vi.mock("@/lib/actions/events", () => ({
     name: "Family Ramadan Khatm",
     description: "A shared family Khatm circle",
     created_at: "2026-07-01T00:00:00.000Z",
+    khatms: [],
   })),
 }));
 

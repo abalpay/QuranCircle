@@ -29,7 +29,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pathname = getPathname({ locale, href: `/s/${shortCode}` });
   const url = toAbsoluteUrl(pathname);
   const imageAlt = t("imageAlt", { eventName: event.name });
-  const ogVersion = new Date(event.created_at).getTime().toString(36);
+  // The preview changes when the latest khatm completes, so the version includes that.
+  const latestKhatm = event.khatms[event.khatms.length - 1];
+  const ogVersion =
+    new Date(event.created_at).getTime().toString(36) +
+    (latestKhatm?.completed_at ? `c${latestKhatm.khatm_number}` : "");
   const ogImageUrl = toAbsoluteUrl(
     `${pathname}/opengraph-image?v=${ogVersion}`
   );

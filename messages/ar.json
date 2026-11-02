@@ -346,7 +346,8 @@
     "juzClaimedConfirm": "الجزء {numbers} لك. جزاك الله خيرًا. عند الانتهاء يمكنك الضغط على «تمّت قراءته» هنا.",
     "juzClaimedConfirmMany": "الأجزاء {numbers} لك. جزاك الله خيرًا. عند الانتهاء يمكنك الضغط على «تمّت قراءته» هنا.",
     "otherPhoneHint": "هل حجزتَ الجزء من هاتف آخر؟ اطلب من المنظِّم وضع علامة «تمّ» عليه.",
-    "newKhatmStarted": "بدأ ختم جديد."
+    "newKhatmStarted": "بدأ ختم جديد.",
+    "khatmComplete": "اكتملت الختمة {number}"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "حذف ختم؟",
@@ -540,7 +541,8 @@
   },
   "OpenGraphImage": {
     "fallbackCircleName": "حلقة ختمة",
-    "joinCircle": "انضم إلى حلقة الختمة"
+    "joinCircle": "انضم إلى حلقة الختمة",
+    "khatmComplete": "اكتملت الختمة {number}"
   },
   "CircleMetadata": {
     "description": "انضم إلى حلقة الختمة {eventName} على QuranCircle",
@@ -1065,5 +1067,35 @@
     "keep": "أبقِ الجزء لي",
     "confirm": "إلغاء الحجز",
     "titleFrom": "إلغاء حجز الجزء {number} من {name}؟"
+  },
+  "Completion": {
+    "bannerTitle": "تم حجز الأجزاء الثلاثين كلها",
+    "bannerAction": "إتمام الختمة",
+    "autoOn": "تكتمل الختمة تلقائيًا في {date}.",
+    "autoAfter": "تكتمل الختمة تلقائيًا بعد سبعة أيام من حجز آخر جزء.",
+    "confirmTitle": "إتمام الختمة {number}؟",
+    "confirmBody": "سيُسجَّل هذا إتمامًا للختمة للجميع. ولا يمكن التراجع عنه.",
+    "confirmAction": "إتمام الختمة",
+    "completing": "جارٍ الإتمام…",
+    "cancel": "إلغاء",
+    "error_invalid": "تعذّر إتمام هذه الختمة. يرجى تحديث الصفحة والمحاولة مرة أخرى.",
+    "error_not_ready": "يجب حجز الأجزاء الثلاثين كلها قبل إتمام الختمة.",
+    "error_unauthorized": "منشئ الحلقة وحده يستطيع إتمام الختمة.",
+    "error_archived": "هذه الحلقة مؤرشفة، لذا لا يمكن إتمام الختمة.",
+    "error_failed": "تعذّر إتمام هذه الختمة. يرجى المحاولة مرة أخرى.",
+    "title": "اكتملت الختمة {number}",
+    "completeShort": "مكتملة",
+    "completedOn": "اكتملت في {date}",
+    "autoWording": "أُخذت الأجزاء الثلاثون كلها.",
+    "duaLabel": "الدعاء",
+    "duaTranslation": "رَبَّنَا تَقَبَّلْ مِنَّا ۖ إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ",
+    "prayer": "تقبّل الله هذه الختمة.",
+    "readBy": "قرأها",
+    "takenUpBy": "أخذ الأجزاء",
+    "shareWhatsApp": "مشاركة عبر واتساب",
+    "shareText": "الحمد لله، اكتملت الختمة {number} عن «{name}». تقبّل الله منّا ومنكم.",
+    "supportLine": "QuranCircle مجاني ويعمل صدقةً جارية. ساعد في استمراره وشاركنا في الأجر.",
+    "supportLink": "ادعم QuranCircle",
+    "opensInNewTab": "(يفتح في تبويب جديد)"
   }
 }

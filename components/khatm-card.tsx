@@ -13,9 +13,14 @@ import {
 } from "@/lib/event-filters";
 import type { JuzSnapshot, KhatmSnapshot } from "@/lib/types/events";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { BookMarked, ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
+import { BookMarked, CheckCircle2, ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
+import CompleteKhatmBanner from "@/components/complete-khatm-banner";
+import { CompletionContent } from "@/components/completion-moment";
+import { isReadyToComplete } from "@/lib/completion";
 
 type Juz = JuzSnapshot;
 type Khatm = KhatmSnapshot;
@@ -36,6 +41,13 @@ type Props = {
   /** Completed for good (completed_at set): no claim or unclaim. */
   isFinal?: boolean;
   onClaimSuccess?: (payload: ClaimSuccessPayload) => void;
+  /** Circle name, shown on the completion record. */
+  circleName?: string;
+  /** The organizer sees "Complete the khatm" once all 30 Juz are claimed. */
+  canManage?: boolean;
+  /** The latest khatm carries the support line when it is complete (nothing is open to claim). */
+  isLatest?: boolean;
+  onCompleted?: () => Promise<void> | void;
 };
 
 export default function KhatmCard({
@@ -47,8 +59,15 @@ export default function KhatmCard({
   isCompleted = false,
   isFinal = false,
   onClaimSuccess,
+  circleName = "",
+  canManage = false,
+  isLatest = false,
+  onCompleted,
 }: Props) {
   const t = useTranslations("KhatmCard");
+  const tc = useTranslations("Completion");
+  const headingId = useId();
+  const isComplete = Boolean(khatm.completed_at);
   const selectionContextKey = `${isReadOnly ? "1" : "0"}:${activeFilter === "mine" ? "1" : "0"}`;
   const [selectionState, setSelectionState] = useState<{
     key: string;
@@ -178,7 +197,7 @@ export default function KhatmCard({
           key={juz.id}
           juz={juz}
           onClaim={() => handleClaimClick(juz)}
-          isReadOnly={isReadOnly || isFinal}
+          isReadOnly={isReadOnly || isFinal || isComplete}
           isSelected={activeSelection.has(juz.juz_number)}
         />
       ))}
@@ -193,8 +212,17 @@ export default function KhatmCard({
         className="quran-card flex w-full items-center justify-between p-4 text-start transition-colors hover:bg-quran-card/80 sm:p-5"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100">
-            <BookMarked className="h-4 w-4 text-emerald-600" />
+          <div
+            className={cn(
+              "flex h-9 w-9 items-center justify-center rounded-full",
+              isComplete ? "bg-quran-deep" : "bg-emerald-100"
+            )}
+          >
+            {isComplete ? (
+              <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-white" />
+            ) : (
+              <BookMarked className="h-4 w-4 text-emerald-600" />
+            )}
           </div>
           <div>
             <span className="text-sm font-semibold text-quran-deep">
@@ -203,7 +231,8 @@ export default function KhatmCard({
             <span className="ms-2 text-xs text-quran-muted">
               {activeFilter === "available" && !hasMatches && t("noAvailableInKhatm")}
               {activeFilter === "available" && hasMatches && t("availableCount", { count: matchingCount })}
-              {activeFilter === "all" && (
+              {activeFilter === "all" && isComplete && tc("completeShort")}
+              {activeFilter === "all" && !isComplete && (
                 <>
                   {t("claimedOfThirty", { count: khatm.claimed_count })}
                   {readCount > 0 && <> · {t("doneCount", { count: readCount })}</>}
@@ -219,42 +248,72 @@ export default function KhatmCard({
 
   return (
     <div className="quran-card overflow-hidden p-0">
-      <div className="border-b border-quran-border/60 bg-quran-card/50 p-5 sm:p-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-base font-semibold text-quran-deep">
-              {t("khatmNumber", { number: khatm.khatm_number })}
-            </h2>
-            <p className="mt-1 font-heading text-3xl tabular-nums lining-nums text-quran-green sm:text-4xl">
-              {t("claimedOfThirty", { count: khatm.claimed_count })}
-            </p>
-            {readCount > 0 && (
-              <p className="mt-1 text-sm text-quran-muted">
-                {t("doneCount", { count: readCount })}
-              </p>
-            )}
-          </div>
+      {isComplete ? (
+        <div className="relative border-b border-quran-border/60 bg-quran-card/50 p-5 sm:p-8">
+          <CompletionContent
+            circleName={circleName}
+            khatm={khatm}
+            variant="record"
+            showSupport={isLatest}
+            headingId={headingId}
+          />
           <button
             type="button"
             onClick={() => setExpanded(false)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
+            className="absolute end-7 top-7 flex size-11 shrink-0 items-center justify-center rounded-full text-white/85 transition-colors hover:bg-white/10 sm:end-11 sm:top-11"
             aria-label={t("collapseKhatm")}
           >
             <ChevronUp className="h-5 w-5" />
           </button>
         </div>
+      ) : (
+        <div className="border-b border-quran-border/60 bg-quran-card/50 p-5 sm:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-base font-semibold text-quran-deep">
+                {t("khatmNumber", { number: khatm.khatm_number })}
+              </h2>
+              <p className="mt-1 font-heading text-3xl tabular-nums lining-nums text-quran-green sm:text-4xl">
+                {t("claimedOfThirty", { count: khatm.claimed_count })}
+              </p>
+              {readCount > 0 && (
+                <p className="mt-1 text-sm text-quran-muted">
+                  {t("doneCount", { count: readCount })}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="flex size-11 shrink-0 items-center justify-center rounded-full text-quran-muted transition-colors hover:bg-quran-border/30"
+              aria-label={t("collapseKhatm")}
+            >
+              <ChevronUp className="h-5 w-5" />
+            </button>
+          </div>
 
-        <Progress
-          value={claimProgress}
-          aria-label={`${t("khatmNumber", {
-            number: khatm.khatm_number,
-          })}: ${t("claimedOfThirty", { count: khatm.claimed_count })}`}
-          className="mt-4 h-2.5 bg-quran-border/30"
+          <Progress
+            value={claimProgress}
+            aria-label={`${t("khatmNumber", {
+              number: khatm.khatm_number,
+            })}: ${t("claimedOfThirty", { count: khatm.claimed_count })}`}
+            className="mt-4 h-2.5 bg-quran-border/30"
+          />
+        </div>
+      )}
+
+      {canManage && !isReadOnly && isReadyToComplete(khatm) && (
+        <CompleteKhatmBanner
+          khatm={khatm}
+          shortCode={shortCode}
+          onCompleted={async () => {
+            await onCompleted?.();
+          }}
         />
-      </div>
+      )}
 
       <div className="bg-white/40 p-4 sm:p-8">
-        {activeFilter !== "mine" && (
+        {activeFilter !== "mine" && !isFinal && !isComplete && khatm.claimed_count < 30 && (
           <p className="mb-4 text-sm text-quran-muted">
             {t("tapToSelect")}
           </p>

@@ -23,6 +23,7 @@ import {
   Globe2,
   Link2,
   ShieldCheck,
+  CheckCircle2,
   Settings,
   Archive,
   ArchiveRestore,
@@ -34,6 +35,8 @@ import DeleteEventDialog from "@/components/delete-event-dialog";
 import YourJuzBlock from "@/components/your-juz-block";
 import { useTranslations } from "next-intl";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
+import { CompletionDialog } from "@/components/completion-moment";
+import { useCompletionMoment } from "@/hooks/use-completion-moment";
 import { cn } from "@/lib/utils";
 import { copyCircleLink, shareCircleInvite } from "@/lib/share-invite";
 import { trackProductEvent } from "@/lib/analytics";
@@ -121,6 +124,9 @@ export default function KhatimPageClient({
   const displayMineView = pendingMineView ?? urlMineView;
   const filterCounts = useMemo(() => getEventFilterCounts(event), [event]);
   const creatorManageRows = useMemo(() => getCreatorManageRows(event), [event]);
+  const completionMoment = useCompletionMoment(event.khatms);
+  const latestKhatm = event.khatms[event.khatms.length - 1];
+  const latestIsComplete = Boolean(latestKhatm?.completed_at);
 
   // Realtime recovery: bump epoch to force subscription teardown/recreate
   const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
@@ -812,8 +818,29 @@ export default function KhatimPageClient({
     }
   };
 
-  const showMineViewTabs = isCreator && displayFilter === "mine";
-  const showCreatorQueue = showMineViewTabs && displayMineView === "creator";
+  // The organizer queue is a peer of All / Available / My Juz, one level, not a sub-tab inside My Juz.
+  const isQueueActive = isCreator && displayFilter === "mine" && displayMineView === "creator";
+  const showCreatorQueue = isQueueActive;
+
+  const selectMyJuz = () => {
+    if (displayFilter === "mine") setMineView("mine");
+    else setActiveFilter("mine");
+  };
+
+  const selectCreatorQueue = () => {
+    if (!isCreator) return;
+    if (displayFilter === "mine") {
+      setMineView("creator");
+      return;
+    }
+    setPendingFilter("mine");
+    setPendingMineView("creator");
+    startFilterTransition(() => {
+      router.replace(withMineViewQuery(pathname, searchParams.toString(), "creator"), {
+        scroll: false,
+      });
+    });
+  };
 
   return (
     <>
@@ -834,19 +861,26 @@ export default function KhatimPageClient({
                   </>
                 )}
               </span>
-              <span className="quran-badge">
-                {event.is_archived ? (
-                  <>
-                    <Archive className="me-2 h-3.5 w-3.5" />
-                    {tPage("archived")}
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="me-2 h-3.5 w-3.5" />
-                    {tPage("openForClaims")}
-                  </>
-                )}
-              </span>
+              {(event.is_archived || latestIsComplete || latestKhatm?.claimed_count !== 30) && (
+                <span className="quran-badge">
+                  {event.is_archived ? (
+                    <>
+                      <Archive className="me-2 h-3.5 w-3.5" />
+                      {tPage("archived")}
+                    </>
+                  ) : latestIsComplete ? (
+                    <>
+                      <CheckCircle2 className="me-2 h-3.5 w-3.5" />
+                      {tPage("khatmComplete", { number: latestKhatm.khatm_number })}
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="me-2 h-3.5 w-3.5" />
+                      {tPage("openForClaims")}
+                    </>
+                  )}
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -874,7 +908,7 @@ export default function KhatimPageClient({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="rounded-full border-quran-border bg-white/80 px-4"
+                      className="min-h-11 rounded-full border-quran-border bg-white/80 px-4"
                     >
                       <Share2 className="me-2 h-4 w-4" />
                       {tPage("share")}
@@ -908,10 +942,10 @@ export default function KhatimPageClient({
                       <Button
                         variant="outline"
                         size="sm"
-                        aria-label={tPage("circleSettings")}
-                        className="rounded-full border-quran-border bg-white/80 px-3"
+                        className="min-h-11 rounded-full border-quran-border bg-white/80 px-4"
                       >
-                        <Settings className="h-4 w-4" />
+                        <Settings className="me-2 h-4 w-4" />
+                        {tPage("circleSettings")}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" collisionPadding={8} className="max-w-80">
@@ -1003,7 +1037,7 @@ export default function KhatimPageClient({
         <div
           role="group"
           aria-label={t("juzFilters")}
-          className="app-segmented-control"
+          className={cn("app-segmented-control", isCreator && "max-sm:grid max-sm:grid-cols-2 max-sm:gap-1")}
         >
           <Button
             type="button"
@@ -1037,16 +1071,33 @@ export default function KhatimPageClient({
             type="button"
             variant="ghost"
             size="sm"
-            aria-pressed={displayFilter === "mine"}
-            onClick={() => setActiveFilter("mine")}
+            aria-pressed={displayFilter === "mine" && !isQueueActive}
+            onClick={() => selectMyJuz()}
             className={cn(
               "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
               displayFilter === "mine" &&
+                !isQueueActive &&
                 "bg-background text-foreground shadow-sm hover:bg-background"
             )}
           >
             {t("myJuz", { count: filterCounts.mine })}
           </Button>
+          {isCreator && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-pressed={isQueueActive}
+              onClick={() => selectCreatorQueue()}
+              className={cn(
+                "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                isQueueActive &&
+                  "bg-background text-foreground shadow-sm hover:bg-background"
+              )}
+            >
+              {t("creatorQueue", { count: creatorManageRows.length })}
+            </Button>
+          )}
         </div>
         {filterSyncPending && (
           <p
@@ -1058,48 +1109,6 @@ export default function KhatimPageClient({
           </p>
         )}
       </section>
-
-      {showMineViewTabs && (
-        <section className="app-toolbar">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
-            {t("myJuzViews")}
-          </p>
-          <div
-            role="group"
-            aria-label={t("myJuzViews")}
-            className="app-segmented-control"
-          >
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              aria-pressed={displayMineView === "mine"}
-              onClick={() => setMineView("mine")}
-              className={cn(
-                "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-                displayMineView === "mine" &&
-                  "bg-background text-foreground shadow-sm hover:bg-background"
-              )}
-            >
-              {t("myJuzTab")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              aria-pressed={displayMineView === "creator"}
-              onClick={() => setMineView("creator")}
-              className={cn(
-                "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-                displayMineView === "creator" &&
-                  "bg-background text-foreground shadow-sm hover:bg-background"
-              )}
-            >
-              {t("creatorQueue", { count: creatorManageRows.length })}
-            </Button>
-          </div>
-        </section>
-      )}
 
       {displayFilter === "mine" && !showCreatorQueue && filterCounts.mine === 0 && (
         <p className="px-1 text-base text-quran-muted">{tPage("otherPhoneHint")}</p>
@@ -1144,9 +1153,21 @@ export default function KhatimPageClient({
                     await refreshEvent();
                   }}
                   activeFilter={displayFilter}
-                  isCompleted={isFullyClaimed && hasNewerKhatm}
+                  // Collapse what is done with: completed (completed_at, not "has a newer khatm"),
+                  // or full with a newer one and nothing for this visitor to do.
+                  isCompleted={
+                    khatm.completed_at
+                      ? hasNewerKhatm
+                      : isFullyClaimed && hasNewerKhatm && !isCreator
+                  }
                   isFinal={Boolean(khatm.completed_at)}
                   onClaimSuccess={handleClaimSuccess}
+                  circleName={event.name}
+                  canManage={isCreator}
+                  isLatest={!hasNewerKhatm}
+                  onCompleted={async () => {
+                    await refreshEvent();
+                  }}
                 />
               </div>
               );
@@ -1168,6 +1189,12 @@ export default function KhatimPageClient({
           )}
         </div>
       )}
+
+        <CompletionDialog
+          khatm={completionMoment.khatm}
+          circleName={event.name}
+          onClose={completionMoment.close}
+        />
 
         <DeleteEventDialog
           isOpen={isDeleteDialogOpen}
