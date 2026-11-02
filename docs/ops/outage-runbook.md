@@ -16,6 +16,8 @@ If a platform status page shows an incident, there is nothing to fix: wait, and 
 
 ## 2. Roll back the app
 
+**First, if Supabase CAPTCHA is on and the target deployment predates Turnstile (#102), switch CAPTCHA off in the Supabase dashboard (Authentication → Attack Protection) before rolling back.** Older builds send no CAPTCHA token, so every guest sign-in fails and no new visitor can claim a Juz.
+
 If the problem started with a deploy: in the Vercel dashboard open the project, Deployments, pick the last deployment that was fine and choose "Promote to Production" (or `vercel promote <deployment-url>`). Rollback is instant but does **not** undo a database migration: if the deploy shipped one, the old code runs against the new schema, so check it is compatible. Then fix on `staging` and promote normally.
 
 ## 3. Pause scheduled jobs
