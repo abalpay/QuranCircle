@@ -20,7 +20,8 @@
     "test:ci": "npm run test:unit:coverage && npm run test:e2e",
     "test:security:email": "node --test tests/security/email-hook.test.cjs",
     "capture:pages": "node scripts/capture-pages.mjs",
-    "test:security:db": "python3 tests/security/run-database.py"
+    "test:security:db": "python3 tests/security/run-database.py",
+    "test:scripts": "bash -n scripts/backup-prod-db.sh && bash -n scripts/restore-drill.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.2",
