@@ -7,7 +7,6 @@ import {
   isReadyToComplete,
 } from "@/lib/completion";
 import { getCircleOgState } from "@/lib/circle-og";
-import { buildWhatsAppShareUrl } from "@/lib/whatsapp";
 import type { KhatmSnapshot } from "@/lib/types/events";
 
 const khatm = (over: Partial<KhatmSnapshot> = {}) =>
@@ -52,13 +51,6 @@ describe("completion helpers", () => {
     expect(isInFuture(new Date("2026-11-04T00:00:00Z"), now)).toBe(false);
     expect(isInFuture(null, now)).toBe(false);
   });
-
-  it("builds a WhatsApp link carrying the text and the circle link", () => {
-    const url = buildWhatsAppShareUrl("Khatm 1 is complete", "https://qurancircle.io/s/ABC");
-    expect(new URL(url).searchParams.get("text")).toBe(
-      "Khatm 1 is complete\nhttps://qurancircle.io/s/ABC"
-    );
-  });
 });
 
 describe("share preview state (Open Graph)", () => {
@@ -86,6 +78,8 @@ describe("share preview state (Open Graph)", () => {
       name: "Khatm Circle",
       description: "",
       completedKhatmNumber: null,
+      status: "open",
+      isPublic: false,
       showJoinCta: true,
     });
   });

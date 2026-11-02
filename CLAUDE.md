@@ -64,6 +64,7 @@ middleware.ts           # Supabase auth session refresh
 - Supabase client: `lib/supabase/client.ts` (browser), `lib/supabase/server.ts` (server)
 - UI components from shadcn/ui via `@/components/ui/*`
 - Class merging with `cn()` from `@/lib/utils`
+- Share-image text (satori has no Arabic shaping or bidi): run it through `OgText`/`shapeForOg` (`lib/og-text.tsx`, `lib/arabic-shaping.ts`); share messages come only from `buildCircleShare` (`lib/share-invite.ts`)
 
 ## i18n (Internationalization)
 

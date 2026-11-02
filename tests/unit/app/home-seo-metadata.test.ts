@@ -60,10 +60,11 @@ describe("home SEO metadata", () => {
     expect(turkish.title).toContain("Online Grup Hatim");
     expect(arabic.title).toContain("عبر الإنترنت");
 
-    for (const metadata of [english, turkish, arabic]) {
+    // Each locale gets its own link preview card (#104).
+    for (const [metadata, locale] of [[english, "en"], [turkish, "tr"], [arabic, "ar"]] as const) {
       expect(metadata.openGraph?.images).toEqual([
         {
-          url: toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH),
+          url: toAbsoluteUrl(`${BRAND_SOCIAL_IMAGE_PATH}/${locale}`),
           width: 1200,
           height: 630,
           alt: "QuranCircle",

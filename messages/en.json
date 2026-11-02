@@ -302,10 +302,7 @@
   },
   "CirclePage": {
     "share": "Share",
-    "shareInvitation": "Share invitation",
     "copyLink": "Copy link",
-    "publicShareInvitation": "Join the “{name}” Khatm circle on QuranCircle and claim a Juz.",
-    "linkOnlyShareInvitation": "You’re invited to join the “{name}” Khatm circle on QuranCircle and claim a Juz.",
     "circleSettings": "Circle settings",
     "archived": "Archived",
     "openForClaims": "Open For Claims",
@@ -316,7 +313,6 @@
     "circleArchivedReadOnly": "This circle is archived and read-only.",
     "publicCircle": "Public Circle",
     "linkOnlyCircle": "Link-Only Circle",
-    "inviteCopied": "Invite copied to clipboard",
     "linkCopied": "Circle link copied",
     "linkCopyFailed": "Failed to copy circle link",
     "shareFailed": "Sharing is unavailable. Copy the link instead.",
@@ -350,7 +346,9 @@
     "juzClaimedConfirmMany": "Juz {numbers} are yours. JazakAllah khair. When you finish, you can tap Done here.",
     "otherPhoneHint": "Claimed on another phone? Ask the organizer to mark it Done.",
     "newKhatmStarted": "A new khatm has started.",
-    "khatmCompleteOn": "Khatm {number} complete · {date}"
+    "khatmCompleteOn": "Khatm {number} complete · {date}",
+    "shareOnWhatsApp": "Share on WhatsApp",
+    "shareNative": "Share…"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Delete Khatim?",
@@ -545,11 +543,16 @@
   "OpenGraphImage": {
     "fallbackCircleName": "Khatm Circle",
     "joinCircle": "Join this Khatm Circle",
-    "khatmComplete": "Khatm {number} complete"
+    "khatmComplete": "Khatm {number} complete",
+    "archivedLabel": "This circle is archived",
+    "fullLabel": "All 30 Juz are taken"
   },
   "CircleMetadata": {
     "description": "Join the {eventName} Khatm circle on QuranCircle",
-    "imageAlt": "Invitation to join the {eventName} Khatm circle on QuranCircle"
+    "imageAlt": "Invitation to join the {eventName} Khatm circle on QuranCircle",
+    "descriptionFull": "Every Juz of “{eventName}” is taken. Open it to follow the reading.",
+    "descriptionCompleted": "Alhamdulillah, Khatm {number} of “{eventName}” is complete.",
+    "descriptionArchived": "“{eventName}” is archived and closed to new readers."
   },
   "HeroPreview": {
     "you": "You",
@@ -1094,17 +1097,31 @@
     "readBy": "Read by",
     "takenUpBy": "Taken up by",
     "shareWhatsApp": "Share on WhatsApp",
-    "shareText": "Alhamdulillah, Khatm {number} for “{name}” is complete. May Allah accept it.",
     "supportLine": "QuranCircle is free and run as sadaqah jariyah. Help keep it running and share in the reward.",
     "supportLink": "Support QuranCircle",
     "opensInNewTab": "(opens in a new tab)",
     "readersMore": "and {count} more",
-    "readersShowFewer": "Show fewer"
+    "readersShowFewer": "Show fewer",
+    "shareNative": "Share…",
+    "copyLink": "Copy link",
+    "linkCopied": "Circle link copied",
+    "shareFailed": "Sharing is unavailable. Copy the link instead.",
+    "linkCopyFailed": "Failed to copy circle link"
   },
   "Captcha": {
     "failed": "Security check failed",
     "failedDescription": "We couldn't confirm you're not a bot. Please try again.",
     "retry": "Try again",
     "interactive": "Please complete the security check."
+  },
+  "ShareText": {
+    "open": "Assalamu alaikum. A khatm is being read: “{name}”. Please take a Juz here: {link}",
+    "completed": "Alhamdulillah, the khatm “{name}” is complete. May Allah accept it. {link}",
+    "closed": "Assalamu alaikum. The khatm “{name}” can be followed here: {link}"
+  },
+  "SiteOpenGraphImage": {
+    "line1": "A khatm for",
+    "line2": "someone you love.",
+    "subtitle": "Share one link, and let family and friends each take a Juz."
   }
 }

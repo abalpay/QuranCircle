@@ -1,5 +1,10 @@
 import { ImageResponse } from "next/og";
+import { getTranslations } from "next-intl/server";
 import BrandMark from "@/components/brand-mark";
+import { hasLocale } from "next-intl";
+import { routing, type AppLocale } from "@/i18n/routing";
+import { loadOgFonts, ogFontFamily } from "@/lib/og-fonts";
+import { OgText } from "@/lib/og-text";
 
 const size = { width: 1200, height: 630 };
 
@@ -13,7 +18,16 @@ const colors = {
   muted: "#526b64", // hsl(162 13% 37%)
 };
 
-export default async function createOgImage() {
+/** The card for an unknown or missing locale is English. */
+export function resolveOgLocale(locale: string | null | undefined): AppLocale {
+  return hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
+}
+
+export default async function createOgImage(requestedLocale?: string | null) {
+  const locale = resolveOgLocale(requestedLocale);
+  const t = await getTranslations({ locale, namespace: "SiteOpenGraphImage" });
+  const fonts = await loadOgFonts();
+  const sans = ogFontFamily(fonts);
   return new ImageResponse(
     (
       <div
@@ -38,7 +52,7 @@ export default async function createOgImage() {
             width: 500,
             height: 500,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.lightGreen}28 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.lightGreen}28 0%, ${colors.bg}00 70%)`,
             display: "flex",
           }}
         />
@@ -51,7 +65,7 @@ export default async function createOgImage() {
             width: 450,
             height: 450,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.gold}1a 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.gold}1a 0%, ${colors.bg}00 70%)`,
             display: "flex",
           }}
         />
@@ -65,7 +79,7 @@ export default async function createOgImage() {
             right: 0,
             bottom: 0,
             display: "flex",
-            background: `radial-gradient(ellipse at 50% 45%, transparent 40%, ${colors.bg} 85%)`,
+            background: `radial-gradient(ellipse at 50% 45%, ${colors.bg}00 40%, ${colors.bg} 85%)`,
           }}
         />
 
@@ -110,46 +124,33 @@ export default async function createOgImage() {
               fontFamily: "sans-serif",
             }}
           >
-            <div
-              style={{
-                fontSize: 72,
-                fontWeight: 400,
-                color: colors.deep,
-                lineHeight: 1.1,
-                display: "flex",
-              }}
-            >
-              Complete the Quran
-            </div>
-            <div
-              style={{
-                fontSize: 72,
-                fontWeight: 400,
-                lineHeight: 1.1,
-                display: "flex",
-                color: colors.green,
-              }}
-            >
-              together.
-            </div>
+            <OgText
+              text={t("line1")}
+              align="center"
+              style={{ fontSize: 72, fontWeight: 400, color: colors.deep, lineHeight: 1.2, fontFamily: sans }}
+            />
+            <OgText
+              text={t("line2")}
+              align="center"
+              style={{ fontSize: 72, fontWeight: 400, color: colors.green, lineHeight: 1.2, fontFamily: sans }}
+            />
           </div>
 
           {/* Subtitle */}
-          <div
+          <OgText
+            text={t("subtitle")}
+            align="center"
             style={{
-              fontSize: 22,
+              fontSize: 24,
               color: colors.muted,
-              maxWidth: 650,
+              maxWidth: 760,
               textAlign: "center",
+              justifyContent: "center",
               lineHeight: 1.5,
               marginTop: 16,
-              fontFamily: "sans-serif",
-              display: "flex",
+              fontFamily: sans,
             }}
-          >
-            Create a circle, claim your Juz, and finish your
-            collective Khatm with clarity.
-          </div>
+          />
 
           {/* Gold divider */}
           <div
@@ -157,7 +158,7 @@ export default async function createOgImage() {
               width: 96,
               height: 2,
               marginTop: 24,
-              background: `linear-gradient(90deg, transparent, ${colors.gold}99, transparent)`,
+              background: `linear-gradient(90deg, ${colors.gold}00, ${colors.gold}99, ${colors.gold}00)`,
               borderRadius: 2,
               display: "flex",
             }}
@@ -169,7 +170,7 @@ export default async function createOgImage() {
               fontSize: 17,
               color: colors.muted,
               marginTop: 16,
-              fontFamily: "sans-serif",
+              fontFamily: sans,
               letterSpacing: "0.5px",
               display: "flex",
             }}
@@ -179,6 +180,6 @@ export default async function createOgImage() {
         </div>
       </div>
     ),
-    size
+    { ...size, ...(fonts.length ? { fonts } : {}) }
   );
 }
