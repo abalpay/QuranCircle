@@ -53,33 +53,39 @@ SELECT ok(NOT EXISTS (SELECT 1 FROM listed WHERE id = '30000000-0000-0000-0000-0
 SELECT ok(NOT EXISTS (SELECT 1 FROM listed WHERE id = '30000000-0000-0000-0000-000000000011'), 'archived circle stays excluded');
 SELECT ok(EXISTS (SELECT 1 FROM listed WHERE id = '30000000-0000-0000-0000-000000000012'), 'old circle with claim 29 days ago is listed');
 
--- Page through only the fixture band (cursor just above event a). Expected active order: a, b, d, i;
--- the excluded c sits between the page-1 and page-2 boundary rows.
-CREATE TEMP TABLE page1 AS
-SELECT id, created_at, row_number() OVER (ORDER BY created_at DESC, id DESC) AS n
-FROM public.list_public_events_with_progress(2, now() - interval '1 day' + interval '1 millisecond', NULL);
+-- Walk the whole listing 2 rows at a time through the real cursor. Foreign rows may be present,
+-- so only the fixture subset is compared; the excluded c sits between kept rows b and d.
+CREATE TEMP TABLE paged (seq SERIAL, id UUID, created_at TIMESTAMPTZ);
 
-CREATE TEMP TABLE page2 AS
-SELECT id, created_at FROM public.list_public_events_with_progress(
-  2,
-  (SELECT created_at FROM page1 WHERE n = 2),
-  (SELECT id FROM page1 WHERE n = 2)
-);
+DO $$
+DECLARE
+  cur_at TIMESTAMPTZ := NULL;
+  cur_id UUID := NULL;
+  n INT;
+BEGIN
+  FOR i IN 1..1000 LOOP
+    INSERT INTO paged (id, created_at)
+    SELECT p.id, p.created_at FROM public.list_public_events_with_progress(2, cur_at, cur_id) p;
+    GET DIAGNOSTICS n = ROW_COUNT;
+    EXIT WHEN n = 0;
+    SELECT p.created_at, p.id INTO cur_at, cur_id FROM paged p ORDER BY p.seq DESC LIMIT 1;
+  END LOOP;
+END $$;
 
 SELECT is(
-  (SELECT array_agg(id ORDER BY created_at DESC, id DESC) FROM (SELECT id, created_at FROM page1 UNION ALL SELECT id, created_at FROM page2) p),
+  (SELECT array_agg(id ORDER BY seq) FROM paged WHERE id::text LIKE '30000000-0000-0000-0000-%'),
   ARRAY[
     '30000000-0000-0000-0000-00000000000a',
     '30000000-0000-0000-0000-00000000000b',
     '30000000-0000-0000-0000-00000000000d',
     '30000000-0000-0000-0000-000000000012'
   ]::uuid[],
-  'cursor pages return the active fixture rows in order with no gaps'
+  'cursor pages return the active fixture rows once each, in order, never the excluded ones'
 );
 
 SELECT is(
-  (SELECT count(DISTINCT id)::int FROM (SELECT id FROM page1 UNION ALL SELECT id FROM page2) p),
-  4,
+  (SELECT count(*)::int FROM paged),
+  (SELECT count(DISTINCT id)::int FROM paged),
   'cursor pages have no duplicates'
 );
 
