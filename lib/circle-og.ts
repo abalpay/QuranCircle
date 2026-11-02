@@ -51,6 +51,9 @@ export function truncateAtWord(text: string, max: number): string {
 }
 
 /** Short stable hash (FNV-1a, base 36) used to bust preview caches when anything the card shows changes. */
+/** Bump when the card's look changes so shared links fetch the new image (c1: illumination frame and seal, #105). */
+export const OG_CARD_DESIGN = "c1";
+
 export function ogVersion(...parts: (string | number | boolean | null | undefined)[]): string {
   let hash = 0x811c9dc5;
   for (const char of parts.map((part) => String(part ?? "")).join("␟")) {

@@ -388,7 +388,6 @@
     "guideTitle": "Organizing a group Khatm?",
     "guideDescription": "See how to create one shared circle, invite readers, let participants claim Juz, and follow completion without a spreadsheet.",
     "guideButton": "Read the coordination guide",
-    "guideIllustrationAlt": "Open Quran displaying Surah Al-Ikhlas",
     "resourcesEyebrow": "Khatm organizer library",
     "resourcesTitle": "Practical help for the moment you are organizing",
     "resourcesDescription": "Use a focused guide for the way your group is gathering, then bring everyone back to one shared circle.",
@@ -597,7 +596,6 @@
   },
   "VerseCallout": {
     "ariaLabel": "Quran verse",
-    "imageAlt": "A closed Qur’an resting on a folded star-shaped textile ornament",
     "translation": "And certainly, We have made the Qur’an easy for remembrance, so is there any who will remember?",
     "citation": "Surah Al-Qamar (54:17)"
   },

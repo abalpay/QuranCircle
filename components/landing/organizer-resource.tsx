@@ -1,13 +1,11 @@
 import { BookOpenCheck, ExternalLink } from "lucide-react";
 import AnalyticsLink from "@/components/analytics-link";
-import { OpenQuranIllustration } from "@/components/landing/decorative-art";
 
 type OrganizerResourceProps = {
   eyebrow: string;
   title: string;
   description: string;
   button: string;
-  illustrationAlt: string;
 };
 
 export default function OrganizerResource({
@@ -15,7 +13,6 @@ export default function OrganizerResource({
   title,
   description,
   button,
-  illustrationAlt,
 }: OrganizerResourceProps) {
   return (
     <section
@@ -38,11 +35,6 @@ export default function OrganizerResource({
         {button}
         <ExternalLink aria-hidden="true" />
       </AnalyticsLink>
-
-      <OpenQuranIllustration
-        className="landing-resource-quran"
-        title={illustrationAlt}
-      />
     </section>
   );
 }

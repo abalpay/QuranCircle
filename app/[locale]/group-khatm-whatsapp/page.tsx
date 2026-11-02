@@ -157,7 +157,7 @@ export default async function GroupKhatmWhatsappPage({
       />
 
       <article>
-        <header className="hero-pattern relative overflow-hidden rounded-[2rem] border border-quran-border/50 px-5 py-10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
+        <header className="relative isolate overflow-hidden rounded-[2rem] border border-quran-border/50 px-5 py-10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
           <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_16rem]">
             <div>
               <nav

@@ -7,7 +7,7 @@ import { toAbsoluteUrl } from "@/lib/site-url";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { getOpenGraphLocale } from "@/i18n/locale-config";
-import { getCircleOgState, getOgDescription, ogVersion } from "@/lib/circle-og";
+import { getCircleOgState, getOgDescription, OG_CARD_DESIGN, ogVersion } from "@/lib/circle-og";
 
 const SNAPSHOT_WINDOW_KHATM_LIMIT = 3;
 
@@ -43,7 +43,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     state.isPublic,
     state.completedKhatmNumber,
     latestKhatm?.khatm_number,
-    event.created_at
+    event.created_at,
+    OG_CARD_DESIGN
   );
   // The image route lives under [locale] and the proxy does not rewrite *opengraph-image paths,
   // so the locale segment is always explicit, English included (#103).

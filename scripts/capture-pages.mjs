@@ -281,7 +281,8 @@ async function main() {
   const [label, which = "all"] = process.argv.slice(2);
   if (!label || !/^[\w-]+$/.test(label)) throw new Error("Usage: capture-pages.mjs <label> <all|name,name> (label: letters, digits, - or _)");
   const wanted = which === "all" ? PAGES : which.split(",").map((n) => {
-    const hit = PAGES.filter((p) => p.name === n || p.name.startsWith(`${n}-`));
+    const exact = PAGES.filter((p) => p.name === n); // exact name wins, so "home" skips home-signed-in
+    const hit = exact.length ? exact : PAGES.filter((p) => p.name.startsWith(`${n}-`));
     if (!hit.length) throw new Error(`Unknown page ${n}. Known: ${PAGES.map((p) => p.name).join(", ")}`);
     return hit;
   }).flat();

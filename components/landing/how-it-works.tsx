@@ -4,7 +4,6 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { GeometricRosette } from "@/components/landing/decorative-art";
 import { getTranslations } from "next-intl/server";
 
 type ProcessStep = {
@@ -37,7 +36,6 @@ export default async function HowItWorks() {
       className="landing-section landing-process"
       aria-labelledby="process-title"
     >
-      <GeometricRosette className="landing-process-rosette" />
       <header className="landing-process-header">
         <div>
           <p className="landing-eyebrow">{t("eyebrow")}</p>

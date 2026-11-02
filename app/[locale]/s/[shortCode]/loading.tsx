@@ -1,7 +1,7 @@
 export default function KhatimLoading() {
   return (
     <main className="page-shell grow" aria-busy="true">
-      <section className="app-page-hero app-page-hero-compact mb-8">
+      <section className="app-page-hero app-page-hero-compact app-page-hero-framed mb-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1">
             {/* Badge */}

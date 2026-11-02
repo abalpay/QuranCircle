@@ -8,6 +8,7 @@ import { getCircleOgState, truncateAtWord, type CircleOgStatus } from "@/lib/cir
 import { loadOgFonts, ogFontFamily } from "@/lib/og-fonts";
 import { OgText, type OgAlign } from "@/lib/og-text";
 import { layoutBidiWords } from "@/lib/og-bidi";
+import { ogFrameDataUri } from "@/lib/og-frame";
 
 export const runtime = "nodejs";
 
@@ -16,12 +17,10 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const colors = {
-  bg: "#163f38",
-  bgGradient: "#1a4a3f",
+  bg: "#0d332a", // the flat sanctuary green used across the site (#105)
   cream: "#f5f0e4",
   gold: "#c9a84c",
   mutedLight: "#9cb3ac",
-  greenGlow: "#2a6b5a",
 };
 
 export default async function OGImage({
@@ -89,37 +88,19 @@ export default async function OGImage({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: `linear-gradient(160deg, ${colors.bg} 0%, ${colors.bgGradient} 100%)`,
+          background: colors.bg,
           position: "relative",
           overflow: "hidden",
-          padding: "60px 80px",
+          padding: "64px 88px",
         }}
       >
-        {/* Top-right gold radial glow — subtle accent */}
-        <div
-          style={{
-            position: "absolute",
-            top: -120,
-            right: -120,
-            width: 500,
-            height: 500,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.gold}0d 0%, ${colors.bg}00 70%)`,
-            display: "flex",
-          }}
-        />
-        {/* Bottom-left green radial glow — subtle accent */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: -100,
-            left: -100,
-            width: 500,
-            height: 500,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.greenGlow}14 0%, ${colors.bg}00 70%)`,
-            display: "flex",
-          }}
+        {/* Illumination frame and seal (#105 direction C): the frame means "this person's circle" */}
+        <img
+          src={ogFrameDataUri({ stroke: colors.gold, fill: colors.bg })}
+          width={1200}
+          height={630}
+          alt=""
+          style={{ position: "absolute", top: 0, left: 0 }}
         />
 
         {/* Top bar — branding */}
@@ -198,8 +179,7 @@ export default async function OGImage({
               width: 80,
               height: 2,
               marginTop: 8,
-              background: `linear-gradient(${rtl ? 270 : 90}deg, ${colors.gold}, ${colors.gold}44)`,
-              borderRadius: 2,
+              background: colors.gold,
               display: "flex",
             }}
           />
