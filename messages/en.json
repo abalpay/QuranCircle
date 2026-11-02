@@ -533,6 +533,12 @@
     "description": "An unexpected error occurred. Please try again.",
     "tryAgain": "Try Again"
   },
+  "CircleNotFound": {
+    "title": "This circle link isn't working",
+    "description": "Check that the whole link was copied, or ask the person who shared it to send it again.",
+    "startKhatm": "Start a khatm",
+    "browseCircles": "Browse public circles"
+  },
   "NotFoundPage": {
     "eyebrow": "404 · Page not found",
     "title": "Page Not Found",

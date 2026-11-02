@@ -113,7 +113,7 @@ describe("updateSession", () => {
     expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
   });
 
-  it("returns noindex 404 for missing short-code pages", async () => {
+  it("rewrites to the styled noindex 404 for missing short-code pages", async () => {
     supabaseMocks.getUser.mockResolvedValue({
       data: { user: null },
     });
@@ -129,7 +129,45 @@ describe("updateSession", () => {
       { p_short_code: "VALID123", p_khatm_limit: 1 }
     );
     expect(response.status).toBe(404);
+    expect(response.headers.get("x-middleware-rewrite")).toContain("/en/circle-not-found");
     expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+  });
+
+  it("rewrites Turkish unknown circles to the Turkish 404", async () => {
+    supabaseMocks.getUser.mockResolvedValue({ data: { user: null } });
+    supabaseMocks.rpc.mockResolvedValue({ data: null, error: null });
+
+    const response = await updateSession(buildRequest("/tr/s/VALID123"));
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get("x-middleware-rewrite")).toContain("/tr/circle-not-found");
+  });
+
+  it("answers a direct /circle-not-found visit with 404", async () => {
+    supabaseMocks.getUser.mockResolvedValue({ data: { user: null } });
+
+    const response = await updateSession(buildRequest("/ar/circle-not-found"));
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get("x-middleware-rewrite")).toContain("/ar/circle-not-found");
+    expect(supabaseMocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("copies refreshed auth cookies onto the 404", async () => {
+    supabaseMocks.getUser.mockImplementation(async () => {
+      capturedCookieMethods?.setAll?.(
+        [{ name: "sb-test-auth-token", value: "refreshed", options: { path: "/" } }],
+        { "Cache-Control": "private, no-cache, no-store, must-revalidate, max-age=0" }
+      );
+      return { data: { user: null } };
+    });
+    supabaseMocks.rpc.mockResolvedValue({ data: null, error: null });
+
+    const response = await updateSession(buildRequest("/s/VALID123"));
+
+    expect(response.status).toBe(404);
+    expect(response.cookies.get("sb-test-auth-token")?.value).toBe("refreshed");
+    expect(response.headers.get("Cache-Control")).toContain("no-store");
   });
 
   it("allows existing short-code pages through", async () => {

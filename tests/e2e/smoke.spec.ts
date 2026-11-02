@@ -317,3 +317,12 @@ test("snapshot refresh recovers after transient offline period", async ({ page, 
     page.getByRole("button", { name: /Available \(\d+\)/ })
   ).toHaveAttribute("aria-pressed", "true");
 });
+
+test("unknown circle link is a styled 404", async ({ page }) => {
+  const response = await page.goto("/s/DSGMISSING");
+
+  expect(response?.status()).toBe(404);
+  await expect(
+    page.getByRole("heading", { name: "This circle link isn't working" })
+  ).toBeVisible();
+});

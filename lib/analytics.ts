@@ -11,7 +11,8 @@ export type ConversionSource =
   | "whatsapp_hero"
   | "whatsapp_final"
   | "ramadan_hero"
-  | "ramadan_final";
+  | "ramadan_final"
+  | "circle_not_found";
 
 type ProductEvent =
   | {
