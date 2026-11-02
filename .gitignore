@@ -59,9 +59,19 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# AI / agent configs (local-only)
+# AI / agent configs (local-only), except the shared workflow
+# (docs/agents/development-workflow.md)
 .agents/
-.claude/
+.claude/*
+!.claude/settings.json
+!.claude/agents/
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/qc-gate/
+!.claude/skills/to-spec/
+!.claude/skills/to-tickets/
+!.claude/skills/implement/
+!.claude/skills/handoff/
 /.cursor/skills/
 
 # Local maintenance artifacts

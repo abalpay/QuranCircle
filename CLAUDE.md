@@ -14,13 +14,19 @@ npm run test:unit    # Vitest unit tests (71 tests, ~10s)
 npm run test:e2e     # Playwright E2E tests (requires Supabase running)
 ```
 
+## Product & Workflow
+
+- **Product rules:** `docs/product/decisions.md` (numbered decisions; change a rule there before changing code). **Waves:** `docs/product/waves.md`.
+- **Workflow:** `docs/agents/development-workflow.md` — issues → `/qc-gate` → planner → implementers in worktrees → reviewer → PR with `Closes #n` → CI. Issue conventions: `docs/agents/issue-tracker.md`.
+- **The repo is public:** never put real circle names, participant names, short codes or emails in issues, PRs, commits or screenshots.
+
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
 - **UI:** React 19, Tailwind CSS v4, shadcn/ui (new-york style)
 - **Backend:** Supabase (Postgres DB + Auth + Realtime)
 - **Forms:** React Hook Form + Zod validation
-- **i18n:** next-intl (cookie-based locale, default: en, supported: en, tr)
+- **i18n:** next-intl (cookie-based locale, default: en, supported: en, tr, ar)
 - **Icons:** lucide-react
 - **Toasts:** sonner
 - **Testing:** Vitest + jsdom (unit), Playwright + Chromium + WebKit (E2E)
@@ -37,7 +43,7 @@ lib/database.types.ts   # Generated Supabase types (do not edit manually)
 lib/utils.ts            # cn(), generateShortCode()
 hooks/                  # Custom hooks (use-auth.tsx, use-auth-modal.tsx)
 i18n/                   # Internationalization config (request.ts)
-messages/               # Translation files (en.json, tr.json)
+messages/               # Translation files (en.json, tr.json, ar.json)
 supabase/migrations/    # SQL migrations
 tests/unit/             # Vitest unit tests
 tests/e2e/              # Playwright E2E tests
@@ -63,8 +69,8 @@ middleware.ts           # Supabase auth session refresh
 
 - **Library:** next-intl with cookie-based locale detection (no URL prefixes)
 - **Default locale:** English (`en`)
-- **Supported locales:** English (`en`), Turkish (`tr`)
-- **Translation files:** `messages/en.json`, `messages/tr.json` — grouped by component
+- **Supported locales:** English (`en`), Turkish (`tr`), Arabic (`ar`)
+- **Translation files:** `messages/en.json`, `messages/tr.json`, `messages/ar.json` — grouped by component
 - **Client components:** Use `useTranslations("SectionName")` hook
 - **Server components:** Use `getTranslations("SectionName")` from `next-intl/server`
 - **Locale switching:** Cookie `NEXT_LOCALE`, persisted for 1 year
@@ -77,7 +83,7 @@ middleware.ts           # Supabase auth session refresh
    import { IntlWrapper } from "../../helpers/intl-wrapper";
    render(<Component />, { wrapper: IntlWrapper });
    ```
-2. **Add translation keys to BOTH `en.json` AND `tr.json`** — they must stay in sync.
+2. **Add translation keys to `en.json`, `tr.json` AND `ar.json`** — they must stay in sync.
 3. **Server components use `getTranslations`**, not `useTranslations`. Don't add `"use client"` just for translations.
 4. **Translate strings, don't delete code.** Zod schemas, conditional logic, helper text — keep the code, just replace the string literals with `t("key")` calls.
 5. **Turkish terms:** Khatm=Hatim, Juz=Cüz, Circle=Halka, Quran=Kur'an, Claim=Sahiplen
@@ -127,5 +133,5 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY  # Supabase anonymous key
 
 ## Git
 
-- **Don't commit** `.clawdbot/`, agent infrastructure, or temp files
+- **Don't commit** `.clawdbot/`, local agent files (`.claude/settings.local.json`, vendored skills, worktrees) or temp files. The shared workflow in `.claude/agents/`, `.claude/skills/` (gate skills) and `.claude/settings.json` is committed (see `.gitignore`).
 - **Commit messages:** Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.)

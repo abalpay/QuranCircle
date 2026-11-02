@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git stash)",
+      "Bash(git stash pop*)"
+    ],
+    "ask": [
+      "Bash(supabase db push*)",
+      "Bash(npx supabase db push*)",
+      "Bash(supabase migration up*)",
+      "Bash(npx supabase migration up*)",
+      "Bash(git push * main)",
+      "Bash(git push *:main)",
+      "Bash(git push *:refs/heads/main)",
+      "Bash(gh pr merge*)",
+      "Bash(vercel *--prod*)",
+      "Bash(npx vercel *--prod*)",
+      "Bash(vercel promote*)",
+      "Bash(npx vercel promote*)",
+      "Edit(.claude/settings.json)"
+    ]
+  }
+}

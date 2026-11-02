@@ -1,0 +1,90 @@
+name: Work item
+description: A planned piece of work the gate can dispatch without re-planning. Filed by the gate or by Ahmet after a decision.
+title: "work: "
+labels:
+  - ready-for-agent
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill every field. The planner and implementers read this verbatim; anything missing becomes a round-trip.
+        This repository is public: use invented examples, never real circle or participant names.
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What changes, in product language, which decisions (D-numbers in docs/product/decisions.md) it implements, and what does NOT change.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: visibility
+    attributes:
+      label: Visibility
+      description: Product-facing work needs Ahmet's OK plus before/after screenshots before merge. Internal work is the gate's call.
+      options:
+        - product-facing
+        - internal
+    validations:
+      required: true
+
+  - type: dropdown
+    id: migration
+    attributes:
+      label: Database migration
+      options:
+        - "no"
+        - "yes — describe below"
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files and surfaces
+      description: Paths expected to change; RPCs touched; migrations by intended filename.
+    validations:
+      required: true
+
+  - type: textarea
+    id: i18n
+    attributes:
+      label: Translations
+      description: New or changed message keys (added to en, tr and ar), or "None".
+      placeholder: "None"
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Unit tests to add or update; pgTAP files if a migration; Playwright specs affected.
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and landing order
+      description: Issues this must land after, and file overlaps with concurrent work.
+      placeholder: "None"
+    validations:
+      required: true
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open questions for Ahmet
+      description: Each with a recommendation. Answers are recorded as `DECISION:` comments. Write "None" when there are none.
+      placeholder: |
+        1. Should …? Recommend: …
+    validations:
+      required: true
+
+  - type: textarea
+    id: decisions
+    attributes:
+      label: Decisions recorded
+      description: "Leave empty on filing. The gate appends `DECISION (Ahmet YYYY-MM-DD): …` lines."

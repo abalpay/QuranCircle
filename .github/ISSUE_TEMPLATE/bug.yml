@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a reproducible difference between observed and expected behaviour.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository is public. Do not include secrets, real circle or participant names, short codes, or emails.
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behaviour
+      description: What happened? Include the exact error where safe.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Who is affected
+      options:
+        - Reader (claims a Juz)
+        - Organizer (created the circle)
+        - Visitor (browsing, not in a circle)
+        - Signed-in account holder
+    validations:
+      required: true
+
+  - type: textarea
+    id: device
+    attributes:
+      label: Device and browser
+      description: e.g. Android + Chrome, iPhone + Safari, opened from WhatsApp.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Open a circle link ...
+        2. Claim ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: data-impact
+    attributes:
+      label: Data impact
+      description: Was data viewed, changed, duplicated or lost? No personal data.
+      placeholder: No data impact observed
+    validations:
+      required: true
