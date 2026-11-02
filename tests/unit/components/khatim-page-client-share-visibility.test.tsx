@@ -399,6 +399,22 @@ describe("KhatimPageClient share/settings visibility", () => {
       ).toBeInTheDocument();
     });
 
+    it("hides the other-phone hint for the organizer and on archived circles", () => {
+      const { unmount } = render(
+        <KhatimPageClient
+          event={buildEvent({ is_creator: true, can_manage: true })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.queryByText(/Claimed on another phone/)).not.toBeInTheDocument();
+      unmount();
+      render(<KhatimPageClient event={buildEvent({ is_archived: true })} shortCode="ABCDEFGH" />, {
+        wrapper: IntlWrapper,
+      });
+      expect(screen.queryByText(/Claimed on another phone/)).not.toBeInTheDocument();
+    });
+
     it("hides the other-phone hint in the Creator Queue view", () => {
       searchParamsMock.value = "filter=creator";
       render(

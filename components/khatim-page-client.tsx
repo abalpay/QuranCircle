@@ -1039,7 +1039,7 @@ export default function KhatimPageClient({
         </section>
       )}
 
-      {!showCreatorQueue && !hasOwnJuz && (
+      {!showCreatorQueue && !hasOwnJuz && !isCreator && !event.is_archived && (
         <p className="px-1 text-base text-quran-muted">{tPage("otherPhoneHint")}</p>
       )}
 
