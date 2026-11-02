@@ -111,14 +111,6 @@ test("anonymous user can claim and unclaim a juz", async ({ page }) => {
     await expect(page.getByText(/JazakAllah khair/)).toBeVisible();
     await expect(page.getByRole("heading", { name: "Your Juz" })).toBeVisible();
 
-    const myJuzTab = page.getByRole("button", { name: /My Juz \(1\)/ });
-    await expect(myJuzTab).toBeVisible();
-    await myJuzTab.click();
-    await expect(myJuzTab).toHaveAttribute("aria-pressed", "true");
-    await expect
-      .poll(() => new URL(page.url()).searchParams.get("filter"))
-      .toBe("mine");
-
     const quranLink = page.getByRole("link", {
       name: new RegExp(
         `Open Juz ${selectedJuzNumber} on Quran\\.com \\(opens in a new tab\\)`
@@ -190,9 +182,9 @@ test("filter state follows URL during browser back and forward", async ({ page }
     "true"
   );
 
-  await page.goto(`/s/${smokeShortCode}?filter=mine`);
+  await page.goto(`/s/${smokeShortCode}?filter=available`);
   await expect(
-    page.getByRole("button", { name: /My Juz \(\d+\)/ })
+    page.getByRole("button", { name: /Available \(\d+\)/ })
   ).toHaveAttribute("aria-pressed", "true");
 
   await page.goBack();
@@ -203,7 +195,7 @@ test("filter state follows URL during browser back and forward", async ({ page }
 
   await page.goForward();
   await expect(
-    page.getByRole("button", { name: /My Juz \(\d+\)/ })
+    page.getByRole("button", { name: /Available \(\d+\)/ })
   ).toHaveAttribute("aria-pressed", "true");
 });
 
@@ -217,7 +209,7 @@ test("invalid filter query falls back to all view", async ({ page }) => {
 test("non-creators ignore creator mineView query", async ({ page }) => {
   await page.goto(`/s/${smokeShortCode}?filter=mine&mineView=creator`);
   await expect(
-    page.getByRole("button", { name: /My Juz \(\d+\)/ })
+    page.getByRole("button", { name: /All \(\d+\)/ })
   ).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /^Creator Queue/ })).toHaveCount(0);
   await expect

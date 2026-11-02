@@ -172,7 +172,7 @@ describe("circle page completion moment and organizer controls", () => {
     // One quiet sentence-case line in the header, not a pill; nothing left to claim.
     expect(screen.getByText("Khatm 1 complete · November 2, 2026")).toBeInTheDocument();
     expect(screen.queryByText("Open For Claims")).toBeNull();
-    // No "Available (0) / My Juz (0)" filters when nothing can be claimed.
+    // No "Available (0)" filters when nothing can be claimed.
     expect(screen.queryByRole("group", { name: "Juz filters" })).toBeNull();
   });
 

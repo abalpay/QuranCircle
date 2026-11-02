@@ -294,7 +294,6 @@
   "Filters": {
     "all": "Tümü ({count})",
     "available": "Müsait ({count})",
-    "myJuz": "Cüzlerim ({count})",
     "creatorQueue": "Yönetim Paneli ({count})",
     "juzFilters": "Cüz filtreleri",
     "updating": "Güncelleniyor...",

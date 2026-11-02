@@ -5,11 +5,9 @@ import {
   getCreatorQueueStats,
   getEventFilterCounts,
   getKhatmMatches,
-  normalizeMineView,
   isFilterSyncPending,
   sortCreatorQueueRows,
   normalizeGlobalFilter,
-  withMineViewQuery,
   withGlobalFilterQuery,
 } from "@/lib/event-filters";
 import type { EventSnapshot } from "@/lib/types/events";
@@ -77,17 +75,18 @@ const EVENT_FIXTURE: Pick<EventSnapshot, "khatms"> = {
 
 describe("event filter helpers", () => {
   it("normalizes filter values with all as fallback", () => {
-    expect(normalizeGlobalFilter("all")).toBe("all");
-    expect(normalizeGlobalFilter("mine")).toBe("mine");
-    expect(normalizeGlobalFilter("nope")).toBe("all");
-    expect(normalizeGlobalFilter(null)).toBe("all");
+    expect(normalizeGlobalFilter("all", false)).toBe("all");
+    expect(normalizeGlobalFilter("available", false)).toBe("available");
+    expect(normalizeGlobalFilter("nope", true)).toBe("all");
+    expect(normalizeGlobalFilter(null, true)).toBe("all");
   });
 
-  it("normalizes mine view and gates creator-only view", () => {
-    expect(normalizeMineView("mine", true)).toBe("mine");
-    expect(normalizeMineView("creator", true)).toBe("creator");
-    expect(normalizeMineView("nope", true)).toBe("mine");
-    expect(normalizeMineView("creator", false)).toBe("mine");
+  it("gates the creator queue to organizers and maps legacy mine URLs", () => {
+    expect(normalizeGlobalFilter("creator", true)).toBe("creator");
+    expect(normalizeGlobalFilter("creator", false)).toBe("all");
+    expect(normalizeGlobalFilter("mine", true)).toBe("all");
+    expect(normalizeGlobalFilter("mine", true, "creator")).toBe("creator");
+    expect(normalizeGlobalFilter("mine", false, "creator")).toBe("all");
   });
 
   it("prefers pending filter when deriving display state", () => {
@@ -98,12 +97,12 @@ describe("event filter helpers", () => {
   it("flags sync pending only while pending filter differs from URL filter", () => {
     expect(isFilterSyncPending("all", null)).toBe(false);
     expect(isFilterSyncPending("all", "all")).toBe(false);
-    expect(isFilterSyncPending("all", "mine")).toBe(true);
+    expect(isFilterSyncPending("all", "creator")).toBe(true);
   });
 
   it("preserves other query params when writing filter", () => {
-    expect(withGlobalFilterQuery("/s/E2ESMOKE1", "foo=1", "mine")).toBe(
-      "/s/E2ESMOKE1?foo=1&filter=mine"
+    expect(withGlobalFilterQuery("/s/E2ESMOKE1", "foo=1", "creator")).toBe(
+      "/s/E2ESMOKE1?foo=1&filter=creator"
     );
     expect(withGlobalFilterQuery("/s/E2ESMOKE1", "filter=all&foo=1", "available")).toBe(
       "/s/E2ESMOKE1?filter=available&foo=1"
@@ -113,20 +112,10 @@ describe("event filter helpers", () => {
     );
   });
 
-  it("writes mine view query and defaults to mine when omitted", () => {
-    expect(withMineViewQuery("/s/E2ESMOKE1", "foo=1&filter=mine", "creator")).toBe(
-      "/s/E2ESMOKE1?foo=1&filter=mine&mineView=creator"
-    );
-    expect(withMineViewQuery("/s/E2ESMOKE1", "foo=1&filter=mine&mineView=creator", "mine")).toBe(
-      "/s/E2ESMOKE1?foo=1&filter=mine"
-    );
-  });
-
-  it("scopes All to the latest khatm, Available to open khatms, My Juz to the event", () => {
+  it("scopes All to the latest khatm, Available to open khatms", () => {
     expect(getEventFilterCounts(EVENT_FIXTURE)).toEqual({
       all: 3,
       available: 2,
-      mine: 1,
     });
   });
 
@@ -134,15 +123,13 @@ describe("event filter helpers", () => {
     const [latest, older] = EVENT_FIXTURE.khatms;
     expect(
       getEventFilterCounts({ khatms: [latest, { ...older, completed_at: "2026-11-01T00:00:00Z" }] })
-    ).toEqual({ all: 3, available: 1, mine: 1 });
+    ).toEqual({ all: 3, available: 1 });
   });
 
   it("returns khatm matches per filter", () => {
     const khatm = EVENT_FIXTURE.khatms[0];
     expect(getKhatmMatches(khatm, "all")).toHaveLength(3);
     expect(getKhatmMatches(khatm, "available")).toHaveLength(1);
-    expect(getKhatmMatches(khatm, "mine")).toHaveLength(1);
-    expect(getKhatmMatches(khatm, "mine")[0]?.id).toBe("k2-j2");
   });
 
   it("builds creator manage rows for claimed/read items and sorts by khatm then juz", () => {

@@ -291,7 +291,6 @@
   "Filters": {
     "all": "الكل ({count})",
     "available": "متاح ({count})",
-    "myJuz": "أجزائي ({count})",
     "creatorQueue": "قائمة انتظار المنشئ ({count})",
     "juzFilters": "مرشحات جزء",
     "updating": "جارٍ التحديث...",

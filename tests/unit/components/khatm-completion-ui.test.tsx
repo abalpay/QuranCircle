@@ -39,7 +39,7 @@ function makeKhatm(completed: boolean): KhatmSnapshot {
 
 function renderCard(
   khatm: KhatmSnapshot,
-  props: { isCompleted?: boolean; isFinal?: boolean; filter?: "all" | "mine" | "available" }
+  props: { isCompleted?: boolean; isFinal?: boolean; filter?: "all" | "available" }
 ) {
   return render(
     <KhatmCard
@@ -47,7 +47,7 @@ function renderCard(
       shortCode="ABC"
       isReadOnly={false}
       onRefresh={async () => {}}
-      activeFilter={props.filter ?? "mine"}
+      activeFilter={props.filter ?? "all"}
       isCompleted={props.isCompleted}
       isFinal={props.isFinal}
     />,

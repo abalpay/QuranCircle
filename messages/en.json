@@ -294,7 +294,6 @@
   "Filters": {
     "all": "All ({count})",
     "available": "Available ({count})",
-    "myJuz": "My Juz ({count})",
     "creatorQueue": "Creator Queue ({count})",
     "juzFilters": "Juz filters",
     "updating": "Updating...",

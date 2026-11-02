@@ -49,10 +49,9 @@ import {
   getDisplayFilter,
   getCreatorManageRows,
   getEventFilterCounts,
+  getMineRows,
   isFilterSyncPending,
-  normalizeMineView,
   normalizeGlobalFilter,
-  withMineViewQuery,
   withGlobalFilterQuery,
 } from "@/lib/event-filters";
 import {
@@ -83,8 +82,6 @@ type Props = {
   shortCode: string;
 };
 
-type MineView = "mine" | "creator";
-
 export default function KhatimPageClient({
   event: initialEvent,
   shortCode,
@@ -106,8 +103,10 @@ export default function KhatimPageClient({
   const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
   const [, startFilterTransition] = useTransition();
   const [pendingFilter, setPendingFilter] = useState<GlobalFilter | null>(null);
-  const [pendingMineView, setPendingMineView] = useState<MineView | null>(null);
+  // Opened via the removed My Juz tab URL: keep the other-phone hint reachable for them.
+  const [cameViaMineUrl] = useState(() => searchParams.get("filter") === "mine");
   const [isLoadingOlderKhatms, setIsLoadingOlderKhatms] = useState(false);
+  const canonicalizedHrefRef = useRef<string | null>(null);
   const latestKhatmIdRef = useRef<string | null>(
     initialEvent.khatms[initialEvent.khatms.length - 1]?.id ?? null
   );
@@ -116,16 +115,16 @@ export default function KhatimPageClient({
   );
 
   const urlFilter = useMemo(
-    () => normalizeGlobalFilter(searchParams.get("filter")),
-    [searchParams]
+    () =>
+      normalizeGlobalFilter(
+        searchParams.get("filter"),
+        isCreator,
+        searchParams.get("mineView")
+      ),
+    [isCreator, searchParams]
   );
   const displayFilter = getDisplayFilter(urlFilter, pendingFilter);
   const filterSyncPending = isFilterSyncPending(urlFilter, pendingFilter);
-  const urlMineView = useMemo(
-    () => normalizeMineView(searchParams.get("mineView"), isCreator),
-    [isCreator, searchParams]
-  );
-  const displayMineView = pendingMineView ?? urlMineView;
   const filterCounts = useMemo(() => getEventFilterCounts(event), [event]);
   const creatorManageRows = useMemo(() => getCreatorManageRows(event), [event]);
   const completionMoment = useCompletionMoment(event.khatms);
@@ -153,13 +152,6 @@ export default function KhatimPageClient({
   }, [pendingFilter, urlFilter]);
 
   useEffect(() => {
-    if (pendingMineView === null) return;
-    if (pendingMineView !== urlMineView) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
-    setPendingMineView(null);
-  }, [pendingMineView, urlMineView]);
-
-  useEffect(() => {
     if (!filterSyncPending) return;
     const timeoutId = window.setTimeout(() => {
       setPendingFilter(null);
@@ -167,47 +159,23 @@ export default function KhatimPageClient({
     return () => window.clearTimeout(timeoutId);
   }, [filterSyncPending]);
 
+  // Canonicalize legacy ?filter=mine&mineView=... and non-organizer ?filter=creator URLs.
   useEffect(() => {
-    if (displayFilter === "mine") return;
-    if (pendingMineView === null) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
-    setPendingMineView(null);
-  }, [displayFilter, pendingMineView]);
-
-  useEffect(() => {
-    if (displayFilter !== "mine") return;
-
-    const rawMineView = searchParams.get("mineView");
-    const normalizedMineView = normalizeMineView(rawMineView, isCreator);
-    const canonicalMineView = normalizedMineView === "creator" ? "creator" : null;
-
-    if (rawMineView === canonicalMineView) return;
-
-    const href = withMineViewQuery(
-      pathname,
-      searchParams.toString(),
-      normalizedMineView
-    );
+    const rawFilter = searchParams.get("filter");
+    if ((rawFilter === null || rawFilter === urlFilter) && searchParams.get("mineView") === null) return;
+    const href = withGlobalFilterQuery(pathname, searchParams.toString(), urlFilter);
+    if (canonicalizedHrefRef.current === href) return;
+    canonicalizedHrefRef.current = href;
     startFilterTransition(() => {
       router.replace(href, { scroll: false });
     });
-  }, [
-    displayFilter,
-    isCreator,
-    pathname,
-    router,
-    searchParams,
-    startFilterTransition,
-  ]);
+  }, [pathname, router, searchParams, startFilterTransition, urlFilter]);
 
   const setActiveFilter = useCallback(
     (nextFilterValue: string) => {
-      const nextFilter = normalizeGlobalFilter(nextFilterValue);
+      const nextFilter = normalizeGlobalFilter(nextFilterValue, isCreator);
       if (nextFilter === displayFilter) return;
       setPendingFilter(nextFilter);
-      if (nextFilter !== "mine") {
-        setPendingMineView(null);
-      }
       const href = withGlobalFilterQuery(
         pathname,
         searchParams.toString(),
@@ -217,33 +185,7 @@ export default function KhatimPageClient({
         router.replace(href, { scroll: false });
       });
     },
-    [displayFilter, pathname, router, searchParams, startFilterTransition]
-  );
-
-  const setMineView = useCallback(
-    (nextMineViewValue: string) => {
-      if (!isCreator || displayFilter !== "mine") return;
-      const nextMineView = normalizeMineView(nextMineViewValue, true) as MineView;
-      if (nextMineView === displayMineView) return;
-      setPendingMineView(nextMineView);
-      const href = withMineViewQuery(
-        pathname,
-        searchParams.toString(),
-        nextMineView
-      );
-      startFilterTransition(() => {
-        router.replace(href, { scroll: false });
-      });
-    },
-    [
-      displayFilter,
-      displayMineView,
-      isCreator,
-      pathname,
-      router,
-      searchParams,
-      startFilterTransition,
-    ]
+    [displayFilter, isCreator, pathname, router, searchParams, startFilterTransition]
   );
 
   const refreshEvent = useCallback(
@@ -478,19 +420,17 @@ export default function KhatimPageClient({
         const baselineKhatmId = latestKhatmIdRef.current;
         toast.success(`${message} ${tPage("newKhatmStarted")}`, {
           duration: CLAIM_CONFIRMATION_MS,
-          ...(displayFilter !== "mine" && {
-            action: {
-              label: tPage("jumpToNewKhatm"),
-              onClick: () => jumpToLatestKhatm(baselineKhatmId),
-            },
-          }),
+          action: {
+            label: tPage("jumpToNewKhatm"),
+            onClick: () => jumpToLatestKhatm(baselineKhatmId),
+          },
         });
         return;
       }
 
       toast.success(message, { duration: CLAIM_CONFIRMATION_MS });
     },
-    [displayFilter, jumpToLatestKhatm, tPage]
+    [jumpToLatestKhatm, tPage]
   );
 
   // Re-establish realtime subscription when tab becomes visible or network reconnects
@@ -819,29 +759,9 @@ export default function KhatimPageClient({
     }
   };
 
-  // The organizer queue is a peer of All / Available / My Juz, one level, not a sub-tab inside My Juz.
-  const isQueueActive = isCreator && displayFilter === "mine" && displayMineView === "creator";
-  const showCreatorQueue = isQueueActive;
-
-  const selectMyJuz = () => {
-    if (displayFilter === "mine") setMineView("mine");
-    else setActiveFilter("mine");
-  };
-
-  const selectCreatorQueue = () => {
-    if (!isCreator) return;
-    if (displayFilter === "mine") {
-      setMineView("creator");
-      return;
-    }
-    setPendingFilter("mine");
-    setPendingMineView("creator");
-    startFilterTransition(() => {
-      router.replace(withMineViewQuery(pathname, searchParams.toString(), "creator"), {
-        scroll: false,
-      });
-    });
-  };
+  // The organizer queue is a peer of All / Available.
+  const showCreatorQueue = isCreator && displayFilter === "creator";
+  const hasOwnJuz = event.khatms.some((khatm) => getMineRows(khatm).length > 0);
 
   return (
     <>
@@ -1057,7 +977,7 @@ export default function KhatimPageClient({
           <div
             role="group"
             aria-label={t("juzFilters")}
-            className={cn("app-segmented-control", isCreator && "max-sm:grid max-sm:grid-cols-2 max-sm:gap-1")}
+            className="app-segmented-control"
           >
             <Button
               type="button"
@@ -1089,31 +1009,16 @@ export default function KhatimPageClient({
                 {t("available", { count: filterCounts.available })}
               </Button>
             )}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              aria-pressed={displayFilter === "mine" && !isQueueActive}
-              onClick={() => selectMyJuz()}
-              className={cn(
-                "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-                displayFilter === "mine" &&
-                  !isQueueActive &&
-                  "bg-background text-foreground shadow-sm hover:bg-background"
-              )}
-            >
-              {t("myJuz", { count: filterCounts.mine })}
-            </Button>
             {isCreator && (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                aria-pressed={isQueueActive}
-                onClick={() => selectCreatorQueue()}
+                aria-pressed={showCreatorQueue}
+                onClick={() => setActiveFilter("creator")}
                 className={cn(
                   "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-                  isQueueActive &&
+                  showCreatorQueue &&
                     "bg-background text-foreground shadow-sm hover:bg-background"
                 )}
               >
@@ -1136,7 +1041,7 @@ export default function KhatimPageClient({
         </section>
       )}
 
-      {displayFilter === "mine" && !showCreatorQueue && filterCounts.mine === 0 && (
+      {cameViaMineUrl && !hasOwnJuz && (
         <p className="px-1 text-base text-quran-muted">{tPage("otherPhoneHint")}</p>
       )}
 
@@ -1160,7 +1065,7 @@ export default function KhatimPageClient({
         </section>
       )}
 
-      {!showCreatorQueue && displayFilter !== "mine" && (
+      {!showCreatorQueue && (
         <div className="space-y-8">
           {event.khatms.map((khatm, index) => {
             const hasNewerKhatm = index < event.khatms.length - 1;
@@ -1178,7 +1083,7 @@ export default function KhatimPageClient({
                   onRefresh={async () => {
                     await refreshEvent();
                   }}
-                  activeFilter={displayFilter}
+                  activeFilter={displayFilter === "available" ? "available" : "all"}
                   // Collapse what is done with: completed (completed_at, not "has a newer khatm"),
                   // or full with a newer one and nothing for this visitor to do.
                   isCompleted={

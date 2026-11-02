@@ -267,9 +267,7 @@ describe("KhatimPageClient share/settings visibility", () => {
     );
   });
 
-  it("puts the creator queue beside All, Available and My Juz, one level (fix 49)", () => {
-    searchParamsMock.value = "filter=mine";
-
+  it("puts the creator queue beside All and Available, with no My Juz tab", () => {
     render(
       <KhatimPageClient
         event={buildEvent({
@@ -282,9 +280,9 @@ describe("KhatimPageClient share/settings visibility", () => {
     );
 
     const filterGroup = screen.getByRole("group", { name: "Juz filters" });
-    expect(screen.queryByRole("group", { name: "My Juz views" })).not.toBeInTheDocument();
     expect(filterGroup.querySelector("[role='tab']")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "My Juz (0)" })).toHaveAttribute(
+    expect(screen.queryByRole("button", { name: /My Juz/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "All (0)" })).toHaveAttribute(
       "aria-pressed",
       "true"
     );
@@ -292,6 +290,30 @@ describe("KhatimPageClient share/settings visibility", () => {
       "aria-pressed",
       "false"
     );
+  });
+
+  it("maps legacy filter=mine&mineView=creator to the queue for organizers only", () => {
+    searchParamsMock.value = "filter=mine&mineView=creator";
+    const { unmount } = render(
+      <KhatimPageClient
+        event={buildEvent({ is_creator: true, can_manage: true })}
+        shortCode="ABCDEFGH"
+      />,
+      { wrapper: IntlWrapper }
+    );
+    expect(screen.getByRole("button", { name: "Creator Queue (0)" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    unmount();
+    render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
+      wrapper: IntlWrapper,
+    });
+    expect(screen.getByRole("button", { name: "All (0)" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.queryByRole("button", { name: /Creator Queue/ })).not.toBeInTheDocument();
   });
 
   describe("reader view (#79)", () => {
@@ -362,17 +384,7 @@ describe("KhatimPageClient share/settings visibility", () => {
       expect(screen.getByRole("link", { name: /Open Juz 5 on Quran\.com/ })).toBeInTheDocument();
     });
 
-    it("does not repeat the tiles under Your Juz in the My Juz tab", () => {
-      searchParamsMock.value = "filter=mine";
-      render(
-        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
-        { wrapper: IntlWrapper }
-      );
-      expect(screen.getByRole("heading", { name: "Your Juz" })).toBeInTheDocument();
-      expect(screen.queryByTestId("khatm-card")).not.toBeInTheDocument();
-    });
-
-    it("shows the other-phone hint in My Juz only when there are no claims", () => {
+    it("shows the other-phone hint for a legacy My Juz link only when there are no claims", () => {
       searchParamsMock.value = "filter=mine";
       const { unmount } = render(
         <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,

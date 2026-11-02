@@ -186,10 +186,10 @@ test.afterAll(async () => {
 test("creator sees the queue beside the other views and filters with URL sync", async ({ page }) => {
   await signInAsCreator(page, fixture.creatorEmail, fixture.creatorPassword);
 
-  await page.goto(`/s/${fixture.shortCode}?filter=mine`);
-  // One level: My Juz and Creator Queue are peer buttons in the same group.
-  const myJuzTab = page.getByRole("button", { name: /^My Juz \(\d+\)$/ });
-  await expect(myJuzTab).toHaveAttribute("aria-pressed", "true");
+  await page.goto(`/s/${fixture.shortCode}?filter=all`);
+  // One level: All, Available and Creator Queue are peer buttons in the same group.
+  const allTab = page.getByRole("button", { name: /^All \(\d+\)$/ });
+  await expect(allTab).toHaveAttribute("aria-pressed", "true");
 
   const creatorQueueTab = page.getByRole("button", {
     name: /^Creator Queue \(\d+\)$/,
@@ -197,17 +197,17 @@ test("creator sees the queue beside the other views and filters with URL sync", 
   await expect(creatorQueueTab).toBeVisible();
   await expect(creatorQueueTab).toHaveAttribute("aria-pressed", "false");
   await expect
-    .poll(() => new URL(page.url()).searchParams.get("mineView"))
-    .toBeNull();
+    .poll(() => new URL(page.url()).searchParams.get("filter"))
+    .toBe("all");
 
   await creatorQueueTab.click();
   await expect(
     page.getByRole("heading", { name: "Creator Queue", exact: true })
   ).toBeVisible();
   await expect(creatorQueueTab).toHaveAttribute("aria-pressed", "true");
-  await expect(myJuzTab).toHaveAttribute("aria-pressed", "false");
+  await expect(allTab).toHaveAttribute("aria-pressed", "false");
   await expect
-    .poll(() => new URL(page.url()).searchParams.get("mineView"))
+    .poll(() => new URL(page.url()).searchParams.get("filter"))
     .toBe("creator");
 
   await page.getByLabel("Search creator queue rows").fill("Amina");
@@ -224,28 +224,29 @@ test("creator sees the queue beside the other views and filters with URL sync", 
 
   await page.getByRole("button", { name: /All \(\d+\)/ }).click();
   await expect
-    .poll(() => new URL(page.url()).searchParams.get("mineView"))
-    .toBeNull();
+    .poll(() => new URL(page.url()).searchParams.get("filter"))
+    .toBe("all");
 });
 
-test("creator mine view follows URL during browser back and forward", async ({
+test("creator queue follows URL during browser back and forward", async ({
   page,
 }) => {
   await signInAsCreator(page, fixture.creatorEmail, fixture.creatorPassword);
 
-  await page.goto(`/s/${fixture.shortCode}?filter=mine`);
-  await expect(page.getByRole("button", { name: /^My Juz \(\d+\)$/ })).toHaveAttribute(
+  await page.goto(`/s/${fixture.shortCode}?filter=all`);
+  await expect(page.getByRole("button", { name: /^All \(\d+\)$/ })).toHaveAttribute(
     "aria-pressed",
     "true"
   );
 
+  // Legacy URL shape still opens the queue for the organizer.
   await page.goto(`/s/${fixture.shortCode}?filter=mine&mineView=creator`);
   await expect(
     page.getByRole("button", { name: /^Creator Queue \(\d+\)$/ })
   ).toHaveAttribute("aria-pressed", "true");
 
   await page.goBack();
-  await expect(page.getByRole("button", { name: /^My Juz \(\d+\)$/ })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: /^All \(\d+\)$/ })).toHaveAttribute(
     "aria-pressed",
     "true"
   );
