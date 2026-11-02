@@ -732,7 +732,7 @@
     "usageTitle": "How Data Is Used",
     "usageDescription": "Data is used to provide core product functionality: creating circles, joining circles, assigning portions, and showing completion progress.",
     "analyticsTitle": "Privacy-Friendly Site Analytics",
-    "analyticsDescription": "We use Vercel Web Analytics, which Vercel describes as cookie-free and anonymized, plus Speed Insights to understand aggregate visits, product usage, and site performance. We do not configure analytics cookies or persistent visitor attribution. Analytics events do not contain circle names, participant names, descriptions, short codes, or reading details. We separately record the first time a Khatm is completed as part of the product's operational data.",
+    "analyticsDescription": "We use Vercel Web Analytics, which Vercel describes as cookie-free and anonymized, plus Speed Insights to understand aggregate visits, product usage, and site performance. We do not configure analytics cookies or persistent visitor attribution. Analytics events do not contain circle names, participant names, descriptions, short codes, or reading details. We separately record the first time a Khatm is completed as part of the product's operational data. When you sign in or create a circle, Cloudflare Turnstile is used as a security check and may process technical signals from your browser for that purpose.",
     "accessTitle": "Data Access and Deletion",
     "accessDescription": "If you need account-related assistance, contact the project maintainers through the official contact page."
   },
@@ -1100,5 +1100,11 @@
     "opensInNewTab": "(opens in a new tab)",
     "readersMore": "and {count} more",
     "readersShowFewer": "Show fewer"
+  },
+  "Captcha": {
+    "failed": "Security check failed",
+    "failedDescription": "We couldn't confirm you're not a bot. Please try again.",
+    "retry": "Try again",
+    "interactive": "Please complete the security check."
   }
 }

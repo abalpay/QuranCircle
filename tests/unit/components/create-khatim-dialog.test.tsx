@@ -2,9 +2,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import CreateKhatimDialog from "@/components/create-khatim-dialog";
+import { setSessionCaptchaRejected } from "@/lib/captcha";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 
-const { ensureSessionMock, createEventMock, pushMock, openAuthModalMock } = vi.hoisted(() => ({
+const { ensureSessionMock, createEventMock, pushMock, openAuthModalMock, toastErrorMock } = vi.hoisted(() => ({
+  toastErrorMock: vi.fn(),
   openAuthModalMock: vi.fn(),
   ensureSessionMock: vi.fn(),
   createEventMock: vi.fn(),
@@ -19,6 +21,7 @@ vi.mock("@/hooks/use-auth-modal", () => ({
 }));
 vi.mock("@/lib/actions/events", () => ({ createEvent: createEventMock }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
+vi.mock("sonner", () => ({ toast: { error: toastErrorMock, success: vi.fn() } }));
 vi.mock("@/lib/analytics", () => ({ trackProductEvent: vi.fn() }));
 
 vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
@@ -26,6 +29,7 @@ vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect()
 describe("CreateKhatimDialog without an account", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setSessionCaptchaRejected(false);
     ensureSessionMock.mockResolvedValue({ id: "anon-1", is_anonymous: true });
     createEventMock.mockResolvedValue({ data: { shortCode: "ABC12345" } });
   });
@@ -66,5 +70,19 @@ describe("CreateKhatimDialog without an account", () => {
 
     expect(createEventMock).not.toHaveBeenCalled();
     expect(openAuthModalMock).toHaveBeenCalledWith("login");
+  });
+
+  it("shows no sign-in prompt when the session failed because of a captcha rejection", async () => {
+    ensureSessionMock.mockImplementation(async () => {
+      setSessionCaptchaRejected(true);
+      return null;
+    });
+    render(<CreateKhatimDialog isOpen onClose={() => {}} />, { wrapper: IntlWrapper });
+    await userEvent.type(screen.getByRole("textbox", { name: /circle name/i }), "Ramadan");
+    await userEvent.click(screen.getByRole("button", { name: "Create Circle" }));
+
+    expect(createEventMock).not.toHaveBeenCalled();
+    expect(openAuthModalMock).not.toHaveBeenCalled();
+    expect(toastErrorMock).not.toHaveBeenCalled();
   });
 });

@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { createEvent } from "@/lib/actions/events";
 import { useAuth } from "@/hooks/use-auth";
+import { wasSessionCaptchaRejected } from "@/lib/captcha";
 import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useRouter } from "@/i18n/navigation";
 import { Loader2, CirclePlus } from "lucide-react";
@@ -60,6 +61,7 @@ export default function CreateKhatimDialog({
     const sessionUser = await ensureSession();
     if (!sessionUser) {
       setIsSubmitting(false);
+      if (wasSessionCaptchaRejected()) return; // captcha toast with Retry is already showing
       toast.error(t("signInToCreate"));
       openAuthModal("login");
       return;
