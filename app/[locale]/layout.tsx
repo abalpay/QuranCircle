@@ -167,7 +167,10 @@ export default async function LocaleLayout({
           <NavigationProgress />
           <AuthProvider>
             <AuthModalProvider>
-              <div className="relative min-h-screen overflow-x-clip bg-quran-bg">
+              <div
+                className="relative min-h-screen overflow-x-clip bg-quran-bg"
+                data-app-shell
+              >
                 <Header />
                 <div
                   className="relative flex min-h-screen flex-col"

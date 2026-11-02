@@ -13,7 +13,7 @@
 }
 
 /* ---------- Frames: public-circle band, About/guide CTA, circle page header ---------- */
-/* The circle header is the .app-page-hero without an .app-page-hero-copy child (AppPageHero pages stay quiet). */
+/* Opt-in: only the circle header (and its loading skeleton) carries .app-page-hero-framed; every other page header stays quiet. */
 
 .landing-final-cta::after,
 .cta-section::after {
@@ -32,7 +32,7 @@
   .landing-final-cta::after { border-width: 20px; border-image-width: 20px; }
 }
 
-.app-page-hero:not(:has(> .app-page-hero-copy))::before {
+.app-page-hero-framed::before {
   position: absolute;
   inset: 0.5rem;
   z-index: 1;
@@ -44,9 +44,9 @@
   opacity: 0.8;
 }
 /* the content clears the frame's inner rule (8px inset + ~11px) by 16px or more */
-.app-page-hero:not(:has(> .app-page-hero-copy)) { padding: 2.5rem 2.25rem; }
-@media (min-width: 640px) { .app-page-hero:not(:has(> .app-page-hero-copy)) { padding-inline: 3rem; } }
-@media (min-width: 1024px) { .app-page-hero:not(:has(> .app-page-hero-copy)) { padding-block: 3.25rem; padding-inline: 3.5rem; } }
+.app-page-hero-framed { padding: 2.5rem 2.25rem; }
+@media (min-width: 640px) { .app-page-hero-framed { padding-inline: 3rem; } }
+@media (min-width: 1024px) { .app-page-hero-framed { padding-block: 3.25rem; padding-inline: 3.5rem; } }
 
 /* ---------- Footer: the seal on the top edge ---------- */
 
@@ -80,11 +80,6 @@
 .landing-comparison-card.is-usual { background: hsl(39 38% 96%); }
 .landing-comparison-card.is-qurancircle { background: hsl(157 28% 96%); }
 .landing-process { background: hsl(42 48% 98% / 0.9); }
-.landing-process::before { width: 4rem; height: 1px; background: hsl(var(--decor-gold-ink)); }
-.process-step-medallion {
-  background: white;
-  box-shadow: 0 14px 24px -20px hsl(var(--quran-deep) / 0.4), inset 0 1px 0 white;
-}
 .landing-verse {
   display: block;
   padding: 3.25rem 2rem;

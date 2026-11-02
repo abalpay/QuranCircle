@@ -13,7 +13,7 @@ const polygon = (cx: number, cy: number, r: number, phase: number) =>
 const diamond = (x: number, y: number, r: number) => `M${x} ${y - r}L${x + r} ${y}L${x} ${y + r}L${x - r} ${y}Z`;
 
 export function ogFrameDataUri({ stroke, fill }: { stroke: string; fill: string }): string {
-  const sealY = 28;
+  const sealY = 32;
   const finials = [52, W - 52].flatMap((x) => [52, H - 52].map((y) => diamond(x, y, 4.5))).join("");
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" stroke="${stroke}">` +

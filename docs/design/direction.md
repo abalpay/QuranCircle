@@ -77,10 +77,12 @@ hidden when untrue (a completed khatm must not say "Open for claims").
   - **What:** one idea, a fine gold double-rule frame with corner finials (a `border-image`
     in `app/decor.css`, 1.4/0.8 stroke) and one octagram seal on the footer's top edge. Flat
     sanctuary green (`#0d332a`) for hero, public-circle band, CTA and footer; gold hairlines.
-  - **Where:** the frame means "the person's page": the circle page header (the
-    `.app-page-hero` without an `.app-page-hero-copy`), the public-circle band, the About and
-    guide CTAs (and, later, the share card). The seal sits on the footer. The homepage hero
-    stays plain (bismillah, kicker, headline, preview card).
+  - **Where:** the frame marks the person's page and every QuranCircle share card: the circle
+    page header (opt-in class `app-page-hero-framed`, also on its loading skeleton), the
+    public-circle band, the About and guide CTAs, and all share cards (circle cards on green,
+    site cards on cream; `lib/og-frame.ts`). The seal sits on the footer and on each share
+    card's top edge. The homepage hero stays plain (bismillah, kicker, headline, preview card).
+    Card surfaces are flat fills with their existing borders, no gradient washes.
   - **Never:** a frame around app UI or screenshots (the hero preview card, the juz grid); tiled
     patterns; line illustrations (mosques, books, documents); rosettes; glows and gradient
     washes; sparkle or star glyphs; animated shimmer. Pages the frame does not reach stay

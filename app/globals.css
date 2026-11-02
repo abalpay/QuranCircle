@@ -223,8 +223,7 @@
 
   .quran-card {
     @apply rounded-[1.5rem] border;
-    background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%);
+    background: hsl(var(--quran-card));
     border-color: hsl(var(--quran-border));
     box-shadow:
       0 18px 40px -34px hsl(var(--quran-deep) / 0.68),
@@ -233,16 +232,14 @@
 
   .quran-card-primary {
     @apply rounded-[2rem] border;
-    background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%);
+    background: hsl(var(--quran-card));
     border-color: hsl(var(--quran-border) / 0.8);
     box-shadow: 0 24px 48px -12px hsl(var(--quran-deep) / 0.15);
   }
 
   .quran-card-interactive {
     @apply rounded-[1.5rem] border;
-    background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%);
+    background: hsl(var(--quran-card));
     border-color: hsl(var(--quran-border));
     box-shadow:
       0 18px 40px -34px hsl(var(--quran-deep) / 0.68),
@@ -279,15 +276,6 @@
     );
   }
 
-  .ornament-panel {
-    background:
-      linear-gradient(140deg, hsl(var(--quran-card) / 0.95), hsl(158 28% 97%)),
-      radial-gradient(
-        circle at 20% 20%,
-        hsl(var(--quran-light-green) / 0.13),
-        transparent 42%
-      );
-  }
 
   /* ── Home hero: Emerald Sanctuary ── */
   .hero-sanctuary {
@@ -300,11 +288,6 @@
     border-radius: 0;
     border-color: hsl(158 44% 45% / 0.24);
     background:
-      radial-gradient(
-        circle at 78% 24%,
-        hsl(164 45% 54% / 0.12),
-        transparent 32%
-      ),
       linear-gradient(132deg, hsl(169 58% 15%), hsl(167 64% 11%) 72%);
     box-shadow:
       0 48px 90px -52px hsl(168 70% 7% / 0.82),
@@ -398,11 +381,6 @@
     @apply relative flex min-w-0 items-center justify-center overflow-hidden border-s;
     border-color: hsl(158 34% 72% / 0.11);
     background:
-      radial-gradient(
-        circle at 50% 46%,
-        hsl(163 42% 54% / 0.11),
-        transparent 48%
-      ),
       linear-gradient(180deg, hsl(150 30% 96% / 0.025), transparent);
   }
 
@@ -429,11 +407,6 @@
     border-color: hsl(42 34% 83% / 0.9);
     color: hsl(var(--quran-deep));
     background:
-      radial-gradient(
-        circle at 100% 0%,
-        hsl(var(--quran-light-green) / 0.13),
-        transparent 28%
-      ),
       linear-gradient(145deg, hsl(45 42% 98%), hsl(42 30% 94%));
     box-shadow:
       0 38px 78px -32px hsl(168 74% 5% / 0.72),
@@ -699,11 +672,6 @@
     border-radius: 0.9rem 2.2rem 0.9rem 2.2rem;
     border-color: hsl(var(--quran-border) / 0.62);
     background:
-      radial-gradient(
-        circle at 95% 0%,
-        hsl(var(--quran-light-green) / 0.1),
-        transparent 30%
-      ),
       linear-gradient(
         145deg,
         hsl(var(--quran-card) / 0.94),
@@ -736,16 +704,6 @@
 
   .landing-panel-comparison {
     background:
-      radial-gradient(
-        circle at 8% 18%,
-        hsl(var(--quran-gold) / 0.07),
-        transparent 24%
-      ),
-      radial-gradient(
-        circle at 95% 0%,
-        hsl(var(--quran-light-green) / 0.1),
-        transparent 30%
-      ),
       linear-gradient(
         145deg,
         hsl(var(--quran-card) / 0.96),
@@ -780,11 +738,6 @@
   .comparison-card-primary {
     border-color: hsl(var(--quran-light-green) / 0.42);
     background:
-      radial-gradient(
-        circle at 100% 0%,
-        hsl(var(--quran-light-green) / 0.15),
-        transparent 36%
-      ),
       linear-gradient(145deg, hsl(var(--quran-card)), hsl(160 28% 96%));
     box-shadow:
       0 28px 60px -42px hsl(var(--quran-green) / 0.6),
@@ -798,11 +751,6 @@
         108deg,
         hsl(var(--quran-green) / 0.045),
         transparent 34%
-      ),
-      radial-gradient(
-        circle at 92% 12%,
-        hsl(var(--quran-light-green) / 0.09),
-        transparent 32%
       ),
       linear-gradient(
         145deg,
@@ -863,11 +811,6 @@
   .landing-panel-resource {
     background:
       linear-gradient(100deg, hsl(var(--quran-green) / 0.055), transparent 42%),
-      radial-gradient(
-        circle at 95% 0%,
-        hsl(var(--quran-light-green) / 0.13),
-        transparent 34%
-      ),
       linear-gradient(
         145deg,
         hsl(var(--quran-card) / 0.97),
@@ -986,7 +929,7 @@
 
   /* ── CTA section ── */
   .cta-section {
-    @apply relative mt-24 mb-12 overflow-hidden rounded-2xl px-6 py-20 text-center text-primary-foreground sm:px-12 sm:py-28;
+    @apply relative mt-24 mb-12 overflow-hidden rounded-2xl px-10 py-20 text-center text-primary-foreground sm:px-12 sm:py-28;
     background: #0d332a;
     box-shadow: 0 30px 50px -38px hsl(var(--quran-deep) / 0.6);
   }
@@ -1053,11 +996,6 @@
     @apply relative mx-auto w-full max-w-md overflow-hidden rounded-3xl border p-4;
     border-color: hsl(var(--quran-border) / 0.85);
     background:
-      radial-gradient(
-        circle at 15% -10%,
-        hsl(var(--quran-gold) / 0.2),
-        transparent 48%
-      ),
       linear-gradient(
         155deg,
         hsl(var(--quran-card) / 0.98),
@@ -1100,11 +1038,6 @@
     .hero-sanctuary-art {
       @apply min-h-0 border-l-0 border-t px-8 pb-8;
       background:
-        radial-gradient(
-          circle at 50% 40%,
-          hsl(163 42% 54% / 0.1),
-          transparent 52%
-        ),
         linear-gradient(180deg, hsl(150 30% 96% / 0.018), transparent);
     }
 
@@ -1325,11 +1258,7 @@
   }
 
   .quran-card {
-    background: linear-gradient(
-      155deg,
-      hsl(var(--quran-card) / 0.98),
-      hsl(158 24% 98% / 0.92)
-    );
+    background: hsl(var(--quran-card));
     border-color: hsl(var(--quran-border) / 0.72);
     box-shadow:
       0 20px 52px -44px hsl(var(--quran-deep) / 0.5),
@@ -1344,11 +1273,6 @@
     isolation: isolate;
     overflow: hidden;
     background:
-      radial-gradient(
-        circle at 92% 0%,
-        hsl(var(--quran-light-green) / 0.13),
-        transparent 34%
-      ),
       linear-gradient(145deg, hsl(var(--quran-card)), hsl(158 26% 97%));
     border-color: hsl(var(--quran-border) / 0.66);
     box-shadow:
@@ -1968,48 +1892,9 @@
   min-height: 40rem;
   padding: 0 1.5rem 7rem;
   background:
-    radial-gradient(
-      circle at 2% 22%,
-      hsl(var(--quran-gold) / 0.055),
-      transparent 18rem
-    ),
-    radial-gradient(
-      circle at 98% 58%,
-      hsl(var(--quran-green) / 0.045),
-      transparent 22rem
-    ),
     linear-gradient(180deg, hsl(42 36% 97%), hsl(42 31% 96%));
 }
 
-.landing-light-canvas::before,
-.landing-light-canvas::after {
-  position: absolute;
-  z-index: -1;
-  width: 26rem;
-  height: 26rem;
-  content: "";
-  pointer-events: none;
-  opacity: 0.15;
-  background:
-    repeating-conic-gradient(
-      from 22.5deg,
-      hsl(var(--quran-gold) / 0.7) 0deg 0.55deg,
-      transparent 0.55deg 22.5deg
-    );
-  mask-image: radial-gradient(circle, black, transparent 68%);
-}
-
-.landing-light-canvas::before {
-  top: 19rem;
-  left: -19rem;
-}
-
-.landing-light-canvas::after {
-  right: -19rem;
-  bottom: 16rem;
-  color: hsl(var(--quran-green));
-  opacity: 0.1;
-}
 
 .landing-dashboard-wrap,
 .landing-content {
@@ -2157,22 +2042,12 @@
 
 .landing-comparison-card.is-usual {
   background:
-    radial-gradient(
-      circle at 100% 0%,
-      hsl(var(--quran-gold) / 0.07),
-      transparent 33%
-    ),
     linear-gradient(145deg, hsl(39 44% 98%), hsl(39 36% 93%));
 }
 
 .landing-comparison-card.is-qurancircle {
   border-color: hsl(var(--quran-green) / 0.42);
   background:
-    radial-gradient(
-      circle at 100% 0%,
-      hsl(var(--quran-light-green) / 0.1),
-      transparent 38%
-    ),
     linear-gradient(145deg, hsl(157 38% 98%), hsl(158 31% 93%));
 }
 
@@ -2305,25 +2180,10 @@
   border: 1px solid hsl(var(--quran-border) / 0.72);
   border-radius: 1.45rem;
   background:
-    radial-gradient(
-      circle at 100% 0%,
-      hsl(var(--quran-light-green) / 0.075),
-      transparent 30%
-    ),
     hsl(42 48% 98% / 0.88);
   box-shadow:
     0 30px 60px -38px hsl(var(--quran-deep) / 0.34),
     inset 0 1px 0 white;
-}
-
-.landing-process::before {
-  position: absolute;
-  top: 0;
-  left: 2.75rem;
-  width: 7.5rem;
-  height: 2px;
-  content: "";
-  background: linear-gradient(90deg, hsl(var(--quran-green)), transparent);
 }
 
 .landing-process-header {
@@ -2413,12 +2273,7 @@
   color: hsl(var(--quran-green));
   border: 1px solid hsl(var(--quran-green) / 0.17);
   border-radius: 50%;
-  background:
-    radial-gradient(
-      circle at 34% 28%,
-      white,
-      hsl(42 32% 96%) 68%
-    );
+  background: white;
   box-shadow:
     0 19px 34px -23px hsl(var(--quran-deep) / 0.46),
     0 0 0 0.55rem hsl(var(--quran-green) / 0.035),
@@ -2472,11 +2327,6 @@
   border: 1px solid hsl(var(--quran-border) / 0.7);
   border-radius: 1.35rem;
   background:
-    radial-gradient(
-      circle at 15% 40%,
-      hsl(var(--quran-gold) / 0.08),
-      transparent 26%
-    ),
     linear-gradient(110deg, hsl(42 48% 99%), hsl(157 21% 97%));
   box-shadow:
     0 26px 50px -35px hsl(var(--quran-deep) / 0.26),
@@ -2597,11 +2447,6 @@
   border: 1px solid hsl(var(--quran-border) / 0.62);
   border-radius: 1.55rem;
   background:
-    radial-gradient(
-      circle at 94% 8%,
-      hsl(var(--quran-light-green) / 0.11),
-      transparent 30%
-    ),
     linear-gradient(145deg, hsl(42 48% 99%), hsl(156 23% 96%));
   box-shadow:
     0 30px 58px -46px hsl(var(--quran-deep) / 0.38),
@@ -3222,10 +3067,6 @@
     min-height: 0;
     margin-top: 3rem;
     padding: 2.5rem 1.35rem 2.75rem;
-  }
-
-  .landing-process::before {
-    left: 1.25rem;
   }
 
   .landing-process-header {

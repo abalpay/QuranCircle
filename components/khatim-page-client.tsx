@@ -846,7 +846,7 @@ export default function KhatimPageClient({
   return (
     <>
       <div className="space-y-8 sm:space-y-10">
-        <section className="app-page-hero app-page-hero-compact">
+        <section className="app-page-hero app-page-hero-compact app-page-hero-framed">
           <div className="relative z-10 lg:col-span-2">
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <span className="quran-badge">
