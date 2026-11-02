@@ -22,6 +22,8 @@ const EVENT_FIXTURE: Pick<EventSnapshot, "khatms"> = {
       khatm_number: 2,
       claimed_count: 2,
       read_count: 1,
+      completed_at: null,
+      completion_source: null,
       juzs: [
         {
           id: "k2-j1",
@@ -51,6 +53,8 @@ const EVENT_FIXTURE: Pick<EventSnapshot, "khatms"> = {
       khatm_number: 1,
       claimed_count: 1,
       read_count: 0,
+      completed_at: null,
+      completion_source: null,
       juzs: [
         {
           id: "k1-j1",

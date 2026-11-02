@@ -21,6 +21,7 @@ export type EventFilterCounts = {
 export type CreatorManageRow = {
   khatmId: string;
   khatmNumber: number;
+  isCompleted: boolean;
   juzId: string;
   juzNumber: number;
   status: JuzSnapshot["status"];
@@ -156,6 +157,7 @@ export function getCreatorManageRows(
       rows.push({
         khatmId: khatm.id,
         khatmNumber: khatm.khatm_number,
+        isCompleted: Boolean(khatm.completed_at),
         juzId: juz.id,
         juzNumber: juz.juz_number,
         status: juz.status,

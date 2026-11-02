@@ -11,6 +11,8 @@ export type KhatmSnapshot = {
   khatm_number: number;
   claimed_count: number;
   read_count: number;
+  completed_at: string | null;
+  completion_source: "all_done" | "organizer" | "auto" | null;
   juzs: JuzSnapshot[];
 };
 

@@ -315,12 +315,14 @@ export default function KhatmCard({
                   {t("undo")}
                 </button>
               )}
-              <button
-                className="rounded-full bg-red-50 min-h-10 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 hover:text-red-600"
-                onClick={() => handleUnclaim(juz.id)}
-              >
-                {t("unclaim")}
-              </button>
+              {!isCompleted && (
+                <button
+                  className="rounded-full bg-red-50 min-h-10 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 hover:text-red-600"
+                  onClick={() => handleUnclaim(juz.id)}
+                >
+                  {t("unclaim")}
+                </button>
+              )}
             </div>
           </div>
         );
