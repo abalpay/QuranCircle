@@ -1065,5 +1065,10 @@
     "keep": "Keep it",
     "confirm": "Unclaim",
     "titleFrom": "Unclaim Juz {number} from {name}?"
+  },
+  "Captcha": {
+    "failed": "Security check failed",
+    "failedDescription": "We couldn't confirm you're not a bot. Please try again.",
+    "retry": "Try again"
   }
 }

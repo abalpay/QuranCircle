@@ -130,6 +130,7 @@ Types are generated in `lib/database.types.ts`.
 NEXT_PUBLIC_SUPABASE_URL       # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY  # Supabase anonymous key
 NEXT_PUBLIC_SUPPORT_URL        # Optional https donation page (Ko-fi); footer link hidden when unset. Inlined at build time: redeploy after changing
+NEXT_PUBLIC_TURNSTILE_SITE_KEY # Optional Cloudflare Turnstile site key; unset = no CAPTCHA, no widget, no CSP change. Inlined at build time: redeploy after changing. The secret key lives only in the Supabase dashboard
 ```
 
 ## Git

@@ -1065,5 +1065,10 @@
     "keep": "Cüz bende kalsın",
     "confirm": "Vazgeç",
     "titleFrom": "Cüz {number}, {name} adlı kişiden alınsın mı?"
+  },
+  "Captcha": {
+    "failed": "Güvenlik doğrulaması başarısız",
+    "failedDescription": "Robot olmadığınızı doğrulayamadık. Lütfen tekrar deneyin.",
+    "retry": "Tekrar dene"
   }
 }

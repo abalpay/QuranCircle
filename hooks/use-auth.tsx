@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl } from "@/lib/supabase/auth-urls";
+import { getCaptchaToken } from "@/lib/captcha";
 import type { User } from "@supabase/supabase-js";
 
 const ENABLE_ANONYMOUS_AUTH =
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [sessionReady, setSessionReady] = useState(false);
   const [supabase] = useState(() => createClient());
   const ensureSessionRef = useRef<Promise<User | null> | null>(null);
+  const retrySessionRef = useRef<() => void>(() => {});
   const finalizeMergeRef = useRef<Promise<MergeFinalizeStatus | null> | null>(null);
 
   const emitMergeComplete = useCallback((status: MergeFinalizeStatus) => {
@@ -217,7 +219,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       }
 
-      const { data, error } = await supabase.auth.signInAnonymously();
+      let captchaToken: string | undefined;
+      try {
+        captchaToken = await getCaptchaToken("anon_signin", () => retrySessionRef.current());
+      } catch {
+        setUser(null);
+        return null;
+      }
+
+      const { data, error } = await supabase.auth.signInAnonymously(
+        captchaToken ? { options: { captchaToken } } : undefined
+      );
       if (error) {
         console.error("[auth] signInAnonymously failed:", error.message);
         setUser(null);
@@ -237,6 +249,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSessionReady(true);
     }
   }, [finalizeAnonymousMergeState, supabase]);
+
+  useEffect(() => {
+    retrySessionRef.current = () => void ensureSession();
+  }, [ensureSession]);
 
   useEffect(() => {
     let mounted = true;
@@ -281,6 +297,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [finalizeAnonymousMergeState, supabase]);
 
   const signInWithPassword = async (email: string, password: string) => {
+    let captchaToken: string | undefined;
+    try {
+      captchaToken = await getCaptchaToken("signin");
+    } catch (error) {
+      return { error: error as Error };
+    }
     const prepared = await prepareAnonymousMergeState();
     if (!prepared) {
       return { error: buildMergePreparationError() };
@@ -289,6 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
+      ...(captchaToken && { options: { captchaToken } }),
     });
 
     if (!error) {
@@ -310,6 +333,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     username?: string
   ) => {
+    let captchaToken: string | undefined;
+    try {
+      captchaToken = await getCaptchaToken("signup");
+    } catch (error) {
+      return { error: error as Error };
+    }
     const prepared = await prepareAnonymousMergeState();
     if (!prepared) {
       return { error: buildMergePreparationError() };
@@ -320,6 +349,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         data: { username: username || email.split("@")[0] },
         emailRedirectTo: getAuthCallbackUrl(),
+        captchaToken,
       },
     });
 
@@ -361,8 +391,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
+    let captchaToken: string | undefined;
+    try {
+      captchaToken = await getCaptchaToken("reset");
+    } catch (error) {
+      return { error: error as Error };
+    }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: getAuthCallbackUrl("/reset-password"),
+      captchaToken,
     });
     return { error: error as Error | null };
   };
