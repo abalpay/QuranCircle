@@ -122,12 +122,19 @@ describe("event filter helpers", () => {
     );
   });
 
-  it("derives event-wide filter counts", () => {
+  it("scopes All to the latest khatm, Available to open khatms, My Juz to the event", () => {
     expect(getEventFilterCounts(EVENT_FIXTURE)).toEqual({
-      all: 5,
+      all: 3,
       available: 2,
       mine: 1,
     });
+  });
+
+  it("does not count Juz of a completed khatm as available", () => {
+    const [latest, older] = EVENT_FIXTURE.khatms;
+    expect(
+      getEventFilterCounts({ khatms: [latest, { ...older, completed_at: "2026-11-01T00:00:00Z" }] })
+    ).toEqual({ all: 3, available: 1, mine: 1 });
   });
 
   it("returns khatm matches per filter", () => {

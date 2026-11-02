@@ -139,7 +139,7 @@ test.describe("install prompt", () => {
     ).toBeVisible();
   });
 
-  test("appears after successful claim on circle page", async ({ page }) => {
+  test("does not appear after a claim on the circle page (#79)", async ({ page }) => {
     await page.goto(`/s/${smokeShortCode}`);
 
     await page.locator('[title^="Tap to select Juz"]').first().click();
@@ -147,14 +147,22 @@ test.describe("install prompt", () => {
     await page.getByLabel("Your Name").fill("Install Prompt Tester");
     await page.getByRole("button", { name: "Claim Juz" }).click();
 
-    await expect(
-      page.getByRole("heading", { name: "Keep your circle one tap away" })
-    ).toBeVisible({ timeout: 8_000 });
-
-    await page.getByRole("button", { name: "Not now" }).click();
-
-    await page.getByRole("button", { name: /My Juz \(1\)/ }).click();
-    await page.getByRole("button", { name: "Unclaim" }).click();
+    try {
+      await expect(page.getByRole("heading", { name: "Your Juz" })).toBeVisible();
+      // The old sheet showed 1.4s after the claim; wait past that.
+      await page.waitForTimeout(2_500);
+      await expect(
+        page.getByRole("heading", { name: "Keep your circle one tap away" })
+      ).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Not now" })).toHaveCount(0);
+    } finally {
+      await page.getByRole("button", { name: "Unclaim", exact: true }).first().click();
+      await page
+        .getByRole("alertdialog")
+        .getByRole("button", { name: "Unclaim", exact: true })
+        .click();
+      await expect(page.getByRole("heading", { name: "Your Juz" })).toHaveCount(0);
+    }
   });
 
   test("shows iOS instructions with done action", async ({ page }) => {

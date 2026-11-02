@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import KhatmCard from "@/components/khatm-card";
+import YourJuzBlock from "@/components/your-juz-block";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { getCreatorManageRows } from "@/lib/event-filters";
 import type { KhatmSnapshot } from "@/lib/types/events";
@@ -54,22 +55,29 @@ function renderCard(
   );
 }
 
+
+function renderBlock(khatm: KhatmSnapshot) {
+  return render(
+    <YourJuzBlock khatms={[khatm]} onDone={vi.fn()} onUndo={vi.fn()} onUnclaim={vi.fn()} />,
+    { wrapper: IntlWrapper }
+  );
+}
+
 describe("completed khatm UI (D6)", () => {
-  it("hides Unclaim but keeps Done and Undo on a completed khatm", () => {
-    renderCard(makeKhatm(true), { isFinal: true });
+  it("hides Unclaim but keeps Done and Undo in Your Juz on a completed khatm", () => {
+    renderBlock(makeKhatm(true));
     expect(screen.queryByText("Unclaim")).toBeNull();
-    expect(screen.getByText("Mark Read")).toBeTruthy();
+    expect(screen.getByText("Done", { selector: "button" })).toBeTruthy();
     expect(screen.getByText("Undo")).toBeTruthy();
   });
 
   it("shows Unclaim on an open khatm", () => {
-    renderCard(makeKhatm(false), {});
+    renderBlock(makeKhatm(false));
     expect(screen.getAllByText("Unclaim").length).toBe(2);
   });
 
   it("keeps a full khatm with a newer khatm collapsed even when not completed", () => {
     renderCard(makeKhatm(false), { filter: "all", isCompleted: true });
-    expect(screen.queryByText("Unclaim")).toBeNull();
     // Collapsed summary button, not the expanded grid.
     expect(screen.getAllByRole("button")).toHaveLength(1);
   });
@@ -84,10 +92,11 @@ describe("completed khatm UI (D6)", () => {
     khatm.claimed_count = 29;
     khatm.juzs[29] = { ...khatm.juzs[29], status: "unclaimed", claimed_by_name: null };
     const { unmount } = renderCard(khatm, { filter: "all", isFinal: false });
-    expect(screen.queryByTitle("Tap to select Juz 30")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Tap to select Juz 30" })).toBeTruthy();
     unmount();
     renderCard(khatm, { filter: "all", isFinal: true });
-    expect(screen.queryByTitle("Tap to select Juz 30")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Tap to select Juz 30" })).toBeNull();
+    expect(screen.getByRole("img", { name: "Juz 30, Available" })).toBeTruthy();
   });
 
   it("hides Unclaim in the organizer queue for completed khatms only", () => {
@@ -107,19 +116,33 @@ describe("completed khatm UI (D6)", () => {
       { wrapper: IntlWrapper }
     );
     expect(screen.queryByText("Unclaim")).toBeNull();
-    expect(screen.getAllByText("Mark Read").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Done", { selector: "button" }).length).toBeGreaterThan(0);
     expect(screen.getByText("Undo")).toBeTruthy();
 
+    const onUnclaim = vi.fn();
     render(
       <CreatorQueuePanel
         rows={rows.filter((r) => r.khatmId === "k2")}
         onMarkRead={vi.fn()}
         onUndoRead={vi.fn()}
-        onUnclaim={vi.fn()}
+        onUnclaim={onUnclaim}
       />,
       { wrapper: IntlWrapper }
     );
-    expect(screen.getAllByText("Unclaim").length).toBeGreaterThan(0);
     fireEvent.click(screen.getAllByText("Unclaim")[0]);
+    expect(onUnclaim).not.toHaveBeenCalled();
+    expect(screen.getByText(/^Unclaim Juz \d+ from .*Me.*\?$/)).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: "Unclaim" }).at(-1)!);
+    expect(onUnclaim).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("reader view progress (D8)", () => {
+  it("leads with claimed and keeps Done as a quiet second line", () => {
+    renderCard(makeKhatm(false), { filter: "all" });
+    expect(screen.getByText("30 of 30 claimed")).toBeTruthy();
+    expect(screen.getByText("1 Done")).toBeTruthy();
+    expect(screen.queryByText(/Progress Tracker/i)).toBeNull();
+    expect(screen.queryByText(/%/)).toBeNull();
   });
 });

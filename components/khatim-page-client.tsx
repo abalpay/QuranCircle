@@ -30,12 +30,13 @@ import {
 import { toast } from "sonner";
 import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
-import InstallAppSheet from "@/components/install-app-sheet";
+import YourJuzBlock from "@/components/your-juz-block";
 import { useTranslations } from "next-intl";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { cn } from "@/lib/utils";
 import { copyCircleLink, shareCircleInvite } from "@/lib/share-invite";
 import { trackProductEvent } from "@/lib/analytics";
+import { textScript } from "@/lib/text-script";
 import {
   type GlobalFilter,
   getDisplayFilter,
@@ -58,20 +59,14 @@ import {
   unarchiveEvent,
   deleteEvent,
 } from "@/lib/actions/events";
-import {
-  hasSeenClaimInstallPrompt,
-  isInstallPromptEnabled,
-  markClaimInstallPromptSeen,
-} from "@/hooks/use-pwa-install";
 
 const IDENTITY_MERGED_EVENT = "quran-circle:identity-merged";
 const SESSION_BOOTSTRAP_MAX_RETRIES = 4;
 const SESSION_BOOTSTRAP_BASE_DELAY_MS = 500;
 const REALTIME_RECOVERY_POLL_MS = 5_000;
 const REALTIME_SAFETY_POLL_MS = 60_000;
-const MY_JUZ_NUDGE_KEY = "qc_my_juz_nudge_seen_v1";
 const FILTER_SYNC_TIMEOUT_MS = 1_200;
-const CLAIM_SUCCESS_INSTALL_PROMPT_DELAY_MS = 1_400;
+const CLAIM_CONFIRMATION_MS = 9_000;
 const SNAPSHOT_WINDOW_KHATM_LIMIT = 3;
 const SNAPSHOT_WINDOW_MAX_KHATM_LIMIT = 20;
 
@@ -102,9 +97,6 @@ export default function KhatimPageClient({
   const [, startFilterTransition] = useTransition();
   const [pendingFilter, setPendingFilter] = useState<GlobalFilter | null>(null);
   const [pendingMineView, setPendingMineView] = useState<MineView | null>(null);
-  const [shouldNudgeMyJuz, setShouldNudgeMyJuz] = useState(false);
-  const [showMyJuzNudge, setShowMyJuzNudge] = useState(false);
-  const [isInstallPromptOpen, setIsInstallPromptOpen] = useState(false);
   const [isLoadingOlderKhatms, setIsLoadingOlderKhatms] = useState(false);
   const latestKhatmIdRef = useRef<string | null>(
     initialEvent.khatms[initialEvent.khatms.length - 1]?.id ?? null
@@ -112,7 +104,6 @@ export default function KhatimPageClient({
   const loadedKhatmCountRef = useRef<number>(
     initialEvent.khatms.length || SNAPSHOT_WINDOW_KHATM_LIMIT
   );
-  const installPromptTimerRef = useRef<number | null>(null);
 
   const urlFilter = useMemo(
     () => normalizeGlobalFilter(searchParams.get("filter")),
@@ -139,22 +130,6 @@ export default function KhatimPageClient({
     loadedKhatmCountRef.current =
       event.khatms.length || SNAPSHOT_WINDOW_KHATM_LIMIT;
   }, [event.khatms.length]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
-    setShouldNudgeMyJuz(window.localStorage.getItem(MY_JUZ_NUDGE_KEY) !== "1");
-  }, []);
-
-  useEffect(() => {
-    if (displayFilter !== "mine") return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing pattern; rule tightened in eslint-plugin-react-hooks 7.1
-    if (showMyJuzNudge) setShowMyJuzNudge(false);
-    if (shouldNudgeMyJuz && typeof window !== "undefined") {
-      window.localStorage.setItem(MY_JUZ_NUDGE_KEY, "1");
-      setShouldNudgeMyJuz(false);
-    }
-  }, [displayFilter, shouldNudgeMyJuz, showMyJuzNudge]);
 
   useEffect(() => {
     if (pendingFilter === null) return;
@@ -210,14 +185,6 @@ export default function KhatimPageClient({
     searchParams,
     startFilterTransition,
   ]);
-
-  useEffect(() => {
-    return () => {
-      if (installPromptTimerRef.current) {
-        window.clearTimeout(installPromptTimerRef.current);
-      }
-    };
-  }, []);
 
   const setActiveFilter = useCallback(
     (nextFilterValue: string) => {
@@ -483,57 +450,29 @@ export default function KhatimPageClient({
   );
 
   const handleClaimSuccess = useCallback(
-    ({ claimedCount, newKhatmCreated }: ClaimSuccessPayload) => {
-      const queueInstallPrompt = () => {
-        if (typeof window === "undefined" || !isInstallPromptEnabled()) return;
-        if (hasSeenClaimInstallPrompt()) return;
+    ({ claimedNumbers, newKhatmCreated }: ClaimSuccessPayload) => {
+      const message = tPage(
+        claimedNumbers.length > 1 ? "juzClaimedConfirmMany" : "juzClaimedConfirm",
+        { numbers: [...claimedNumbers].sort((a, b) => a - b).join(", ") }
+      );
 
-        markClaimInstallPromptSeen();
-        if (installPromptTimerRef.current) {
-          window.clearTimeout(installPromptTimerRef.current);
-        }
-        installPromptTimerRef.current = window.setTimeout(() => {
-          setIsInstallPromptOpen(true);
-        }, CLAIM_SUCCESS_INSTALL_PROMPT_DELAY_MS);
-      };
-
-      const successMessage = newKhatmCreated
-        ? tPage("juzClaimedNewKhatm")
-        : claimedCount === 1
-          ? tPage("juzClaimedSingle")
-          : tPage("juzClaimedMultiple", { count: claimedCount });
-      const shouldGuideToMyJuz = shouldNudgeMyJuz && displayFilter !== "mine";
-      if (shouldGuideToMyJuz) {
-        setShowMyJuzNudge(true);
-      }
-
-      if (newKhatmCreated && displayFilter === "available") {
+      if (newKhatmCreated) {
         const baselineKhatmId = latestKhatmIdRef.current;
-        toast.success(successMessage, {
-          action: {
-            label: tPage("jumpToNewKhatm"),
-            onClick: () => jumpToLatestKhatm(baselineKhatmId),
-          },
+        toast.success(`${message} ${tPage("newKhatmStarted")}`, {
+          duration: CLAIM_CONFIRMATION_MS,
+          ...(displayFilter !== "mine" && {
+            action: {
+              label: tPage("jumpToNewKhatm"),
+              onClick: () => jumpToLatestKhatm(baselineKhatmId),
+            },
+          }),
         });
-        queueInstallPrompt();
         return;
       }
 
-      if (shouldGuideToMyJuz) {
-        toast.success(tPage("juzClaimedManage"), {
-          action: {
-            label: tPage("goToMyJuz"),
-            onClick: () => setActiveFilter("mine"),
-          },
-        });
-        queueInstallPrompt();
-        return;
-      }
-
-      toast.success(successMessage);
-      queueInstallPrompt();
+      toast.success(message, { duration: CLAIM_CONFIRMATION_MS });
     },
-    [displayFilter, jumpToLatestKhatm, setActiveFilter, shouldNudgeMyJuz, tPage]
+    [displayFilter, jumpToLatestKhatm, tPage]
   );
 
   // Re-establish realtime subscription when tab becomes visible or network reconnects
@@ -880,11 +819,19 @@ export default function KhatimPageClient({
 
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div>
-                <h1 className="font-heading text-[2.75rem] leading-[1.02] text-quran-deep sm:text-[3.7rem]">
+                <h1
+                  dir="auto"
+                  data-script={textScript(event.name)}
+                  className="font-heading text-[2.75rem] leading-[1.02] text-quran-deep sm:text-[3.7rem]"
+                >
                   {event.name}
                 </h1>
                 {event.description && (
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-quran-muted sm:text-base">
+                  <p
+                    dir="auto"
+                    data-script={textScript(event.description)}
+                    className="mt-3 max-w-2xl text-base leading-7 text-quran-deep/85"
+                  >
                     {event.description}
                   </p>
                 )}
@@ -965,6 +912,14 @@ export default function KhatimPageClient({
           </div>
         </section>
 
+      <YourJuzBlock
+        khatms={event.khatms}
+        isReadOnly={event.is_archived}
+        onDone={handleCreatorMarkRead}
+        onUndo={handleCreatorUnmarkRead}
+        onUnclaim={handleCreatorUnclaim}
+      />
+
       {event.is_archived && (
         <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
           <div className="flex items-center gap-3 text-sm text-amber-800">
@@ -986,7 +941,11 @@ export default function KhatimPageClient({
       )}
 
       <section className="app-toolbar">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold">
+        <p
+          id="juz-filters-start"
+          tabIndex={-1}
+          className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold outline-none"
+        >
           {t("juzFilters")}
         </p>
         <div
@@ -1031,18 +990,10 @@ export default function KhatimPageClient({
             className={cn(
               "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
               displayFilter === "mine" &&
-                "bg-background text-foreground shadow-sm hover:bg-background",
-              showMyJuzNudge && "animate-pulse ring-2 ring-emerald-300"
+                "bg-background text-foreground shadow-sm hover:bg-background"
             )}
           >
-            <span className="flex items-center gap-2">
-              <span>{t("myJuz", { count: filterCounts.mine })}</span>
-              {showMyJuzNudge && (
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                  {t("new")}
-                </span>
-              )}
-            </span>
+            {t("myJuz", { count: filterCounts.mine })}
           </Button>
         </div>
         {filterSyncPending && (
@@ -1098,6 +1049,10 @@ export default function KhatimPageClient({
         </section>
       )}
 
+      {displayFilter === "mine" && !showCreatorQueue && filterCounts.mine === 0 && (
+        <p className="px-1 text-base text-quran-muted">{tPage("otherPhoneHint")}</p>
+      )}
+
       {showCreatorQueue && creatorManageRows.length > 0 && (
         <CreatorQueuePanel
           rows={creatorManageRows}
@@ -1118,7 +1073,7 @@ export default function KhatimPageClient({
         </section>
       )}
 
-      {!showCreatorQueue && (
+      {!showCreatorQueue && displayFilter !== "mine" && (
         <div className="space-y-8">
           {event.khatms.map((khatm, index) => {
             const hasNewerKhatm = index < event.khatms.length - 1;
@@ -1170,12 +1125,6 @@ export default function KhatimPageClient({
           isDeleting={isDeleting}
         />
       </div>
-      <InstallAppSheet
-        surface="claim-success"
-        open={isInstallPromptOpen}
-        onOpenChange={setIsInstallPromptOpen}
-        showDoneAction
-      />
     </>
   );
 }
