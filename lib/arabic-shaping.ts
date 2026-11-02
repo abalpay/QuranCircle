@@ -117,9 +117,10 @@ const MIRRORED: Record<string, string> = { "(": ")", ")": "(", "[": "]", "]": "[
 const DIGIT = /\p{N}/u;
 const isLtrLetterOrDigit = (char: string) => /[\p{Script=Latin}\p{N}]/u.test(char);
 const isMarkChar = (char: string) => isMark(char.codePointAt(0) as number);
-// Letters Tajawal has no presentation form for stay in U+0600..06FF (minus the digits U+0660..0669)
-// and satori's own bidi (opentype.js) reverses every run of those, marks included.
-const BASE_ARABIC_RUN = /[\u0600-\u065F\u066A-\u06FF]+/gu;
+// Letters Tajawal has no presentation form for stay in the base block, and opentype.js (inside @vercel/og)
+// reverses every run of exactly these code points, marks included. Digits U+0660..0669 and U+06F0..06F9
+// are not in its set, so they are not re-reversed here.
+const BASE_ARABIC_RUN = /[\u0600-\u065F\u066A-\u06D3\u06D6-\u06DC\u06DF-\u06ED\u06FA-\u06FF]+/gu;
 
 /**
  * Satori draws presentation forms strictly left to right, so a shaped word has to be handed over in

@@ -70,11 +70,12 @@ test.describe("metadata assets", () => {
         expect(new URL(metadataUrl as string).origin).toBe(expectedOrigin);
       }
 
+      // One link-preview card per locale (#104).
       expect(new URL(openGraphImage as string).pathname).toBe(
-        "/opengraph-image",
+        `/opengraph-image/${locale.lang}`,
       );
       expect(new URL(twitterImage as string).pathname).toBe(
-        "/opengraph-image",
+        `/opengraph-image/${locale.lang}`,
       );
     }
   });

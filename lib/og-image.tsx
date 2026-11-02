@@ -126,12 +126,12 @@ export default async function createOgImage(requestedLocale?: string | null) {
           >
             <OgText
               text={t("line1")}
-              hug={false}
+              align="center"
               style={{ fontSize: 72, fontWeight: 400, color: colors.deep, lineHeight: 1.2, fontFamily: sans }}
             />
             <OgText
               text={t("line2")}
-              hug={false}
+              align="center"
               style={{ fontSize: 72, fontWeight: 400, color: colors.green, lineHeight: 1.2, fontFamily: sans }}
             />
           </div>
@@ -139,7 +139,7 @@ export default async function createOgImage(requestedLocale?: string | null) {
           {/* Subtitle */}
           <OgText
             text={t("subtitle")}
-            hug={false}
+            align="center"
             style={{
               fontSize: 24,
               color: colors.muted,

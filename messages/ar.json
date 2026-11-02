@@ -540,7 +540,7 @@
   "OpenGraphImage": {
     "fallbackCircleName": "حلقة ختمة",
     "joinCircle": "انضم إلى حلقة الختمة",
-    "khatmComplete": "اكتملت الختمة {number}",
+    "khatmComplete": "اكتملت الختمة رقم {number}",
     "archivedLabel": "هذه الحلقة مؤرشفة",
     "fullLabel": "جميع الأجزاء الثلاثين محجوزة"
   },

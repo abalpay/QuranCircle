@@ -926,6 +926,7 @@ export default function KhatimPageClient({
                   <DropdownMenuContent
                     align="end"
                     sideOffset={8}
+                    collisionPadding={8}
                     className="min-w-52 rounded-xl border-quran-border bg-white/95 p-1.5 shadow-xl backdrop-blur"
                   >
                     <DropdownMenuItem

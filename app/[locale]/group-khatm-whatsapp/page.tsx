@@ -99,7 +99,7 @@ export default async function GroupKhatmWhatsappPage({
       datePublished: "2026-07-24",
       dateModified: "2026-07-24",
       mainEntityOfPage: pageUrl,
-      image: toAbsoluteUrl("/opengraph-image"),
+      image: toAbsoluteUrl(`/opengraph-image/${locale}`),
       author: {
         "@type": "Organization",
         name: "QuranCircle",

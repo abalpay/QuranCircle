@@ -6,7 +6,9 @@ import { join } from "node:path";
  * ("lookupType: 5 - substFormat: 3 is not yet supported"), and Noto Sans/Naskh Arabic and Amiri
  * fail the same way. Tajawal (60 KB, SIL OFL, assets/fonts) shapes correctly; Manrope covers Latin.
  * Buffers are read once per server instance; a font that cannot be read is skipped (logged once)
- * so the image still renders in the fallback face instead of answering 500.
+ * so the image still renders instead of answering 500 (without Tajawal the renderer may try to fetch a
+ * fallback Arabic font, which can fail: Arabic text is then at risk, not the response). A partial list is
+ * never kept: the next request retries.
  */
 // Literal paths on purpose: the bundler traces them into the image routes' output (a variable path would not be).
 const FILES = [
@@ -32,7 +34,10 @@ async function readFonts(): Promise<OgFont[]> {
 }
 
 export function loadOgFonts() {
-  cached ??= readFonts();
+  cached ??= readFonts().then((fonts) => {
+    if (fonts.length < FILES.length) cached = null;
+    return fonts;
+  });
   return cached;
 }
 

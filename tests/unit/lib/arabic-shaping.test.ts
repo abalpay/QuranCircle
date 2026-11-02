@@ -34,6 +34,11 @@ describe("shapeForOg: exact code points handed to satori", () => {
     ]);
   });
 
+  it("leaves Arabic-Indic and Persian digits in reading order (opentype does not reverse them)", () => {
+    expect(cps(shapeForOg("\u06F1\u06F2"))).toBe("06F1 06F2");
+    expect(cps(shapeForOg("\u0661\u0662"))).toBe("0661 0662");
+  });
+
   it("keeps digits with separators as one left-to-right run", () => {
     expect(cps(shapeForOg("1,000"))).toBe("0031 002C 0030 0030 0030");
     expect(cps(shapeForOg("ب1.5"))).toBe("0031 002E 0035 0628");

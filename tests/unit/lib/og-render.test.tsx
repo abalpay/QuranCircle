@@ -22,8 +22,10 @@ describe("share image text (#103)", () => {
   });
 
   it("never passes an undefined style value to satori (it throws on them)", () => {
-    const { container } = render(<OgText text="ختمة" style={{ fontSize: 64, maxWidth: 960 }} />);
-    expect((container.firstElementChild as HTMLElement).style.maxWidth).toBe("");
+    const { container } = render(<OgText text="ختمة 1" style={{ fontSize: 64, maxWidth: 960 }} />);
+    for (const element of Array.from(container.querySelectorAll<HTMLElement>("*"))) {
+      expect(element.getAttribute("style") ?? "").not.toMatch(/undefined|NaN/);
+    }
   });
 
   it("keeps Latin text as one plain node", () => {
@@ -61,8 +63,22 @@ describe("share image text (#103)", () => {
     expect(visual.indexOf("\u0651")).toBeGreaterThan(-1);
   });
 
-  it("aligns words of different faces on one baseline", () => {
-    const { container } = render(<OgText text="الختمة 1" style={{ fontSize: 28 }} />);
-    expect((container.firstElementChild as HTMLElement).style.alignItems).toBe("baseline");
+  it("gives every word box the same height and sets Arabic words in Tajawal, dropped to the Latin baseline", () => {
+    const { container } = render(<OgText text="الختمة 1" style={{ fontSize: 28, lineHeight: 1.5, fontFamily: "Manrope, sans-serif" }} />);
+    const boxes = Array.from(container.firstElementChild!.children) as HTMLElement[];
+    expect(new Set(boxes.map((box) => box.style.height))).toEqual(new Set(["42px"]));
+    const arabic = boxes.find((box) => box.textContent?.includes("\uFE94") || box.textContent?.match(/[\u0600-\u06FF\uFB50-\uFEFF]/))!;
+    const latin = boxes.find((box) => box.textContent === "1")!;
+    expect(arabic.style.fontFamily).toContain("Tajawal");
+    expect(arabic.style.top).toBe("7px");
+    expect(latin.style.top).toBe("");
   });
+
+  it("aligns a block to one physical edge", () => {
+    const rtl = render(<OgText text="ختمة" align="right" style={{ fontSize: 28 }} />).container.firstElementChild as HTMLElement;
+    expect(rtl.style.justifyContent).toBe("flex-start"); // row-reverse starts at the right
+    const ltrInRtlCard = render(<OgText text="Khatm" align="right" style={{ fontSize: 28 }} />).container.firstElementChild as HTMLElement;
+    expect(ltrInRtlCard.style.textAlign).toBe("right");
+  });
+
 });

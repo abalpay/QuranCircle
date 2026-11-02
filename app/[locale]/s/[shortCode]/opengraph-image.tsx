@@ -6,7 +6,8 @@ import { routing } from "@/i18n/routing";
 import BrandMark from "@/components/brand-mark";
 import { getCircleOgState, truncateAtWord, type CircleOgStatus } from "@/lib/circle-og";
 import { loadOgFonts, ogFontFamily } from "@/lib/og-fonts";
-import { OgText } from "@/lib/og-text";
+import { OgText, type OgAlign } from "@/lib/og-text";
+import { layoutBidiWords } from "@/lib/og-bidi";
 
 export const runtime = "nodejs";
 
@@ -76,6 +77,9 @@ export default async function OGImage({
   // Both fonts always load: Manrope for Latin, Tajawal for Arabic, so every card uses the same faces (#104).
   const fonts = await loadOgFonts();
   const sans = ogFontFamily(fonts);
+  // One alignment for the whole card, from the circle name's direction; each line keeps its own.
+  const rtl = layoutBidiWords(eventName).paragraph === "rtl";
+  const align: OgAlign = rtl ? "right" : "left";
 
   return new ImageResponse(
     (
@@ -149,6 +153,7 @@ export default async function OGImage({
             flexDirection: "column",
             flex: 1,
             justifyContent: "center",
+            alignItems: rtl ? "flex-end" : "flex-start",
             gap: 20,
             position: "relative",
           }}
@@ -156,11 +161,13 @@ export default async function OGImage({
           {statusLabel ? (
             <OgText
               text={statusLabel}
+              align={align}
               style={{ fontSize: 28, fontWeight: 600, color: colors.gold, fontFamily: sans }}
             />
           ) : null}
           <OgText
             text={truncateAtWord(eventName, 60)}
+            align={align}
             style={{
               fontSize: 64,
               fontWeight: 400,
@@ -174,6 +181,7 @@ export default async function OGImage({
           {eventDescription ? (
             <OgText
               text={truncateAtWord(eventDescription, 120)}
+              align={align}
               style={{
                 fontSize: 24,
                 color: colors.mutedLight,
@@ -190,7 +198,7 @@ export default async function OGImage({
               width: 80,
               height: 2,
               marginTop: 8,
-              background: `linear-gradient(90deg, ${colors.gold}, ${colors.gold}44)`,
+              background: `linear-gradient(${rtl ? 270 : 90}deg, ${colors.gold}, ${colors.gold}44)`,
               borderRadius: 2,
               display: "flex",
             }}
@@ -201,11 +209,21 @@ export default async function OGImage({
         <div
           style={{
             display: "flex",
+            flexDirection: rtl ? "row-reverse" : "row",
             alignItems: "center",
             justifyContent: "space-between",
             position: "relative",
           }}
         >
+          {/* Row-reverse puts the first child on the right: the CTA leads in RTL, so it sits on the card's edge. */}
+          {/* A complete khatm has nothing left to join. */}
+          {showJoinCta ? (
+            <OgText
+              text={`${t("joinCircle")} ${supportedLocale === "ar" ? "\u2190" : "\u2192"}`}
+              align={align}
+              style={{ fontSize: 18, color: colors.gold, fontFamily: sans, fontWeight: 600 }}
+            />
+          ) : null}
           <div
             style={{
               fontSize: 18,
@@ -217,14 +235,6 @@ export default async function OGImage({
           >
             qurancircle.io
           </div>
-          {/* A complete khatm has nothing left to join. */}
-          {showJoinCta ? (
-            <OgText
-              text={`${t("joinCircle")} ${supportedLocale === "ar" ? "\u2190" : "\u2192"}`}
-              hug={false}
-              style={{ fontSize: 18, color: colors.gold, fontFamily: sans, fontWeight: 600 }}
-            />
-          ) : null}
         </div>
       </div>
     ),
