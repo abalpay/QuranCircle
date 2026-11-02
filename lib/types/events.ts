@@ -23,6 +23,7 @@ export type EventSnapshot = {
   short_code: string;
   is_public: boolean;
   is_archived: boolean;
+  open_next_khatm: boolean;
   created_at: string;
   is_creator: boolean;
   is_member: boolean;

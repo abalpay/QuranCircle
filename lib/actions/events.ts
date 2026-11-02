@@ -472,7 +472,7 @@ export async function getMyCircles(): Promise<MyCircleWithProgress[]> {
 
 async function runEventMutation(
   shortCode: string,
-  rpcName: "set_event_archive" | "delete_event_by_shortcode",
+  rpcName: "set_event_archive" | "delete_event_by_shortcode" | "set_open_next_khatm",
   args: Record<string, unknown> = {}
 ) {
   if (!shortCodeSchema.safeParse(shortCode).success) return { error: "Invalid input" };
@@ -513,6 +513,17 @@ export async function unarchiveEvent(shortCode: string) {
   revalidatePath("/");
   revalidatePath("/browse");
   revalidatePath("/my-circles");
+  return {};
+}
+
+export async function setOpenNextKhatm(shortCode: string, open: boolean) {
+  const result = await runEventMutation(shortCode, "set_open_next_khatm", {
+    p_open: open,
+  });
+  if (result.error) return result;
+
+  revalidatePath(`/s/${shortCode}`);
+  revalidatePath("/browse");
   return {};
 }
 

@@ -155,6 +155,54 @@ describe("RPC contract checks", () => {
     expect((error?.message ?? "").toLowerCase()).toContain("permission");
   });
 
+  it("blocks set_open_next_khatm for raw anon role", async () => {
+    const anon = createAnonClient();
+    const { error } = await anon.rpc("set_open_next_khatm" as never, {
+      p_short_code: "E2ESMOKE1",
+      p_open: false,
+    } as never);
+
+    expect(error).not.toBeNull();
+    expect((error?.message ?? "").toLowerCase()).toContain("permission");
+  });
+
+  it("lets the creator switch open_next_khatm and exposes it in the snapshot", async () => {
+    const client = createAnonClient();
+    const { data: signIn, error: signInError } =
+      await client.auth.signInAnonymously();
+    expect(signInError).toBeNull();
+    if (signIn.user) createdUserIds.push(signIn.user.id);
+
+    const shortCode = `OPEN${randomUUID().replace(/-/g, "").slice(0, 8)}`;
+    try {
+      const { error: createError } = await client
+        .rpc("create_event_with_initial_khatm", {
+          p_name: "Open-next contract circle",
+          p_description: "",
+          p_is_public: false,
+          p_short_code: shortCode,
+        })
+        .single();
+      expect(createError).toBeNull();
+
+      const { data: switched, error: switchError } = await client.rpc(
+        "set_open_next_khatm" as never,
+        { p_short_code: shortCode, p_open: false } as never,
+      );
+      assertNoFunctionSignatureDrift(switchError, "set_open_next_khatm");
+      expect(switchError).toBeNull();
+      expect(switched).toMatchObject({ open_next_khatm: false, removed_khatm: false });
+
+      const { data: snapshot } = await client.rpc("get_event_snapshot_by_shortcode", {
+        p_short_code: shortCode,
+        p_khatm_limit: 3,
+      });
+      expect((snapshot as Record<string, unknown> | null)?.open_next_khatm).toBe(false);
+    } finally {
+      await admin.from("events").delete().eq("short_code", shortCode);
+    }
+  });
+
   it("blocks legacy merge RPC for authenticated clients", async () => {
     const client = await createAuthenticatedClient();
     try {

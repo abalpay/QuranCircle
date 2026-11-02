@@ -30,6 +30,7 @@ WHERE rp.routine_schema IN ('public', 'private')
     'mark_juz_read',
     'mark_juz_read_with_completion',
     'complete_khatm',
+    'set_open_next_khatm',
     'auto_complete_khatms',
     'unmark_juz_read',
     'list_user_events_with_progress',
@@ -105,6 +106,12 @@ BEGIN
   END IF;
   IF NOT has_function_privilege('authenticated', 'public.complete_khatm(text,uuid)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: authenticated cannot execute complete_khatm';
+  END IF;
+  IF has_function_privilege('anon', 'public.set_open_next_khatm(text,boolean)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: anon can execute set_open_next_khatm';
+  END IF;
+  IF NOT has_function_privilege('authenticated', 'public.set_open_next_khatm(text,boolean)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: authenticated cannot execute set_open_next_khatm';
   END IF;
   IF has_function_privilege('anon', 'private.auto_complete_khatms(integer)', 'EXECUTE')
      OR has_function_privilege('authenticated', 'private.auto_complete_khatms(integer)', 'EXECUTE')

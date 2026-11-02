@@ -9,6 +9,7 @@ import type { EventSnapshot } from "@/lib/types/events";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -56,6 +57,7 @@ import {
   ensureEventMembershipForShortCode,
   archiveEvent,
   unarchiveEvent,
+  setOpenNextKhatm,
   deleteEvent,
 } from "@/lib/actions/events";
 import {
@@ -822,6 +824,24 @@ export default function KhatimPageClient({
     }
   };
 
+  const handleOpenNextToggle = async () => {
+    const next = !event.open_next_khatm;
+    try {
+      const result = await setOpenNextKhatm(shortCode, next);
+      const openNextError = (result as { error?: string }).error;
+      if (openNextError) {
+        toast.error(openNextError);
+        return;
+      }
+      setEvent((current) => ({ ...current, open_next_khatm: next }));
+      toast.success(tPage(next ? "openNextKhatmOn" : "openNextKhatmOff"));
+      void refreshEvent();
+    } catch (error) {
+      console.error("[QuranCircle] Failed to toggle open-next-khatm:", error);
+      toast.error(tPage("openNextKhatmFailed"));
+    }
+  };
+
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -935,7 +955,25 @@ export default function KhatimPageClient({
                         <Settings className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="max-w-72">
+                      {!event.is_archived && (
+                        <>
+                          <DropdownMenuCheckboxItem
+                            checked={event.open_next_khatm}
+                            onSelect={(e) => e.preventDefault()}
+                            onCheckedChange={() => void handleOpenNextToggle()}
+                            className="min-h-11 items-start py-2"
+                          >
+                            <span className="flex flex-col gap-0.5">
+                              <span>{tPage("openNextKhatm")}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {tPage("openNextKhatmHelp")}
+                              </span>
+                            </span>
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
                       <DropdownMenuItem onClick={handleArchiveToggle}>
                         {event.is_archived ? (
                           <>
