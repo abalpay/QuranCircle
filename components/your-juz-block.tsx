@@ -57,63 +57,58 @@ export default function YourJuzBlock({ khatms, onDone, onUndo, onUnclaim }: Prop
           const isDone = juz.status === "read";
           const busy = busyId === juz.id;
           return (
-            <li
-              key={juz.id}
-              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3 first:pt-0 last:pb-0"
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "flex size-11 items-center justify-center rounded-xl border font-heading text-2xl tabular-nums lining-nums",
-                    isDone
-                      ? "border-emerald-300/70 bg-emerald-50 text-emerald-800"
-                      : "border-amber-300/70 bg-amber-50 text-amber-900"
-                  )}
-                >
-                  {juz.juz_number}
-                </span>
-                <div>
-                  <p className="text-base font-semibold text-quran-deep">
-                    {t("juz", { number: juz.juz_number })}
-                    {showKhatmNumber && (
-                      <span className="ms-2 text-sm font-normal text-quran-muted">
-                        {t("khatm", { number: khatmNumber })}
-                      </span>
-                    )}
-                  </p>
-                  <p
+            <li key={juz.id} className="py-3 first:pt-0 last:pb-0">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
                     className={cn(
-                      "flex items-center gap-1.5 text-sm font-medium",
-                      isDone ? "text-emerald-800" : "text-amber-900"
+                      "flex size-11 items-center justify-center rounded-xl border font-heading text-2xl tabular-nums lining-nums",
+                      isDone
+                        ? "border-emerald-300/70 bg-emerald-50 text-emerald-800"
+                        : "border-amber-300/70 bg-amber-50 text-amber-900"
                     )}
                   >
-                    {isDone ? (
-                      <CheckCircle2 aria-hidden="true" className="size-4" />
-                    ) : (
-                      <BookOpen aria-hidden="true" className="size-4" />
-                    )}
-                    {isDone ? t("stateDone") : t("stateReading")}
-                  </p>
+                    {juz.juz_number}
+                  </span>
+                  <div>
+                    <p className="text-base font-semibold text-quran-deep">
+                      {t("juz", { number: juz.juz_number })}
+                      {showKhatmNumber && (
+                        <span className="ms-2 text-sm font-normal text-quran-muted">
+                          {t("khatm", { number: khatmNumber })}
+                        </span>
+                      )}
+                    </p>
+                    <p
+                      className={cn(
+                        "flex items-center gap-1.5 text-sm font-medium",
+                        isDone ? "text-emerald-800" : "text-amber-900"
+                      )}
+                    >
+                      {isDone ? (
+                        <CheckCircle2 aria-hidden="true" className="size-4" />
+                      ) : (
+                        <BookOpen aria-hidden="true" className="size-4" />
+                      )}
+                      {isDone ? t("stateDone") : t("stateReading")}
+                    </p>
+                  </div>
                 </div>
+                {!isFinal && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() => setUnclaiming({ id: juz.id, number: juz.juz_number })}
+                    className="min-h-11 shrink-0 rounded-full px-3 text-sm font-medium text-quran-muted hover:text-quran-deep"
+                  >
+                    {t("unclaim")}
+                  </Button>
+                )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="min-h-11 rounded-full px-3 text-sm font-semibold text-quran-deep hover:bg-quran-green/10"
-                >
-                  <a
-                    href={`https://quran.com/juz/${juz.juz_number}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={t("openQuranAria", { number: juz.juz_number })}
-                  >
-                    <ExternalLink className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-                    {t("openQuran")}
-                  </a>
-                </Button>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 {isDone ? (
                   <Button
                     type="button"
@@ -134,17 +129,21 @@ export default function YourJuzBlock({ khatms, onDone, onUndo, onUnclaim }: Prop
                     {t("done")}
                   </Button>
                 )}
-                {!isFinal && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    disabled={busy}
-                    onClick={() => setUnclaiming({ id: juz.id, number: juz.juz_number })}
-                    className="min-h-11 rounded-full px-3 text-sm font-medium text-quran-muted hover:text-quran-deep"
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="min-h-11 rounded-full px-3 text-sm font-semibold text-quran-deep hover:bg-quran-green/10"
+                >
+                  <a
+                    href={`https://quran.com/juz/${juz.juz_number}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={t("openQuranAria", { number: juz.juz_number })}
                   >
-                    {t("unclaim")}
-                  </Button>
-                )}
+                    <ExternalLink className="size-4 rtl:-scale-x-100" aria-hidden="true" />
+                    {t("openQuran")}
+                  </a>
+                </Button>
               </div>
             </li>
           );

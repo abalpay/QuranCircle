@@ -204,7 +204,7 @@ async function signIn(browser, email) {
 async function openDialog(page, kind, locale) {
   const ar = locale === "ar";
   if (kind === "claim") {
-    await page.getByRole("button", { name: "17", exact: true }).click({ timeout: 5000 });
+    await page.getByRole("button", { name: /(Juz|الجزء) 17$/ }).click({ timeout: 5000 });
     await page.getByRole("button", { name: ar ? "حجز" : "Claim", exact: true }).last().click({ timeout: 5000 });
   } else {
     const name = kind === "auth" ? (ar ? "تسجيل الدخول" : "Sign In") : ar ? "ابدأ حلقة ختم" : "Start A Khatm Circle";
