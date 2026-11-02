@@ -99,6 +99,7 @@ export default function KhatimPageClient({
   const [isCreator, setIsCreator] = useState(initialEvent.can_manage);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isOpenNextPending, setIsOpenNextPending] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
   const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
   const [, startFilterTransition] = useTransition();
@@ -825,20 +826,31 @@ export default function KhatimPageClient({
   };
 
   const handleOpenNextToggle = async () => {
+    if (isOpenNextPending) return;
     const next = !event.open_next_khatm;
+    setIsOpenNextPending(true);
     try {
       const result = await setOpenNextKhatm(shortCode, next);
-      const openNextError = (result as { error?: string }).error;
-      if (openNextError) {
-        toast.error(openNextError);
+      if ("error" in result && result.error) {
+        toast.error(result.error);
         return;
       }
       setEvent((current) => ({ ...current, open_next_khatm: next }));
-      toast.success(tPage(next ? "openNextKhatmOn" : "openNextKhatmOff"));
+      const removed = "removedKhatm" in result && result.removedKhatm;
+      const opened = "openedKhatm" in result && result.openedKhatm;
+      toast.success(
+        tPage(
+          next
+            ? opened ? "openNextKhatmOnOpened" : "openNextKhatmOn"
+            : removed ? "openNextKhatmOffRemoved" : "openNextKhatmOff"
+        )
+      );
       void refreshEvent();
     } catch (error) {
       console.error("[QuranCircle] Failed to toggle open-next-khatm:", error);
       toast.error(tPage("openNextKhatmFailed"));
+    } finally {
+      setIsOpenNextPending(false);
     }
   };
 
@@ -955,14 +967,16 @@ export default function KhatimPageClient({
                         <Settings className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="max-w-72">
+                    <DropdownMenuContent align="end" collisionPadding={8} className="max-w-72">
                       {!event.is_archived && (
                         <>
                           <DropdownMenuCheckboxItem
                             checked={event.open_next_khatm}
                             onSelect={(e) => e.preventDefault()}
                             onCheckedChange={() => void handleOpenNextToggle()}
-                            className="min-h-11 items-start py-2"
+                            disabled={isOpenNextPending}
+                            aria-busy={isOpenNextPending}
+                            className="min-h-11 items-start py-2 ps-10"
                           >
                             <span className="flex flex-col gap-0.5">
                               <span>{tPage("openNextKhatm")}</span>

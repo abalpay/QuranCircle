@@ -123,12 +123,19 @@ describe("event mutation actions", () => {
   it("sets the open-next-khatm switch through its RPC", async () => {
     const rpc = mockMutationRpc({ data: {}, error: null });
 
-    expect(await setOpenNextKhatm("VALID123", false)).toEqual({});
+    const rpcResult = { open_next_khatm: false, removed_khatm: true, opened_khatm: false };
+    rpc.mockResolvedValue({ data: rpcResult, error: null });
+
+    expect(await setOpenNextKhatm("VALID123", false)).toEqual({
+      removedKhatm: true,
+      openedKhatm: false,
+    });
     expect(rpc).toHaveBeenCalledWith("set_open_next_khatm", {
       p_short_code: "VALID123",
       p_open: false,
     });
     expect(revalidatePath).toHaveBeenCalledWith("/s/VALID123");
+    expect(revalidatePath).toHaveBeenCalledWith("/my-circles");
   });
 
   it("returns rpc errors for setOpenNextKhatm", async () => {

@@ -5,10 +5,11 @@ import KhatimPageClient from "@/components/khatim-page-client";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 import type { EventSnapshot } from "@/lib/types/events";
 
-const { replaceMock, setOpenNextKhatmMock, toastSuccessMock } = vi.hoisted(() => ({
+const { replaceMock, setOpenNextKhatmMock, toastSuccessMock, toastErrorMock } = vi.hoisted(() => ({
   replaceMock: vi.fn(),
   setOpenNextKhatmMock: vi.fn(),
   toastSuccessMock: vi.fn(),
+  toastErrorMock: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -75,7 +76,7 @@ vi.mock("@/hooks/use-pwa-install", () => ({
 vi.mock("sonner", () => ({
   toast: {
     success: toastSuccessMock,
-    error: vi.fn(),
+    error: toastErrorMock,
   },
 }));
 
@@ -165,5 +166,71 @@ describe("Open-next-khatm toggle", () => {
     });
     expect(toastSuccessMock).toHaveBeenCalledWith("No new khatm will open when this one fills");
     expect(toggle).toHaveAttribute("aria-checked", "false");
+  });
+
+  async function openToggle(overrides: Partial<EventSnapshot> = {}) {
+    const user = userEvent.setup();
+    render(
+      <KhatimPageClient
+        event={buildEvent({ is_creator: true, can_manage: true, ...overrides })}
+        shortCode="ABCDEFGH"
+      />,
+      { wrapper: IntlWrapper }
+    );
+    await user.click(screen.getByRole("button", { name: "Circle settings" }));
+    return {
+      user,
+      toggle: screen.getByRole("menuitemcheckbox", {
+        name: /Open a new khatm when this one fills/,
+      }),
+    };
+  }
+
+  it("keeps the state and shows the error when the action fails", async () => {
+    setOpenNextKhatmMock.mockResolvedValue({ error: "Unauthorized" });
+    const { user, toggle } = await openToggle();
+
+    await user.click(toggle);
+
+    await waitFor(() => expect(toastErrorMock).toHaveBeenCalledWith("Unauthorized"));
+    expect(toggle).toHaveAttribute("aria-checked", "true");
+    expect(toastSuccessMock).not.toHaveBeenCalled();
+  });
+
+  it("is not offered on archived circles", async () => {
+    const user = userEvent.setup();
+    render(
+      <KhatimPageClient
+        event={buildEvent({ is_creator: true, can_manage: true, is_archived: true })}
+        shortCode="ABCDEFGH"
+      />,
+      { wrapper: IntlWrapper }
+    );
+    await user.click(screen.getByRole("button", { name: "Circle settings" }));
+
+    expect(screen.queryByRole("menuitemcheckbox")).not.toBeInTheDocument();
+  });
+
+  it("says when the empty khatm was removed", async () => {
+    setOpenNextKhatmMock.mockResolvedValue({ removedKhatm: true, openedKhatm: false });
+    const { user, toggle } = await openToggle();
+
+    await user.click(toggle);
+
+    await waitFor(() =>
+      expect(toastSuccessMock).toHaveBeenCalledWith(
+        "No new khatm will open. The empty khatm was removed."
+      )
+    );
+  });
+
+  it("says when a new khatm opened", async () => {
+    setOpenNextKhatmMock.mockResolvedValue({ removedKhatm: false, openedKhatm: true });
+    const { user, toggle } = await openToggle({ open_next_khatm: false });
+
+    await user.click(toggle);
+
+    await waitFor(() => expect(toastSuccessMock).toHaveBeenCalledWith("A new khatm opened"));
+    expect(toggle).toHaveAttribute("aria-checked", "true");
   });
 });

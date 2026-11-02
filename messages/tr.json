@@ -338,6 +338,8 @@
     "openNextKhatmHelp": "Bu halka tek bir hatim içinse kapatın",
     "openNextKhatmOn": "Bu hatim dolunca yeni bir hatim açılacak",
     "openNextKhatmOff": "Bu hatim dolunca yeni hatim açılmayacak",
+    "openNextKhatmOnOpened": "Yeni bir hatim açıldı",
+    "openNextKhatmOffRemoved": "Yeni hatim açılmayacak. Boş hatim kaldırıldı.",
     "openNextKhatmFailed": "Bu ayar güncellenemedi. Lütfen tekrar deneyin.",
     "khatimDeleted": "Hatim silindi",
     "deleteFailed": "Bu hatim silinemedi. Lütfen tekrar deneyin.",

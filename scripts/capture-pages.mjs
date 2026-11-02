@@ -57,11 +57,13 @@ async function ensureUser(email, username) {
 }
 
 // khatm spec: { n, claims: [{ name, status?, user?: id }] (index = juz-1 order), completed? , deleted? }
-async function makeCircle({ code, name, description, creator, isPublic = true, archived = false, khatms }) {
+async function makeCircle({ code, name, description, creator, isPublic = true, archived = false, openNext = true, khatms }) {
   await admin.from("events").delete().eq("short_code", code); // cascades; idempotent
   const { data: ev, error } = await admin.from("events").insert({
     name, description, short_code: code, is_public: isPublic, created_by: creator,
     is_archived: archived, archived_at: archived ? daysAgo(3) : null, created_at: daysAgo(12),
+    // #82 column; only sent when off so older databases still work.
+    ...(openNext ? {} : { open_next_khatm: false }),
   }).select("id").single();
   if (error) throw new Error(`event ${code}: ${error.message}`);
   const { error: me } = await admin.from("event_members").insert({ event_id: ev.id, user_id: creator, role: "creator" });
@@ -110,6 +112,10 @@ async function createFixtures() {
       ...names(ARABIC, 6, 1).map((c) => ({ ...c, status: "claimed" })),
       { name: LONG }, { name: LONG, status: "read" },
     ] }],
+  });
+  await makeCircle({
+    code: "DSGOFF", name: "Khatm for Hassan Qureshi", description: DUA, creator: org, openNext: false,
+    khatms: [{ n: 1, claims: names(LATIN, 5) }],
   });
   await makeCircle({
     code: "DSGREADER", name: "Shifa khatm for Omar Haddad", description: DUA, creator: org,
@@ -178,6 +184,7 @@ const PAGES = [
   { name: "dialog-claim", path: "/s/DSGPART", dialog: "claim" },
   { name: "circle-settings-org", path: "/s/DSGPART", dialog: "settings", auth: ORGANIZER },
   { name: "circle-settings-arch-org", path: "/s/DSGARCH", dialog: "settings", auth: ORGANIZER },
+  { name: "circle-settings-off-org", path: "/s/DSGOFF", dialog: "settings", auth: ORGANIZER },
   ...circle("DSGEMPTY"),
   ...circle("DSGPART", [SIGNED_OUT, ORGANIZER, READER_V]),
   ...circle("DSGREADER", [SIGNED_OUT, ORGANIZER, READER_V]),

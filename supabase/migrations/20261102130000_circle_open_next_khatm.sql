@@ -381,8 +381,8 @@ BEGIN
       WHERE k.event_id = v_event_id AND k.is_deleted = false;
 
       IF v_claimed = 0 AND v_total > 1 THEN
-        DELETE FROM public.khatms WHERE id = v_latest_id;
-        v_removed := true;
+        DELETE FROM public.khatms WHERE id = v_latest_id AND completed_at IS NULL;
+        v_removed := FOUND;
       END IF;
     ELSIF v_unclaimed = 0 AND v_claimed = 30 THEN
       INSERT INTO public.khatms (event_id, khatm_number)

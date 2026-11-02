@@ -338,6 +338,8 @@
     "openNextKhatmHelp": "Turn off if this circle is for a single khatm",
     "openNextKhatmOn": "A new khatm will open when this one fills",
     "openNextKhatmOff": "No new khatm will open when this one fills",
+    "openNextKhatmOnOpened": "A new khatm opened",
+    "openNextKhatmOffRemoved": "No new khatm will open. The empty khatm was removed.",
     "openNextKhatmFailed": "Unable to update this setting. Please try again.",
     "khatimDeleted": "Khatim deleted",
     "deleteFailed": "Unable to delete this Khatim. Please try again.",

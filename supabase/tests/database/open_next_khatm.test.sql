@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(40);
+SELECT plan(41);
 
 -- Users: C creator, A anonymous creator, R reader, X other user.
 INSERT INTO auth.users (id, aud, role, is_anonymous, created_at, updated_at)
@@ -18,7 +18,8 @@ VALUES
   ('82100000-0000-4000-8000-000000000004', 'Trailing has a claimed juz', false, false, '82000000-0000-4000-8000-00000000000c', 'OPENEV04'),
   ('82100000-0000-4000-8000-000000000005', 'Only khatm', false, false, '82000000-0000-4000-8000-00000000000c', 'OPENEV05'),
   ('82100000-0000-4000-8000-000000000006', 'Anonymous organizer', false, false, '82000000-0000-4000-8000-00000000000a', 'OPENEV06'),
-  ('82100000-0000-4000-8000-000000000007', 'Archived', false, true, '82000000-0000-4000-8000-00000000000c', 'OPENARCH');
+  ('82100000-0000-4000-8000-000000000007', 'Archived', false, true, '82000000-0000-4000-8000-00000000000c', 'OPENARCH'),
+  ('82100000-0000-4000-8000-000000000008', 'Rejection target', false, false, '82000000-0000-4000-8000-00000000000c', 'OPENEV08');
 
 -- n_claimed Juz (1..n) are claimed by R; the rest are unclaimed.
 CREATE TEMP TABLE fx (khatm_id uuid, event_id uuid, num int, n_claimed int);
@@ -33,7 +34,9 @@ INSERT INTO fx VALUES
   ('82200000-0000-4000-8000-000000000061', '82100000-0000-4000-8000-000000000006', 1, 0),
   ('82200000-0000-4000-8000-000000000062', '82100000-0000-4000-8000-000000000006', 2, 0),
   ('82200000-0000-4000-8000-000000000071', '82100000-0000-4000-8000-000000000007', 1, 30),
-  ('82200000-0000-4000-8000-000000000072', '82100000-0000-4000-8000-000000000007', 2, 0);
+  ('82200000-0000-4000-8000-000000000072', '82100000-0000-4000-8000-000000000007', 2, 0),
+  ('82200000-0000-4000-8000-000000000081', '82100000-0000-4000-8000-000000000008', 1, 30),
+  ('82200000-0000-4000-8000-000000000082', '82100000-0000-4000-8000-000000000008', 2, 0);
 
 INSERT INTO public.khatms (id, event_id, khatm_number)
 SELECT khatm_id, event_id, num FROM fx;
@@ -63,17 +66,17 @@ SELECT throws_ok(
 );
 SELECT set_config('request.jwt.claims', '{"sub":"82000000-0000-4000-8000-00000000000e","role":"authenticated","is_anonymous":false}', true);
 SELECT throws_ok(
-  $$SELECT public.set_open_next_khatm('OPENEV01', false)$$,
+  $$SELECT public.set_open_next_khatm('OPENEV08', false)$$,
   'Unauthorized', 'a non-creator is rejected'
 );
 SELECT set_config('request.jwt.claims', '{"sub":"82000000-0000-4000-8000-00000000000d","role":"authenticated","is_anonymous":false}', true);
 SELECT throws_ok(
-  $$SELECT public.set_open_next_khatm('OPENEV01', false)$$,
+  $$SELECT public.set_open_next_khatm('OPENEV08', false)$$,
   'Unauthorized', 'a reader who is not the creator is rejected'
 );
 SELECT set_config('request.jwt.claims', '{"sub":"82000000-0000-4000-8000-00000000000a","role":"authenticated","is_anonymous":true}', true);
 SELECT throws_ok(
-  $$SELECT public.set_open_next_khatm('OPENEV01', false)$$,
+  $$SELECT public.set_open_next_khatm('OPENEV08', false)$$,
   'Unauthorized', 'an anonymous non-creator is rejected'
 );
 SELECT set_config('request.jwt.claims', '{"sub":"82000000-0000-4000-8000-00000000000c","role":"authenticated","is_anonymous":false}', true);
@@ -94,8 +97,12 @@ SELECT is(
   2, 'the archived circle keeps its khatms'
 );
 SELECT is(
-  (SELECT open_next_khatm FROM public.events WHERE short_code = 'OPENEV01'),
-  true, 'rejected calls change nothing'
+  (SELECT count(*)::int FROM public.khatms WHERE event_id = '82100000-0000-4000-8000-000000000008'),
+  2, 'rejected non-creators leave the empty trailing khatm in place'
+);
+SELECT is(
+  (SELECT open_next_khatm FROM public.events WHERE short_code = 'OPENEV08'),
+  true, 'rejected non-creators leave the setting unchanged'
 );
 
 -- Off: the last claim opens no khatm.

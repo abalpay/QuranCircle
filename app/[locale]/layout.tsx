@@ -16,6 +16,7 @@ import { AuthModalProvider } from "@/hooks/use-auth-modal";
 import Header from "@/components/header";
 import MobileNavigation from "@/components/mobile-navigation";
 import Footer from "@/components/footer";
+import DirectionProvider from "@/components/direction-provider";
 import NavigationProgress from "@/components/navigation-progress";
 import AuthErrorToast from "@/components/auth-error-toast";
 import { Analytics } from "@vercel/analytics/next";
@@ -160,6 +161,7 @@ export default async function LocaleLayout({
         className={`${manrope.variable} ${cormorantGaramond.variable} ${notoNaskhArabic.variable} ${amiri.variable} font-sans antialiased`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <DirectionProvider dir={getLocaleDirection(locale)}>
           <NavigationProgress />
           <AuthProvider>
             <AuthModalProvider>
@@ -205,6 +207,7 @@ export default async function LocaleLayout({
               ) : null}
             </AuthModalProvider>
           </AuthProvider>
+          </DirectionProvider>
         </NextIntlClientProvider>
       </body>
     </html>
