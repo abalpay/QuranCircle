@@ -113,7 +113,7 @@ describe("updateSession", () => {
     expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
   });
 
-  it("returns noindex 404 for missing short-code pages", async () => {
+  it("rewrites to the styled noindex 404 for missing short-code pages", async () => {
     supabaseMocks.getUser.mockResolvedValue({
       data: { user: null },
     });
@@ -129,6 +129,7 @@ describe("updateSession", () => {
       { p_short_code: "VALID123", p_khatm_limit: 1 }
     );
     expect(response.status).toBe(404);
+    expect(response.headers.get("x-middleware-rewrite")).toContain("/en/circle-not-found");
     expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
   });
 

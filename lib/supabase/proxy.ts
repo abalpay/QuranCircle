@@ -145,12 +145,19 @@ export async function updateSession(
       );
 
       if (!error && !data) {
-        const notFoundResponse = new NextResponse("Not Found", {
-          status: 404,
-          headers: {
-            "X-Robots-Tag": "noindex, nofollow",
+        // A real 404 has to leave the proxy: the circle route streams (loading.tsx), so its own
+        // notFound() would arrive after a 200. Rewrite to the styled circle not-found instead of a bare body.
+        const locale =
+          routing.locales.find((l) => request.nextUrl.pathname.startsWith(`/${l}/`)) ??
+          routing.defaultLocale;
+        const notFoundResponse = NextResponse.rewrite(
+          new URL(`/${locale}/circle-not-found`, request.url),
+          {
+            request: { headers: requestHeaders },
+            status: 404,
+            headers: { "X-Robots-Tag": "noindex, nofollow" },
           },
-        });
+        );
         copyAuthResponseState(supabaseResponse, notFoundResponse);
         return notFoundResponse;
       }

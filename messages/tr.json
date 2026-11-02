@@ -534,6 +534,13 @@
     "description": "Beklenmedik bir hata oluştu. Lütfen yeniden deneyin.",
     "tryAgain": "Yeniden Dene"
   },
+  "CircleNotFound": {
+    "eyebrow": "404 · Halka bulunamadı",
+    "title": "Bu halka bağlantısı çalışmıyor",
+    "description": "Bağlantının tamamının kopyalandığından emin olun veya paylaşan kişiden yeniden göndermesini isteyin.",
+    "startKhatm": "Hatim başlat",
+    "browseCircles": "Herkese açık halkalara göz at"
+  },
   "NotFoundPage": {
     "eyebrow": "404 · Sayfa bulunamadı",
     "title": "Sayfa Bulunamadı",
