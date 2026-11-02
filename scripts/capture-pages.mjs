@@ -142,6 +142,14 @@ async function createFixtures() {
     code: "DSGAUTO", name: "ختمة عن روح المرحومة مريم الصديقي", description: DUA, creator: org, openNext: false,
     khatms: [{ n: 1, claims: [{ name: "Design Reader", user: reader }, ...full([...ARABIC, LONG, ...LATIN]).slice(1)], completed: "auto" }],
   });
+  // 30 distinct readers with very long Latin and Arabic names: the completion dialog must stay usable.
+  await makeCircle({
+    code: "DSGMANY", name: "Khatm for Hajji Muhammad Abdulrahman Al-Hashimi", description: DUA, creator: org, openNext: false,
+    khatms: [{ n: 1, claims: Array.from({ length: 30 }, (_, i) => ({
+      name: i === 0 ? "Design Reader" : i % 3 === 0 ? `${LONG} ${i}` : i % 3 === 1 ? `محمد عبد الرحمن بن عبد الله الهاشمي القرشي المدني رقم ${i}` : `${LATIN[i % LATIN.length]} ${i}`,
+      status: "read", ...(i === 0 ? { user: reader } : {}),
+    })), completed: true }],
+  });
   await makeCircle({
     code: "DSGARCH", name: "Khatm for Ibrahim Okafor", description: DUA, creator: org, archived: true,
     khatms: [{ n: 1, claims: names(LATIN, 12) }],
@@ -212,6 +220,9 @@ const PAGES = [
   ...circle("DSGREADY", [ORGANIZER, SIGNED_OUT]),
   ...circle("DSGDONE"),
   ...completionDialog("DSGDONE", "done"),
+  ...completionDialog("DSGMANY", "many"),
+  // The register expanded in place, then scrolled to the end.
+  { name: "circle-many-dialogall-reader", path: "/s/DSGMANY", auth: READER_V, expandReaders: true, scrollDialog: true },
   ...circle("DSGAUTO", [SIGNED_OUT]),
   ...completionDialog("DSGAUTO", "auto"),
   ...circle("DSGARCH"),
@@ -300,6 +311,9 @@ async function main() {
           await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}`, { waitUntil: "networkidle", timeout: 45000 });
           await page.waitForTimeout(400);
           if (p.dialog) await openDialog(page, p.dialog, locale);
+          if (p.expandReaders) {
+            await page.getByRole("button", { name: /^and \d+ more$|^و\d+ غيرهم$/ }).click({ timeout: 5000 });
+          }
           if (p.scrollDialog) {
             await page.getByRole("dialog").evaluate((el) => el.scrollTo(0, el.scrollHeight));
             await page.waitForTimeout(200);

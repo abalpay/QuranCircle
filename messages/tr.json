@@ -1097,6 +1097,8 @@
     "shareText": "Elhamdülillah, “{name}” için Hatim {number} tamamlandı. Allah kabul etsin.",
     "supportLine": "QuranCircle ücretsizdir ve sadaka-i cariye olarak yürütülür. Devam etmesine destek olun, sevabına ortak olun.",
     "supportLink": "QuranCircle'a destek ol",
-    "opensInNewTab": "(yeni sekmede açılır)"
+    "opensInNewTab": "(yeni sekmede açılır)",
+    "readersMore": "ve {count} kişi daha",
+    "readersShowFewer": "Daha az göster"
   }
 }

@@ -1097,6 +1097,8 @@
     "shareText": "Alhamdulillah, Khatm {number} for “{name}” is complete. May Allah accept it.",
     "supportLine": "QuranCircle is free and run as sadaqah jariyah. Help keep it running and share in the reward.",
     "supportLink": "Support QuranCircle",
-    "opensInNewTab": "(opens in a new tab)"
+    "opensInNewTab": "(opens in a new tab)",
+    "readersMore": "and {count} more",
+    "readersShowFewer": "Show fewer"
   }
 }

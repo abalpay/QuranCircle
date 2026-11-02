@@ -132,6 +132,50 @@ describe("completion dialog content (#81)", () => {
   });
 });
 
+describe("a long register in the dialog", () => {
+  const manyReaders = () =>
+    makeKhatm({
+      juzs: Array.from({ length: 30 }, (_, i) => ({
+        id: `j${i + 1}`,
+        juz_number: i + 1,
+        status: "read" as const,
+        claimed_by_name: i % 2 ? `قارئ طويل الاسم رقم ${i}` : `A Very Long Reader Name Number ${i}`,
+        is_mine: i === 0,
+      })),
+    });
+
+  it("shows 12 names, then expands in place behind an accessible 'and N more' button", async () => {
+    const user = userEvent.setup();
+    renderContent(manyReaders());
+    expect(screen.getAllByRole("listitem")).toHaveLength(12);
+    const toggle = screen.getByRole("button", { name: "and 18 more" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(toggle);
+    expect(screen.getAllByRole("listitem")).toHaveLength(30);
+    const fewer = screen.getByRole("button", { name: "Show fewer" });
+    expect(fewer).toHaveAttribute("aria-expanded", "true");
+
+    await user.click(fewer);
+    expect(screen.getAllByRole("listitem")).toHaveLength(12);
+  });
+
+  it("has no toggle at 12 names or fewer", () => {
+    renderContent();
+    expect(screen.queryByRole("button", { name: /more|fewer/i })).toBeNull();
+  });
+
+  it("keeps share and the close button pinned while the dialog scrolls", () => {
+    render(
+      <CompletionDialog khatm={manyReaders()} circleName="Khatm for Maryam" circleCreatedAt="2020-01-01T00:00:00Z" onClose={vi.fn()} />,
+      { wrapper: IntlWrapper }
+    );
+    const share = screen.getByRole("button", { name: "Share on WhatsApp" });
+    expect(share.closest(".sticky")?.className).toMatch(/bottom-0/);
+    expect(screen.getByRole("button", { name: "Close" }).closest(".sticky")?.className).toMatch(/top-0/);
+  });
+});
+
 describe("support ask in the dialog (D10, D19)", () => {
   const hour = 36e5;
   const ago = (hours: number) => new Date(Date.now() - hours * hour).toISOString();

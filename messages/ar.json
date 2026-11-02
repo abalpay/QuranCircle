@@ -1097,6 +1097,8 @@
     "shareText": "الحمد لله، اكتملت الختمة {number} عن «{name}». تقبّل الله منّا ومنكم.",
     "supportLine": "QuranCircle مجاني ويعمل صدقةً جارية. ساعد في استمراره وشاركنا في الأجر.",
     "supportLink": "ادعم QuranCircle",
-    "opensInNewTab": "(يفتح في تبويب جديد)"
+    "opensInNewTab": "(يفتح في تبويب جديد)",
+    "readersMore": "و{count} غيرهم",
+    "readersShowFewer": "عرض أقل"
   }
 }
