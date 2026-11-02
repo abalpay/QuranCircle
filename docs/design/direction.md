@@ -9,8 +9,8 @@ detector): circle page 19/40, homepage 20/32. Verdict: the palette, serif name a
 tracker/landing template, and the D16 product (a person, a dua, a record that
 stays) is missing.
 
-Points marked **TASTE CALL** are for the owner to approve. Each has a
-recommendation and one alternative; nothing here is decided until approved.
+Points marked **TASTE CALL** were decided by Ahmet on 2026-11-02; each records
+the chosen option (the recommendation in every case) and the alternative declined.
 
 ## Tone
 A quiet room, not a product. The person arriving is grieving or worried and was
@@ -30,7 +30,7 @@ Maryam") and takes no theological position on reward transfer.
   user text (title, dua, names) gets `dir="auto"`; mixed fragments get `<bdi>`.
 - Numbers in the grid and counts use lining, tabular figures (Cormorant's old-style
   "1" reads as "I").
-- **TASTE CALL 1, title face for Arabic circles.** Recommend Noto Naskh at
+- **TASTE CALL 1 — DECIDED (Ahmet 2026-11-02): Naskh medium 500–600, face chosen by script.** title face for Arabic circles.** Recommend Noto Naskh at
   medium weight (500–600; regular is too thin at 44px on low-end Android).
   Alternative: keep bold for hierarchy.
 
@@ -46,7 +46,7 @@ filled, not a new colour.
   at 4.5:1 or ink.
 - Tile state is shown by a full-tile tint plus icon/word, not a 3px coloured top
   border on a rounded tile.
-- **TASTE CALL 2, amber for "Reading".** Recommend keeping amber but desaturating
+- **TASTE CALL 2 — DECIDED (Ahmet 2026-11-02): desaturated amber for Reading, no orange name text.** amber for "Reading".** Recommend keeping amber but desaturating
   and dropping the orange name text (it reads as warning). Alternative: sage for
   Reading so amber is free for attention-only moments.
 
@@ -64,15 +64,15 @@ claimed" (Done as quiet secondary line). 4. Grid. 5. Earlier khatms. 6. The
 invitation to start a khatm for someone you love (below, never above, the dua).
 Badges ("Public circle", "Open for claims") are demoted to one quiet line and
 hidden when untrue (a completed khatm must not say "Open for claims").
-- **TASTE CALL 3, homepage lead.** Recommend memorial-first hero ("A khatm for
+- **TASTE CALL 3 — DECIDED (Ahmet 2026-11-02): memorial-first homepage hero.** homepage lead.** Recommend memorial-first hero ("A khatm for
   someone you love" with a name-and-dua sample) per D16; keep Ramadan as a guide.
   Alternative: keep the generic "group Khatm tracker" hero and add a memorial
   strip below it.
-- **TASTE CALL 4, completion moment (#81) tone.** Recommend stillness: the
+- **TASTE CALL 4 — DECIDED (Ahmet 2026-11-02): stillness: name, dua line, readers' names, no motion.** completion moment (#81) tone.** Recommend stillness: the
   name, a short du'a line, "Khatm 1 complete", the next-step invitation; no
   confetti, no motion. Alternative: one slow fade-in of a gold ring around the
   completed count.
-- **TASTE CALL 5, decorative pattern.** Recommend (revised after critique):
+- **TASTE CALL 5 — DECIDED (Ahmet 2026-11-02): pattern in the footer only.** decorative pattern.** Recommend (revised after critique):
   keep the geometric star pattern in the footer only, as one of the few authored
   identity marks; remove it and the gradient glow from behind the circle title,
   dua and cards. Alternative: remove it everywhere.
