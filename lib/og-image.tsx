@@ -5,6 +5,7 @@ import { hasLocale } from "next-intl";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { loadOgFonts, ogFontFamily } from "@/lib/og-fonts";
 import { OgText } from "@/lib/og-text";
+import { ogFrameDataUri } from "@/lib/og-frame";
 
 const size = { width: 1200, height: 630 };
 
@@ -13,7 +14,6 @@ const colors = {
   bg: "#f5f0e4", // hsl(44 40% 95%)
   deep: "#163f38", // hsl(167 53% 18%)
   green: "#17634f", // hsl(166 62% 24%)
-  lightGreen: "#4d9482", // hsl(162 32% 44%)
   gold: "#a58230", // hsl(39 54% 42%)
   muted: "#526b64", // hsl(162 13% 37%)
 };
@@ -38,49 +38,19 @@ export default async function createOgImage(requestedLocale?: string | null) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: `linear-gradient(180deg, ${colors.bg} 0%, ${colors.bg} 44%, #f0ead8 100%)`,
+          background: colors.bg,
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Top-right green radial glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: -100,
-            right: -100,
-            width: 500,
-            height: 500,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.lightGreen}28 0%, ${colors.bg}00 70%)`,
-            display: "flex",
-          }}
-        />
-        {/* Bottom-left gold radial glow */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: -80,
-            left: -80,
-            width: 450,
-            height: 450,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.gold}1a 0%, ${colors.bg}00 70%)`,
-            display: "flex",
-          }}
-        />
-
-        {/* Vignette overlay */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            background: `radial-gradient(ellipse at 50% 45%, ${colors.bg}00 40%, ${colors.bg} 85%)`,
-          }}
+        {/* Illumination frame and seal (#105 direction C) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={ogFrameDataUri({ stroke: colors.gold, fill: colors.bg })}
+          width={1200}
+          height={630}
+          alt=""
+          style={{ position: "absolute", top: 0, left: 0 }}
         />
 
         {/* Content */}
@@ -158,7 +128,7 @@ export default async function createOgImage(requestedLocale?: string | null) {
               width: 96,
               height: 2,
               marginTop: 24,
-              background: `linear-gradient(90deg, ${colors.gold}00, ${colors.gold}99, ${colors.gold}00)`,
+              background: colors.gold,
               borderRadius: 2,
               display: "flex",
             }}

@@ -388,7 +388,6 @@
     "guideTitle": "Bir grup hatmi mi düzenliyorsunuz?",
     "guideDescription": "Tek bir ortak halka oluşturmayı, okuyucuları davet etmeyi, katılımcıların cüz sahiplenmesini ve elektronik tablo olmadan tamamlanmayı takip etmeyi öğrenin.",
     "guideButton": "Koordinasyon rehberini okuyun",
-    "guideIllustrationAlt": "İhlas Suresi'nin açık olduğu Kur'an-ı Kerim",
     "resourcesEyebrow": "Hatim düzenleyici kütüphanesi",
     "resourcesTitle": "Grubunuza uygun uygulamalı rehberler",
     "resourcesDescription": "Grubunuzun bir araya geliş şekline uygun rehberi kullanın, ardından herkesi tek bir ortak halkada buluşturun.",
@@ -591,7 +590,6 @@
   },
   "VerseCallout": {
     "ariaLabel": "Kur'an ayeti",
-    "imageAlt": "Yıldız biçiminde katlanmış bir kumaş süsün üzerinde duran kapalı Kur'an-ı Kerim",
     "translation": "Andolsun biz Kur'an'ı öğüt alınsın diye kolaylaştırdık. Öğüt alan yok mu?",
     "citation": "Kamer Suresi (54:17)"
   },
