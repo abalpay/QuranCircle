@@ -102,6 +102,23 @@ describe("AuthModal behavior", () => {
     });
   });
 
+  it("shows no generic error toast for a captcha rejection (the captcha toast covers it)", async () => {
+    const user = userEvent.setup();
+    authMocks.signInWithPassword.mockResolvedValue({
+      error: { code: "captcha_failed", message: "captcha verification process failed" },
+    });
+
+    renderAuthModal(<AuthModal isOpen onClose={() => {}} action="login" />);
+
+    await user.type(screen.getByLabelText("Email"), "test@example.com");
+    await user.type(screen.getByLabelText("Password"), "Password!1");
+    await user.click(screen.getByRole("button", { name: "Login" }));
+
+    await waitFor(() => expect(authMocks.signInWithPassword).toHaveBeenCalled());
+    expect(toastMock.error).not.toHaveBeenCalled();
+    expect(toastMock.success).not.toHaveBeenCalled();
+  });
+
   it("handles register errors with a user-friendly toast", async () => {
     const user = userEvent.setup();
     authMocks.signUp.mockResolvedValue({

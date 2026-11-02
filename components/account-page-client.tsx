@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { ArrowLeft, LockKeyhole, Trash2, UserRound } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { createPasswordSchema } from "@/lib/auth/password-policy";
+import { getCaptchaToken, reportCaptchaRejection } from "@/lib/captcha";
 import AppPageHero from "@/components/app-page-hero";
 
 // --- Component ---
@@ -143,13 +144,17 @@ export default function AccountPageClient() {
         return;
       }
 
+      const captchaToken = await getCaptchaToken("signin");
+
       const { error: verificationError } =
         await supabase.auth.signInWithPassword({
           email,
           password: data.currentPassword,
+          ...(captchaToken && { options: { captchaToken } }),
         });
 
       if (verificationError) {
+        if (reportCaptchaRejection(verificationError)) return;
         toast.error(t("failedToVerifyCurrentPassword"), {
           description: formatAuthError(verificationError.message),
         });

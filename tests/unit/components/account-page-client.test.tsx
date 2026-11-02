@@ -7,6 +7,7 @@ const {
   authenticatedUser,
   authSignInWithPassword,
   authUpdateUser,
+  getCaptchaToken,
   routerMock,
   toastMock,
 } = vi.hoisted(() => ({
@@ -19,6 +20,7 @@ const {
   },
   authSignInWithPassword: vi.fn(),
   authUpdateUser: vi.fn(),
+  getCaptchaToken: vi.fn(),
   routerMock: { replace: vi.fn() },
   toastMock: { success: vi.fn(), error: vi.fn() },
 }));
@@ -74,6 +76,11 @@ vi.mock("@/lib/actions/account", () => ({
   deleteAccount: vi.fn(),
 }));
 
+vi.mock("@/lib/captcha", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/captcha")>()),
+  getCaptchaToken,
+}));
+
 vi.mock("sonner", () => ({
   toast: toastMock,
 }));
@@ -83,6 +90,7 @@ describe("AccountPageClient password changes", () => {
     vi.clearAllMocks();
     authSignInWithPassword.mockResolvedValue({ error: null });
     authUpdateUser.mockResolvedValue({ error: null });
+    getCaptchaToken.mockResolvedValue(undefined);
   });
 
   it("submits the current password with a policy-compliant new password", async () => {
@@ -126,5 +134,41 @@ describe("AccountPageClient password changes", () => {
       );
     });
     expect(authUpdateUser).not.toHaveBeenCalled();
+  });
+
+  it("passes a captcha token to the current-password check", async () => {
+    const user = userEvent.setup();
+    getCaptchaToken.mockResolvedValueOnce("tok-1");
+    render(<AccountPageClient />);
+
+    await user.type(screen.getByLabelText("Current password"), "OldPassword!1");
+    await user.type(screen.getByLabelText("New password"), "NewPassword!2");
+    await user.type(screen.getByLabelText("Confirm password"), "NewPassword!2");
+    await user.click(screen.getByRole("button", { name: "Update password" }));
+
+    await waitFor(() => {
+      expect(authSignInWithPassword).toHaveBeenCalledWith({
+        email: "user@example.com",
+        password: "OldPassword!1",
+        options: { captchaToken: "tok-1" },
+      });
+    });
+  });
+
+  it("stops without its own error toast when Supabase rejects the captcha", async () => {
+    const user = userEvent.setup();
+    authSignInWithPassword.mockResolvedValue({
+      error: { code: "captcha_failed", message: "captcha verification process failed" },
+    });
+    render(<AccountPageClient />);
+
+    await user.type(screen.getByLabelText("Current password"), "OldPassword!1");
+    await user.type(screen.getByLabelText("New password"), "NewPassword!2");
+    await user.type(screen.getByLabelText("Confirm password"), "NewPassword!2");
+    await user.click(screen.getByRole("button", { name: "Update password" }));
+
+    await waitFor(() => expect(authSignInWithPassword).toHaveBeenCalled());
+    expect(authUpdateUser).not.toHaveBeenCalled();
+    expect(toastMock.error).not.toHaveBeenCalled();
   });
 });

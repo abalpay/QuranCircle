@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { updateSession } from "@/lib/supabase/proxy";
 import { routing } from "@/i18n/routing";
+import { getTurnstileSiteKey, TURNSTILE_ORIGIN } from "@/lib/captcha";
 import {
   isViewportDiagnosticsEnabled,
   VIEWPORT_DIAGNOSTICS_REQUEST_HEADER,
@@ -25,16 +26,20 @@ function getSupabaseConnectSources() {
 function buildContentSecurityPolicy(nonce: string) {
   const isDevelopment = process.env.NODE_ENV === "development";
   const supabaseConnectSources = getSupabaseConnectSources();
+  // Turnstile (D15), only when a site key is set. Under 'strict-dynamic' the script-src host is just
+  // a CSP2-browser fallback; the dynamically inserted script is trusted via our nonced bundle.
+  const turnstile = getTurnstileSiteKey() ? ` ${TURNSTILE_ORIGIN}` : "";
   const developmentConnectSources = isDevelopment ? " http: https: ws: wss:" : "";
 
   return `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""};
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}${turnstile};
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data:;
     font-src 'self' data:;
     connect-src 'self' ${supabaseConnectSources}${developmentConnectSources};
     worker-src 'self' blob:;
+    ${turnstile ? `frame-src 'self'${turnstile};` : ""}
     manifest-src 'self';
     object-src 'none';
     base-uri 'self';

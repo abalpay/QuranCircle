@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { proxy } from "../../proxy";
 
 const proxyMocks = vi.hoisted(() => ({
@@ -34,6 +34,33 @@ describe("application proxy security headers", () => {
     expect(requestCsp).toContain("wss://project-ref.supabase.co");
     expect(requestCsp).not.toContain("'unsafe-eval'");
     expect(response.headers.get("Content-Security-Policy")).toBe(requestCsp);
+  });
+
+  describe("Turnstile CSP", () => {
+    afterEach(() => vi.unstubAllEnvs());
+
+    async function cspFor(siteKey: string | undefined) {
+      vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", siteKey);
+      const response = await proxy(new NextRequest("https://qurancircle.test/browse"));
+      return response.headers.get("Content-Security-Policy") ?? "";
+    }
+
+    it("is unchanged when no site key is set", async () => {
+      const csp = await cspFor(undefined);
+      expect(csp).not.toContain("challenges.cloudflare.com");
+      expect(csp).not.toContain("frame-src");
+    });
+
+    it("allows Turnstile only in script-src and frame-src when a site key is set", async () => {
+      const csp = await cspFor("1x00000000000000000000AA");
+      const directives = csp.split(";").map((d) => d.trim());
+      const withCloudflare = directives.filter((d) => d.includes("https://challenges.cloudflare.com"));
+      expect(withCloudflare.map((d) => d.split(" ")[0]).sort()).toEqual(["frame-src", "script-src"]);
+      expect(csp).toContain("frame-src 'self' https://challenges.cloudflare.com;");
+      expect(csp).toContain("'strict-dynamic'");
+      expect(csp).toContain("default-src 'self';");
+      expect(csp).not.toContain("'unsafe-inline' https://challenges");
+    });
   });
 
   it("forwards viewport diagnostics only for the explicit query opt-in", async () => {
