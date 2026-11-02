@@ -46,7 +46,10 @@ BEGIN
           JOIN public.juzs aj ON aj.khatm_id = ak.id
           WHERE ak.event_id = e.id
             AND ak.is_deleted = false
-            AND aj.claimed_at >= now() - interval '30 days'
+            AND (
+              aj.claimed_at >= now() - interval '30 days'
+              OR aj.read_at >= now() - interval '30 days'
+            )
         )
       )
       AND (
