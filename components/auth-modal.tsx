@@ -28,7 +28,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { createPasswordSchema } from "@/lib/auth/password-policy";
 import { trackProductEvent } from "@/lib/analytics";
-import { isCaptchaError } from "@/lib/captcha";
+import { isCaptchaRejection } from "@/lib/captcha";
 import { useTranslations } from "next-intl";
 import LanguageSelect from "@/components/language-select";
 
@@ -172,7 +172,7 @@ export default function AuthModal({
     try {
       const { error } = await signInWithPassword(data.email, data.password);
       if (error) {
-        if (isCaptchaError(error)) return; // CaptchaErrorToast already told the user
+        if (isCaptchaRejection(error)) return; // the hook already showed the captcha toast
         if (isMergePreparationError(error)) {
           toast.error(t("loginPaused"), {
             description: t("claimTransferError"),
@@ -200,7 +200,7 @@ export default function AuthModal({
     try {
       const { error } = await signUp(data.email, data.password, data.username);
       if (error) {
-        if (isCaptchaError(error)) return;
+        if (isCaptchaRejection(error)) return;
         if (isMergePreparationError(error)) {
           toast.error(t("registrationPaused"), {
             description: t("claimTransferError"),
@@ -229,7 +229,7 @@ export default function AuthModal({
     const { error } = await resetPassword(data.email);
     setForgotPasswordSubmitting(false);
     if (error) {
-      if (isCaptchaError(error)) return;
+      if (isCaptchaRejection(error)) return;
       toast.error(t("resetEmailFailed"), {
         description: t("genericAuthError"),
       });

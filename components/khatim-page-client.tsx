@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { wasSessionCaptchaRejected } from "@/lib/captcha";
 import type { EventSnapshot } from "@/lib/types/events";
 import { Button } from "@/components/ui/button";
 import {
@@ -386,7 +387,7 @@ export default function KhatimPageClient({
   const ensureMutationSession = useCallback(async () => {
     const sessionUser = await ensureSession();
     if (!sessionUser) {
-      toast.error(tPage("sessionError"));
+      if (!wasSessionCaptchaRejected()) toast.error(tPage("sessionError"));
       return false;
     }
     return true;

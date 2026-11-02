@@ -76,7 +76,10 @@ vi.mock("@/lib/actions/account", () => ({
   deleteAccount: vi.fn(),
 }));
 
-vi.mock("@/lib/captcha", () => ({ getCaptchaToken }));
+vi.mock("@/lib/captcha", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/captcha")>()),
+  getCaptchaToken,
+}));
 
 vi.mock("sonner", () => ({
   toast: toastMock,
@@ -133,7 +136,7 @@ describe("AccountPageClient password changes", () => {
     expect(authUpdateUser).not.toHaveBeenCalled();
   });
 
-  it("passes a captcha token to the current-password check and stops when the check fails", async () => {
+  it("passes a captcha token to the current-password check", async () => {
     const user = userEvent.setup();
     getCaptchaToken.mockResolvedValueOnce("tok-1");
     render(<AccountPageClient />);
@@ -150,16 +153,22 @@ describe("AccountPageClient password changes", () => {
         options: { captchaToken: "tok-1" },
       });
     });
+  });
 
-    authSignInWithPassword.mockClear();
-    authUpdateUser.mockClear();
-    getCaptchaToken.mockRejectedValueOnce(new Error("Captcha check failed"));
+  it("stops without its own error toast when Supabase rejects the captcha", async () => {
+    const user = userEvent.setup();
+    authSignInWithPassword.mockResolvedValue({
+      error: { code: "captcha_failed", message: "captcha verification process failed" },
+    });
+    render(<AccountPageClient />);
+
     await user.type(screen.getByLabelText("Current password"), "OldPassword!1");
     await user.type(screen.getByLabelText("New password"), "NewPassword!2");
     await user.type(screen.getByLabelText("Confirm password"), "NewPassword!2");
     await user.click(screen.getByRole("button", { name: "Update password" }));
-    await waitFor(() => expect(getCaptchaToken).toHaveBeenCalledTimes(2));
-    expect(authSignInWithPassword).not.toHaveBeenCalled();
+
+    await waitFor(() => expect(authSignInWithPassword).toHaveBeenCalled());
     expect(authUpdateUser).not.toHaveBeenCalled();
+    expect(toastMock.error).not.toHaveBeenCalled();
   });
 });

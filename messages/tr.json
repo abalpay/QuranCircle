@@ -729,7 +729,7 @@
     "usageTitle": "Verilerin Kullanımı",
     "usageDescription": "Veriler temel ürün işlevlerini sağlamak için kullanılır: halka oluşturmak, halkaya katılmak, cüz sahiplenmek ve tamamlanma ilerlemesini göstermek.",
     "analyticsTitle": "Gizlilik Odaklı Site Analizleri",
-    "analyticsDescription": "Toplu ziyaretleri, ürün kullanımını ve site performansını anlamak için Vercel'in çerezsiz ve anonim olarak tanımladığı Web Analytics ile Speed Insights'ı kullanırız. Analiz çerezleri veya kalıcı ziyaretçi ilişkilendirmesi yapılandırmayız. Analiz olayları halka adlarını, katılımcı adlarını, açıklamaları, kısa kodları veya okuma ayrıntılarını içermez. Ayrıca ürünün operasyonel verilerinin bir parçası olarak bir hatmin ilk tamamlanma zamanını kaydederiz.",
+    "analyticsDescription": "Toplu ziyaretleri, ürün kullanımını ve site performansını anlamak için Vercel'in çerezsiz ve anonim olarak tanımladığı Web Analytics ile Speed Insights'ı kullanırız. Analiz çerezleri veya kalıcı ziyaretçi ilişkilendirmesi yapılandırmayız. Analiz olayları halka adlarını, katılımcı adlarını, açıklamaları, kısa kodları veya okuma ayrıntılarını içermez. Ayrıca ürünün operasyonel verilerinin bir parçası olarak bir hatmin ilk tamamlanma zamanını kaydederiz. Giriş yaptığınızda veya bir halka oluşturduğunuzda, bir güvenlik doğrulaması olarak Cloudflare Turnstile kullanılır ve bu amaçla tarayıcınızdaki teknik sinyalleri işleyebilir.",
     "accessTitle": "Verilere Erişim ve Silme",
     "accessDescription": "Hesabınızla ilgili yardıma ihtiyacınız varsa resmî iletişim sayfasından proje ekibine ulaşın."
   },
@@ -1069,6 +1069,7 @@
   "Captcha": {
     "failed": "Güvenlik doğrulaması başarısız",
     "failedDescription": "Robot olmadığınızı doğrulayamadık. Lütfen tekrar deneyin.",
-    "retry": "Tekrar dene"
+    "retry": "Tekrar dene",
+    "interactive": "Lütfen güvenlik doğrulamasını tamamlayın."
   }
 }
