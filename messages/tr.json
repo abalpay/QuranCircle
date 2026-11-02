@@ -36,7 +36,8 @@
     "ariaLabel": "Alt bilgi",
     "languageNavigation": "Diller",
     "promise": "Sonsuza dek ücretsiz. Reklam yok. Sadaka-i cariye olarak hazırlandı.",
-    "support": "QuranCircle'e destek ol"
+    "support": "QuranCircle'a destek ol",
+    "opensInNewTab": "(yeni sekmede açılır)"
   },
   "Home": {
     "title": "Halkalarım",
@@ -96,7 +97,7 @@
     "descriptionOptional": "(İsteğe Bağlı)",
     "descriptionPlaceholder": "Bu okuma etkinliği hakkında kısa bir açıklama...",
     "makePublic": "Bu halkayı herkese açık yap",
-    "makePublicDesc": "Açık halkalar Göz At sayfasında ve arama motorlarında listelenir. Halkanın adı, açıklaması ve okuyucu adları herkese görünür olur. Yalnızca bağlantıyla paylaşmak için kapalı bırakın.",
+    "makePublicDesc": "Açık halkalar Göz At sayfasında ve arama motorlarında listelenir. Halkanın adı, açıklaması ve okuyucu adları herkese görünür olur.",
     "linkOnly": "Yalnızca bağlantı: Davet etmek istediğiniz kişilerle paylaşın.",
     "publicVisible": "Açık halkalar Göz At sayfasında herkese görünür.",
     "cancel": "İptal",

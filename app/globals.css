@@ -2357,7 +2357,7 @@
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .landing-metrics-grid span {
@@ -3644,7 +3644,6 @@
 
   .landing-metrics-grid li:last-child {
     grid-column: 1 / -1;
-    justify-content: center;
     border-top: 1px solid hsl(var(--quran-border) / 0.55);
   }
 

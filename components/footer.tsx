@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import BrandMark from "@/components/brand-mark";
 import FooterLanguageNavigation from "@/components/footer-language-navigation";
+import FooterSupportLink from "@/components/footer-support-link";
 import { getSupportUrl } from "@/lib/support";
 
 const linkClass =
@@ -10,17 +11,18 @@ const linkClass =
 export default async function Footer() {
   const t = await getTranslations("Footer");
   const supportUrl = getSupportUrl();
-  const links: [string, string][] = [
-    ["/", t("home")],
-    ["/browse", t("browse")],
-    ["/my-circles", t("myCircles")],
-    ["/khatm-coordination", t("khatmGuide")],
-    ["/group-khatm-whatsapp", t("whatsappGuide")],
-    ["/ramadan-group-khatm", t("ramadanGuide")],
-    ["/about", t("about")],
-    ["/contact", t("contact")],
-    ["/privacy", t("privacy")],
-    ["/terms", t("terms")],
+  // The bottom nav already has the first three below lg.
+  const links: [string, string, boolean][] = [
+    ["/", t("home"), true],
+    ["/browse", t("browse"), true],
+    ["/my-circles", t("myCircles"), true],
+    ["/khatm-coordination", t("khatmGuide"), false],
+    ["/group-khatm-whatsapp", t("whatsappGuide"), false],
+    ["/ramadan-group-khatm", t("ramadanGuide"), false],
+    ["/about", t("about"), false],
+    ["/contact", t("contact"), false],
+    ["/privacy", t("privacy"), false],
+    ["/terms", t("terms"), false],
   ];
 
   return (
@@ -33,7 +35,7 @@ export default async function Footer() {
               <span className="block font-heading text-2xl leading-none text-white">
                 QuranCircle
               </span>
-              <span className="mt-1.5 block text-xs font-semibold uppercase tracking-[0.14em] text-[hsl(var(--quran-gold-on-dark))]">
+              <span className="mt-1.5 block text-xs font-semibold uppercase tracking-[0.14em] text-[hsl(var(--quran-gold-on-dark))] rtl:text-sm rtl:tracking-normal">
                 {t("readTogether")}
               </span>
             </div>
@@ -41,25 +43,26 @@ export default async function Footer() {
           <div className="max-w-md lg:text-end">
             <p className="text-base text-[hsl(158_16%_84%)]">{t("promise")}</p>
             {supportUrl && (
-              <a
+              <FooterSupportLink
                 href={supportUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid="footer-support-link"
-                className={`${linkClass} -ms-3 mt-1 text-sm font-medium text-[hsl(158_16%_76%)] underline underline-offset-4 lg:-me-3 lg:ms-0`}
-              >
-                {t("support")}
-              </a>
+                label={t("support")}
+                newTabLabel={t("opensInNewTab")}
+                className={`${linkClass} -ms-3 mt-1 text-sm font-medium text-[hsl(158_16%_76%)] underline underline-offset-4 lg:-me-3 lg:ms-0 rtl:text-[0.9375rem]`}
+              />
             )}
           </div>
         </div>
 
         <nav
           aria-label={t("ariaLabel")}
-          className="mt-6 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-white/10 pt-4 text-sm font-medium text-[hsl(158_16%_76%)] sm:grid-cols-3 lg:mt-7 lg:grid-cols-5 lg:pt-5"
+          className="mt-6 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-white/10 pt-4 text-sm font-medium text-[hsl(158_16%_76%)] rtl:text-[0.9375rem] sm:grid-cols-3 lg:mt-7 lg:grid-cols-5 lg:pt-5"
         >
-          {links.map(([href, label]) => (
-            <Link key={href} href={href} className={linkClass}>
+          {links.map(([href, label, desktopOnly]) => (
+            <Link
+              key={href}
+              href={href}
+              className={desktopOnly ? `${linkClass} max-lg:hidden` : linkClass}
+            >
               {label}
             </Link>
           ))}
@@ -71,7 +74,7 @@ export default async function Footer() {
         />
 
         <p className="mt-5 text-xs text-[hsl(158_12%_70%)]">
-          © {new Date().getFullYear()} QuranCircle. {t("allRightsReserved")}
+          © {new Date().getFullYear()} <bdi>QuranCircle.</bdi> {t("allRightsReserved")}
         </p>
       </div>
     </footer>

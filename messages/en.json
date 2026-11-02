@@ -36,7 +36,8 @@
     "ariaLabel": "Footer",
     "languageNavigation": "Languages",
     "promise": "Free forever. No ads. Built as sadaqah jariyah.",
-    "support": "Support QuranCircle"
+    "support": "Support QuranCircle",
+    "opensInNewTab": "(opens in a new tab)"
   },
   "Home": {
     "title": "My Circles",
@@ -96,7 +97,7 @@
     "descriptionOptional": "(Optional)",
     "descriptionPlaceholder": "A short description of this reading event...",
     "makePublic": "Make this circle public",
-    "makePublicDesc": "Public circles are listed on Browse and in search engines. The circle name, description and reader names become visible to anyone. Leave off to share by link only.",
+    "makePublicDesc": "Public circles are listed on Browse and in search engines. The circle name, description and reader names become visible to anyone.",
     "linkOnly": "Link only: Share with those you want to invite.",
     "publicVisible": "Public circles are visible to everyone on Browse.",
     "cancel": "Cancel",
