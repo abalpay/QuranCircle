@@ -294,7 +294,8 @@
     "myJuz": "أجزائي ({count})",
     "creatorQueue": "قائمة انتظار المنشئ ({count})",
     "juzFilters": "مرشحات جزء",
-    "updating": "جارٍ التحديث..."
+    "updating": "جارٍ التحديث...",
+    "creatorQueueNoCount": "قائمة انتظار المنشئ"
   },
   "CirclePage": {
     "share": "يشارك",

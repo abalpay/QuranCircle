@@ -140,11 +140,11 @@ export function CompletionContent({
           <h3 id={`${headingId}-readers`} className="text-sm font-semibold text-quran-deep rtl:text-base">
             {isAuto ? t("takenUpBy") : t("readBy")}
           </h3>
-          {/* One li per name, the separator in CSS: mixed-script names never reorder around it. */}
-          <ul className="mt-1 flex flex-wrap gap-x-2 text-base leading-7 text-quran-deep/90 [&>li+li]:before:me-2 [&>li+li]:before:content-['·']">
+          {/* Spacing only, each name isolated: no separator can land at a line edge in mixed-script or RTL lists. */}
+          <ul className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-base leading-7 text-quran-deep/90">
             {readers.map((name) => (
-              <li key={name} dir="auto">
-                {name}
+              <li key={name}>
+                <bdi>{name}</bdi>
               </li>
             ))}
           </ul>

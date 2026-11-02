@@ -413,7 +413,9 @@ export default function KhatimPageClient({
         if (result.newlyCompleted) {
           trackProductEvent("Khatm Completed", {});
           // The visitor's own last Done: the completion dialog may open when the refresh lands.
-          announceOwnCompletion();
+          announceOwnCompletion(
+            event.khatms.find((khatm) => khatm.juzs.some((juz) => juz.id === juzId))?.id ?? ""
+          );
         }
         await refreshEvent();
       } catch (error) {
@@ -421,7 +423,7 @@ export default function KhatimPageClient({
         toast.error(tPage("markReadFailed"));
       }
     },
-    [announceOwnCompletion, ensureMutationSession, refreshEvent, shortCode, tPage]
+    [announceOwnCompletion, ensureMutationSession, event.khatms, refreshEvent, shortCode, tPage]
   );
 
   const handleCreatorUnmarkRead = useCallback(
@@ -1110,7 +1112,10 @@ export default function KhatimPageClient({
                     "bg-background text-foreground shadow-sm hover:bg-background"
                 )}
               >
-                {t("creatorQueue", { count: creatorManageRows.length })}
+                {/* A finished khatm has no pending actions: a count would read as work to do. */}
+                {latestIsComplete
+                  ? t("creatorQueueNoCount")
+                  : t("creatorQueue", { count: creatorManageRows.length })}
               </Button>
             )}
           </div>
@@ -1182,7 +1187,7 @@ export default function KhatimPageClient({
                   canManage={isCreator}
                   isLatest={!hasNewerKhatm}
                   onCompleted={async () => {
-                    announceOwnCompletion();
+                    announceOwnCompletion(khatm.id);
                     await refreshEvent();
                   }}
                 />

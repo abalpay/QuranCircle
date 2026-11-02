@@ -297,7 +297,8 @@
     "myJuz": "My Juz ({count})",
     "creatorQueue": "Creator Queue ({count})",
     "juzFilters": "Juz filters",
-    "updating": "Updating..."
+    "updating": "Updating...",
+    "creatorQueueNoCount": "Creator Queue"
   },
   "CirclePage": {
     "share": "Share",

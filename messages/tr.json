@@ -297,7 +297,8 @@
     "myJuz": "Cüzlerim ({count})",
     "creatorQueue": "Yönetim Paneli ({count})",
     "juzFilters": "Cüz filtreleri",
-    "updating": "Güncelleniyor..."
+    "updating": "Güncelleniyor...",
+    "creatorQueueNoCount": "Yönetim Paneli"
   },
   "CirclePage": {
     "share": "Paylaş",

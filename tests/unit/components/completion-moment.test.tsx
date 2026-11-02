@@ -66,12 +66,16 @@ describe("completion dialog content (#81)", () => {
     expect(screen.getByText("May Allah accept this khatm.")).toBeInTheDocument();
   });
 
-  it("lists each reader once as a list item with its own direction", () => {
+  it("lists each reader once as an isolated list item, with spacing instead of a separator", () => {
     renderContent();
     expect(screen.getByText("Read by")).toBeInTheDocument();
     const items = screen.getAllByRole("listitem");
     expect(items.map((item) => item.textContent)).toEqual(["Omar", "Amina"]);
-    items.forEach((item) => expect(item).toHaveAttribute("dir", "auto"));
+    items.forEach((item) => {
+      expect(item.querySelector("bdi")?.textContent).toBe(item.textContent);
+      expect(item.className).not.toMatch(/before|content-/);
+    });
+    expect(items[0].parentElement?.className).not.toMatch(/before|content-/);
   });
 
   it("says all 30 Juz were taken up for an auto-completed khatm, never that they were read", () => {
@@ -221,7 +225,7 @@ describe("when the completion dialog opens", () => {
       initialProps: { khatms: [open] },
     });
     expect(result.current.khatm).toBeNull();
-    act(() => result.current.announceOwnCompletion());
+    act(() => result.current.announceOwnCompletion("k1"));
     expect(result.current.khatm).toBeNull(); // the refreshed snapshot has not landed yet
     rerender({ khatms: [makeKhatm({}, true)] });
     expect(result.current.khatm?.id).toBe("k1");
@@ -241,9 +245,66 @@ describe("when the completion dialog opens", () => {
     const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
       initialProps: { khatms: [current] },
     });
-    act(() => result.current.announceOwnCompletion());
+    act(() => result.current.announceOwnCompletion("k2"));
     rerender({ khatms: [makeKhatm({ id: "k1", khatm_number: 1 }, true), current] });
     expect(result.current.khatm).toBeNull();
+  });
+
+  it("opens only for the khatm the visitor completed, not another one completed by realtime", () => {
+    const open = (id: string, n: number) =>
+      makeKhatm({ id, khatm_number: n, completed_at: null, completion_source: null }, true);
+    const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
+      initialProps: { khatms: [open("k1", 1), open("k2", 2)] },
+    });
+    act(() => result.current.announceOwnCompletion("k2"));
+    // k1 completes by realtime first; k2 is the visitor's own.
+    rerender({ khatms: [makeKhatm({ id: "k1", khatm_number: 1 }, true), open("k2", 2)] });
+    expect(result.current.khatm).toBeNull();
+    rerender({
+      khatms: [makeKhatm({ id: "k1", khatm_number: 1 }, true), makeKhatm({ id: "k2", khatm_number: 2 }, true)],
+    });
+    expect(result.current.khatm?.id).toBe("k2");
+  });
+
+  it("opens when the realtime refresh lands before the visitor's announce", () => {
+    const open = makeKhatm({ completed_at: null, completion_source: null }, true);
+    const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
+      initialProps: { khatms: [open] },
+    });
+    rerender({ khatms: [makeKhatm({}, true)] }); // the snapshot shows it complete: silent
+    expect(result.current.khatm).toBeNull();
+    act(() => result.current.announceOwnCompletion("k1")); // the action result arrives after
+    expect(result.current.khatm?.id).toBe("k1");
+  });
+
+  describe("own-action window", () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-11-02T12:00:00Z"));
+    });
+    afterEach(() => vi.useRealTimers());
+
+    it("expires after 15 seconds: a late completion stays silent", () => {
+      const open = makeKhatm({ completed_at: null, completion_source: null }, true);
+      const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
+        initialProps: { khatms: [open] },
+      });
+      act(() => result.current.announceOwnCompletion("k1"));
+      vi.setSystemTime(new Date("2026-11-02T12:00:16Z"));
+      rerender({ khatms: [makeKhatm({}, true)] });
+      expect(result.current.khatm).toBeNull();
+    });
+
+    it("still opens just inside the window", () => {
+      const open = makeKhatm({ completed_at: null, completion_source: null }, true);
+      const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
+        initialProps: { khatms: [open] },
+      });
+      act(() => result.current.announceOwnCompletion("k1"));
+      vi.setSystemTime(new Date("2026-11-02T12:00:14Z"));
+      rerender({ khatms: [makeKhatm({}, true)] });
+      expect(result.current.khatm?.id).toBe("k1");
+    });
   });
 
   it("still stops repeats within the visit when storage is blocked", () => {

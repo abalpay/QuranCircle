@@ -211,8 +211,11 @@ describe("circle page completion moment and organizer controls", () => {
       { wrapper: IntlWrapper }
     );
     const group = screen.getByRole("group", { name: "Juz filters" });
-    expect(within(group).getByRole("button", { name: /^Creator Queue \(\d+\)$/ })).toBeInTheDocument();
     expect(within(group).queryByRole("button", { name: /^Available/ })).toBeNull();
+    // No "(30)": a finished khatm has no pending actions.
+    expect(within(group).getByRole("button", { name: "Creator Queue" })).toBeInTheDocument();
+    expect(within(group).getByRole("button", { name: /^All \(\d+\)$/ })).toBeInTheDocument(); // the others keep their counts
+    expect(within(group).queryByRole("button", { name: /^Creator Queue \(\d+\)$/ })).toBeNull();
   });
 
   it("does not open the dialog for an open khatm", () => {
