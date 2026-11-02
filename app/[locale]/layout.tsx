@@ -10,6 +10,9 @@ import {
   Amiri,
 } from "next/font/google";
 import "../globals.css";
+import "../decor-assets.css"; // TEMPORARY #105
+import "../decor-variants.css"; // TEMPORARY #105
+import DecorSwitch from "@/components/decor-switch"; // TEMPORARY #105
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { AuthModalProvider } from "@/hooks/use-auth-modal";
@@ -164,6 +167,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <DirectionProvider dir={getLocaleDirection(locale)}>
           <NavigationProgress />
+          <DecorSwitch />
           <AuthProvider>
             <AuthModalProvider>
               <div

@@ -3,6 +3,7 @@
 // Captures pages at 390px and 1440px, English and Arabic, to CAPTURE_OUT_DIR
 // (default: <os tmpdir>/qc-captures, never the repo) from CAPTURE_BASE_URL
 // (default http://localhost:3002, a dev server pointed at the local stack).
+// CAPTURE_QUERY=decor=a appends a query string to every captured URL.
 // Fixtures go to the LOCAL database only.
 import { createClient } from "@supabase/supabase-js";
 import { chromium } from "@playwright/test";
@@ -12,6 +13,7 @@ import { tmpdir } from "node:os";
 
 const BASE = process.env.CAPTURE_BASE_URL ?? "http://localhost:3002";
 const OUT_ROOT = process.env.CAPTURE_OUT_DIR ?? join(tmpdir(), "qc-captures");
+const QUERY = process.env.CAPTURE_QUERY ? `?${process.env.CAPTURE_QUERY.replace(/^\?/, "")}` : ""; // e.g. decor=a
 const PASSWORD = "Design-Audit-2026!x";
 const ORG = "dsg-organizer@design.local";
 const READER = "dsg-reader@design.local";
@@ -231,7 +233,8 @@ async function main() {
   const [label, which = "all"] = process.argv.slice(2);
   if (!label || !/^[\w-]+$/.test(label)) throw new Error("Usage: capture-pages.mjs <label> <all|name,name> (label: letters, digits, - or _)");
   const wanted = which === "all" ? PAGES : which.split(",").map((n) => {
-    const hit = PAGES.filter((p) => p.name === n || p.name.startsWith(`${n}-`));
+    const exact = PAGES.filter((p) => p.name === n); // exact name wins, so "home" skips home-signed-in
+    const hit = exact.length ? exact : PAGES.filter((p) => p.name.startsWith(`${n}-`));
     if (!hit.length) throw new Error(`Unknown page ${n}. Known: ${PAGES.map((p) => p.name).join(", ")}`);
     return hit;
   }).flat();
@@ -263,7 +266,7 @@ async function main() {
         const page = await ctx.newPage();
         const file = join(outDir, `${p.name}.${locale}.${tag}.png`);
         try {
-          await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}`, { waitUntil: "networkidle", timeout: 45000 });
+          await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}${QUERY}`, { waitUntil: "networkidle", timeout: 45000 });
           await page.waitForTimeout(400);
           if (p.dialog) await openDialog(page, p.dialog, locale);
           await page.screenshot({ path: file, fullPage: Boolean(p.full) });
