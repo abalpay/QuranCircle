@@ -17,6 +17,7 @@ const SCRIPT_URL =
 const KEY = "1x00000000000000000000AA";
 
 let getCaptchaToken: typeof import("@/lib/captcha").getCaptchaToken;
+let setCaptchaInteractiveLabel: typeof import("@/lib/captcha").setCaptchaInteractiveLabel;
 let getTurnstileSiteKey: typeof import("@/lib/captcha").getTurnstileSiteKey;
 
 const turnstile = { render: vi.fn(), execute: vi.fn(), remove: vi.fn() };
@@ -34,6 +35,7 @@ function interceptScripts() {
     if (node instanceof HTMLScriptElement) {
       queueMicrotask(() => {
         if (scriptMode === "load") {
+          window.turnstile = turnstile; // what api.js defines when it runs
           (window as unknown as Record<string, () => void>).__qcTurnstileLoaded?.();
         } else if (scriptMode === "error") {
           node.onerror?.(new Event("error"));
@@ -50,7 +52,7 @@ describe("getCaptchaToken (Turnstile)", () => {
   beforeEach(async () => {
     // the script promise is module state: start every test from a fresh module
     vi.resetModules();
-    ({ getCaptchaToken, getTurnstileSiteKey } = await import("@/lib/captcha"));
+    ({ getCaptchaToken, getTurnstileSiteKey, setCaptchaInteractiveLabel } = await import("@/lib/captcha"));
     vi.unstubAllEnvs();
     vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", KEY);
     scriptMode = "load";
@@ -61,8 +63,8 @@ describe("getCaptchaToken (Turnstile)", () => {
       options = o;
       return "widget-1";
     });
-    window.turnstile = turnstile;
     vi.spyOn(console, "warn").mockImplementation(() => {});
+    setCaptchaInteractiveLabel("Please complete the security check.");
     interceptScripts();
   });
   afterEach(() => {
@@ -121,13 +123,14 @@ describe("getCaptchaToken (Turnstile)", () => {
     await expect(next).resolves.toBe("t");
   });
 
-  it("times out a stalled script load and allows a fresh inject afterwards", async () => {
+  it("fails open after the short script-load deadline and allows a fresh inject afterwards", async () => {
     vi.useFakeTimers();
     scriptMode = "stall";
     const pending = getCaptchaToken("signin");
-    await vi.advanceTimersByTimeAsync(60_001);
+    await vi.advanceTimersByTimeAsync(12_001);
     await expect(pending).resolves.toBeUndefined();
     expect(scripts()).toHaveLength(0);
+    expect(turnstile.render).not.toHaveBeenCalled();
 
     scriptMode = "load";
     const next = getCaptchaToken("signin");
@@ -135,6 +138,69 @@ describe("getCaptchaToken (Turnstile)", () => {
     expect(scripts()).toHaveLength(1);
     options.callback("t");
     await expect(next).resolves.toBe("t");
+  });
+
+  it("gives the challenge its own 60s deadline, counted from when the script is ready", async () => {
+    vi.useFakeTimers();
+    scriptMode = "stall";
+    const pending = getCaptchaToken("signin");
+    let settled = false;
+    void pending.then(() => (settled = true));
+    await vi.advanceTimersByTimeAsync(11_000);
+    window.turnstile = turnstile;
+    (window as unknown as Record<string, () => void>).__qcTurnstileLoaded();
+    await vi.advanceTimersByTimeAsync(59_000); // 70s overall, still within the challenge deadline
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1_100);
+    await expect(pending).resolves.toBeUndefined();
+    expect(turnstile.remove).toHaveBeenCalledTimes(1);
+    expect(document.body.children).toHaveLength(0);
+  });
+
+  it("does not inject a second script, or reset the promise, when only a dialog closed mid-load", async () => {
+    document.body.innerHTML = '<div role="dialog" data-state="open" id="d"></div>';
+    scriptMode = "stall";
+    const first = getCaptchaToken("signin");
+    await vi.waitFor(() => expect(scripts()).toHaveLength(1));
+    document.getElementById("d")!.remove();
+    await expect(first).resolves.toBeUndefined();
+    expect(scripts()).toHaveLength(1);
+
+    const second = getCaptchaToken("signin"); // waits on the same, still-loading script
+    await Promise.resolve();
+    expect(scripts()).toHaveLength(1);
+    window.turnstile = turnstile;
+    (window as unknown as Record<string, () => void>).__qcTurnstileLoaded();
+    await vi.waitFor(() => expect(turnstile.execute).toHaveBeenCalled());
+    options.callback("t");
+    await expect(second).resolves.toBe("t");
+  });
+
+  it("a late onload from an old script resolves the call waiting on the newer one", async () => {
+    vi.useFakeTimers();
+    scriptMode = "stall";
+    const stale = getCaptchaToken("signin");
+    await vi.advanceTimersByTimeAsync(12_001);
+    await expect(stale).resolves.toBeUndefined();
+
+    const waiting = getCaptchaToken("signin");
+    await vi.advanceTimersByTimeAsync(0);
+    expect(scripts()).toHaveLength(1);
+    window.turnstile = turnstile;
+    (window as unknown as Record<string, () => void>).__qcTurnstileLoaded(); // the old script finishing late
+    await vi.advanceTimersByTimeAsync(0);
+    expect(turnstile.execute).toHaveBeenCalled();
+    options.callback("t");
+    await expect(waiting).resolves.toBe("t");
+  });
+
+  it("does not inject anything when the API is already on the page", async () => {
+    window.turnstile = turnstile;
+    const pending = getCaptchaToken("signin");
+    await vi.waitFor(() => expect(turnstile.execute).toHaveBeenCalled());
+    expect(scripts()).toHaveLength(0);
+    options.callback("t");
+    await expect(pending).resolves.toBe("t");
   });
 
   it("removes the widget and fails open when the challenge times out", async () => {
@@ -192,6 +258,8 @@ describe("getCaptchaToken (Turnstile)", () => {
 
     options["before-interactive-callback"]();
     expect(box.style.position).toBe("static");
+    expect(box).toHaveAttribute("role", "group");
+    expect(box).toHaveAttribute("aria-label", "Please complete the security check.");
     expect(document.activeElement).toBe(box);
     expect((announce.mock.calls[0][0] as CustomEvent).detail.active).toBe(true);
 

@@ -8,7 +8,8 @@ export const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
 export const CAPTCHA_FAILED_EVENT = "quran-circle:captcha-failed";
 export const CAPTCHA_INTERACTIVE_EVENT = "quran-circle:captcha-interactive";
 const ONLOAD_CALLBACK = "__qcTurnstileLoaded";
-const TOKEN_TIMEOUT_MS = 60_000;
+const SCRIPT_LOAD_TIMEOUT_MS = 12_000;
+const CHALLENGE_TIMEOUT_MS = 60_000;
 const DIALOG_SELECTOR = '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]';
 
 export function getTurnstileSiteKey(): string | null {
@@ -38,22 +39,34 @@ function resetScript() {
 }
 
 // Created from our nonced bundle, so 'strict-dynamic' trusts it. Loaded on the first token request.
+// The script promise is reset only when the script itself errors or misses its load deadline.
 function loadTurnstile(): Promise<TurnstileApi> {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
   apiPromise ??= new Promise<TurnstileApi>((resolve, reject) => {
     const script = document.createElement("script");
-    const fail = () => {
+    // The global callback always belongs to the newest injection, so a late onload from an
+    // older script resolves the promise that is waiting now instead of stranding it.
+    window[ONLOAD_CALLBACK] = () => {
+      if (window.turnstile) return resolve(window.turnstile);
+      resetScript();
+      reject(new Error("Turnstile API missing"));
+    };
+    script.onerror = () => {
       if (scriptEl === script) resetScript(); // next call re-injects once
       reject(new Error("Turnstile script failed to load"));
     };
-    window[ONLOAD_CALLBACK] = () =>
-      window.turnstile ? resolve(window.turnstile) : fail();
     script.src = `${TURNSTILE_ORIGIN}/turnstile/v0/api.js?render=explicit&onload=${ONLOAD_CALLBACK}`;
     script.async = true;
-    script.onerror = fail;
     scriptEl = script;
     document.head.appendChild(script);
   });
   return apiPromise;
+}
+
+let interactiveLabel = "";
+/** Translated text that names the widget box for screen readers (set by CaptchaErrorToast). */
+export function setCaptchaInteractiveLabel(label: string) {
+  interactiveLabel = label;
 }
 
 function announceInteractive(active: boolean) {
@@ -70,13 +83,16 @@ function showWidgetBox(box: HTMLElement, insideDialog: boolean) {
       : { position: "fixed", width: "auto", height: "auto", overflow: "visible", insetInline: "0", bottom: "1rem", zIndex: "100", pointerEvents: "auto" },
     { display: "flex", justifyContent: "center" },
   );
+  // Radix hides the app root from assistive tech while a dialog is open, so the box names itself.
+  box.setAttribute("role", "group");
+  box.setAttribute("aria-label", interactiveLabel);
   box.tabIndex = -1;
   box.focus({ preventScroll: true });
   announceInteractive(true);
 }
 
-// One fresh widget per call (tokens are single-use), removed when done. One deadline covers script
-// load and the challenge itself.
+// One fresh widget per call (tokens are single-use), removed when done. A short deadline covers the
+// script load, a longer one the challenge itself.
 function acquireToken(siteKey: string, action: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const dialogs = document.querySelectorAll<HTMLElement>(DIALOG_SELECTOR);
@@ -95,7 +111,8 @@ function acquireToken(siteKey: string, action: string): Promise<string> {
     const finish = (settle: () => void) => {
       if (done) return;
       done = true;
-      clearTimeout(timer);
+      clearTimeout(loadTimer);
+      clearTimeout(challengeTimer);
       observer.disconnect();
       if (widgetId) {
         try {
@@ -110,15 +127,18 @@ function acquireToken(siteKey: string, action: string): Promise<string> {
       if (hadFocus && previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
       settle();
     };
-    const fail = () => {
-      if (!turnstile) resetScript(); // stalled script load: allow a fresh inject next time
-      finish(() => reject(new Error("Captcha check failed")));
-    };
-    const timer = setTimeout(fail, TOKEN_TIMEOUT_MS);
+    const fail = () => finish(() => reject(new Error("Captcha check failed")));
+    let challengeTimer: ReturnType<typeof setTimeout> | undefined;
+    const loadTimer = setTimeout(() => {
+      resetScript(); // stalled load: allow a fresh inject next time
+      fail();
+    }, SCRIPT_LOAD_TIMEOUT_MS);
     observer.observe(document.body, { childList: true, subtree: true });
 
     loadTurnstile().then((api) => {
       if (done) return;
+      clearTimeout(loadTimer);
+      challengeTimer = setTimeout(fail, CHALLENGE_TIMEOUT_MS);
       turnstile = api;
       try {
         widgetId = api.render(box, {

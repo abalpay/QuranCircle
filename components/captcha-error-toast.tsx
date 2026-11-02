@@ -3,11 +3,17 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { CAPTCHA_FAILED_EVENT, CAPTCHA_INTERACTIVE_EVENT } from "@/lib/captcha";
+import {
+  CAPTCHA_FAILED_EVENT,
+  CAPTCHA_INTERACTIVE_EVENT,
+  setCaptchaInteractiveLabel,
+} from "@/lib/captcha";
 
 export default function CaptchaErrorToast() {
   const t = useTranslations("Captcha");
   const [interactive, setInteractive] = useState(false);
+
+  useEffect(() => setCaptchaInteractiveLabel(t("interactive")), [t]);
 
   useEffect(() => {
     const onFailed = (event: Event) => {

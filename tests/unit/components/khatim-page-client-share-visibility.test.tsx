@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import KhatimPageClient from "@/components/khatim-page-client";
+import { setSessionCaptchaRejected } from "@/lib/captcha";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 import type { EventSnapshot } from "@/lib/types/events";
 import turkishMessages from "../../../messages/tr.json";
@@ -394,5 +395,35 @@ describe("KhatimPageClient share/settings visibility", () => {
       );
       expect(screen.getByRole("button", { name: "All (2)" })).toBeInTheDocument();
     });
+  });
+});
+
+describe("KhatimPageClient session bootstrap", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    setSessionCaptchaRejected(false);
+    ensureSessionMock.mockReset();
+    ensureSessionMock.mockImplementation(() => new Promise(() => {}));
+  });
+
+  const bootstrap = async () => {
+    vi.useFakeTimers();
+    render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, { wrapper: IntlWrapper });
+    await vi.advanceTimersByTimeAsync(10_000);
+  };
+
+  it("keeps retrying a plain session failure", async () => {
+    ensureSessionMock.mockResolvedValue(null);
+    await bootstrap();
+    expect(ensureSessionMock.mock.calls.length).toBeGreaterThan(2);
+  });
+
+  it("stops retrying once the failure is a captcha rejection", async () => {
+    ensureSessionMock.mockImplementation(async () => {
+      setSessionCaptchaRejected(true);
+      return null;
+    });
+    await bootstrap();
+    expect(ensureSessionMock).toHaveBeenCalledTimes(1);
   });
 });

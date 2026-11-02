@@ -513,7 +513,8 @@ export default function KhatimPageClient({
       if (!sessionUser) {
         setSessionInitialized(false);
 
-        if (attempt >= SESSION_BOOTSTRAP_MAX_RETRIES) {
+        // A captcha rejection will not clear by retrying; the toast has its own Retry.
+        if (attempt >= SESSION_BOOTSTRAP_MAX_RETRIES || wasSessionCaptchaRejected()) {
           console.warn("[QuranCircle] Failed to initialize session for realtime.");
           return;
         }
