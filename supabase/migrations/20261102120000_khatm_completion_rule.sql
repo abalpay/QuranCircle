@@ -553,7 +553,7 @@ GRANT EXECUTE ON FUNCTION public.complete_khatm(TEXT, UUID)
 
 -- D5.3: a fully claimed khatm completes 7 days after its last claim. The
 -- completion time is that deadline, not the (later) time the job ran.
-CREATE FUNCTION private.auto_complete_khatms()
+CREATE FUNCTION private.auto_complete_khatms(p_limit INTEGER DEFAULT 1000)
 RETURNS INTEGER
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -565,14 +565,23 @@ DECLARE
   v_count INTEGER := 0;
 BEGIN
   FOR r IN
+    -- Only eligible khatms are candidates, so ineligible ones cannot starve
+    -- the capped batch; the next run picks up any remainder.
     SELECT k.id, k.event_id
     FROM public.khatms k
     JOIN public.events e ON e.id = k.event_id
+    JOIN LATERAL (
+      SELECT COUNT(*) AS n,
+             COUNT(*) FILTER (WHERE j.status = 'unclaimed') AS n_unclaimed,
+             MAX(j.claimed_at) AS last_claim
+      FROM public.juzs j
+      WHERE j.khatm_id = k.id
+    ) s ON s.n = 30 AND s.n_unclaimed = 0 AND s.last_claim <= now() - interval '7 days'
     WHERE k.completed_at IS NULL
       AND k.is_deleted = false
       AND e.is_archived = false
-    ORDER BY k.created_at
-    LIMIT 1000 -- shortcut: bounded batch per run, the next run picks up the rest
+    ORDER BY s.last_claim
+    LIMIT p_limit
   LOOP
     -- Event first, then khatm, like every mutation; skip busy events.
     PERFORM 1 FROM public.events e
@@ -585,7 +594,8 @@ BEGIN
     FOR UPDATE;
     CONTINUE WHEN NOT FOUND;
 
-    -- Recheck under the lock: a claim or unclaim may have raced the scan.
+    -- Recheck under the lock: the scan above took no locks, so a claim or
+    -- unclaim may have raced it.
     SELECT MAX(j.claimed_at) INTO v_last_claim
     FROM public.juzs j
     WHERE j.khatm_id = r.id
@@ -603,7 +613,7 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION private.auto_complete_khatms()
+REVOKE ALL ON FUNCTION private.auto_complete_khatms(INTEGER)
   FROM PUBLIC, anon, authenticated, service_role;
 
 -- Daily at 04:15 UTC. Created INACTIVE: activation is a separate, owner-approved

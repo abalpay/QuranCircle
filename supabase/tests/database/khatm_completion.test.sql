@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(45);
+SELECT plan(47);
 
 -- Users: C creator, R reader (owns every Juz), A anonymous creator, X other user.
 INSERT INTO auth.users (id, aud, role, is_anonymous, created_at, updated_at)
@@ -31,7 +31,8 @@ INSERT INTO fx VALUES
   ('c0000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000003', 1, 30, interval '8 days', false),
   ('c0000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000001', 8, 30, interval '8 days', true),
   ('c0000000-0000-0000-0000-000000000009', 'b0000000-0000-0000-0000-000000000001', 9, 29, interval '8 days', false),
-  ('c0000000-0000-0000-0000-000000000010', 'b0000000-0000-0000-0000-000000000002', 1, 30, interval '0', false);
+  ('c0000000-0000-0000-0000-000000000010', 'b0000000-0000-0000-0000-000000000002', 1, 30, interval '0', false),
+  ('c0000000-0000-0000-0000-000000000011', 'b0000000-0000-0000-0000-000000000001', 11, 30, interval '30 days', false);
 
 INSERT INTO public.khatms (id, event_id, khatm_number, is_deleted)
 SELECT khatm_id, event_id, num, is_deleted FROM fx;
@@ -207,6 +208,12 @@ SELECT is(
 );
 
 -- Auto-complete.
+-- Ineligible khatms (k3, k6, k9, ...) are older than k11 but must not use up the batch cap.
+SELECT is(private.auto_complete_khatms(1), 1, 'a batch of one completes the eligible khatm despite older ineligible ones');
+SELECT is(
+  (SELECT completed_at FROM public.khatms WHERE id = 'c0000000-0000-0000-0000-000000000011'),
+  now() - interval '23 days', 'the capped batch completed the oldest eligible khatm'
+);
 SELECT cmp_ok(private.auto_complete_khatms(), '>=', 1, 'auto-complete completes at least the eligible khatm');
 SELECT is(
   (SELECT completion_source FROM public.khatms WHERE id = 'c0000000-0000-0000-0000-000000000005'),
@@ -253,9 +260,9 @@ SELECT ok(
   'complete_khatm is callable by authenticated but not raw anon'
 );
 SELECT ok(
-  NOT has_function_privilege('anon', 'private.auto_complete_khatms()', 'EXECUTE')
-    AND NOT has_function_privilege('authenticated', 'private.auto_complete_khatms()', 'EXECUTE')
-    AND NOT has_function_privilege('service_role', 'private.auto_complete_khatms()', 'EXECUTE'),
+  NOT has_function_privilege('anon', 'private.auto_complete_khatms(integer)', 'EXECUTE')
+    AND NOT has_function_privilege('authenticated', 'private.auto_complete_khatms(integer)', 'EXECUTE')
+    AND NOT has_function_privilege('service_role', 'private.auto_complete_khatms(integer)', 'EXECUTE'),
   'client roles cannot execute auto_complete_khatms'
 );
 

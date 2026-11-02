@@ -1120,7 +1120,9 @@ export default function KhatimPageClient({
 
       {!showCreatorQueue && (
         <div className="space-y-8">
-          {event.khatms.map((khatm) => {
+          {event.khatms.map((khatm, index) => {
+            const hasNewerKhatm = index < event.khatms.length - 1;
+            const isFullyClaimed = khatm.claimed_count === 30;
             return (
               <div
                 key={khatm.id}
@@ -1135,7 +1137,8 @@ export default function KhatimPageClient({
                     await refreshEvent();
                   }}
                   activeFilter={displayFilter}
-                  isCompleted={Boolean(khatm.completed_at)}
+                  isCompleted={isFullyClaimed && hasNewerKhatm}
+                  isFinal={Boolean(khatm.completed_at)}
                   onClaimSuccess={handleClaimSuccess}
                 />
               </div>
