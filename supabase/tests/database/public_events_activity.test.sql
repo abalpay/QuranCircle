@@ -53,21 +53,28 @@ SELECT ok(NOT EXISTS (SELECT 1 FROM listed WHERE id = '30000000-0000-0000-0000-0
 SELECT ok(NOT EXISTS (SELECT 1 FROM listed WHERE id = '30000000-0000-0000-0000-000000000011'), 'archived circle stays excluded');
 SELECT ok(EXISTS (SELECT 1 FROM listed WHERE id = '30000000-0000-0000-0000-000000000012'), 'old circle with claim 29 days ago is listed');
 
--- Cursor pages of 2 must equal the first 4 rows of the full listing (filtered rows sit between kept ones).
+-- Page through only the fixture band (cursor just above event a). Expected active order: a, b, d, i;
+-- the excluded c sits between the page-1 and page-2 boundary rows.
 CREATE TEMP TABLE page1 AS
-SELECT id, created_at, row_number() OVER () AS n FROM public.list_public_events_with_progress(2, NULL, NULL);
+SELECT id, created_at, row_number() OVER (ORDER BY created_at DESC, id DESC) AS n
+FROM public.list_public_events_with_progress(2, now() - interval '1 day' + interval '1 millisecond', NULL);
 
 CREATE TEMP TABLE page2 AS
-SELECT id FROM public.list_public_events_with_progress(
+SELECT id, created_at FROM public.list_public_events_with_progress(
   2,
   (SELECT created_at FROM page1 WHERE n = 2),
   (SELECT id FROM page1 WHERE n = 2)
 );
 
 SELECT is(
-  (SELECT array_agg(id) FROM (SELECT id FROM page1 UNION ALL SELECT id FROM page2) p),
-  (SELECT array_agg(id) FROM (SELECT id FROM public.list_public_events_with_progress(4, NULL, NULL)) f),
-  'cursor pages match the unpaged listing with no gaps'
+  (SELECT array_agg(id ORDER BY created_at DESC, id DESC) FROM (SELECT id, created_at FROM page1 UNION ALL SELECT id, created_at FROM page2) p),
+  ARRAY[
+    '30000000-0000-0000-0000-00000000000a',
+    '30000000-0000-0000-0000-00000000000b',
+    '30000000-0000-0000-0000-00000000000d',
+    '30000000-0000-0000-0000-000000000012'
+  ]::uuid[],
+  'cursor pages return the active fixture rows in order with no gaps'
 );
 
 SELECT is(
