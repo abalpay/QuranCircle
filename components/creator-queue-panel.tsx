@@ -9,6 +9,7 @@ import {
   sortCreatorQueueRows,
 } from "@/lib/event-filters";
 import { Badge } from "@/components/ui/badge";
+import UnclaimConfirmDialog from "@/components/unclaim-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -46,6 +47,7 @@ export default function CreatorQueuePanel({
   const [khatm, setKhatm] = useState<CreatorQueueFilters["khatm"]>("all");
   const [onlyMine, setOnlyMine] = useState(false);
   const [visibleRows, setVisibleRows] = useState(INITIAL_VISIBLE_ROWS);
+  const [unclaiming, setUnclaiming] = useState<CreatorManageRow | null>(null);
 
   const khatmOptions = useMemo(
     () =>
@@ -260,7 +262,7 @@ export default function CreatorQueuePanel({
                   >
                     {row.status === "read" ? t("readStatus") : t("claimedStatus")}
                   </span>
-                  <span className="text-quran-muted">
+                  <span dir="auto" className="text-quran-muted">
                     {row.claimedByName ? t("by", { name: row.claimedByName }) : t("nameUnavailable")}
                   </span>
                   {row.isMine && (
@@ -292,7 +294,7 @@ export default function CreatorQueuePanel({
                     <button
                       type="button"
                       className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
-                      onClick={() => onUnclaim(row.juzId)}
+                      onClick={() => setUnclaiming(row)}
                     >
                       {t("unclaim")}
                     </button>
@@ -316,6 +318,15 @@ export default function CreatorQueuePanel({
           </Button>
         </div>
       )}
+
+      <UnclaimConfirmDialog
+        juzNumber={unclaiming?.juzNumber ?? null}
+        onCancel={() => setUnclaiming(null)}
+        onConfirm={() => {
+          if (unclaiming) onUnclaim(unclaiming.juzId);
+          setUnclaiming(null);
+        }}
+      />
     </section>
   );
 }

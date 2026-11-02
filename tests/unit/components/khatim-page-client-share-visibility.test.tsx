@@ -268,4 +268,85 @@ describe("KhatimPageClient share/settings visibility", () => {
       "true"
     );
   });
+
+  describe("reader view (#79)", () => {
+    const ownKhatm = {
+      id: "k1",
+      khatm_number: 1,
+      claimed_count: 1,
+      read_count: 0,
+      completed_at: null,
+      completion_source: null,
+      juzs: [
+        { id: "j5", juz_number: 5, status: "claimed" as const, claimed_by_name: "Me", is_mine: true },
+        { id: "j6", juz_number: 6, status: "unclaimed" as const, claimed_by_name: null, is_mine: false },
+      ],
+    };
+
+    it.each(["all", "available", "mine"])("shows Your Juz in the %s tab", (filter) => {
+      searchParamsMock.value = `filter=${filter}`;
+      render(
+        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.getByRole("heading", { name: "Your Juz" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Done" })).toBeInTheDocument();
+    });
+
+    it("hides Your Juz when the visitor has no claims", () => {
+      render(
+        <KhatimPageClient
+          event={buildEvent({
+            khatms: [{ ...ownKhatm, juzs: ownKhatm.juzs.map((j) => ({ ...j, is_mine: false })) }],
+          })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.queryByRole("heading", { name: "Your Juz" })).not.toBeInTheDocument();
+    });
+
+    it("shows the other-phone hint in My Juz only when there are no claims", () => {
+      searchParamsMock.value = "filter=mine";
+      const { unmount } = render(
+        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.queryByText(/Claimed on another phone/)).not.toBeInTheDocument();
+      unmount();
+      render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
+        wrapper: IntlWrapper,
+      });
+      expect(
+        screen.getByText("Claimed on another phone? Ask the organizer to mark it Done.")
+      ).toBeInTheDocument();
+    });
+
+    it("sets dir=auto and a script-chosen face on the title and dua", () => {
+      render(
+        <KhatimPageClient
+          event={buildEvent({ name: "In memory of Yusuf", description: "اللهم ارحمه" })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      const title = screen.getByRole("heading", { level: 1 });
+      expect(title).toHaveAttribute("dir", "auto");
+      expect(title).toHaveAttribute("data-script", "latin");
+      const dua = screen.getByText("اللهم ارحمه");
+      expect(dua).toHaveAttribute("dir", "auto");
+      expect(dua).toHaveAttribute("data-script", "arabic");
+    });
+
+    it("scopes filter counts to the khatm in front", () => {
+      render(
+        <KhatimPageClient
+          event={buildEvent({ khatms: [ownKhatm, { ...ownKhatm, id: "k2", khatm_number: 2 }] })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.getByRole("button", { name: "All (2)" })).toBeInTheDocument();
+    });
+  });
 });

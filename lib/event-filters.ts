@@ -107,24 +107,27 @@ export function withMineViewQuery(
   return nextQuery ? `${pathname}?${nextQuery}` : pathname;
 }
 
+/**
+ * Tab counts. "All" is the khatm in front (the latest), not every loaded khatm;
+ * "Available" counts what the Available tab lists (open Juz of khatms that still
+ * accept claims); "My Juz" spans khatms because the Your Juz block does.
+ */
 export function getEventFilterCounts(
   event: Pick<EventSnapshot, "khatms">
 ): EventFilterCounts {
-  return event.khatms.reduce(
-    (acc, khatm) => {
-      for (const juz of khatm.juzs) {
-        acc.all += 1;
-        if (juz.status === "unclaimed") {
-          acc.available += 1;
-        }
-        if (juz.status !== "unclaimed" && juz.is_mine) {
-          acc.mine += 1;
-        }
-      }
-      return acc;
-    },
-    { all: 0, available: 0, mine: 0 }
+  const current = event.khatms.reduce<KhatmSnapshot | undefined>(
+    (latest, khatm) =>
+      !latest || khatm.khatm_number > latest.khatm_number ? khatm : latest,
+    undefined
   );
+  const counts = { all: current?.juzs.length ?? 0, available: 0, mine: 0 };
+  for (const khatm of event.khatms) {
+    for (const juz of khatm.juzs) {
+      if (juz.status === "unclaimed" && !khatm.completed_at) counts.available += 1;
+      if (juz.status !== "unclaimed" && juz.is_mine) counts.mine += 1;
+    }
+  }
+  return counts;
 }
 
 export function getAvailableRows(khatm: Pick<KhatmSnapshot, "juzs">) {

@@ -178,6 +178,26 @@
     letter-spacing: 0;
   }
 
+  /* User text (titles, duas, names) chooses its face by its own script, not the locale. */
+  html [data-script="arabic"] {
+    font-family:
+      var(--font-arabic), var(--font-amiri), "Tahoma", serif;
+    letter-spacing: 0;
+  }
+
+  html [data-script="arabic"].font-heading {
+    font-weight: 600;
+  }
+
+  html [data-script="latin"] {
+    font-family: var(--font-body), "Segoe UI", sans-serif;
+  }
+
+  html [data-script="latin"].font-heading {
+    font-family:
+      var(--font-display), "Iowan Old Style", "Times New Roman", serif;
+  }
+
   html[dir="rtl"] :is(input, textarea) {
     text-align: start;
   }

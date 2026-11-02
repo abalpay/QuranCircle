@@ -1,7 +1,8 @@
 "use client";
 
-import { Check, CheckCircle2 } from "lucide-react";
+import { BookOpen, Check, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { textScript } from "@/lib/text-script";
 import { useTranslations } from "next-intl";
 
 type Juz = {
@@ -9,6 +10,7 @@ type Juz = {
   juz_number: number;
   status: string;
   claimed_by_name: string | null;
+  is_mine?: boolean;
 };
 
 type Props = {
@@ -29,82 +31,111 @@ export default function JuzCard({
   const canClaim = isUnclaimed && !isReadOnly;
   const isClaimed = juz.status === "claimed";
   const isRead = juz.status === "read";
-  const isInteractive = canClaim;
-  const firstName = juz.claimed_by_name?.split(" ")[0] || "";
+  const isMine = Boolean(juz.is_mine) && !isUnclaimed;
+  const fullName = juz.claimed_by_name?.trim() || "";
+  const firstName = fullName.split(/\s+/)[0] || "";
+
+  const state = isRead
+    ? t("stateDone")
+    : isClaimed
+      ? t("stateReading")
+      : t("stateAvailable");
+
+  const label = isSelected
+    ? t("selected", { number: juz.juz_number })
+    : canClaim
+      ? t("selectJuz", { number: juz.juz_number })
+      : fullName
+        ? t(isMine ? "tileByMine" : "tileBy", {
+            number: juz.juz_number,
+            state,
+            name: fullName,
+          })
+        : t("tile", { number: juz.juz_number, state });
 
   return (
     <div
       className={cn(
-        "group relative flex aspect-square min-h-11 flex-col items-center justify-center overflow-hidden rounded-xl border-t-[3px] transition-[transform,background-color,border-color,box-shadow] duration-200",
-        // Base border + background per state
-        isUnclaimed && !isSelected && [
-          "border-quran-border/50 bg-white/70",
-          canClaim &&
-            "cursor-pointer hover:-translate-y-0.5 hover:border-t-quran-green hover:bg-white hover:shadow-md hover:shadow-quran-green/8",
-          isReadOnly && "opacity-60",
-        ],
-        isSelected && [
-          "cursor-pointer ring-2 ring-quran-green border-t-quran-green bg-quran-green/10 shadow-md -translate-y-0.5",
-        ],
-        isClaimed && [
-          "border-t-amber-400 bg-linear-to-b from-amber-50/80 to-amber-50/30",
-        ],
-        isRead &&
-          "border-t-emerald-500 bg-linear-to-b from-emerald-50/80 to-emerald-50/30"
+        "group relative flex min-h-[4.75rem] flex-col items-center justify-center overflow-hidden rounded-xl border px-1.5 py-2 transition-[transform,background-color,border-color,box-shadow] duration-200 motion-reduce:transition-none",
+        isUnclaimed &&
+          !isSelected && [
+            "border-quran-border/60 bg-white/70",
+            canClaim &&
+              "cursor-pointer hover:-translate-y-0.5 hover:border-quran-green hover:bg-white hover:shadow-md hover:shadow-quran-green/8 motion-reduce:hover:translate-y-0",
+            !canClaim && "opacity-70",
+          ],
+        isSelected &&
+          "cursor-pointer -translate-y-0.5 border-quran-green bg-quran-green/10 shadow-md ring-2 ring-quran-green motion-reduce:translate-y-0",
+        isClaimed && "border-amber-300/70 bg-amber-50",
+        isRead && "border-emerald-300/70 bg-emerald-50",
+        isMine && "ring-2 ring-quran-green"
       )}
       onClick={() => {
         if (canClaim) onClaim();
       }}
       onKeyDown={(e) => {
-        if (isInteractive && (e.key === "Enter" || e.key === " ")) {
+        if (canClaim && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
-          if (canClaim) onClaim();
+          onClaim();
         }
       }}
-      role={isInteractive ? "button" : undefined}
-      tabIndex={isInteractive ? 0 : -1}
-      title={
-        isSelected
-          ? t("selected", { number: juz.juz_number })
-          : canClaim
-            ? t("selectJuz", { number: juz.juz_number })
-            : isClaimed
-              ? t("claimedBy", { number: juz.juz_number, name: firstName })
-              : isRead
-                ? t("completed", { number: juz.juz_number })
-                : t("juzNumber", { number: juz.juz_number })
-      }
+      role={canClaim ? "button" : "img"}
+      tabIndex={canClaim ? 0 : undefined}
+      aria-pressed={canClaim ? isSelected : undefined}
+      aria-label={label}
+      title={label}
     >
-      {/* Selected checkmark */}
+      {/* Marks: "You" in words (never colour alone); state as an icon */}
+      {isMine && (
+        <span
+          aria-hidden="true"
+          className="absolute start-1 top-1 rounded bg-quran-green px-1 text-xs font-semibold leading-4 text-white"
+        >
+          {t("you")}
+        </span>
+      )}
       {isSelected && (
         <span className="absolute end-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-quran-green text-white">
           <Check className="h-2.5 w-2.5" strokeWidth={3} />
         </span>
       )}
+      {isClaimed && (
+        <BookOpen
+          aria-hidden="true"
+          className="absolute end-1.5 top-1.5 h-3.5 w-3.5 text-amber-800"
+        />
+      )}
+      {isRead && (
+        <CheckCircle2
+          aria-hidden="true"
+          className="absolute end-1.5 top-1.5 h-3.5 w-3.5 text-emerald-700"
+        />
+      )}
 
-      {/* Large centered number */}
       <span
+        aria-hidden="true"
         className={cn(
-          "font-heading text-2xl leading-none transition-colors duration-200 sm:text-3xl",
+          "mt-3 font-heading text-2xl leading-none tabular-nums lining-nums transition-colors duration-200 motion-reduce:transition-none sm:text-3xl",
           isSelected && "text-quran-green",
-          isUnclaimed && !isSelected &&
-            "text-quran-muted/70 group-hover:text-quran-green",
-          isClaimed && "text-amber-700",
-          isRead && "text-emerald-700"
+          isUnclaimed &&
+            !isSelected &&
+            "text-quran-muted group-hover:text-quran-green",
+          isClaimed && "text-amber-900",
+          isRead && "text-emerald-800"
         )}
       >
         {juz.juz_number}
       </span>
 
-      {/* Status detail below number */}
-      {isClaimed && firstName && (
-        <span className="mt-1 max-w-[90%] truncate text-[10px] font-medium text-amber-600/80">
+      {(isClaimed || isRead) && firstName && (
+        <span
+          aria-hidden="true"
+          dir="auto"
+          data-script={textScript(firstName)}
+          className="mt-1 block max-w-full truncate text-xs font-medium leading-4 text-quran-deep"
+        >
           {firstName}
         </span>
-      )}
-
-      {isRead && (
-        <CheckCircle2 className="mt-1 h-3.5 w-3.5 text-emerald-500" />
       )}
     </div>
   );
