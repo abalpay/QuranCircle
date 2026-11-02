@@ -214,6 +214,11 @@ const PAGES = [
   { name: "dialog-auth", path: "/", dialog: "auth" },
   { name: "dialog-create", path: "/", dialog: "create", auth: ORGANIZER },
   { name: "dialog-claim", path: "/s/DSGPART", dialog: "claim" },
+  // #104: the circle Share menu open, and the guide message templates.
+  { name: "share-menu-part", path: "/s/DSGPART", dialog: "share" },
+  { name: "share-menu-arabic", path: "/s/DSGARABIC", dialog: "share" },
+  { name: "share-templates-whatsapp", path: "/group-khatm-whatsapp", scrollTo: "#templates" },
+  { name: "share-templates-coordination", path: "/khatm-coordination", scrollTo: "#templates" },
   { name: "circle-settings-org", path: "/s/DSGPART", dialog: "settings", auth: ORGANIZER },
   { name: "circle-settings-arch-org", path: "/s/DSGARCH", dialog: "settings", auth: ORGANIZER },
   { name: "circle-settings-off-org", path: "/s/DSGOFF", dialog: "settings", auth: ORGANIZER },
@@ -261,6 +266,8 @@ async function openDialog(page, kind, locale) {
     await page.getByRole("button", { name: ar ? "حجز" : "Claim", exact: true }).last().click({ timeout: 5000 });
   } else if (kind === "complete") {
     await page.getByRole("button", { name: ar ? "إتمام الختمة" : "Complete the khatm" }).click({ timeout: 5000 });
+  } else if (kind === "share") {
+    await page.getByRole("button", { name: /^(Share|Paylaş|يشارك|مشاركة)$/ }).first().click({ timeout: 5000 });
   } else if (kind === "settings") {
     await page.getByRole("button", { name: ar ? "إعدادات الحلقة" : "Circle settings" }).click({ timeout: 5000 });
   } else {
@@ -316,6 +323,10 @@ async function main() {
         try {
           await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}`, { waitUntil: "networkidle", timeout: 45000 });
           await page.waitForTimeout(400);
+          if (p.scrollTo) {
+            await page.locator(p.scrollTo).first().scrollIntoViewIfNeeded();
+            await page.waitForTimeout(200);
+          }
           if (p.dialog) await openDialog(page, p.dialog, locale);
           if (p.expandReaders) {
             await page.getByRole("button", { name: /^and \d+ more$|^و\d+ غيرهم$/ }).click({ timeout: 5000 });
