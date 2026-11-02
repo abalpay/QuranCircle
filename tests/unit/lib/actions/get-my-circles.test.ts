@@ -67,6 +67,7 @@ describe("getMyCircles", () => {
           my_claimed: "4",
           my_read: "2",
           last_activity_at: "2026-01-10T00:00:00Z",
+          has_khatm_ready_to_complete: true,
         },
         {
           id: "circle-2",
@@ -116,6 +117,7 @@ describe("getMyCircles", () => {
         my_claimed: 4,
         my_read: 2,
         last_activity_at: "2026-01-10T00:00:00Z",
+        has_khatm_ready_to_complete: true,
       },
       {
         id: "circle-2",
@@ -132,6 +134,7 @@ describe("getMyCircles", () => {
         my_claimed: 0,
         my_read: 0,
         last_activity_at: "2026-01-02T00:00:00Z",
+        has_khatm_ready_to_complete: false,
       },
     ]);
   });

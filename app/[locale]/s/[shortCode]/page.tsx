@@ -29,9 +29,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pathname = getPathname({ locale, href: `/s/${shortCode}` });
   const url = toAbsoluteUrl(pathname);
   const imageAlt = t("imageAlt", { eventName: event.name });
-  const ogVersion = new Date(event.created_at).getTime().toString(36);
+  // The preview changes when the latest khatm completes, so the version includes that.
+  const latestKhatm = event.khatms[event.khatms.length - 1];
+  const ogVersion =
+    new Date(event.created_at).getTime().toString(36) +
+    (latestKhatm?.completed_at ? `c${latestKhatm.khatm_number}` : "");
+  // The image route lives under [locale] and the proxy does not rewrite *opengraph-image paths,
+  // so the locale segment is always explicit, English included (#103).
   const ogImageUrl = toAbsoluteUrl(
-    `${pathname}/opengraph-image?v=${ogVersion}`
+    `/${locale}/s/${shortCode}/opengraph-image?v=${ogVersion}`
   );
 
   return {

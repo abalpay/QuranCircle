@@ -5,6 +5,7 @@ vi.mock("@/lib/actions/events", () => ({
     name: "Family Ramadan Khatm",
     description: "A shared family Khatm circle",
     created_at: "2026-07-01T00:00:00.000Z",
+    khatms: [],
   })),
 }));
 
@@ -84,5 +85,32 @@ describe("public circle metadata", () => {
       url: "https://www.qurancircle.io/ar/s/family-khatm",
       locale: "ar_AR",
     });
+  });
+
+  // #103: the image route lives under [locale] and proxy.ts does not rewrite *opengraph-image,
+  // so the advertised URL must carry the locale segment, English included.
+  it.each(["en", "tr", "ar"] as const)("advertises an og:image URL that includes the %s locale segment", async (locale) => {
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale, shortCode: "family-khatm" }),
+    });
+    const url = (metadata.openGraph?.images as { url: string }[])[0].url;
+    expect(url).toMatch(
+      new RegExp(`^https://www\\.qurancircle\\.io/${locale}/s/family-khatm/opengraph-image\\?v=[0-9a-z]+$`)
+    );
+    expect((metadata.twitter?.images as { url: string }[])[0].url).toBe(url);
+  });
+
+  it("versions the image when the latest khatm completes", async () => {
+    const { getEventByShortCode } = await import("@/lib/actions/events");
+    vi.mocked(getEventByShortCode).mockResolvedValueOnce({
+      name: "Done",
+      description: null,
+      created_at: "2026-07-01T00:00:00.000Z",
+      khatms: [{ khatm_number: 2, completed_at: "2026-11-01T00:00:00Z" }],
+    } as never);
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: "en", shortCode: "family-khatm" }),
+    });
+    expect((metadata.openGraph?.images as { url: string }[])[0].url).toMatch(/\?v=[0-9a-z]+c2$/);
   });
 });

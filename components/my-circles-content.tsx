@@ -12,6 +12,7 @@ import { getMyCircles } from "@/lib/actions/events";
 import { cn } from "@/lib/utils";
 import {
   BookOpenText,
+  CircleDot,
   Globe2,
   Layers3,
   Plus,
@@ -71,6 +72,12 @@ function CircleCard({ circle, archived = false }: { circle: MyCircle; archived?:
         <span className="rounded-full border border-quran-border bg-white/70 px-2.5 py-1 text-quran-muted">
           {circle.is_public ? t("public") : t("linkOnly")}
         </span>
+        {circle.relation === "creator" && circle.has_khatm_ready_to_complete && (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-1 text-xs font-semibold normal-case tracking-normal text-quran-green">
+            <CircleDot aria-hidden="true" className="size-4" />
+            {t("readyToComplete")}
+          </span>
+        )}
         {archived && (
           <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-700">
             {archivedLabel

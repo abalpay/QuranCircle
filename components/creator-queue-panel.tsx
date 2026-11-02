@@ -203,7 +203,7 @@ export default function CreatorQueuePanel({
           <div className="flex flex-col justify-end gap-2">
             <label
               htmlFor="creator-only-mine"
-              className="flex min-h-10 items-center gap-2 rounded-lg px-2 text-sm text-quran-muted"
+              className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm text-quran-muted"
             >
               <Switch
                 id="creator-only-mine"
@@ -219,7 +219,7 @@ export default function CreatorQueuePanel({
             <Button
               type="button"
               variant="ghost"
-              className="min-h-10 justify-start rounded-lg px-2 text-quran-muted hover:bg-quran-border/30 hover:text-quran-deep"
+              className="min-h-11 justify-start rounded-lg px-2 text-quran-muted hover:bg-quran-border/30 hover:text-quran-deep"
               onClick={clearFilters}
             >
               <SlidersHorizontal className="me-2 h-4 w-4" />
@@ -261,7 +261,7 @@ export default function CreatorQueuePanel({
                   </span>
                   <span
                     className={cn(
-                      "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      "rounded-full px-2.5 py-0.5 text-xs font-medium",
                       row.status === "read"
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-amber-100 text-amber-700"
@@ -276,7 +276,7 @@ export default function CreatorQueuePanel({
                       }) : t("nameUnavailable")}
                   </span>
                   {row.isMine && (
-                    <span className="rounded-full bg-quran-green/10 px-2 py-0.5 text-[10px] font-medium text-quran-green">
+                    <span className="rounded-full bg-quran-green/10 px-2.5 py-0.5 text-xs font-medium text-quran-green">
                       {t("yours", { count: 1 })}
                     </span>
                   )}
@@ -285,7 +285,7 @@ export default function CreatorQueuePanel({
                   {row.status === "claimed" && (
                     <button
                       type="button"
-                      className="min-h-10 rounded-full bg-emerald-100 px-3 py-2 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
+                      className="min-h-11 rounded-full bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
                       onClick={() => onMarkRead(row.juzId)}
                     >
                       {t("markRead")}
@@ -294,7 +294,7 @@ export default function CreatorQueuePanel({
                   {row.status === "read" && (
                     <button
                       type="button"
-                      className="min-h-10 rounded-full bg-amber-100 px-3 py-2 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200"
+                      className="min-h-11 rounded-full bg-amber-100 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-200"
                       onClick={() => onUndoRead(row.juzId)}
                     >
                       {t("undo")}
@@ -303,7 +303,7 @@ export default function CreatorQueuePanel({
                   {!row.isCompleted && (
                     <button
                       type="button"
-                      className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
+                      className="min-h-11 rounded-full px-4 py-2 text-sm font-medium text-quran-deep ring-1 ring-quran-border transition-colors hover:bg-quran-border/30"
                       onClick={() => setUnclaiming(row)}
                     >
                       {t("unclaim")}

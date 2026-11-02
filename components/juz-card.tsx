@@ -18,6 +18,8 @@ type Props = {
   onClaim: () => void;
   isReadOnly: boolean;
   isSelected?: boolean;
+  /** A khatm that completed by the 7-day rule: claimed Juz were taken up, not marked Done (D16). Neutral tile, name kept. */
+  takenUp?: boolean;
 };
 
 export default function JuzCard({
@@ -25,11 +27,13 @@ export default function JuzCard({
   onClaim,
   isReadOnly,
   isSelected = false,
+  takenUp = false,
 }: Props) {
   const t = useTranslations("JuzCard");
   const isUnclaimed = juz.status === "unclaimed";
   const canClaim = isUnclaimed && !isReadOnly;
-  const isClaimed = juz.status === "claimed";
+  const isTakenUp = takenUp && juz.status === "claimed";
+  const isClaimed = juz.status === "claimed" && !isTakenUp;
   const isRead = juz.status === "read";
   const isMine = Boolean(juz.is_mine) && !isUnclaimed;
   const fullName = juz.claimed_by_name?.trim() || "";
@@ -37,7 +41,9 @@ export default function JuzCard({
 
   const state = isRead
     ? t("stateDone")
-    : isClaimed
+    : isTakenUp
+      ? t("stateTakenUp")
+      : isClaimed
       ? t("stateReading")
       : t("stateAvailable");
 
@@ -66,6 +72,7 @@ export default function JuzCard({
         isSelected &&
           "cursor-pointer -translate-y-0.5 border-quran-green bg-white shadow-md ring-2 ring-quran-green motion-reduce:translate-y-0",
         isClaimed && "border-amber-300/70 bg-amber-50",
+        isTakenUp && "border-quran-border bg-white/70",
         isRead && "border-emerald-600/60 bg-emerald-100",
         isMine && "ring-2 ring-quran-green"
       )}
@@ -115,13 +122,14 @@ export default function JuzCard({
             !isSelected &&
             "text-quran-muted group-hover:text-quran-green",
           isClaimed && "text-amber-900",
+          isTakenUp && "text-quran-deep",
           isRead && "text-emerald-800"
         )}
       >
         {juz.juz_number}
       </span>
 
-      {(isClaimed || isRead) && firstName && (
+      {(isClaimed || isTakenUp || isRead) && firstName && (
         <span
           aria-hidden="true"
           dir="auto"
