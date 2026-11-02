@@ -5,6 +5,9 @@ import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import BrandMark from "@/components/brand-mark";
 import { getCircleOgState } from "@/lib/circle-og";
+import { containsArabicScript } from "@/lib/text-script";
+import { loadOgFonts } from "@/lib/og-fonts";
+import { OgText } from "@/lib/og-text";
 
 export const runtime = "nodejs";
 
@@ -57,6 +60,14 @@ export default async function OGImage({
   } catch {
     // Fallback to defaults
   }
+
+  const completedLabel =
+    completedKhatmNumber !== null ? t("khatmComplete", { number: completedKhatmNumber }) : "";
+  // Latin-only images keep satori's default font. Arabic text needs a bundled font it can shape (#103).
+  const fonts = containsArabicScript(eventName, eventDescription, completedLabel, t("joinCircle"))
+    ? await loadOgFonts()
+    : null;
+  const sans = fonts ? "Manrope, Tajawal, sans-serif" : "sans-serif";
 
   return new ImageResponse(
     (
@@ -115,7 +126,7 @@ export default async function OGImage({
               fontSize: 24,
               fontWeight: 600,
               color: colors.gold,
-              fontFamily: "sans-serif",
+              fontFamily: sans,
               display: "flex",
             }}
           >
@@ -135,49 +146,34 @@ export default async function OGImage({
           }}
         >
           {completedKhatmNumber !== null ? (
-            <div
-              style={{
-                fontSize: 28,
-                fontWeight: 600,
-                color: colors.gold,
-                fontFamily: "sans-serif",
-                display: "flex",
-              }}
-            >
-              {t("khatmComplete", { number: completedKhatmNumber })}
-            </div>
+            <OgText
+              text={completedLabel}
+              style={{ fontSize: 28, fontWeight: 600, color: colors.gold, fontFamily: sans }}
+            />
           ) : null}
-          <div
+          <OgText
+            text={eventName.length > 60 ? eventName.slice(0, 57) + "..." : eventName}
             style={{
               fontSize: 64,
               fontWeight: 400,
               color: colors.cream,
               lineHeight: 1.15,
-              fontFamily: "sans-serif",
-              display: "flex",
+              fontFamily: sans,
               maxWidth: 960,
             }}
-          >
-            {eventName.length > 60
-              ? eventName.slice(0, 57) + "..."
-              : eventName}
-          </div>
+          />
 
           {eventDescription ? (
-            <div
+            <OgText
+              text={eventDescription.length > 120 ? eventDescription.slice(0, 117) + "..." : eventDescription}
               style={{
                 fontSize: 24,
                 color: colors.mutedLight,
                 lineHeight: 1.5,
                 maxWidth: 850,
-                fontFamily: "sans-serif",
-                display: "flex",
+                fontFamily: sans,
               }}
-            >
-              {eventDescription.length > 120
-                ? eventDescription.slice(0, 117) + "..."
-                : eventDescription}
-            </div>
+            />
           ) : null}
 
           {/* Gold divider */}
@@ -206,7 +202,7 @@ export default async function OGImage({
             style={{
               fontSize: 18,
               color: colors.mutedLight,
-              fontFamily: "sans-serif",
+              fontFamily: sans,
               letterSpacing: "0.5px",
               display: "flex",
             }}
@@ -215,21 +211,15 @@ export default async function OGImage({
           </div>
           {/* A complete khatm has nothing left to join. */}
           {showJoinCta ? (
-            <div
-              style={{
-                fontSize: 18,
-                color: colors.gold,
-                fontFamily: "sans-serif",
-                fontWeight: 600,
-                display: "flex",
-              }}
-            >
-              {`${t("joinCircle")} \u2192`}
-            </div>
+            <OgText
+              text={`${t("joinCircle")} ${supportedLocale === "ar" ? "\u2190" : "\u2192"}`}
+              hug={false}
+              style={{ fontSize: 18, color: colors.gold, fontFamily: sans, fontWeight: 600 }}
+            />
           ) : null}
         </div>
       </div>
     ),
-    size
+    fonts ? { ...size, fonts } : size
   );
 }
