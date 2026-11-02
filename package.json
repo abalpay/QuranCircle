@@ -19,6 +19,7 @@
     "test:mutation": "stryker run",
     "test:ci": "npm run test:unit:coverage && npm run test:e2e",
     "test:security:email": "node --test tests/security/email-hook.test.cjs",
+    "capture:pages": "node scripts/capture-pages.mjs",
     "test:security:db": "python3 tests/security/run-database.py"
   },
   "dependencies": {
