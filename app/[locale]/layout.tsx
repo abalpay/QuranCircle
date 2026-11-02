@@ -19,6 +19,7 @@ import Footer from "@/components/footer";
 import DirectionProvider from "@/components/direction-provider";
 import NavigationProgress from "@/components/navigation-progress";
 import AuthErrorToast from "@/components/auth-error-toast";
+import CaptchaErrorToast from "@/components/captcha-error-toast";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getSiteUrl, toAbsoluteUrl } from "@/lib/site-url";
@@ -198,6 +199,7 @@ export default async function LocaleLayout({
                   suppressHydrationWarning
                 />
               ) : null}
+              <CaptchaErrorToast />
               <Toaster />
               {isVercelDeployment ? (
                 <>

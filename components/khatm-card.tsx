@@ -15,6 +15,7 @@ import type { JuzSnapshot, KhatmSnapshot } from "@/lib/types/events";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { wasSessionCaptchaRejected } from "@/lib/captcha";
 import { BookMarked, CheckCircle2, ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
 import { useId } from "react";
 import { useTranslations } from "next-intl";
@@ -141,7 +142,7 @@ export default function KhatmCard({
   const ensureClaimSession = useCallback(async () => {
     const sessionUser = await ensureSession();
     if (!sessionUser) {
-      toast.error(t("sessionError"));
+      if (!wasSessionCaptchaRejected()) toast.error(t("sessionError"));
       return false;
     }
     return true;
