@@ -117,6 +117,7 @@ function buildEvent(overrides: Partial<EventSnapshot> = {}): EventSnapshot {
     short_code: "ABCDEFGH",
     is_public: true,
     is_archived: false,
+    open_next_khatm: true,
     created_at: "2026-02-23T00:00:00.000Z",
     is_creator: false,
     is_member: true,

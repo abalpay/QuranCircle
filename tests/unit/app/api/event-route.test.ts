@@ -75,6 +75,7 @@ describe("GET /api/event", () => {
       can_manage: false,
       is_public: true,
       is_archived: false,
+      open_next_khatm: true,
       created_at: "2026-01-01T00:00:00.000Z",
       is_creator: false,
       is_member: false,

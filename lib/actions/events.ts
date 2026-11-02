@@ -472,13 +472,13 @@ export async function getMyCircles(): Promise<MyCircleWithProgress[]> {
 
 async function runEventMutation(
   shortCode: string,
-  rpcName: "set_event_archive" | "delete_event_by_shortcode",
+  rpcName: "set_event_archive" | "delete_event_by_shortcode" | "set_open_next_khatm",
   args: Record<string, unknown> = {}
 ) {
   if (!shortCodeSchema.safeParse(shortCode).success) return { error: "Invalid input" };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc(rpcName, {
+  const { data, error } = await supabase.rpc(rpcName, {
     p_short_code: shortCode,
     ...args,
   });
@@ -487,7 +487,7 @@ async function runEventMutation(
     return { error: error.message || "Request failed" };
   }
 
-  return {};
+  return { data };
 }
 
 export async function archiveEvent(shortCode: string) {
@@ -514,6 +514,25 @@ export async function unarchiveEvent(shortCode: string) {
   revalidatePath("/browse");
   revalidatePath("/my-circles");
   return {};
+}
+
+export async function setOpenNextKhatm(shortCode: string, open: boolean) {
+  const result = await runEventMutation(shortCode, "set_open_next_khatm", {
+    p_open: open,
+  });
+  if (result.error) return { error: result.error };
+
+  revalidatePath(`/s/${shortCode}`);
+  revalidatePath("/browse");
+  revalidatePath("/my-circles");
+  const outcome = (result.data ?? {}) as {
+    removed_khatm?: boolean;
+    opened_khatm?: boolean;
+  };
+  return {
+    removedKhatm: outcome.removed_khatm === true,
+    openedKhatm: outcome.opened_khatm === true,
+  };
 }
 
 export async function deleteEvent(shortCode: string) {

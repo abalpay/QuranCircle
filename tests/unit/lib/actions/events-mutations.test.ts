@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   archiveEvent,
   deleteEvent,
+  setOpenNextKhatm,
   unarchiveEvent,
 } from "@/lib/actions/events";
 import { createClient } from "@/lib/supabase/server";
@@ -116,6 +117,31 @@ describe("event mutation actions", () => {
     const result = await deleteEvent("VALID123");
 
     expect(result).toEqual({ error: "delete failed" });
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("sets the open-next-khatm switch through its RPC", async () => {
+    const rpc = mockMutationRpc({ data: {}, error: null });
+
+    const rpcResult = { open_next_khatm: false, removed_khatm: true, opened_khatm: false };
+    rpc.mockResolvedValue({ data: rpcResult, error: null });
+
+    expect(await setOpenNextKhatm("VALID123", false)).toEqual({
+      removedKhatm: true,
+      openedKhatm: false,
+    });
+    expect(rpc).toHaveBeenCalledWith("set_open_next_khatm", {
+      p_short_code: "VALID123",
+      p_open: false,
+    });
+    expect(revalidatePath).toHaveBeenCalledWith("/s/VALID123");
+    expect(revalidatePath).toHaveBeenCalledWith("/my-circles");
+  });
+
+  it("returns rpc errors for setOpenNextKhatm", async () => {
+    mockMutationRpc({ data: null, error: { message: "Unauthorized" } });
+
+    expect(await setOpenNextKhatm("VALID123", true)).toEqual({ error: "Unauthorized" });
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 });
