@@ -13,6 +13,8 @@ export type KhatmSnapshot = {
   read_count: number;
   completed_at: string | null;
   completion_source: "all_done" | "organizer" | "auto" | null;
+  /** Latest claim time; with +7 days it is the auto-completion date. Absent until the snapshot RPC returns it. */
+  last_claimed_at?: string | null;
   juzs: JuzSnapshot[];
 };
 
@@ -62,4 +64,6 @@ export type MyCircleWithProgress = {
   my_claimed: number;
   my_read: number;
   last_activity_at: string;
+  /** A fully claimed, still open khatm in a circle that is not archived (D5.2). */
+  has_khatm_ready_to_complete: boolean;
 };

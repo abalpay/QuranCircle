@@ -183,22 +183,19 @@ test.afterAll(async () => {
   await admin.auth.admin.deleteUser(fixture.participantUserId);
 });
 
-test("creator sees queue sub-tabs and filters with URL sync", async ({ page }) => {
+test("creator sees the queue beside the other views and filters with URL sync", async ({ page }) => {
   await signInAsCreator(page, fixture.creatorEmail, fixture.creatorPassword);
 
   await page.goto(`/s/${fixture.shortCode}?filter=mine`);
-  await expect(
-    page.getByRole("button", { name: /My Juz \(\d+\)/ })
-  ).toHaveAttribute("aria-pressed", "true");
+  // One level: My Juz and Creator Queue are peer buttons in the same group.
+  const myJuzTab = page.getByRole("button", { name: /^My Juz \(\d+\)$/ });
+  await expect(myJuzTab).toHaveAttribute("aria-pressed", "true");
 
   const creatorQueueTab = page.getByRole("button", {
     name: /^Creator Queue \(\d+\)$/,
   });
   await expect(creatorQueueTab).toBeVisible();
-  await expect(page.getByRole("button", { name: /^My Juz$/ })).toHaveAttribute(
-    "aria-pressed",
-    "true"
-  );
+  await expect(creatorQueueTab).toHaveAttribute("aria-pressed", "false");
   await expect
     .poll(() => new URL(page.url()).searchParams.get("mineView"))
     .toBeNull();
@@ -207,6 +204,8 @@ test("creator sees queue sub-tabs and filters with URL sync", async ({ page }) =
   await expect(
     page.getByRole("heading", { name: "Creator Queue", exact: true })
   ).toBeVisible();
+  await expect(creatorQueueTab).toHaveAttribute("aria-pressed", "true");
+  await expect(myJuzTab).toHaveAttribute("aria-pressed", "false");
   await expect
     .poll(() => new URL(page.url()).searchParams.get("mineView"))
     .toBe("creator");
@@ -235,7 +234,7 @@ test("creator mine view follows URL during browser back and forward", async ({
   await signInAsCreator(page, fixture.creatorEmail, fixture.creatorPassword);
 
   await page.goto(`/s/${fixture.shortCode}?filter=mine`);
-  await expect(page.getByRole("button", { name: /^My Juz$/ })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: /^My Juz \(\d+\)$/ })).toHaveAttribute(
     "aria-pressed",
     "true"
   );
@@ -246,7 +245,7 @@ test("creator mine view follows URL during browser back and forward", async ({
   ).toHaveAttribute("aria-pressed", "true");
 
   await page.goBack();
-  await expect(page.getByRole("button", { name: /^My Juz$/ })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: /^My Juz \(\d+\)$/ })).toHaveAttribute(
     "aria-pressed",
     "true"
   );

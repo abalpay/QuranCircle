@@ -80,14 +80,14 @@ async function makeCircle({ code, name, description, creator, isPublic = true, a
         khatm_id: kh.id, juz_number: i + 1,
         status: c ? (c.status ?? "claimed") : "unclaimed",
         claimed_by_name: c?.name ?? null, claimed_by_user_id: c ? (c.user ?? FILLER) : null,
-        claimed_at: c ? daysAgo(5) : null, read_at: c?.status === "read" ? daysAgo(2) : null,
+        claimed_at: c ? daysAgo(k.claimedDaysAgo ?? 5) : null, read_at: c?.status === "read" ? daysAgo(2) : null,
       };
     });
     const { error: je } = await admin.from("juzs").insert(rows);
     if (je) throw new Error(`juzs ${code}: ${je.message}`);
     if (k.completed) {
       let { error: ce } = await admin.from("khatms")
-        .update({ completed_at: daysAgo(1), completion_source: "all_done" }).eq("id", kh.id);
+        .update({ completed_at: daysAgo(1), completion_source: k.completed === "auto" ? "auto" : "all_done" }).eq("id", kh.id);
       // #78 adds completion_source; tolerate its absence.
       if (ce && /completion_source/.test(ce.message)) {
         ({ error: ce } = await admin.from("khatms").update({ completed_at: daysAgo(1) }).eq("id", kh.id));
@@ -132,7 +132,30 @@ async function createFixtures() {
   });
   await makeCircle({
     code: "DSGDONE", name: "Khatm for Aisha Khan", description: DUA, creator: org,
-    khatms: [{ n: 1, claims: full(LATIN, "read"), completed: true }],
+    khatms: [{ n: 1, claims: [{ name: "Design Reader", status: "read", user: reader }, ...full(LATIN, "read").slice(1)], completed: true }],
+  });
+  // #80: all 30 claimed, not complete: the organizer sees "Complete the khatm".
+  await makeCircle({
+    code: "DSGREADY", name: "Khatm for Yusuf Al-Rahman", description: DUA, creator: org, openNext: false,
+    khatms: [{ n: 1, claims: full([...LATIN, ...ARABIC]), claimedDaysAgo: 2 }], // auto date is ahead: 5 days from now
+  });
+  // #81: completed by the 7-day rule ("all 30 Juz were taken up"), with long and Arabic names.
+  await makeCircle({
+    code: "DSGAUTO", name: "ختمة عن روح المرحومة مريم الصديقي", description: DUA, creator: org, openNext: false,
+    khatms: [{ n: 1, claims: [{ name: "Design Reader", user: reader }, ...full([...ARABIC, LONG, ...LATIN]).slice(1)], completed: "auto" }],
+  });
+  // 30 distinct readers with very long Latin and Arabic names: the completion dialog must stay usable.
+  await makeCircle({
+    code: "DSGMANY", name: "Khatm for Hajji Muhammad Abdulrahman Al-Hashimi", description: DUA, creator: org, openNext: false,
+    khatms: [{ n: 1, claims: Array.from({ length: 30 }, (_, i) => ({
+      name: i === 0 ? "Design Reader" : i % 3 === 0 ? `${LONG} ${i}` : i % 3 === 1 ? `محمد عبد الرحمن بن عبد الله الهاشمي القرشي المدني رقم ${i}` : `${LATIN[i % LATIN.length]} ${i}`,
+      status: "read", ...(i === 0 ? { user: reader } : {}),
+    })), completed: true }],
+  });
+  // Mixed scripts in the name and description: the share image must keep a browser's visual order.
+  await makeCircle({
+    code: "DSGMIXED", name: "ختمة عن Ahmed Ali Khan", description: "اللهم اغفر له and have mercy on him. Khatm 1 ختمة", creator: org, openNext: false,
+    khatms: [{ n: 1, claims: names(LATIN, 6) }],
   });
   await makeCircle({
     code: "DSGARCH", name: "Khatm for Ibrahim Okafor", description: DUA, creator: org, archived: true,
@@ -160,8 +183,15 @@ async function createFixtures() {
 }
 
 const SIGNED_OUT = "out", ORGANIZER = "org", READER_V = "reader";
+// seen: the completion dialog already appeared on this device, so a completed khatm shows its record.
 const circle = (code, views = [SIGNED_OUT, ORGANIZER]) =>
-  views.map((v) => ({ name: `circle-${code.slice(3).toLowerCase()}-${v}`, path: `/s/${code}`, auth: v, full: true }));
+  views.map((v) => ({ name: `circle-${code.slice(3).toLowerCase()}-${v}`, path: `/s/${code}`, auth: v, full: true, seen: true }));
+// The completion dialog opens on arrival only for a visitor who holds a Juz in the khatm (the reader fixture); it is shown top, then scrolled to its end.
+const completionDialog = (code, slug, views = [READER_V]) =>
+  views.flatMap((v) => [
+    { name: `circle-${slug}-dialog-${v}`, path: `/s/${code}`, auth: v },
+    { name: `circle-${slug}-dialogend-${v}`, path: `/s/${code}`, auth: v, scrollDialog: true },
+  ]);
 
 const PAGES = [
   { name: "home", path: "/", full: true },
@@ -170,6 +200,8 @@ const PAGES = [
   { name: "my-circles-signed-out", path: "/my-circles", full: true },
   { name: "my-circles-empty", path: "/my-circles", auth: "empty", full: true },
   { name: "my-circles-filled", path: "/my-circles", auth: ORGANIZER, full: true },
+  // #80: the organizer's circles, DSGREADY carries the quiet "Ready to complete" marker.
+  { name: "my-circles-ready", path: "/my-circles", auth: ORGANIZER, full: true },
   { name: "account", path: "/account", auth: ORGANIZER, full: true },
   { name: "about", path: "/about", full: true },
   { name: "contact", path: "/contact", full: true },
@@ -184,6 +216,11 @@ const PAGES = [
   { name: "dialog-auth", path: "/", dialog: "auth" },
   { name: "dialog-create", path: "/", dialog: "create", auth: ORGANIZER },
   { name: "dialog-claim", path: "/s/DSGPART", dialog: "claim" },
+  // #104: the circle Share menu open, and the guide message templates.
+  { name: "share-menu-part", path: "/s/DSGPART", dialog: "share" },
+  { name: "share-menu-arabic", path: "/s/DSGARABIC", dialog: "share" },
+  { name: "share-templates-whatsapp", path: "/group-khatm-whatsapp", scrollTo: "#templates" },
+  { name: "share-templates-coordination", path: "/khatm-coordination", scrollTo: "#templates" },
   { name: "circle-settings-org", path: "/s/DSGPART", dialog: "settings", auth: ORGANIZER },
   { name: "circle-settings-arch-org", path: "/s/DSGARCH", dialog: "settings", auth: ORGANIZER },
   { name: "circle-settings-off-org", path: "/s/DSGOFF", dialog: "settings", auth: ORGANIZER },
@@ -191,7 +228,16 @@ const PAGES = [
   ...circle("DSGPART", [SIGNED_OUT, ORGANIZER, READER_V]),
   ...circle("DSGREADER", [SIGNED_OUT, ORGANIZER, READER_V]),
   ...circle("DSGFULL"),
+  { name: "circle-ready-confirm-org", path: "/s/DSGREADY", dialog: "complete", auth: ORGANIZER },
+  ...circle("DSGREADY", [ORGANIZER, SIGNED_OUT]),
   ...circle("DSGDONE"),
+  ...completionDialog("DSGDONE", "done"),
+  ...completionDialog("DSGMANY", "many"),
+  // The register expanded in place, then scrolled to the end.
+  { name: "circle-many-dialogall-reader", path: "/s/DSGMANY", auth: READER_V, expandReaders: true, scrollDialog: true },
+  ...circle("DSGMIXED", [SIGNED_OUT]),
+  ...circle("DSGAUTO", [SIGNED_OUT]),
+  ...completionDialog("DSGAUTO", "auto"),
   ...circle("DSGARCH"),
   ...circle("DSGMULTI"),
   ...circle("DSGLONG", [SIGNED_OUT, ORGANIZER]),
@@ -220,6 +266,10 @@ async function openDialog(page, kind, locale) {
   if (kind === "claim") {
     await page.getByRole("button", { name: /(Juz|الجزء) 17$/ }).click({ timeout: 5000 });
     await page.getByRole("button", { name: ar ? "حجز" : "Claim", exact: true }).last().click({ timeout: 5000 });
+  } else if (kind === "complete") {
+    await page.getByRole("button", { name: ar ? "إتمام الختمة" : "Complete the khatm" }).click({ timeout: 5000 });
+  } else if (kind === "share") {
+    await page.getByRole("button", { name: /^(Share|Paylaş|يشارك|مشاركة)$/ }).first().click({ timeout: 5000 });
   } else if (kind === "settings") {
     await page.getByRole("button", { name: ar ? "إعدادات الحلقة" : "Circle settings" }).click({ timeout: 5000 });
   } else {
@@ -263,12 +313,31 @@ async function main() {
           storageState: p.auth ? states[p.auth] : undefined,
         });
         await ctx.addCookies([{ name: "NEXT_LOCALE", value: locale, url: BASE }]);
+        if (p.seen) {
+          await ctx.addInitScript(() => {
+            const get = Storage.prototype.getItem;
+            Storage.prototype.getItem = function (k) {
+              return String(k).startsWith("qc:completion-seen:") ? "1" : get.call(this, k);
+            };
+          });
+        }
         const page = await ctx.newPage();
         const file = join(outDir, `${p.name}.${locale}.${tag}.png`);
         try {
           await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}${QUERY}`, { waitUntil: "networkidle", timeout: 45000 });
           await page.waitForTimeout(400);
+          if (p.scrollTo) {
+            await page.locator(p.scrollTo).first().scrollIntoViewIfNeeded();
+            await page.waitForTimeout(200);
+          }
           if (p.dialog) await openDialog(page, p.dialog, locale);
+          if (p.expandReaders) {
+            await page.getByRole("button", { name: /^and \d+ more$|^و\d+ غيرهم$/ }).click({ timeout: 5000 });
+          }
+          if (p.scrollDialog) {
+            await page.getByRole("dialog").evaluate((el) => el.scrollTo(0, el.scrollHeight));
+            await page.waitForTimeout(200);
+          }
           await page.screenshot({ path: file, fullPage: Boolean(p.full) });
           count += 1;
         } catch (e) {

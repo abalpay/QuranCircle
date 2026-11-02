@@ -38,6 +38,7 @@ const circle = {
   my_claimed: 1,
   my_read: 0,
   last_activity_at: "2026-02-23T00:00:00.000Z",
+  has_khatm_ready_to_complete: false,
 };
 
 describe("MyCirclesContent accessibility", () => {
@@ -85,5 +86,26 @@ describe("MyCirclesContent accessibility", () => {
     expect(archivedButton).toHaveAttribute("aria-pressed", "true");
     expect(activeButton).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("heading", { name: "Archived Circle" })).toBeInTheDocument();
+  });
+
+  it("marks only the organizer's circles that are ready to complete", async () => {
+    getMyCirclesMock.mockResolvedValue([
+      { ...circle, id: "a", name: "Ready Circle", is_archived: false, has_khatm_ready_to_complete: true },
+      { ...circle, id: "b", name: "Open Circle", is_archived: false },
+      {
+        ...circle,
+        id: "c",
+        name: "Joined Circle",
+        is_archived: false,
+        relation: "participant" as const,
+        has_khatm_ready_to_complete: true,
+      },
+    ]);
+    render(<MyCirclesContent />, { wrapper: IntlWrapper });
+
+    await screen.findByRole("heading", { name: "Ready Circle" });
+    expect(screen.getAllByText("Ready to complete")).toHaveLength(1);
+    const readyCard = screen.getByRole("heading", { name: "Ready Circle" }).closest("a")!;
+    expect(within(readyCard).getByText("Ready to complete")).toBeInTheDocument();
   });
 });

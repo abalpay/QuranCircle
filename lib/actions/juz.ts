@@ -36,6 +36,45 @@ function asNumberArray(value: unknown): number[] {
     .filter((item) => Number.isInteger(item) && item >= 1 && item <= 30);
 }
 
+type CompleteKhatmResult = {
+  newly_completed?: boolean;
+};
+
+export type CompleteKhatmErrorCode =
+  | "invalid"
+  | "not_ready"
+  | "unauthorized"
+  | "archived"
+  | "failed";
+
+/** The organizer completes a fully claimed khatm (D5.2). Errors are codes the UI translates. */
+export async function completeKhatm(
+  shortCode: string,
+  khatmId: string
+): Promise<{ newlyCompleted: boolean; error?: undefined } | { error: CompleteKhatmErrorCode }> {
+  const parsed = z
+    .object({ shortCode: shortCodeSchema, khatmId: uuidSchema })
+    .safeParse({ shortCode, khatmId });
+  if (!parsed.success) return { error: "invalid" };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("complete_khatm", {
+    p_short_code: parsed.data.shortCode,
+    p_khatm_id: parsed.data.khatmId,
+  });
+
+  if (error) {
+    const message = error.message ?? "";
+    if (/All 30 Juz must be claimed/i.test(message)) return { error: "not_ready" };
+    if (/Unauthorized|Active session/i.test(message)) return { error: "unauthorized" };
+    if (/archived/i.test(message)) return { error: "archived" };
+    return { error: "failed" };
+  }
+
+  revalidatePath(`/s/${shortCode}`);
+  return { newlyCompleted: Boolean((data as CompleteKhatmResult | null)?.newly_completed) };
+}
+
 export async function claimMultipleJuz(
   shortCode: string,
   khatmId: string,

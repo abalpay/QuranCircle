@@ -91,7 +91,10 @@ describe("completed khatm UI (D6)", () => {
     const khatm = makeKhatm(true);
     khatm.claimed_count = 29;
     khatm.juzs[29] = { ...khatm.juzs[29], status: "unclaimed", claimed_by_name: null };
-    const { unmount } = renderCard(khatm, { filter: "all", isFinal: false });
+    const { unmount } = renderCard({ ...khatm, completed_at: null, completion_source: null }, {
+      filter: "all",
+      isFinal: false,
+    });
     expect(screen.queryByRole("button", { name: "Tap to select Juz 30" })).toBeTruthy();
     unmount();
     renderCard(khatm, { filter: "all", isFinal: true });
