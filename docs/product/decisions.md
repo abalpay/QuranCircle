@@ -122,7 +122,8 @@ it lands. A polish stream at the end of wave 2 covers pages no stream touched.
 **D10. One voluntary support link, asked at gratitude moments only.** (2026-11-02)
 An external donation page (Ko-fi, LaunchGood or Stripe link; no payments code).
 Shown on the completion screen and in the footer, never while creating a circle
-or claiming a Juz.
+or claiming a Juz. The footer link is hidden on circle pages (Ahmet, 2026-11-02),
+where people claim; the support URL is https://ko-fi.com/qurancircle.
 
 **D11. Charity links take no cut.** (2026-11-02)
 "Give sadaqah for [name]" links go straight to trusted charities without a fee
