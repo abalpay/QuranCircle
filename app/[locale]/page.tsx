@@ -16,7 +16,7 @@ import {
   getLanguageAlternates,
   getLocalizedPath,
 } from "@/i18n/locale-config";
-import { BRAND_LOGO_PATH, BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
+import { BRAND_LOGO_PATH } from "@/lib/brand";
 import { socialMetadata } from "@/lib/social-metadata";
 
 export async function generateMetadata({

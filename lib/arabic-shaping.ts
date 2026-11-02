@@ -109,3 +109,43 @@ export function shapeArabic(text: string): string {
   }
   return output;
 }
+
+const MIRRORED: Record<string, string> = { "(": ")", ")": "(", "[": "]", "]": "[", "«": "»", "»": "«", "<": ">", ">": "<" };
+const isLtrChar = (char: string) => /[\p{Script=Latin}\p{N}]/u.test(char);
+const isMarkChar = (char: string) => isMark(char.codePointAt(0) as number);
+
+/**
+ * Satori draws presentation forms strictly left to right (it only reorders the base letters), so a
+ * shaped word has to be handed over in visual order: Latin/digit runs stay as they are, everything
+ * else is reversed (combining marks stay behind their base letter, brackets are mirrored).
+ */
+export function toVisualOrder(shaped: string): string {
+  const runs: { ltr: boolean; chars: string[] }[] = [];
+  for (const char of Array.from(shaped)) {
+    const ltr = isLtrChar(char);
+    const last = runs[runs.length - 1];
+    // A mark belongs to the letter before it, whatever that run is.
+    if (last && (last.ltr === ltr || isMarkChar(char))) last.chars.push(char);
+    else runs.push({ ltr, chars: [char] });
+  }
+  return runs
+    .reverse()
+    .map((run) => {
+      if (run.ltr) return run.chars.join("");
+      const clusters: string[][] = [];
+      for (const char of run.chars) {
+        if (isMarkChar(char) && clusters.length) clusters[clusters.length - 1].push(char);
+        else clusters.push([char]);
+      }
+      return clusters
+        .reverse()
+        .map((cluster) => cluster.reverse().map((char) => MIRRORED[char] ?? char).join(""))
+        .join("");
+    })
+    .join("");
+}
+
+/** Shaped and ordered for satori; text without Arabic letters is returned unchanged. */
+export function shapeForOg(text: string): string {
+  return /[؀-ۿ]/.test(text) ? toVisualOrder(shapeArabic(text)) : text;
+}

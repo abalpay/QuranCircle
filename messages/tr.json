@@ -302,10 +302,7 @@
   },
   "CirclePage": {
     "share": "Paylaş",
-    "shareInvitation": "Halka davetini paylaş",
     "copyLink": "Bağlantıyı kopyala",
-    "publicShareInvitation": "QuranCircle’daki “{name}” hatim halkasına katılın ve bir cüz sahiplenin.",
-    "linkOnlyShareInvitation": "QuranCircle’daki “{name}” hatim halkasına davetlisiniz. Bir cüz sahiplenin.",
     "circleSettings": "Halka ayarları",
     "archived": "Arşivlendi",
     "openForClaims": "Sahiplenmeye Açık",
@@ -316,7 +313,6 @@
     "circleArchivedReadOnly": "Bu halka arşivlenmiştir ve salt okunurdur.",
     "publicCircle": "Açık Halka",
     "linkOnlyCircle": "Yalnızca Bağlantılı Halka",
-    "inviteCopied": "Davet panoya kopyalandı",
     "linkCopied": "Halka bağlantısı kopyalandı",
     "linkCopyFailed": "Halka bağlantısı kopyalanamadı",
     "shareFailed": "Paylaşım açılamadı. Bunun yerine bağlantıyı kopyalayın.",
@@ -350,7 +346,9 @@
     "juzClaimedConfirmMany": "Cüz {numbers} artık sizde. Allah razı olsun. Bitirdiğinizde buradaki Tamamladım düğmesine dokunabilirsiniz.",
     "otherPhoneHint": "Başka bir telefondan mı sahiplendiniz? Düzenleyiciden Tamamlandı olarak işaretlemesini isteyin.",
     "newKhatmStarted": "Yeni bir hatim başladı.",
-    "khatmCompleteOn": "Hatim {number} tamamlandı · {date}"
+    "khatmCompleteOn": "Hatim {number} tamamlandı · {date}",
+    "shareOnWhatsApp": "WhatsApp'ta paylaş",
+    "shareNative": "Paylaş…"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Hatimi Sil?",
@@ -452,7 +450,7 @@
       "title": "Bağlantıyı paylaştığınızda grubunuzun gördüğü",
       "description": "QuranCircle'ın temel iş akışı budur: katılımcıların hesap veya ayrı bir dağılım tablosu olmadan işlem yapabildiği, 30 cüzün tamamını gösteren tek bir canlı görünüm.",
       "previewLabel": "Ürün önizlemesi",
-      "circleName": "Aile Ramazan Hatmi",
+      "circleName": "Sevdiğiniz biri için bir hatim",
       "linkOnly": "Bağlantıya özel halka",
       "progress": "30 cüzden {count} tanesi sahiplenildi",
       "available": "Müsait",
@@ -467,7 +465,15 @@
       "claimJuz": "Müsait bir cüz seçip adınızla sahiplenin.",
       "markRead": "Aynı bağlantıya dönüp cüzü okundu olarak işaretleyin.",
       "organizerTitle": "Düzenleyici gelişmeleri görür",
-      "organizerText": "Müsait, sahiplenilmiş ve okunmuş durumlar ortak halkada güncellenir; böylece ayrıca elektronik tablo tutmaya gerek kalmaz."
+      "organizerText": "Müsait, sahiplenilmiş ve okunmuş durumlar ortak halkada güncellenir; böylece ayrıca elektronik tablo tutmaya gerek kalmaz.",
+      "names": {
+        "0": "Amine",
+        "1": "Yusuf",
+        "2": "Meryem",
+        "3": "Ömer",
+        "4": "Zeynep",
+        "5": "Ali"
+      }
     },
     "templates": {
       "eyebrow": "WhatsApp ve grup sohbeti şablonları",
@@ -545,11 +551,16 @@
   "OpenGraphImage": {
     "fallbackCircleName": "Hatim Halkası",
     "joinCircle": "Bu Hatim Halkasına Katıl",
-    "khatmComplete": "Hatim {number} tamamlandı"
+    "khatmComplete": "Hatim {number} tamamlandı",
+    "archivedLabel": "Bu halka arşivlendi",
+    "fullLabel": "30 cüzün hepsi alındı"
   },
   "CircleMetadata": {
     "description": "QuranCircle'daki {eventName} hatim halkasına katılın",
-    "imageAlt": "QuranCircle’daki {eventName} hatim halkasına katılım daveti"
+    "imageAlt": "QuranCircle’daki {eventName} hatim halkasına katılım daveti",
+    "descriptionFull": "“{eventName}” halkasının tüm cüzleri alındı. Okumayı takip etmek için açın.",
+    "descriptionCompleted": "Elhamdülillah, “{eventName}” halkasının {number}. hatmi tamamlandı.",
+    "descriptionArchived": "“{eventName}” halkası arşivlendi ve yeni okuyuculara kapalı."
   },
   "HeroPreview": {
     "you": "Siz",
@@ -560,7 +571,7 @@
     "previewAriaLabel": "QuranCircle hatim takipçisinin etkileşimli önizlemesi",
     "interactivePreview": "Etkileşimli önizleme",
     "khatmNumber": "Hatim #{number}",
-    "circleName": "Aile ve Arkadaşlar Halkası",
+    "circleName": "Sevdiğiniz biri için bir hatim",
     "progressTracker": "İlerleme takibi",
     "claimedProgress": "{total} cüzden {claimed} tanesi sahiplenildi",
     "overallProgress": "Genel ilerleme",
@@ -573,7 +584,18 @@
     "demoClaimLabel": "Önizlemeyi deneyin: {number}. cüzü sahiplenin",
     "openForClaims": "Sahiplenmeye açık",
     "shareCircleLink": "Halka bağlantısını paylaş",
-    "resetDemo": "Önizlemeyi sıfırla"
+    "resetDemo": "Önizlemeyi sıfırla",
+    "names": {
+      "0": "Halime",
+      "1": "Amine",
+      "2": "Yusuf",
+      "3": "Meryem",
+      "4": "Ömer",
+      "5": "Zeynep",
+      "6": "Ali",
+      "7": "İbrahim",
+      "8": "Safiye"
+    }
   },
   "HowItWorks": {
     "eyebrow": "Üç kolay adım",
@@ -1094,17 +1116,26 @@
     "readBy": "Okuyanlar",
     "takenUpBy": "Üstlenenler",
     "shareWhatsApp": "WhatsApp'ta paylaş",
-    "shareText": "Elhamdülillah, “{name}” için Hatim {number} tamamlandı. Allah kabul etsin.",
     "supportLine": "QuranCircle ücretsizdir ve sadaka-i cariye olarak yürütülür. Devam etmesine destek olun, sevabına ortak olun.",
     "supportLink": "QuranCircle'a destek ol",
     "opensInNewTab": "(yeni sekmede açılır)",
     "readersMore": "ve {count} kişi daha",
-    "readersShowFewer": "Daha az göster"
+    "readersShowFewer": "Daha az göster",
+    "shareNative": "Paylaş…",
+    "copyLink": "Bağlantıyı kopyala",
+    "linkCopied": "Halka bağlantısı kopyalandı",
+    "shareFailed": "Paylaşım açılamadı. Bunun yerine bağlantıyı kopyalayın.",
+    "linkCopyFailed": "Halka bağlantısı kopyalanamadı"
   },
   "Captcha": {
     "failed": "Güvenlik doğrulaması başarısız",
     "failedDescription": "Robot olmadığınızı doğrulayamadık. Lütfen tekrar deneyin.",
     "retry": "Tekrar dene",
     "interactive": "Lütfen güvenlik doğrulamasını tamamlayın."
+  },
+  "ShareText": {
+    "open": "Esselamu aleyküm. Bir hatim okunuyor: “{name}”. Lütfen buradan bir cüz alın: {link}",
+    "completed": "Elhamdülillah, “{name}” hatmi tamamlandı. Allah kabul etsin. {link}",
+    "closed": "Esselamu aleyküm. “{name}” hatmi buradan takip edilebilir: {link}"
   }
 }

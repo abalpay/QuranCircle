@@ -1,11 +1,49 @@
 export type CircleShareInput = {
   title: string;
+  /** The whole message, circle link included (one text for WhatsApp, the share sheet and the clipboard). */
   text: string;
-  url: string;
 };
 
+export type CircleShareKind = "open" | "completed" | "closed";
+
+/** Nothing to take in a full or archived circle, so its message invites to follow, not to claim. */
+export function shareKindForStatus(status: "open" | "full" | "completed" | "archived"): CircleShareKind {
+  return status === "open" ? "open" : status === "completed" ? "completed" : "closed";
+}
+
+/** First strong isolate / pop: keeps a name in another script from reordering the words around it. Invisible. */
+const FSI = "\u2068";
+const PDI = "\u2069";
+
+export function isolateName(name: string) {
+  return `${FSI}${name.trim()}${PDI}`;
+}
+
+type ShareTextTranslator = (key: CircleShareKind, values: { name: string; link: string }) => string;
+
+/**
+ * The one builder for every circle share (circle menu and completion moment): salaam-led for an
+ * open khatm, alhamdulillah for a finished one, the user's name isolated, the link last.
+ */
+export function buildCircleShare(
+  t: ShareTextTranslator,
+  { kind, name, url }: { kind: CircleShareKind; name: string; url: string }
+): CircleShareInput & { whatsAppUrl: string } {
+  const text = t(kind, { name: isolateName(name), link: url });
+  return { title: name, text, whatsAppUrl: buildWhatsAppShareUrl(text) };
+}
+
+/** wa.me link with the finished message prefilled. */
+export function buildWhatsAppShareUrl(text: string) {
+  return `https://wa.me/?text=${encodeURIComponent(text)}`;
+}
+
+export function canNativeShare(navigatorRef: { share?: unknown } | null = typeof navigator === "undefined" ? null : navigator) {
+  return typeof navigatorRef?.share === "function";
+}
+
 type ShareNavigator = {
-  share?: (payload: { title: string; text: string; url: string }) => Promise<void>;
+  share?: (payload: { title: string; text: string }) => Promise<void>;
   clipboard?: {
     writeText: (text: string) => Promise<void>;
   };
@@ -38,10 +76,6 @@ function resolveNavigator(
   return navigator;
 }
 
-function buildClipboardInvite(input: CircleShareInput) {
-  return `${input.text}\n${input.url}`;
-}
-
 export async function shareCircleInvite(
   input: CircleShareInput,
   options: ShareNavigatorOptions = {}
@@ -54,7 +88,6 @@ export async function shareCircleInvite(
       await navigatorRef.share({
         title: input.title,
         text: input.text,
-        url: input.url,
       });
       return "shared";
     } catch (error) {
@@ -66,7 +99,7 @@ export async function shareCircleInvite(
     if (!navigatorRef.clipboard || typeof navigatorRef.clipboard.writeText !== "function") {
       throw new Error("Clipboard API unavailable");
     }
-    await navigatorRef.clipboard.writeText(buildClipboardInvite(input));
+    await navigatorRef.clipboard.writeText(input.text);
     return "copied";
   } catch {
     return "failed";

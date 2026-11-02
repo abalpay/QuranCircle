@@ -100,17 +100,29 @@ describe("public circle metadata", () => {
     expect((metadata.twitter?.images as { url: string }[])[0].url).toBe(url);
   });
 
-  it("versions the image when the latest khatm completes", async () => {
+  it("changes the image version and description when the circle completes, fills or is archived", async () => {
     const { getEventByShortCode } = await import("@/lib/actions/events");
-    vi.mocked(getEventByShortCode).mockResolvedValueOnce({
-      name: "Done",
-      description: null,
-      created_at: "2026-07-01T00:00:00.000Z",
-      khatms: [{ khatm_number: 2, completed_at: "2026-11-01T00:00:00Z" }],
-    } as never);
-    const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: "en", shortCode: "family-khatm" }),
-    });
-    expect((metadata.openGraph?.images as { url: string }[])[0].url).toMatch(/\?v=[0-9a-z]+c2$/);
+    const run = async (event: object) => {
+      vi.mocked(getEventByShortCode).mockResolvedValueOnce({
+        name: "Done",
+        description: "own words",
+        created_at: "2026-07-01T00:00:00.000Z",
+        ...event,
+      } as never);
+      const metadata = await generateMetadata({
+        params: Promise.resolve({ locale: "en", shortCode: "family-khatm" }),
+      });
+      return {
+        version: (metadata.openGraph?.images as { url: string }[])[0].url.split("?v=")[1],
+        description: metadata.openGraph?.description,
+      };
+    };
+    const open = await run({ khatms: [{ khatm_number: 1, completed_at: null, claimed_count: 4 }] });
+    const full = await run({ khatms: [{ khatm_number: 1, completed_at: null, claimed_count: 30 }] });
+    const done = await run({ khatms: [{ khatm_number: 1, completed_at: "2026-11-01T00:00:00Z", claimed_count: 30 }] });
+    const archived = await run({ is_archived: true, khatms: [{ khatm_number: 1, completed_at: null, claimed_count: 4 }] });
+    expect(open.description).toBe("own words");
+    expect(new Set([open.version, full.version, done.version, archived.version]).size).toBe(4);
+    expect(new Set([open.description, full.description, done.description, archived.description]).size).toBe(4);
   });
 });

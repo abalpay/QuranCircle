@@ -72,7 +72,8 @@ vi.mock("@/lib/actions/events", () => ({
   deleteEvent: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("@/lib/share-invite", () => ({
+vi.mock("@/lib/share-invite", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/share-invite")>()),
   copyCircleLink: copyCircleLinkMock,
   shareCircleInvite: shareCircleInviteMock,
 }));
@@ -168,7 +169,7 @@ describe("KhatimPageClient share/settings visibility", () => {
     expect(container.querySelector(".lucide-settings")).not.toBeInTheDocument();
   });
 
-  it("offers invitation sharing and clean-link copying", async () => {
+  it("offers WhatsApp first, then clean-link copying; no native row without navigator.share", async () => {
     const user = userEvent.setup();
     render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
       wrapper: IntlWrapper,
@@ -176,33 +177,47 @@ describe("KhatimPageClient share/settings visibility", () => {
 
     await user.click(screen.getByRole("button", { name: "Share" }));
 
-    expect(
-      screen.getByRole("menuitem", { name: "Share invitation" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("menuitem", { name: "Copy link" })
-    ).toBeInTheDocument();
+    expect(screen.getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
+      "Share on WhatsApp",
+      "Copy link",
+    ]);
   });
 
-  it("shares a localized invitation with the current locale path", async () => {
+  it("puts the native share sheet between WhatsApp and Copy link where the browser has one", async () => {
     const user = userEvent.setup();
+    Object.defineProperty(navigator, "share", { value: vi.fn(), configurable: true });
+    try {
+      render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
+        wrapper: IntlWrapper,
+      });
+      await user.click(screen.getByRole("button", { name: "Share" }));
+      expect(screen.getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
+        "Share on WhatsApp",
+        "Share…",
+        "Copy link",
+      ]);
+    } finally {
+      Reflect.deleteProperty(navigator, "share");
+    }
+  });
+
+  it("shares the salaam-led Turkish invitation on WhatsApp with the current locale path", async () => {
+    const user = userEvent.setup();
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
     window.history.replaceState({}, "", "/tr/s/ABCDEFGH?filter=available");
     render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
       wrapper: TurkishIntlWrapper,
     });
 
     await user.click(screen.getByRole("button", { name: "Paylaş" }));
-    await user.click(
-      screen.getByRole("menuitem", { name: "Halka davetini paylaş" })
-    );
+    await user.click(screen.getByRole("menuitem", { name: "WhatsApp'ta paylaş" }));
 
-    await waitFor(() => {
-      expect(shareCircleInviteMock).toHaveBeenCalledWith({
-        title: "Circle One",
-        text: "QuranCircle’daki “Circle One” hatim halkasına katılın ve bir cüz sahiplenin.",
-        url: "http://localhost:3000/tr/s/ABCDEFGH",
-      });
-    });
+    const target = new URL(open.mock.calls[0][0] as string);
+    expect(target.origin + target.pathname).toBe("https://wa.me/");
+    expect(target.searchParams.get("text")).toBe(
+      "Esselamu aleyküm. Bir hatim okunuyor: “\u2068Circle One\u2069”. Lütfen buradan bir cüz alın: http://localhost:3000/tr/s/ABCDEFGH"
+    );
+    open.mockRestore();
   });
 
   it("copies only the current circle URL", async () => {

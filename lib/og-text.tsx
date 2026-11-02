@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { layoutBidiWords } from "@/lib/og-bidi";
 import { containsArabicScript } from "@/lib/text-script";
+import { shapeForOg } from "@/lib/arabic-shaping";
 
 /**
  * Satori has no bidi: it places a text node's words left to right in reading order. Text with
@@ -33,13 +34,15 @@ export function OgText({
         display: "flex",
         flexDirection: rtl ? "row-reverse" : "row",
         flexWrap: "wrap",
+        // Words in different faces (digits, Latin) share one baseline.
+        alignItems: "baseline",
         columnGap: Math.round(fontSize * 0.2),
         ...(rtl && hug ? { width: "100%" } : {}),
       }}
     >
       {words.map((word, index) => (
         <div key={index} style={{ display: "flex" }}>
-          {word}
+          {shapeForOg(word)}
         </div>
       ))}
     </div>

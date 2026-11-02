@@ -38,7 +38,7 @@ export default async function createOgImage() {
             width: 500,
             height: 500,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.lightGreen}28 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.lightGreen}28 0%, ${colors.bg}00 70%)`,
             display: "flex",
           }}
         />
@@ -51,7 +51,7 @@ export default async function createOgImage() {
             width: 450,
             height: 450,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.gold}1a 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.gold}1a 0%, ${colors.bg}00 70%)`,
             display: "flex",
           }}
         />
@@ -65,7 +65,7 @@ export default async function createOgImage() {
             right: 0,
             bottom: 0,
             display: "flex",
-            background: `radial-gradient(ellipse at 50% 45%, transparent 40%, ${colors.bg} 85%)`,
+            background: `radial-gradient(ellipse at 50% 45%, ${colors.bg}00 40%, ${colors.bg} 85%)`,
           }}
         />
 
@@ -157,7 +157,7 @@ export default async function createOgImage() {
               width: 96,
               height: 2,
               marginTop: 24,
-              background: `linear-gradient(90deg, transparent, ${colors.gold}99, transparent)`,
+              background: `linear-gradient(90deg, ${colors.gold}00, ${colors.gold}99, ${colors.gold}00)`,
               borderRadius: 2,
               display: "flex",
             }}
