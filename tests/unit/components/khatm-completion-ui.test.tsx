@@ -83,8 +83,11 @@ describe("completed khatm UI (D6)", () => {
     const khatm = makeKhatm(true);
     khatm.claimed_count = 29;
     khatm.juzs[29] = { ...khatm.juzs[29], status: "unclaimed", claimed_by_name: null };
+    const { unmount } = renderCard(khatm, { filter: "all", isFinal: false });
+    expect(screen.queryByTitle("Tap to select Juz 30")).toBeTruthy();
+    unmount();
     renderCard(khatm, { filter: "all", isFinal: true });
-    expect(screen.queryByRole("button", { name: /select juz 30/i })).toBeNull();
+    expect(screen.queryByTitle("Tap to select Juz 30")).toBeNull();
   });
 
   it("hides Unclaim in the organizer queue for completed khatms only", () => {
