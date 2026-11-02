@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import CreateKhatimDialog from "@/components/create-khatim-dialog";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
 
-const { ensureSessionMock, createEventMock, pushMock } = vi.hoisted(() => ({
+const { ensureSessionMock, createEventMock, pushMock, openAuthModalMock } = vi.hoisted(() => ({
+  openAuthModalMock: vi.fn(),
   ensureSessionMock: vi.fn(),
   createEventMock: vi.fn(),
   pushMock: vi.fn(),
@@ -12,6 +13,9 @@ const { ensureSessionMock, createEventMock, pushMock } = vi.hoisted(() => ({
 
 vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => ({ ensureSession: ensureSessionMock }),
+}));
+vi.mock("@/hooks/use-auth-modal", () => ({
+  useAuthModal: () => ({ openAuthModal: openAuthModalMock }),
 }));
 vi.mock("@/lib/actions/events", () => ({ createEvent: createEventMock }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
@@ -49,5 +53,6 @@ describe("CreateKhatimDialog without an account", () => {
     await userEvent.click(screen.getByRole("button", { name: "Create Circle" }));
 
     expect(createEventMock).not.toHaveBeenCalled();
+    expect(openAuthModalMock).toHaveBeenCalledWith("login");
   });
 });

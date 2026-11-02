@@ -1,6 +1,6 @@
 -- #89: anonymous (guest) sessions may create and manage their own circles.
 -- Only change vs 20260915012118: auth.uid() IS NOT NULL replaces current_auth_is_non_anonymous().
--- CREATE OR REPLACE keeps existing grants (authenticated).
+-- CREATE OR REPLACE keeps existing grants (authenticated, service_role).
 
 CREATE OR REPLACE FUNCTION public.create_event_with_initial_khatm(
   p_name TEXT,

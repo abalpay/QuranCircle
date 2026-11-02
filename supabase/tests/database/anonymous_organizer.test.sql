@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(14);
+SELECT plan(22);
 
 INSERT INTO auth.users (id, aud, role, is_anonymous, created_at, updated_at)
 VALUES
@@ -26,6 +26,39 @@ SELECT is(
 SELECT lives_ok(
   $$SELECT public.set_event_archive('ANONORG01', true)$$,
   'anonymous creator can archive own circle'
+);
+
+RESET ROLE;
+SELECT is(
+  (SELECT is_archived FROM public.events WHERE short_code = 'ANONORG01'),
+  true,
+  'archive flips is_archived to true'
+);
+SET LOCAL ROLE authenticated;
+
+SELECT lives_ok(
+  $$SELECT public.set_event_archive('ANONORG01', false)$$,
+  'anonymous creator can unarchive own circle'
+);
+RESET ROLE;
+SELECT is(
+  (SELECT is_archived FROM public.events WHERE short_code = 'ANONORG01'),
+  false,
+  'unarchive flips is_archived back to false'
+);
+SET LOCAL ROLE authenticated;
+
+-- A non-anonymous user is also denied on an anonymous user's circle.
+SELECT set_config('request.jwt.claims', '{"sub":"89000000-0000-4000-8000-000000000003","role":"authenticated","is_anonymous":false}', true);
+SELECT throws_ok(
+  $$SELECT public.set_event_archive('ANONORG01', true)$$,
+  'Unauthorized',
+  'a non-anonymous non-owner cannot archive the circle'
+);
+SELECT throws_ok(
+  $$SELECT public.delete_event_by_shortcode('ANONORG01')$$,
+  'Unauthorized',
+  'a non-anonymous non-owner cannot delete the circle'
 );
 
 -- Another anonymous user is rejected.
@@ -72,6 +105,17 @@ SELECT throws_ok(
   'no session cannot create'
 );
 
+SELECT throws_ok(
+  $$SELECT public.set_event_archive('ANONORG01', true)$$,
+  'Sign in required to manage this circle',
+  'no session cannot archive'
+);
+SELECT throws_ok(
+  $$SELECT public.delete_event_by_shortcode('ANONORG01')$$,
+  'Sign in required to manage this circle',
+  'no session cannot delete'
+);
+
 RESET ROLE;
 
 -- Raw anon role has no execute grant.
@@ -87,6 +131,12 @@ SELECT throws_ok(
   '42501',
   NULL,
   'raw anon role is denied archive'
+);
+SELECT throws_ok(
+  $$SELECT public.delete_event_by_shortcode('ANONLIM1')$$,
+  '42501',
+  NULL,
+  'raw anon role is denied delete'
 );
 RESET ROLE;
 

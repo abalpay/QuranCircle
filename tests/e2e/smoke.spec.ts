@@ -227,7 +227,7 @@ test("claimed tiles in grid do not mark juz as read", async ({ page }) => {
   await page.getByRole("button", { name: "Unclaim" }).click();
 });
 
-test("anonymous users are blocked from account and create-circle management", async ({
+test("anonymous users are blocked from account but can create a circle without signing in", async ({
   page,
 }) => {
   await page.goto("/account");
@@ -236,8 +236,18 @@ test("anonymous users are blocked from account and create-circle management", as
     .toBe("/");
 
   await page.getByRole("button", { name: /Start A Khatm Circle/i }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page.getByRole("tab", { name: "Login" })).toBeVisible();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Login" })).toHaveCount(0);
+
+  await dialog
+    .getByRole("textbox", { name: /circle name/i })
+    .fill(`Guest Circle ${Date.now()}`);
+  await dialog.getByRole("button", { name: "Create Circle" }).click();
+
+  await expect.poll(() => new URL(page.url()).pathname).toMatch(/^\/s\/[A-Za-z0-9]+$/);
+  await dismissInstallPromptIfVisible(page);
+  await expect(page.getByRole("button", { name: "Circle settings" })).toBeVisible();
 });
 
 test("archived circles block claim interactions", async ({ page }) => {

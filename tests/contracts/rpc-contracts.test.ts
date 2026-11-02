@@ -461,6 +461,7 @@ describe("RPC contract checks", () => {
     if (signIn.user) createdUserIds.push(signIn.user.id);
 
     const shortCode = `ANON${randomUUID().replace(/-/g, "").slice(0, 8)}`;
+    try {
     const { data: created, error: createError } = await client
       .rpc("create_event_with_initial_khatm", {
         p_name: "Anonymous contract circle",
@@ -485,5 +486,8 @@ describe("RPC contract checks", () => {
       p_short_code: shortCode,
     });
     expect(deleteError).toBeNull();
+    } finally {
+      await admin.from("events").delete().eq("short_code", shortCode);
+    }
   });
 });
