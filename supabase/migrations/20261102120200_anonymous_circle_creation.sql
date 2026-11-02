@@ -144,5 +144,7 @@ BEGIN
   END IF;
 
   RETURN true;
+END;
+$$;
 
 NOTIFY pgrst, 'reload schema';
