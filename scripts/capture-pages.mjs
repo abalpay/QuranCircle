@@ -176,6 +176,8 @@ const PAGES = [
   { name: "dialog-auth", path: "/", dialog: "auth" },
   { name: "dialog-create", path: "/", dialog: "create", auth: ORGANIZER },
   { name: "dialog-claim", path: "/s/DSGPART", dialog: "claim" },
+  { name: "circle-settings-org", path: "/s/DSGPART", dialog: "settings", auth: ORGANIZER },
+  { name: "circle-settings-arch-org", path: "/s/DSGARCH", dialog: "settings", auth: ORGANIZER },
   ...circle("DSGEMPTY"),
   ...circle("DSGPART", [SIGNED_OUT, ORGANIZER, READER_V]),
   ...circle("DSGREADER", [SIGNED_OUT, ORGANIZER, READER_V]),
@@ -209,6 +211,8 @@ async function openDialog(page, kind, locale) {
   if (kind === "claim") {
     await page.getByRole("button", { name: "17", exact: true }).click({ timeout: 5000 });
     await page.getByRole("button", { name: ar ? "حجز" : "Claim", exact: true }).last().click({ timeout: 5000 });
+  } else if (kind === "settings") {
+    await page.getByRole("button", { name: ar ? "إعدادات الحلقة" : "Circle settings" }).click({ timeout: 5000 });
   } else {
     const name = kind === "auth" ? (ar ? "تسجيل الدخول" : "Sign In") : ar ? "ابدأ حلقة ختم" : "Start A Khatm Circle";
     await page.getByRole("button", { name }).first().click({ timeout: 5000 });
