@@ -152,7 +152,7 @@ html[data-decor="b"] .landing-hero::after {
 @media (min-width: 1024px) {
   html[data-decor="b"] .landing-hero::after {
     inset-block: 0;
-    inset-inline-end: 0;
+    inset-inline: auto 0; /* base .landing-hero::after sets a physical left; start must be auto or it wins */
     width: 52%;
     background-position: 0 0;
     border-inline-start: 1px solid hsl(var(--decor-gold) / 0.4);
