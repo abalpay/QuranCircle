@@ -5,16 +5,16 @@ wrong for a family arriving at a circle, P2 = clear quality gap, P3 = polish.
 Tag = wave issue that touches the page: #79 reader view, #80 organizer completes,
 #81 completion moment, #83 footer/home stat, #89 add-email prompt + create flow,
 #92 homepage + circle header (wave 2), #97 guides, `polish` = no stream touches it.
-Note: the Impeccable skill was not available in this session; the audit applies the
-checklist in `quality-bar.md` by hand to the screenshots. Not every page was
-inspected at pixel level (see Not checked at the end).
+Validated and extended on 2026-11-02 by an Impeccable critique (independent design
+review + detector, desktop overlay on /, /ar, two circles and /browse). Items 37–52
+are from that critique.
 
 ## Circle page (`/s/[code]`)
 1. P1 #92 Title has no cap: a 150-char name takes 9 lines at 390px and pushes progress and grid below the fold. Cap at 3 lines, scale type, keep full text in tooltip/"more".
 2. P1 #81 Completed khatm looks like any other and the header still says "Public circle / Open for claims" and the filter shows "Available (0)". Needs a completed state (green, "Khatm 1 complete"), badge hidden.
 3. P1 #79 No visible "your Juz" block at the top; reader must open the "My Juz" tab. (Reader own-Juz fixture: DSGREADER.)
 4. P2 #92 Two badges ("Public circle", "Open for claims") stack above the title and crowd it; collapse into one quiet line under the dua.
-5. P2 #92 Progress card repeats card-in-card; "53% CLAIMED" with a tiny chevron toggle (touch target < 44px). "16 Claimed - 4 Read" should read "N of 30 claimed" with Done secondary (D8).
+5. P2 #92 Progress card repeats card-in-card; "Progress Tracker 53%" should read "N of 30 claimed" with Done as a quiet secondary line (D8). The collapse chevron is already 44px; its placement is the problem.
 6. P2 #79 Juz tiles: claimer names at about 10px, orange on cream, truncated ("Muham..."); raise to 12px, neutral text, show full name on tap.
 7. P2 #80 Organizer controls are a lone gear icon (40px) beside Share; give it a labelled button and 44px target.
 8. P2 #92 Arabic: Latin title and dua render in Naskh bold with the full stop on the wrong side ("Paradise." leading). Wrap user text in `<bdi>`.
@@ -28,7 +28,7 @@ inspected at pixel level (see Not checked at the end).
 14. P3 #92 Tagline "READ TOGETHER" (gold on dark green, about 9px, wide tracking) fails contrast and size; header at 390px is fine otherwise.
 
 ## Create flow and dialogs
-15. P1 #89 Arabic create dialog: the Cancel button reads `يلغي` ("he cancels"); use `إلغاء`. Placeholder "Ramadan 2025" in English on /ar and not memorial-first (suggest "Khatm for ...").
+15. P1 #89 Arabic register is machine-translated across the app, not just Cancel: `يلغي` ("he cancels") → `إلغاء`, `يشارك` ("he shares") → `مشاركة`, `مطالبات` (legal/financial claims) and `مرشحات` need human wording (ar.json ~85, 256, 306, 319). Placeholder "Ramadan 2025" in English on /ar and not memorial-first (suggest "Khatm for ..."). Native Arabic review (#77 Q3).
 16. P2 #89 Create dialog fields have no helper copy for the memorial case (dua field is "Description (optional)"); rename to dua/intention per D16.
 17. P2 #89 Public toggle copy is dense at 390px; keep wording, add spacing, 44px switch.
 18. P3 #89 Auth dialog and claim dialog: not individually reviewed beyond overflow; verify in the #89 finish review.
@@ -65,8 +65,27 @@ inspected at pixel level (see Not checked at the end).
 35. P3 polish Body background uses radial gradients plus a footer star pattern; remove per TASTE CALL 5.
 36. P3 polish Skip-to-content link and visible focus ring: verify on all pages.
 
+## Added by the Impeccable critique
+37. P1 #81 A single-khatm circle never shows as completed: the "completed" flag is only true when a newer khatm exists (khatim-page-client.tsx ~1140). #78 adds `completed_at`; #81 must use it.
+38. P1 #79/#81 Done tiles drop the reader's name (juz-card.tsx ~100 renders names only for `claimed`). Keep names on Done tiles: the grid is the register (D16).
+39. P1 #79 A reader's own tiles are not marked; outline them with "You" (juz-card has no `isMine`).
+40. P1 #79 Remove the install-app sheet from claim success (khatim-page-client.tsx ~490–496, ~1172); it interrupts the most important moment and cannot install inside the WhatsApp in-app browser.
+41. P1 #79/#92 User text has no `dir="auto"`: an Arabic title under /en is left-aligned; names truncate at the wrong end (juz-card.tsx ~101). Font must follow script, not locale.
+42. P2 #79 Claiming is a forced two-step (tap → floating bar → dialog). Tapping an available tile opens the name dialog directly, with "+ add another Juz" inside it.
+43. P2 #79 Unclaim is red, one tap, no confirmation, beside Mark read (khatm-card.tsx ~318). Add a confirmation.
+44. P2 #79 Claimed/read tiles are not accessible: `tabIndex -1`, no role, claimer only in `title` (juz-card.tsx ~64–76). Give them a role and an accessible name with the claimer.
+45. P2 #79 Claimer names 10px amber-600/80 on cream fail contrast (2.5:1); 12px+ in ink.
+46. P2 #92 Juz numbers use Cormorant old-style figures ("1" reads as "I"); `lining-nums tabular-nums` (juz-card.tsx ~88).
+47. P2 #92 Gold text below 4.5:1 site-wide (header tagline 3.2:1, eyebrows `#a38343` 3.3–3.5:1, footer 2.9:1); add a text-safe gold token. Header/footer "Read together" tagline at 9–10px.
+48. P2 #79 Filter counts mix scopes: "All (60)" counts across khatms while the grid shows one khatm (circle-full-org).
+49. P2 #80 The organizer queue is two levels deep (My Juz → Creator queue, khatim-page-client.tsx ~1059); surface it in organizer view.
+50. P2 polish Server error strings reach users raw in toasts (khatm-card.tsx ~189); map to plain, translated messages.
+51. P3 polish `animate-pulse` on the my-Juz nudge ignores reduced motion (khatim-page-client.tsx ~1035).
+52. P3 polish Dead CSS flagged by the detector: `.hero-sanctuary::before` grid background (globals.css ~359) and `.comparison-card-primary` side stripe (~846) are unused; delete.
+Detector context: tile `border-top` accent on rounded tiles (30 per circle page) → replace per direction.md; hero product preview miniatures (8–10px, nested cards) are deliberate mock UI, judged acceptable if the hero is rebuilt in #92 anyway.
+
 ## Top ten (ordered)
-2, 25, 1, 15, 3, 11, 5, 6, 12, 33
+2 + 37 (completion state), 38 (names stay), 40 (no install sheet after claim), 3 + 39 (your Juz), 1 (title cap), 15 + 41 (Arabic register, dir/script), 25 (circle not-found), 42 (one-step claim), 5 (claimed-first progress), 47 + 45 (contrast)
 
 ## Not checked
 Dark mode, Turkish locale, WebKit rendering, keyboard-open dialog layout, real

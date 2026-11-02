@@ -17,7 +17,8 @@ Pass only if every box is ticked for each touched page, or a waiver is written d
    progress fills from inline start; no `left/right/ml/mr` utilities left in touched files.
 4. **Translation completeness.** No English left on `/ar`, no placeholder or example
    text out of locale (e.g. "Ramadan 2025"), keys present in en, tr and ar.
-5. **Contrast.** Body text 4.5:1, large text and UI borders 3:1, including gold on green,
+5. **Contrast.** Body text 4.5:1, large text and UI borders 3:1, including gold text
+   (use the text-safe gold token, never `#a38343` on parchment), gold on green,
    muted text on parchment and text over pattern/gradient backgrounds. No information
    conveyed by colour alone.
 6. **Tap targets.** Every interactive element at least 44x44px at 390px (icon buttons,
@@ -28,11 +29,17 @@ Pass only if every box is ticked for each touched page, or a waiver is written d
 8. **Empty, loading, error states.** Each touched view has all three, in both locales:
    empty circle, 0 results in Browse/My Circles, skeleton or `loading.tsx` without layout
    jump, failed action toast with a next step, not-found page for bad short codes.
-9. **Typography and spacing.** No text below 12px, line length under ~75 characters,
+9. **Typography and spacing.** No text below 12px (names included); grid and
+   count numerals lining and tabular; user text `dir="auto"` with the font chosen by
+   script, not locale; line length under ~75 characters,
    consistent spacing scale, one card level (no cards in cards), no more than three lines
    of title on mobile.
 10. **Motion and tone.** Respects `prefers-reduced-motion`; no confetti, photos, candles,
-    likes or social-proof counts on family-facing pages (D16); copy is plain and non-urgent.
+    likes or social-proof counts on family-facing pages (D16); copy is plain and non-urgent;
+    no install sheet or product prompt after claiming or on completion.
+13. **Accessibility of state.** Every Juz tile has a role and an accessible name that
+    includes its state and claimer; destructive actions (unclaim, archive, delete) confirm;
+    the reader's own Juz is identifiable without colour.
 11. **Desktop (1440px).** Layout uses the width deliberately: reading column capped,
     no stretched buttons, no empty half-screens, header and footer aligned to content width.
 12. **Regressions.** `npm run lint`, `npm run test:unit` pass; existing E2E selectors
