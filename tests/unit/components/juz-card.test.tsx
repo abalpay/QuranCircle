@@ -67,4 +67,33 @@ describe("JuzCard", () => {
     renderCard({ ...base, status: "read", claimed_by_name: "Omar", is_mine: false });
     expect(screen.getByRole("img").className).toContain("bg-emerald-100");
   });
+
+  it("shows a claimed tile of an auto-completed khatm as Taken up, with the name, not Reading or Done (D16)", () => {
+    const { container } = render(
+      <JuzCard
+        juz={{ ...base, status: "claimed", claimed_by_name: "Aisha Khan", is_mine: false }}
+        onClaim={vi.fn()}
+        isReadOnly
+        takenUp
+      />,
+      { wrapper: IntlWrapper }
+    );
+    expect(screen.getByRole("img", { name: "Juz 4, Taken up, Aisha Khan" })).toBeTruthy();
+    expect(screen.getByText("Aisha")).toBeTruthy();
+    expect(container.querySelector("svg")).toBeNull(); // no book icon, no check
+    expect(container.innerHTML).not.toMatch(/amber/);
+  });
+
+  it("still shows a Done tile as Done in an auto-completed khatm", () => {
+    render(
+      <JuzCard
+        juz={{ ...base, status: "read", claimed_by_name: "Omar Haddad", is_mine: false }}
+        onClaim={vi.fn()}
+        isReadOnly
+        takenUp
+      />,
+      { wrapper: IntlWrapper }
+    );
+    expect(screen.getByRole("img", { name: "Juz 4, Done, Omar Haddad" })).toBeTruthy();
+  });
 });

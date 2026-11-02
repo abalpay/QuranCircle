@@ -228,7 +228,8 @@
     "you": "أنت",
     "tile": "جزء {number}، {state}",
     "tileBy": "جزء {number}، {state}، {name}",
-    "tileByMine": "جزء {number}، {state}، {name} (أنت)"
+    "tileByMine": "جزء {number}، {state}، {name} (أنت)",
+    "stateTakenUp": "مأخوذ"
   },
   "FeaturedCircles": {
     "join": "ينضم",
@@ -291,10 +292,8 @@
     "all": "الكل ({count})",
     "available": "متاح ({count})",
     "myJuz": "أجزائي ({count})",
-    "myJuzTab": "أجزائي",
     "creatorQueue": "قائمة انتظار المنشئ ({count})",
     "juzFilters": "مرشحات جزء",
-    "myJuzViews": "طرق عرض أجزائي",
     "updating": "جارٍ التحديث..."
   },
   "CirclePage": {
@@ -347,7 +346,7 @@
     "juzClaimedConfirmMany": "الأجزاء {numbers} لك. جزاك الله خيرًا. عند الانتهاء يمكنك الضغط على «تمّت قراءته» هنا.",
     "otherPhoneHint": "هل حجزتَ الجزء من هاتف آخر؟ اطلب من المنظِّم وضع علامة «تمّ» عليه.",
     "newKhatmStarted": "بدأ ختم جديد.",
-    "khatmComplete": "اكتملت الختمة {number}"
+    "khatmCompleteOn": "اكتملت الختمة {number} · {date}"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "حذف ختم؟",

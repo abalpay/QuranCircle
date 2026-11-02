@@ -27,3 +27,17 @@ export function getReaderNames(khatm: Pick<KhatmSnapshot, "juzs">) {
     )
   );
 }
+
+export const SUPPORT_ASK_MIN_CIRCLE_AGE_HOURS = 72;
+
+/** D19: no donation ask on a circle created in the last 72 hours. */
+export function isCircleOldEnoughForSupportAsk(createdAt: string, now: number) {
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return false;
+  return now - created > SUPPORT_ASK_MIN_CIRCLE_AGE_HOURS * 36e5;
+}
+
+/** The automatic date is only worth showing while it is still ahead (the job may not have run yet). */
+export function isInFuture(date: Date | null, now: number) {
+  return date !== null && date.getTime() > now;
+}

@@ -12,7 +12,7 @@ import { getMyCircles } from "@/lib/actions/events";
 import { cn } from "@/lib/utils";
 import {
   BookOpenText,
-  CircleCheck,
+  CircleDot,
   Globe2,
   Layers3,
   Plus,
@@ -74,7 +74,7 @@ function CircleCard({ circle, archived = false }: { circle: MyCircle; archived?:
         </span>
         {circle.relation === "creator" && circle.has_khatm_ready_to_complete && (
           <span className="inline-flex items-center gap-1.5 rounded-full px-1 text-xs font-semibold normal-case tracking-normal text-quran-green">
-            <CircleCheck aria-hidden="true" className="size-4" />
+            <CircleDot aria-hidden="true" className="size-4" />
             {t("readyToComplete")}
           </span>
         )}

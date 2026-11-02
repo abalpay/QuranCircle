@@ -12,9 +12,12 @@ export function getCircleOgState(
   fallbackName: string
 ) {
   const latest = data?.khatms?.[data.khatms.length - 1];
+  const completedKhatmNumber = latest?.completed_at ? latest.khatm_number : null;
   return {
     name: data?.name || fallbackName,
     description: data?.description || "",
-    completedKhatmNumber: latest?.completed_at ? latest.khatm_number : null,
+    completedKhatmNumber,
+    // A complete latest khatm leaves nothing to join.
+    showJoinCta: completedKhatmNumber === null,
   };
 }

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getAutoCompleteDate, getReaderNames, isReadyToComplete } from "@/lib/completion";
+import {
+  getAutoCompleteDate,
+  getReaderNames,
+  isCircleOldEnoughForSupportAsk,
+  isInFuture,
+  isReadyToComplete,
+} from "@/lib/completion";
 import { getCircleOgState } from "@/lib/circle-og";
 import { buildWhatsAppShareUrl } from "@/lib/whatsapp";
 import type { KhatmSnapshot } from "@/lib/types/events";
@@ -31,6 +37,20 @@ describe("completion helpers", () => {
       is_mine: false,
     }));
     expect(getReaderNames({ juzs })).toEqual(["Omar", "Amina"]);
+  });
+
+  it("only offers the support ask on circles older than 72 hours", () => {
+    const now = Date.parse("2026-11-05T12:00:00Z");
+    expect(isCircleOldEnoughForSupportAsk("2026-11-02T11:00:00Z", now)).toBe(true);
+    expect(isCircleOldEnoughForSupportAsk("2026-11-02T13:00:00Z", now)).toBe(false);
+    expect(isCircleOldEnoughForSupportAsk("nope", now)).toBe(false);
+  });
+
+  it("shows the automatic date only while it is ahead", () => {
+    const now = Date.parse("2026-11-05T12:00:00Z");
+    expect(isInFuture(new Date("2026-11-06T00:00:00Z"), now)).toBe(true);
+    expect(isInFuture(new Date("2026-11-04T00:00:00Z"), now)).toBe(false);
+    expect(isInFuture(null, now)).toBe(false);
   });
 
   it("builds a WhatsApp link carrying the text and the circle link", () => {
@@ -66,6 +86,15 @@ describe("share preview state (Open Graph)", () => {
       name: "Khatm Circle",
       description: "",
       completedKhatmNumber: null,
+      showJoinCta: true,
     });
+  });
+
+  it("drops the join call to action when the latest khatm is complete", () => {
+    const state = getCircleOgState(
+      { name: "A", khatms: [{ khatm_number: 1, completed_at: "2026-11-01" }] },
+      "x"
+    );
+    expect(state.showJoinCta).toBe(false);
   });
 });

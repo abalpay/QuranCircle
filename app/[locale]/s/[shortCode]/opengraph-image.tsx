@@ -38,6 +38,7 @@ export default async function OGImage({
   let eventName = t("fallbackCircleName");
   let eventDescription = "";
   let completedKhatmNumber: number | null = null;
+  let showJoinCta = true;
 
   try {
     const supabase = createAnonClient();
@@ -51,6 +52,7 @@ export default async function OGImage({
       eventName = state.name;
       eventDescription = state.description;
       completedKhatmNumber = state.completedKhatmNumber;
+      showJoinCta = state.showJoinCta;
     }
   } catch {
     // Fallback to defaults
@@ -211,17 +213,20 @@ export default async function OGImage({
           >
             qurancircle.io
           </div>
-          <div
-            style={{
-              fontSize: 18,
-              color: colors.gold,
-              fontFamily: "sans-serif",
-              fontWeight: 600,
-              display: "flex",
-            }}
-          >
-            {`${t("joinCircle")} \u2192`}
-          </div>
+          {/* A complete khatm has nothing left to join. */}
+          {showJoinCta ? (
+            <div
+              style={{
+                fontSize: 18,
+                color: colors.gold,
+                fontFamily: "sans-serif",
+                fontWeight: 600,
+                display: "flex",
+              }}
+            >
+              {`${t("joinCircle")} \u2192`}
+            </div>
+          ) : null}
         </div>
       </div>
     ),

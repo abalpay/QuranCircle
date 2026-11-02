@@ -45,7 +45,7 @@ type Props = {
   circleName?: string;
   /** The organizer sees "Complete the khatm" once all 30 Juz are claimed. */
   canManage?: boolean;
-  /** The latest khatm carries the support line when it is complete (nothing is open to claim). */
+  /** The latest khatm's date is already in the page header, so its record leaves the date out. */
   isLatest?: boolean;
   onCompleted?: () => Promise<void> | void;
 };
@@ -199,6 +199,7 @@ export default function KhatmCard({
           onClaim={() => handleClaimClick(juz)}
           isReadOnly={isReadOnly || isFinal || isComplete}
           isSelected={activeSelection.has(juz.juz_number)}
+          takenUp={khatm.completion_source === "auto"}
         />
       ))}
     </div>
@@ -254,7 +255,7 @@ export default function KhatmCard({
             circleName={circleName}
             khatm={khatm}
             variant="record"
-            showSupport={isLatest}
+            showDate={!isLatest}
             headingId={headingId}
           />
           <button

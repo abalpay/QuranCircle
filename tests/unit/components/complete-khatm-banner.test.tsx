@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import KhatmCard from "@/components/khatm-card";
 import type { KhatmSnapshot } from "@/lib/types/events";
 import { IntlWrapper } from "../../helpers/intl-wrapper";
@@ -61,7 +61,13 @@ function renderCard(
 }
 
 describe("organizer completes a khatm (#80)", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Only Date is faked, so user-event timers keep running.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-02T12:00:00Z"));
+  });
+  afterEach(() => vi.useRealTimers());
 
   it("shows the banner to the organizer of a fully claimed, open khatm", () => {
     renderCard(makeKhatm());
@@ -87,6 +93,14 @@ describe("organizer completes a khatm (#80)", () => {
   it("names the automatic completion date: latest claim plus seven days", () => {
     renderCard(makeKhatm({ last_claimed_at: "2026-11-01T10:00:00Z" }));
     expect(screen.getByText("Completes automatically on November 8, 2026.")).toBeInTheDocument();
+  });
+
+  it("falls back to the rule when that date has already passed", () => {
+    renderCard(makeKhatm({ last_claimed_at: "2026-10-20T10:00:00Z" }));
+    expect(screen.queryByText(/Completes automatically on/)).toBeNull();
+    expect(
+      screen.getByText("Completes automatically seven days after the last Juz was claimed.")
+    ).toBeInTheDocument();
   });
 
   it("falls back to the rule when the snapshot has no claim time", () => {

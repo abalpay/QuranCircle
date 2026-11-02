@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { completeKhatm } from "@/lib/actions/juz";
-import { getAutoCompleteDate } from "@/lib/completion";
+import { getAutoCompleteDate, isInFuture } from "@/lib/completion";
 import { trackProductEvent } from "@/lib/analytics";
 import type { KhatmSnapshot } from "@/lib/types/events";
 
@@ -32,7 +32,10 @@ export default function CompleteKhatmBanner({ khatm, shortCode, onCompleted }: P
   const format = useFormatter();
   const [confirming, setConfirming] = useState(false);
   const [pending, setPending] = useState(false);
-  const autoDate = getAutoCompleteDate(khatm);
+  const [now] = useState(() => Date.now());
+  // A date already past would be wrong until the automatic job runs: say the rule instead.
+  const claimDate = getAutoCompleteDate(khatm);
+  const autoDate = claimDate && isInFuture(claimDate, now) ? claimDate : null;
 
   const confirm = async () => {
     if (pending) return;
@@ -57,7 +60,7 @@ export default function CompleteKhatmBanner({ khatm, shortCode, onCompleted }: P
     <>
       <section
         aria-labelledby={`complete-banner-${khatm.id}`}
-        className="flex flex-col gap-4 border-b border-quran-border/60 bg-emerald-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"
+        className="flex flex-col gap-4 border-b border-quran-border/60 bg-quran-green/[0.07] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"
       >
         <div>
           <h3

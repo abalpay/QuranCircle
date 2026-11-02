@@ -1,11 +1,15 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { CheckCircle2, ExternalLink, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { COMPLETION_DUA_AR, getReaderNames } from "@/lib/completion";
+import {
+  COMPLETION_DUA_AR,
+  getReaderNames,
+  isCircleOldEnoughForSupportAsk,
+} from "@/lib/completion";
 import { getSupportUrl } from "@/lib/support";
 import { buildWhatsAppShareUrl } from "@/lib/whatsapp";
 import { textScript } from "@/lib/text-script";
@@ -16,10 +20,15 @@ type HeadingProps = { id: string; className: string; children: ReactNode };
 type ContentProps = {
   circleName: string;
   khatm: KhatmSnapshot;
-  /** "dialog" lists the readers; "record" sits above the grid, which already is the register. */
+  /**
+   * "dialog": the person's name is the display line, readers and the support ask follow.
+   * "record": sits above the grid (which is the register); the page title already shows the name.
+   */
   variant: "dialog" | "record";
-  /** Whether the support ask is allowed here. It still needs getSupportUrl() to return a URL. */
-  showSupport: boolean;
+  /** The record shows the date when the page header does not already say it. */
+  showDate?: boolean;
+  /** The support ask (D10/D19). It still needs getSupportUrl() to return a URL. Dialog only. */
+  showSupport?: boolean;
   headingId: string;
   /** A dialog supplies its own title element. */
   renderHeading?: (props: HeadingProps) => ReactNode;
@@ -30,7 +39,8 @@ export function CompletionContent({
   circleName,
   khatm,
   variant,
-  showSupport,
+  showDate = variant === "dialog",
+  showSupport = false,
   headingId,
   renderHeading,
 }: ContentProps) {
@@ -40,10 +50,12 @@ export function CompletionContent({
   const supportUrl = getSupportUrl();
   const readers = variant === "dialog" ? getReaderNames(khatm) : [];
   // UTC so the server render and the browser agree on the day.
-  const completedOn = khatm.completed_at
-    ? format.dateTime(new Date(khatm.completed_at), { dateStyle: "long", timeZone: "UTC" })
-    : null;
+  const completedOn =
+    showDate && khatm.completed_at
+      ? format.dateTime(new Date(khatm.completed_at), { dateStyle: "long", timeZone: "UTC" })
+      : null;
   const isAuto = khatm.completion_source === "auto";
+  const title = t("title", { number: khatm.khatm_number });
 
   const shareOnWhatsApp = () => {
     const url = `${window.location.origin}${window.location.pathname}`;
@@ -54,11 +66,31 @@ export function CompletionContent({
     );
   };
 
-  const headingClass = "font-heading text-3xl leading-tight tabular-nums lining-nums text-white sm:text-4xl";
-  const heading = t("title", { number: khatm.khatm_number });
-  const meta = [isAuto ? t("autoWording") : null, completedOn ? t("completedOn", { date: completedOn }) : null].filter(
+  const isDialog = variant === "dialog";
+  const headingClass = isDialog
+    ? "block"
+    : "font-heading text-3xl leading-tight tabular-nums lining-nums text-white sm:text-4xl";
+  const status = [title, completedOn].filter(Boolean).join(" · ");
+  const heading = isDialog ? (
+    <>
+      <span
+        dir="auto"
+        data-script={textScript(circleName)}
+        className="block line-clamp-3 break-words font-heading text-3xl leading-tight text-white sm:text-4xl"
+      >
+        <bdi>{circleName}</bdi>
+      </span>
+      <span className="mt-2 block text-base font-normal tabular-nums lining-nums text-white/85">
+        {status}
+      </span>
+    </>
+  ) : (
+    title
+  );
+  const meta = [isAuto ? t("autoWording") : null, isDialog ? null : completedOn].filter(
     (line): line is string => Boolean(line)
   );
+  const prayer = t("prayer");
 
   return (
     <div className="space-y-6">
@@ -74,14 +106,8 @@ export function CompletionContent({
             {heading}
           </h2>
         )}
-        <p
-          dir="auto"
-          data-script={textScript(circleName)}
-          className="mt-2 line-clamp-3 break-words text-lg text-white/90"
-        >
-          <bdi>{circleName}</bdi>
-        </p>
-        {meta.length > 0 && (
+        {isDialog && isAuto && <p className="mt-3 text-sm text-white/80 rtl:text-base">{t("autoWording")}</p>}
+        {!isDialog && meta.length > 0 && (
           <div className="mt-3 space-y-0.5 text-sm text-white/80 rtl:text-base">
             {meta.map((line) => (
               <p key={line}>{line}</p>
@@ -104,7 +130,9 @@ export function CompletionContent({
             {t("duaTranslation")}
           </p>
         )}
-        <p className="font-heading text-xl text-quran-deep">{t("prayer")}</p>
+        <p dir="auto" data-script={textScript(prayer)} className="font-heading text-xl text-quran-deep">
+          {prayer}
+        </p>
       </section>
 
       {readers.length > 0 && (
@@ -112,14 +140,14 @@ export function CompletionContent({
           <h3 id={`${headingId}-readers`} className="text-sm font-semibold text-quran-deep rtl:text-base">
             {isAuto ? t("takenUpBy") : t("readBy")}
           </h3>
-          <p dir="auto" className="mt-1 text-base leading-7 text-quran-deep/90">
-            {readers.map((name, index) => (
-              <span key={name}>
-                {index > 0 && " · "}
-                <bdi>{name}</bdi>
-              </span>
+          {/* One li per name, the separator in CSS: mixed-script names never reorder around it. */}
+          <ul className="mt-1 flex flex-wrap gap-x-2 text-base leading-7 text-quran-deep/90 [&>li+li]:before:me-2 [&>li+li]:before:content-['·']">
+            {readers.map((name) => (
+              <li key={name} dir="auto">
+                {name}
+              </li>
             ))}
-          </p>
+          </ul>
         </section>
       )}
 
@@ -127,7 +155,7 @@ export function CompletionContent({
         <Button
           type="button"
           onClick={shareOnWhatsApp}
-          className="w-full rounded-full bg-quran-green px-6 text-white hover:bg-quran-green/90 sm:w-auto"
+          className="w-full rounded-full bg-quran-green px-6 text-white hover:bg-quran-green/90 rtl:text-base sm:w-auto"
         >
           <Send aria-hidden="true" className="rtl:-scale-x-100" />
           {t("shareWhatsApp")}
@@ -142,7 +170,7 @@ export function CompletionContent({
             target="_blank"
             rel="noopener noreferrer"
             data-testid="completion-support-link"
-            className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-quran-green rtl:text-base underline underline-offset-4 hover:bg-quran-green/10"
+            className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-quran-green underline underline-offset-4 hover:bg-quran-green/10 rtl:text-base"
           >
             {t("supportLink")}
             <ExternalLink aria-hidden="true" className="size-3.5 rtl:-scale-x-100" />
@@ -157,12 +185,15 @@ export function CompletionContent({
 type DialogProps = {
   khatm: KhatmSnapshot | null;
   circleName: string;
+  /** D19: the support ask waits until the circle is more than 72 hours old. */
+  circleCreatedAt: string;
   onClose: () => void;
 };
 
-/** Shown once per device the first time a visitor sees a khatm completed. */
-export function CompletionDialog({ khatm, circleName, onClose }: DialogProps) {
+/** Opens for the visitor's own completion or their stake in a finished khatm; see useCompletionMoment. */
+export function CompletionDialog({ khatm, circleName, circleCreatedAt, onClose }: DialogProps) {
   const headingId = useId();
+  const [now] = useState(() => Date.now());
   return (
     <Dialog open={khatm !== null} onOpenChange={(open) => !open && onClose()}>
       <DialogContent aria-describedby={undefined} className="max-w-xl pt-14 sm:pt-14">
@@ -171,7 +202,7 @@ export function CompletionDialog({ khatm, circleName, onClose }: DialogProps) {
             circleName={circleName}
             khatm={khatm}
             variant="dialog"
-            showSupport
+            showSupport={isCircleOldEnoughForSupportAsk(circleCreatedAt, now)}
             headingId={headingId}
             renderHeading={({ id, className, children }) => (
               <DialogTitle id={id} className={className}>

@@ -78,7 +78,7 @@ async function makeCircle({ code, name, description, creator, isPublic = true, a
         khatm_id: kh.id, juz_number: i + 1,
         status: c ? (c.status ?? "claimed") : "unclaimed",
         claimed_by_name: c?.name ?? null, claimed_by_user_id: c ? (c.user ?? FILLER) : null,
-        claimed_at: c ? daysAgo(5) : null, read_at: c?.status === "read" ? daysAgo(2) : null,
+        claimed_at: c ? daysAgo(k.claimedDaysAgo ?? 5) : null, read_at: c?.status === "read" ? daysAgo(2) : null,
       };
     });
     const { error: je } = await admin.from("juzs").insert(rows);
@@ -130,17 +130,17 @@ async function createFixtures() {
   });
   await makeCircle({
     code: "DSGDONE", name: "Khatm for Aisha Khan", description: DUA, creator: org,
-    khatms: [{ n: 1, claims: full(LATIN, "read"), completed: true }],
+    khatms: [{ n: 1, claims: [{ name: "Design Reader", status: "read", user: reader }, ...full(LATIN, "read").slice(1)], completed: true }],
   });
   // #80: all 30 claimed, not complete: the organizer sees "Complete the khatm".
   await makeCircle({
     code: "DSGREADY", name: "Khatm for Yusuf Al-Rahman", description: DUA, creator: org, openNext: false,
-    khatms: [{ n: 1, claims: full([...LATIN, ...ARABIC]) }],
+    khatms: [{ n: 1, claims: full([...LATIN, ...ARABIC]), claimedDaysAgo: 2 }], // auto date is ahead: 5 days from now
   });
   // #81: completed by the 7-day rule ("all 30 Juz were taken up"), with long and Arabic names.
   await makeCircle({
     code: "DSGAUTO", name: "ختمة عن روح المرحومة مريم الصديقي", description: DUA, creator: org, openNext: false,
-    khatms: [{ n: 1, claims: full([...ARABIC, LONG, ...LATIN]), completed: "auto" }],
+    khatms: [{ n: 1, claims: [{ name: "Design Reader", user: reader }, ...full([...ARABIC, LONG, ...LATIN]).slice(1)], completed: "auto" }],
   });
   await makeCircle({
     code: "DSGARCH", name: "Khatm for Ibrahim Okafor", description: DUA, creator: org, archived: true,
@@ -171,8 +171,8 @@ const SIGNED_OUT = "out", ORGANIZER = "org", READER_V = "reader";
 // seen: the completion dialog already appeared on this device, so a completed khatm shows its record.
 const circle = (code, views = [SIGNED_OUT, ORGANIZER]) =>
   views.map((v) => ({ name: `circle-${code.slice(3).toLowerCase()}-${v}`, path: `/s/${code}`, auth: v, full: true, seen: true }));
-// The first-visit completion dialog (top, then scrolled to its end).
-const completionDialog = (code, slug, views = [SIGNED_OUT]) =>
+// The completion dialog opens on arrival only for a visitor who holds a Juz in the khatm (the reader fixture); it is shown top, then scrolled to its end.
+const completionDialog = (code, slug, views = [READER_V]) =>
   views.flatMap((v) => [
     { name: `circle-${slug}-dialog-${v}`, path: `/s/${code}`, auth: v },
     { name: `circle-${slug}-dialogend-${v}`, path: `/s/${code}`, auth: v, scrollDialog: true },

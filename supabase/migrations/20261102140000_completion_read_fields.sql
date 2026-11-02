@@ -2,7 +2,8 @@
 --
 -- 1. get_event_snapshot_by_shortcode: each khatm gains last_claimed_at, the latest
 --    claim time (NULL for an empty khatm). The banner shows "latest claim + 7 days"
---    as the automatic completion date (D5.3). Same signature, so grants, owner and
+--    as the automatic completion date (D5.3). Only the organizer needs it, so it is
+--    NULL for every other caller (anonymous visitors, readers). Same signature, so grants, owner and
 --    SECURITY DEFINER / search_path settings are those of 20261102130000.
 -- 2. list_my_circles_with_progress: gains has_khatm_ready_to_complete. The return
 --    type changes, so the function is dropped and created again with the grants of
@@ -113,7 +114,7 @@ BEGIN
           'khatm_number', kp.khatm_number,
           'completed_at', kp.completed_at,
           'completion_source', kp.completion_source,
-          'last_claimed_at', kp.last_claimed_at,
+          'last_claimed_at', CASE WHEN v_is_creator THEN kp.last_claimed_at ELSE NULL END,
           'claimed_count', kp.claimed_count,
           'read_count', kp.read_count,
           'juzs', kp.juzs
@@ -302,3 +303,5 @@ REVOKE ALL ON FUNCTION public.list_my_circles_with_progress()
   FROM PUBLIC, anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.list_my_circles_with_progress()
   TO authenticated, service_role;
+
+NOTIFY pgrst, 'reload schema';

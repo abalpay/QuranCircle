@@ -13,7 +13,7 @@ vi.mock("@/hooks/use-auth", () => ({
 vi.mock("@/lib/actions/juz", () => ({ claimMultipleJuz: vi.fn(), completeKhatm: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() } }));
 
-function makeKhatm(overrides: Partial<KhatmSnapshot> = {}): KhatmSnapshot {
+function makeKhatm(overrides: Partial<KhatmSnapshot> = {}, mine = false): KhatmSnapshot {
   return {
     id: "k1",
     khatm_number: 1,
@@ -26,19 +26,23 @@ function makeKhatm(overrides: Partial<KhatmSnapshot> = {}): KhatmSnapshot {
       juz_number: i + 1,
       status: "read" as const,
       claimed_by_name: i % 2 ? "Amina" : "Omar",
-      is_mine: false,
+      is_mine: mine && i === 0,
     })),
     ...overrides,
   };
 }
 
-function renderContent(khatm = makeKhatm(), variant: "dialog" | "record" = "dialog", showSupport = true) {
+function renderContent(
+  khatm = makeKhatm(),
+  props: { variant?: "dialog" | "record"; showSupport?: boolean; showDate?: boolean } = {}
+) {
   return render(
     <CompletionContent
       circleName="Khatm for Maryam"
       khatm={khatm}
-      variant={variant}
-      showSupport={showSupport}
+      variant={props.variant ?? "dialog"}
+      showSupport={props.showSupport ?? true}
+      showDate={props.showDate}
       headingId="h"
     />,
     { wrapper: IntlWrapper }
@@ -50,31 +54,29 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("completion content (#81)", () => {
-  it("names the khatm, the circle, the dua and the prayer", () => {
+describe("completion dialog content (#81)", () => {
+  it("leads with the person's name, then the khatm and date, then the dua and the prayer", () => {
     renderContent();
-    expect(screen.getByRole("heading", { name: "Khatm 1 complete" })).toBeInTheDocument();
     expect(screen.getByText("Khatm for Maryam")).toBeInTheDocument();
+    expect(screen.getByText("Khatm 1 complete · November 2, 2026")).toBeInTheDocument();
     expect(screen.getByText("رَبَّنَا تَقَبَّلْ مِنَّا ۖ إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ")).toBeInTheDocument();
     expect(
       screen.getByText("Our Lord, accept this from us. You are the All-Hearing, the All-Knowing.")
     ).toBeInTheDocument();
     expect(screen.getByText("May Allah accept this khatm.")).toBeInTheDocument();
-    expect(screen.getByText("Completed November 2, 2026")).toBeInTheDocument();
   });
 
-  it("lists each reader once in the dialog and not in the record", () => {
-    const { unmount } = renderContent();
+  it("lists each reader once as a list item with its own direction", () => {
+    renderContent();
     expect(screen.getByText("Read by")).toBeInTheDocument();
-    expect(screen.getAllByText("Amina")).toHaveLength(1);
-    unmount();
-    renderContent(makeKhatm(), "record");
-    expect(screen.queryByText("Read by")).toBeNull();
+    const items = screen.getAllByRole("listitem");
+    expect(items.map((item) => item.textContent)).toEqual(["Omar", "Amina"]);
+    items.forEach((item) => expect(item).toHaveAttribute("dir", "auto"));
   });
 
   it("says all 30 Juz were taken up for an auto-completed khatm, never that they were read", () => {
     renderContent(makeKhatm({ completion_source: "auto", read_count: 3 }));
-    expect(screen.getByText(/All 30 Juz were taken up\./)).toBeInTheDocument();
+    expect(screen.getByText("All 30 Juz were taken up.")).toBeInTheDocument();
     expect(screen.getByText("Taken up by")).toBeInTheDocument();
     expect(screen.queryByText("Read by")).toBeNull();
   });
@@ -108,7 +110,7 @@ describe("completion content (#81)", () => {
 
   it("keeps the support line out when the caller does not allow it", () => {
     vi.stubEnv("NEXT_PUBLIC_SUPPORT_URL", "https://ko-fi.com/qurancircle");
-    renderContent(makeKhatm(), "record", false);
+    renderContent(makeKhatm(), { showSupport: false });
     expect(screen.queryByTestId("completion-support-link")).toBeNull();
   });
 
@@ -126,9 +128,41 @@ describe("completion content (#81)", () => {
   });
 });
 
-describe("completed khatm on the circle page (#81, fix 2 and 37)", () => {
-  it("a single completed khatm shows the record and no claim instructions or Open for claims", () => {
+describe("support ask in the dialog (D10, D19)", () => {
+  const hour = 36e5;
+  const ago = (hours: number) => new Date(Date.now() - hours * hour).toISOString();
+
+  it("waits until the circle is more than 72 hours old", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPPORT_URL", "https://ko-fi.com/qurancircle");
+    const { unmount } = render(
+      <CompletionDialog khatm={makeKhatm()} circleName="Khatm for Maryam" circleCreatedAt={ago(71)} onClose={vi.fn()} />,
+      { wrapper: IntlWrapper }
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.queryByTestId("completion-support-link")).toBeNull();
+    unmount();
+
     render(
+      <CompletionDialog khatm={makeKhatm()} circleName="Khatm for Maryam" circleCreatedAt={ago(73)} onClose={vi.fn()} />,
+      { wrapper: IntlWrapper }
+    );
+    expect(screen.getByTestId("completion-support-link")).toBeInTheDocument();
+  });
+
+  it("closes from the close button", async () => {
+    const onClose = vi.fn();
+    render(
+      <CompletionDialog khatm={makeKhatm()} circleName="Khatm for Maryam" circleCreatedAt={new Date().toISOString()} onClose={onClose} />,
+      { wrapper: IntlWrapper }
+    );
+    await userEvent.setup().click(screen.getByRole("button", { name: "Close" }));
+    expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe("completed khatm record on the circle page (#81, fixes 2 and 37)", () => {
+  function renderRecord(props: { isLatest: boolean }) {
+    return render(
       <KhatmCard
         khatm={makeKhatm()}
         shortCode="ABCDEFGH"
@@ -137,21 +171,35 @@ describe("completed khatm on the circle page (#81, fix 2 and 37)", () => {
         activeFilter="all"
         isFinal
         circleName="Khatm for Maryam"
-        isLatest
+        isLatest={props.isLatest}
       />,
       { wrapper: IntlWrapper }
     );
+  }
+
+  it("shows the khatm record without repeating the name, claim instructions or the support ask", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPPORT_URL", "https://ko-fi.com/qurancircle");
+    renderRecord({ isLatest: true });
     expect(screen.getByRole("heading", { name: "Khatm 1 complete" })).toBeInTheDocument();
+    expect(screen.queryByText("Khatm for Maryam")).toBeNull();
     expect(screen.queryByText("Tap Juz to select, then press Claim.")).toBeNull();
     expect(screen.queryByText(/Open for claims/i)).toBeNull();
+    expect(screen.queryByTestId("completion-support-link")).toBeNull();
+    // The page header carries the latest khatm's date.
+    expect(screen.queryByText(/November 2, 2026/)).toBeNull();
+  });
+
+  it("states the date on an earlier khatm, which the header does not cover", () => {
+    renderRecord({ isLatest: false });
+    expect(screen.getByText("November 2, 2026")).toBeInTheDocument();
   });
 });
 
-describe("completion dialog: once per khatm per device", () => {
+describe("when the completion dialog opens", () => {
   beforeEach(() => window.localStorage.clear());
 
-  it("opens the first time, then never again on this device", () => {
-    const khatms = [makeKhatm()];
+  it("opens on arrival for a visitor with a Juz in the khatm, once per device", () => {
+    const khatms = [makeKhatm({}, true)];
     const first = renderHook(() => useCompletionMoment(khatms));
     expect(first.result.current.khatm?.id).toBe("k1");
     act(() => first.result.current.close());
@@ -162,23 +210,40 @@ describe("completion dialog: once per khatm per device", () => {
     expect(second.result.current.khatm).toBeNull();
   });
 
-  it("opens when a khatm completes during the visit", () => {
-    const open = makeKhatm({ completed_at: null, completion_source: null });
+  it("does not open on arrival for a visitor with no Juz in it (a link from WhatsApp)", () => {
+    const { result } = renderHook(() => useCompletionMoment([makeKhatm()]));
+    expect(result.current.khatm).toBeNull();
+  });
+
+  it("opens after the visitor's own completing action", () => {
+    const open = makeKhatm({ completed_at: null, completion_source: null }, true);
     const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
       initialProps: { khatms: [open] },
     });
     expect(result.current.khatm).toBeNull();
-    rerender({ khatms: [makeKhatm()] });
+    act(() => result.current.announceOwnCompletion());
+    expect(result.current.khatm).toBeNull(); // the refreshed snapshot has not landed yet
+    rerender({ khatms: [makeKhatm({}, true)] });
     expect(result.current.khatm?.id).toBe("k1");
   });
 
-  it("shows only the newest unseen khatm and marks the older ones seen", () => {
-    const older = makeKhatm({ id: "k1", khatm_number: 1 });
-    const newer = makeKhatm({ id: "k2", khatm_number: 2 });
-    const first = renderHook(() => useCompletionMoment([older, newer]));
-    expect(first.result.current.khatm?.id).toBe("k2");
-    first.unmount();
-    expect(renderHook(() => useCompletionMoment([older, newer])).result.current.khatm).toBeNull();
+  it("stays quiet when a khatm completes by someone else's action (realtime)", () => {
+    const open = makeKhatm({ completed_at: null, completion_source: null }, true);
+    const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
+      initialProps: { khatms: [open] },
+    });
+    rerender({ khatms: [makeKhatm({}, true)] });
+    expect(result.current.khatm).toBeNull();
+  });
+
+  it("marks older khatms that are loaded later silently, even after an own action", () => {
+    const current = makeKhatm({ id: "k2", khatm_number: 2, completed_at: null, completion_source: null }, true);
+    const { result, rerender } = renderHook(({ khatms }) => useCompletionMoment(khatms), {
+      initialProps: { khatms: [current] },
+    });
+    act(() => result.current.announceOwnCompletion());
+    rerender({ khatms: [makeKhatm({ id: "k1", khatm_number: 1 }, true), current] });
+    expect(result.current.khatm).toBeNull();
   });
 
   it("still stops repeats within the visit when storage is blocked", () => {
@@ -188,7 +253,7 @@ describe("completion dialog: once per khatm per device", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("blocked");
     });
-    const khatms = [makeKhatm()];
+    const khatms = [makeKhatm({}, true)];
     const { result, rerender } = renderHook(({ list }) => useCompletionMoment(list), {
       initialProps: { list: khatms },
     });
@@ -196,16 +261,5 @@ describe("completion dialog: once per khatm per device", () => {
     act(() => result.current.close());
     rerender({ list: [...khatms] });
     expect(result.current.khatm).toBeNull();
-  });
-
-  it("renders as a dialog with the title and closes", async () => {
-    const onClose = vi.fn();
-    render(<CompletionDialog khatm={makeKhatm()} circleName="Khatm for Maryam" onClose={onClose} />, {
-      wrapper: IntlWrapper,
-    });
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Khatm 1 complete" })).toBeInTheDocument();
-    await userEvent.setup().click(screen.getByRole("button", { name: "Close" }));
-    expect(onClose).toHaveBeenCalled();
   });
 });

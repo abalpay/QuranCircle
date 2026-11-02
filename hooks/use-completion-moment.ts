@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { KhatmSnapshot } from "@/lib/types/events";
 
 const KEY_PREFIX = "qc:completion-seen:";
+/** An own action's result and the refreshed snapshot arrive within moments of each other. */
+const OWN_ACTION_WINDOW_MS = 15_000;
 
 function wasSeen(khatmId: string, memory: Set<string>) {
   if (memory.has(khatmId)) return true;
@@ -24,24 +26,53 @@ function markSeen(khatmId: string, memory: Set<string>) {
 }
 
 /**
- * The completion dialog opens once per device per khatm: the first time a
- * visitor sees it completed, in this visit (last Done, organizer completes) or
- * on arrival. Returns the khatm to show, or null.
+ * When the completion dialog opens (direction.md: no popups on a first visit; D10: never while claiming):
+ *  - the completion came from this visitor's own action in this visit (`announceOwnCompletion`
+ *    right after their last Done, or after the organizer pressed Complete), or
+ *  - on arrival, the visitor holds a Juz in a khatm that is already complete and has not seen it on this device.
+ * Everyone else, and every completion that arrives by realtime or by loading older khatms, just sees the record on the page.
  */
 export function useCompletionMoment(khatms: KhatmSnapshot[]) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [announceTick, setAnnounceTick] = useState(0);
   const memory = useRef(new Set<string>());
+  const arrived = useRef(false);
+  const seenOpen = useRef(new Set<string>());
+  const ownActionAt = useRef<number | null>(null);
+
+  const announceOwnCompletion = useCallback(() => {
+    ownActionAt.current = Date.now();
+    setAnnounceTick((tick) => tick + 1);
+  }, []);
 
   useEffect(() => {
     const completed = khatms.filter((khatm) => khatm.completed_at);
-    const unseen = completed.filter((khatm) => !wasSeen(khatm.id, memory.current));
+    let candidates: KhatmSnapshot[] = [];
+
+    if (!arrived.current) {
+      arrived.current = true;
+      candidates = completed.filter((khatm) => khatm.juzs.some((juz) => juz.is_mine));
+    } else if (ownActionAt.current !== null) {
+      if (Date.now() - ownActionAt.current > OWN_ACTION_WINDOW_MS) {
+        ownActionAt.current = null;
+      } else {
+        // Only khatms we watched being open: older khatms that were just loaded stay silent.
+        candidates = completed.filter((khatm) => seenOpen.current.has(khatm.id));
+      }
+    }
+
+    khatms.forEach((khatm) => {
+      if (!khatm.completed_at) seenOpen.current.add(khatm.id);
+    });
+
+    const unseen = candidates.filter((khatm) => !wasSeen(khatm.id, memory.current));
     if (unseen.length === 0) return;
-    // One dialog for the newest; the older ones are marked so they do not queue behind it.
-    completed.forEach((khatm) => markSeen(khatm.id, memory.current));
+    ownActionAt.current = null;
+    unseen.forEach((khatm) => markSeen(khatm.id, memory.current));
     setOpenId(unseen[unseen.length - 1].id);
-  }, [khatms]);
+  }, [khatms, announceTick]);
 
   const close = useCallback(() => setOpenId(null), []);
   const khatm = khatms.find((item) => item.id === openId) ?? null;
-  return { khatm, close };
+  return { khatm, close, announceOwnCompletion };
 }

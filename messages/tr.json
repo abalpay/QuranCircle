@@ -231,7 +231,8 @@
     "you": "Siz",
     "tile": "Cüz {number}, {state}",
     "tileBy": "Cüz {number}, {state}, {name}",
-    "tileByMine": "Cüz {number}, {state}, {name} (siz)"
+    "tileByMine": "Cüz {number}, {state}, {name} (siz)",
+    "stateTakenUp": "Üstlenildi"
   },
   "FeaturedCircles": {
     "join": "Katıl",
@@ -294,10 +295,8 @@
     "all": "Tümü ({count})",
     "available": "Müsait ({count})",
     "myJuz": "Cüzlerim ({count})",
-    "myJuzTab": "Cüzlerim",
     "creatorQueue": "Yönetim Paneli ({count})",
     "juzFilters": "Cüz filtreleri",
-    "myJuzViews": "Cüzlerim görünümleri",
     "updating": "Güncelleniyor..."
   },
   "CirclePage": {
@@ -350,7 +349,7 @@
     "juzClaimedConfirmMany": "Cüz {numbers} artık sizde. Allah razı olsun. Bitirdiğinizde buradaki Tamamladım düğmesine dokunabilirsiniz.",
     "otherPhoneHint": "Başka bir telefondan mı sahiplendiniz? Düzenleyiciden Tamamlandı olarak işaretlemesini isteyin.",
     "newKhatmStarted": "Yeni bir hatim başladı.",
-    "khatmComplete": "Hatim {number} tamamlandı"
+    "khatmCompleteOn": "Hatim {number} tamamlandı · {date}"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Hatimi Sil?",

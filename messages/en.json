@@ -231,7 +231,8 @@
     "you": "You",
     "tile": "Juz {number}, {state}",
     "tileBy": "Juz {number}, {state}, {name}",
-    "tileByMine": "Juz {number}, {state}, {name} (you)"
+    "tileByMine": "Juz {number}, {state}, {name} (you)",
+    "stateTakenUp": "Taken up"
   },
   "FeaturedCircles": {
     "join": "Join",
@@ -294,10 +295,8 @@
     "all": "All ({count})",
     "available": "Available ({count})",
     "myJuz": "My Juz ({count})",
-    "myJuzTab": "My Juz",
     "creatorQueue": "Creator Queue ({count})",
     "juzFilters": "Juz filters",
-    "myJuzViews": "My Juz views",
     "updating": "Updating..."
   },
   "CirclePage": {
@@ -350,7 +349,7 @@
     "juzClaimedConfirmMany": "Juz {numbers} are yours. JazakAllah khair. When you finish, you can tap Done here.",
     "otherPhoneHint": "Claimed on another phone? Ask the organizer to mark it Done.",
     "newKhatmStarted": "A new khatm has started.",
-    "khatmComplete": "Khatm {number} complete"
+    "khatmCompleteOn": "Khatm {number} complete · {date}"
   },
   "DeleteDialog": {
     "deleteKhatimTitle": "Delete Khatim?",

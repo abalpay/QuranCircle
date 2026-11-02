@@ -33,7 +33,7 @@ import { toast } from "sonner";
 import KhatmCard, { type ClaimSuccessPayload } from "@/components/khatm-card";
 import DeleteEventDialog from "@/components/delete-event-dialog";
 import YourJuzBlock from "@/components/your-juz-block";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { CompletionDialog } from "@/components/completion-moment";
 import { useCompletionMoment } from "@/hooks/use-completion-moment";
@@ -93,6 +93,7 @@ export default function KhatimPageClient({
   const { ensureSession, user } = useAuth();
   const t = useTranslations("Filters");
   const tPage = useTranslations("CirclePage");
+  const format = useFormatter();
   const [event, setEvent] = useState(initialEvent);
   const [isCreator, setIsCreator] = useState(initialEvent.can_manage);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -125,6 +126,7 @@ export default function KhatimPageClient({
   const filterCounts = useMemo(() => getEventFilterCounts(event), [event]);
   const creatorManageRows = useMemo(() => getCreatorManageRows(event), [event]);
   const completionMoment = useCompletionMoment(event.khatms);
+  const { announceOwnCompletion } = completionMoment;
   const latestKhatm = event.khatms[event.khatms.length - 1];
   const latestIsComplete = Boolean(latestKhatm?.completed_at);
 
@@ -410,6 +412,8 @@ export default function KhatimPageClient({
         toast.success(tPage("juzMarkedRead"));
         if (result.newlyCompleted) {
           trackProductEvent("Khatm Completed", {});
+          // The visitor's own last Done: the completion dialog may open when the refresh lands.
+          announceOwnCompletion();
         }
         await refreshEvent();
       } catch (error) {
@@ -417,7 +421,7 @@ export default function KhatimPageClient({
         toast.error(tPage("markReadFailed"));
       }
     },
-    [ensureMutationSession, refreshEvent, shortCode, tPage]
+    [announceOwnCompletion, ensureMutationSession, refreshEvent, shortCode, tPage]
   );
 
   const handleCreatorUnmarkRead = useCallback(
@@ -861,17 +865,12 @@ export default function KhatimPageClient({
                   </>
                 )}
               </span>
-              {(event.is_archived || latestIsComplete || latestKhatm?.claimed_count !== 30) && (
+              {(event.is_archived || (!latestIsComplete && latestKhatm?.claimed_count !== 30)) && (
                 <span className="quran-badge">
                   {event.is_archived ? (
                     <>
                       <Archive className="me-2 h-3.5 w-3.5" />
                       {tPage("archived")}
-                    </>
-                  ) : latestIsComplete ? (
-                    <>
-                      <CheckCircle2 className="me-2 h-3.5 w-3.5" />
-                      {tPage("khatmComplete", { number: latestKhatm.khatm_number })}
                     </>
                   ) : (
                     <>
@@ -899,6 +898,18 @@ export default function KhatimPageClient({
                     className="mt-3 max-w-2xl text-base leading-7 text-quran-deep/85"
                   >
                     {event.description}
+                  </p>
+                )}
+                {latestIsComplete && latestKhatm.completed_at && (
+                  <p className="mt-3 flex items-center gap-2 text-sm font-medium text-quran-green rtl:text-base">
+                    <CheckCircle2 aria-hidden="true" className="size-4 shrink-0" />
+                    {tPage("khatmCompleteOn", {
+                      number: latestKhatm.khatm_number,
+                      date: format.dateTime(new Date(latestKhatm.completed_at), {
+                        dateStyle: "long",
+                        timeZone: "UTC",
+                      }),
+                    })}
                   </p>
                 )}
               </div>
@@ -1026,89 +1037,94 @@ export default function KhatimPageClient({
         </div>
       )}
 
-      <section className="app-toolbar">
-        <p
-          id="juz-filters-start"
-          tabIndex={-1}
-          className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold outline-none"
-        >
-          {t("juzFilters")}
-        </p>
-        <div
-          role="group"
-          aria-label={t("juzFilters")}
-          className={cn("app-segmented-control", isCreator && "max-sm:grid max-sm:grid-cols-2 max-sm:gap-1")}
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-pressed={displayFilter === "all"}
-            onClick={() => setActiveFilter("all")}
-            className={cn(
-              "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-              displayFilter === "all" &&
-                "bg-background text-foreground shadow-sm hover:bg-background"
-            )}
+      {/* Nothing left to claim: filters would only read "Available (0)". The organizer keeps the queue. */}
+      {(!latestIsComplete || isCreator) && (
+        <section className="app-toolbar">
+          <p
+            id="juz-filters-start"
+            tabIndex={-1}
+            className="text-xs font-bold uppercase tracking-[0.18em] text-quran-gold outline-none"
           >
-            {t("all", { count: filterCounts.all })}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-pressed={displayFilter === "available"}
-            onClick={() => setActiveFilter("available")}
-            className={cn(
-              "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-              displayFilter === "available" &&
-                "bg-background text-foreground shadow-sm hover:bg-background"
-            )}
+            {t("juzFilters")}
+          </p>
+          <div
+            role="group"
+            aria-label={t("juzFilters")}
+            className={cn("app-segmented-control", isCreator && "max-sm:grid max-sm:grid-cols-2 max-sm:gap-1")}
           >
-            {t("available", { count: filterCounts.available })}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-pressed={displayFilter === "mine" && !isQueueActive}
-            onClick={() => selectMyJuz()}
-            className={cn(
-              "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-              displayFilter === "mine" &&
-                !isQueueActive &&
-                "bg-background text-foreground shadow-sm hover:bg-background"
-            )}
-          >
-            {t("myJuz", { count: filterCounts.mine })}
-          </Button>
-          {isCreator && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              aria-pressed={isQueueActive}
-              onClick={() => selectCreatorQueue()}
+              aria-pressed={displayFilter === "all"}
+              onClick={() => setActiveFilter("all")}
               className={cn(
                 "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
-                isQueueActive &&
+                displayFilter === "all" &&
                   "bg-background text-foreground shadow-sm hover:bg-background"
               )}
             >
-              {t("creatorQueue", { count: creatorManageRows.length })}
+              {t("all", { count: filterCounts.all })}
             </Button>
+            {!latestIsComplete && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-pressed={displayFilter === "available"}
+                onClick={() => setActiveFilter("available")}
+                className={cn(
+                  "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                  displayFilter === "available" &&
+                    "bg-background text-foreground shadow-sm hover:bg-background"
+                )}
+              >
+                {t("available", { count: filterCounts.available })}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-pressed={displayFilter === "mine" && !isQueueActive}
+              onClick={() => selectMyJuz()}
+              className={cn(
+                "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                displayFilter === "mine" &&
+                  !isQueueActive &&
+                  "bg-background text-foreground shadow-sm hover:bg-background"
+              )}
+            >
+              {t("myJuz", { count: filterCounts.mine })}
+            </Button>
+            {isCreator && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-pressed={isQueueActive}
+                onClick={() => selectCreatorQueue()}
+                className={cn(
+                  "h-full flex-1 rounded-lg px-3 text-foreground/60 shadow-none hover:bg-transparent hover:text-foreground sm:flex-none",
+                  isQueueActive &&
+                    "bg-background text-foreground shadow-sm hover:bg-background"
+                )}
+              >
+                {t("creatorQueue", { count: creatorManageRows.length })}
+              </Button>
+            )}
+          </div>
+          {filterSyncPending && (
+            <p
+              className="mt-2 text-xs text-quran-muted"
+              role="status"
+              aria-live="polite"
+            >
+              {t("updating")}
+            </p>
           )}
-        </div>
-        {filterSyncPending && (
-          <p
-            className="mt-2 text-xs text-quran-muted"
-            role="status"
-            aria-live="polite"
-          >
-            {t("updating")}
-          </p>
-        )}
-      </section>
+        </section>
+      )}
 
       {displayFilter === "mine" && !showCreatorQueue && filterCounts.mine === 0 && (
         <p className="px-1 text-base text-quran-muted">{tPage("otherPhoneHint")}</p>
@@ -1166,6 +1182,7 @@ export default function KhatimPageClient({
                   canManage={isCreator}
                   isLatest={!hasNewerKhatm}
                   onCompleted={async () => {
+                    announceOwnCompletion();
                     await refreshEvent();
                   }}
                 />
@@ -1193,6 +1210,7 @@ export default function KhatimPageClient({
         <CompletionDialog
           khatm={completionMoment.khatm}
           circleName={event.name}
+          circleCreatedAt={event.created_at}
           onClose={completionMoment.close}
         />
 
