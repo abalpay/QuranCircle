@@ -33,12 +33,12 @@ VALUES
   ('31000000-0000-0000-0000-00000000000f', '30000000-0000-0000-0000-00000000000f', 1, true),
   ('31000000-0000-0000-0000-000000000012', '30000000-0000-0000-0000-000000000012', 1, false);
 
-INSERT INTO public.juzs (khatm_id, juz_number, claimed_by_name, status, claimed_at)
+INSERT INTO public.juzs (khatm_id, juz_number, claimed_by_name, claimed_by_user_id, status, claimed_at)
 VALUES
-  ('31000000-0000-0000-0000-00000000000d', 1, 'x', 'claimed', now() - interval '30 days'),
-  ('31000000-0000-0000-0000-00000000000e', 1, 'x', 'claimed', now() - interval '30 days 1 second'),
-  ('31000000-0000-0000-0000-00000000000f', 1, 'x', 'claimed', now() - interval '5 days'),
-  ('31000000-0000-0000-0000-000000000012', 1, 'x', 'claimed', now() - interval '29 days');
+  ('31000000-0000-0000-0000-00000000000d', 1, 'x', '30000000-0000-0000-0000-000000000001', 'claimed', now() - interval '30 days'),
+  ('31000000-0000-0000-0000-00000000000e', 1, 'x', '30000000-0000-0000-0000-000000000001', 'claimed', now() - interval '30 days 1 second'),
+  ('31000000-0000-0000-0000-00000000000f', 1, 'x', '30000000-0000-0000-0000-000000000001', 'claimed', now() - interval '5 days'),
+  ('31000000-0000-0000-0000-000000000012', 1, 'x', '30000000-0000-0000-0000-000000000001', 'claimed', now() - interval '29 days');
 
 CREATE TEMP TABLE listed AS
 SELECT id FROM public.list_public_events_with_progress(2000, NULL, NULL);
