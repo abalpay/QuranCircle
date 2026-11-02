@@ -535,7 +535,6 @@
     "tryAgain": "Yeniden Dene"
   },
   "CircleNotFound": {
-    "eyebrow": "404 · Halka bulunamadı",
     "title": "Bu halka bağlantısı çalışmıyor",
     "description": "Bağlantının tamamının kopyalandığından emin olun veya paylaşan kişiden yeniden göndermesini isteyin.",
     "startKhatm": "Hatim başlat",

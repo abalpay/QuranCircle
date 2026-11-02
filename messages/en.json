@@ -535,7 +535,6 @@
     "tryAgain": "Try Again"
   },
   "CircleNotFound": {
-    "eyebrow": "404 · Circle not found",
     "title": "This circle link isn't working",
     "description": "Check that the whole link was copied, or ask the person who shared it to send it again.",
     "startKhatm": "Start a khatm",

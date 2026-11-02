@@ -9,10 +9,7 @@ export default function CircleNotFound() {
   return (
     <main className="page-shell flex grow items-center justify-center">
       <section className="app-state-card">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-quran-gold">
-          {t("eyebrow")}
-        </p>
-        <h1 className="mt-3 font-heading text-4xl leading-tight text-quran-deep sm:text-5xl">
+        <h1 className="font-heading text-4xl leading-tight text-quran-deep sm:text-5xl">
           {t("title")}
         </h1>
         <p className="mx-auto mt-5 max-w-md text-base leading-7 text-quran-muted sm:text-lg">
