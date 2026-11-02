@@ -263,7 +263,7 @@
   },
   "CreatorQueue": {
     "title": "Yönetim Paneli",
-    "subtitle": "Kişisel Cüzlerim akışınızı ayrı tutarken halka genelindeki cüz sahiplenmelerini yönetin.",
+    "subtitle": "Halkadaki tüm sahiplenmeler. Okuyucular adına cüzü Tamamlandı olarak işaretleyin veya sahiplenmeyi bırakın.",
     "total": "Toplam {count}",
     "claimed": "Okunuyor {count}",
     "read": "Tamamlandı {count}",

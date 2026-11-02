@@ -15,7 +15,7 @@ Run these checks after schema/app updates:
 7. Anonymous-to-account upgrade preserves ownership:
    - claim as anonymous
    - sign in/up
-   - verify claimed Juz still appear in **My Juz**
+   - verify claimed Juz still appear in the **Your Juz** block
 8. Tampered merge cookie/state does not merge a foreign anonymous identity.
 9. Account deletion is all-or-nothing:
    - deleting `auth.users` runs application-data cleanup in the same database transaction
@@ -37,9 +37,9 @@ Run these checks after schema/app updates:
    - a correct current password allows the update and retires the old password
    - once the hosted Auth current-password requirement is enabled, direct update calls with a missing or incorrect `current_password` are rejected
 
-## Merge Troubleshooting (My Juz)
+## Merge Troubleshooting (Your Juz)
 
-When claims appear in All Juz but not in My Juz after signup/login:
+When claims appear in All Juz but not in the Your Juz block after signup/login:
 
 1. In browser DevTools Network, verify merge preparation:
    - `POST /api/auth/prepare-merge` returns `{"prepared":true,...}` before auth submit.
@@ -295,18 +295,18 @@ Because paid backups/PITR are intentionally deferred on the current plan,
 deleted anonymous Auth rows are not recoverable through the application. Never
 activate the cleanup without the aggregate preflight approval above.
 
-## Focused QA Checklist (Event-Level Filters + My Juz Flow)
+## Focused QA Checklist (Event-Level Filters + Your Juz Block)
 
 Use this quick checklist before shipping changes around filters, claiming, or status actions:
 
 1. Default filter on `/s/<shortCode>` is **Available**.
-2. Switching filters updates URL query (`?filter=all|available|mine`) and refresh preserves selection.
+2. Switching filters updates URL query (`?filter=all|available|creator`; legacy `?filter=mine` maps to All) and refresh preserves selection.
 3. Invalid filter query (example: `?filter=invalid`) gracefully falls back to **Available** UI.
 4. Claim guidance text appears above grids: `Tap Juz to select, then press Claim.`
-5. After first claim, a toast action appears: **Go to My Juz**.
-6. Opening **My Juz** clears the first-time nudge badge/highlight.
+5. After a claim, a confirmation toast appears and the **Your Juz** block lists the claimed Juz.
+6. There is no My Juz tab; filters are All, Available and (organizer only) Creator Queue.
 7. In **All** and **Available**, tapping a claimed tile does **not** mark it read.
-8. In **My Juz**, claimed rows show **Mark Read** + **Unclaim**; read rows show **Undo** + **Unclaim**.
+8. In **Your Juz**, claimed rows show **Mark Read** + **Unclaim**; read rows show **Undo** + **Unclaim**.
 9. Completed/non-matching khatms stay visible as collapsed stubs (not fully hidden).
 10. If a claim creates a new khatm, toast shows **Jump to new Khatm** and action scrolls correctly.
 11. Creator-only management section appears only for event creators.

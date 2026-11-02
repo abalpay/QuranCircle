@@ -103,8 +103,6 @@ export default function KhatimPageClient({
   const [isRealtimeDegraded, setIsRealtimeDegraded] = useState(false);
   const [, startFilterTransition] = useTransition();
   const [pendingFilter, setPendingFilter] = useState<GlobalFilter | null>(null);
-  // Opened via the removed My Juz tab URL: keep the other-phone hint reachable for them.
-  const [cameViaMineUrl] = useState(() => searchParams.get("filter") === "mine");
   const [isLoadingOlderKhatms, setIsLoadingOlderKhatms] = useState(false);
   const canonicalizedHrefRef = useRef<string | null>(null);
   const latestKhatmIdRef = useRef<string | null>(
@@ -645,7 +643,7 @@ export default function KhatimPageClient({
   }, [isRealtimeDegraded, refreshEvent, sessionInitialized]);
 
   // Merge completion can happen outside the realtime payload path.
-  // Refresh immediately so "My Juz" reflects transferred ownership.
+  // Refresh immediately so Your Juz reflects transferred ownership.
   useEffect(() => {
     const handleMerged = () => {
       void refreshEvent();
@@ -977,7 +975,7 @@ export default function KhatimPageClient({
           <div
             role="group"
             aria-label={t("juzFilters")}
-            className="app-segmented-control"
+            className="app-segmented-control flex-wrap"
           >
             <Button
               type="button"
@@ -1041,7 +1039,7 @@ export default function KhatimPageClient({
         </section>
       )}
 
-      {cameViaMineUrl && !hasOwnJuz && (
+      {!showCreatorQueue && !hasOwnJuz && (
         <p className="px-1 text-base text-quran-muted">{tPage("otherPhoneHint")}</p>
       )}
 
