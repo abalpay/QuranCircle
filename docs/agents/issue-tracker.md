@@ -14,7 +14,11 @@ showing them. Use invented examples.
 - List a wave: `gh issue list --label wave:1 --state open --json number,title,labels`.
 - Comment: `gh issue comment <number> --body "..."`.
 - Commits that implement an issue mention `#<number>`, so `code-review` can find
-  the spec. PR bodies list `Closes #<number>` for each issue they complete.
+  the spec. The merge commit that lands a stream on `staging` ends with
+  `Closes #<number>` for each issue it completes; the issue closes when that
+  commit is promoted to `main` (the default branch).
+- No pull requests for own work (solo, `staging` → `main` promotion).
+  Dependabot PRs target `staging`.
 
 When a skill says "publish to the issue tracker", create a GitHub issue.
 When it says "fetch the relevant ticket", read the GitHub issue.
@@ -23,7 +27,7 @@ When it says "fetch the relevant ticket", read the GitHub issue.
 
 - `ready-for-agent`: fully specified; an implementer can start from it.
 - `product-facing`: changes what users see; needs Ahmet's OK and before/after
-  screenshots before merge. `internal`: no product change; the gate's call.
+  screenshots before it lands on `staging`. `internal`: no product change; the gate's call.
 - `migration`: carries a database migration; lands in version order and is
   applied to production only with Ahmet's approval.
 - `wave:<n>`: the wave in `docs/product/waves.md` the issue belongs to.

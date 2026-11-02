@@ -17,7 +17,7 @@ npm run test:e2e     # Playwright E2E tests (requires Supabase running)
 ## Product & Workflow
 
 - **Product rules:** `docs/product/decisions.md` (numbered decisions; change a rule there before changing code). **Waves:** `docs/product/waves.md`.
-- **Workflow:** `docs/agents/development-workflow.md` — issues → `/qc-gate` → planner → implementers in worktrees → reviewer → PR with `Closes #n` → CI. Issue conventions: `docs/agents/issue-tracker.md`.
+- **Workflow:** `docs/agents/development-workflow.md` — issues → `/qc-gate` → planner → implementers in worktrees → reviewer → land on `staging` (`Closes #n`, CI) → promote to `main` (Vercel production). No PRs for own work. Issue conventions: `docs/agents/issue-tracker.md`.
 - **The repo is public:** never put real circle names, participant names, short codes or emails in issues, PRs, commits or screenshots.
 
 ## Tech Stack

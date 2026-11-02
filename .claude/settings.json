@@ -12,7 +12,6 @@
       "Bash(git push * main)",
       "Bash(git push *:main)",
       "Bash(git push *:refs/heads/main)",
-      "Bash(gh pr merge*)",
       "Bash(vercel *--prod*)",
       "Bash(npx vercel *--prod*)",
       "Bash(vercel promote*)",
