@@ -14,7 +14,7 @@ Scripts: `scripts/backup-prod-db.sh`, `scripts/restore-drill.sh` (env vars docum
 ## One-time setup (Ahmet)
 
 1. Install `age` and a PostgreSQL client of major version 17 or newer (`brew install age libpq`; `libpq` provides `pg_dump` and `psql`). Homebrew's `libpq` is keg-only, so add `export PATH="$(brew --prefix libpq)/bin:$PATH"` to your shell profile, and to the PATH of any cron job or scheduler that runs the backup.
-2. `age-keygen -o ~/qc-backup-identity.txt` (it prints the public key `age1...`). Store the identity in a password manager and delete the loose file, or protect it with a passphrase (`age -p -o identity.age ~/qc-backup-identity.txt`) and decrypt it only for drills.
+2. `age-keygen -o ~/qc-backup-identity.txt` (it prints the public key `age1...`). Store the identity in a password manager and delete the loose file, or protect it with a passphrase (`age -p -o ~/qc-backup-identity.age ~/qc-backup-identity.txt`) and then **delete the plaintext original**. `age -d -i` reads the passphrase-protected file directly and asks for the passphrase.
 3. Choose a private destination for dumps.
 
 ## Run a backup
@@ -40,12 +40,14 @@ Keep the last 12 weekly dumps (about 3 months) and one per month for a year; del
 A backup that has not been restored is a guess. Once a month, with the newest dump:
 
 ```bash
-export BACKUP_AGE_IDENTITY_FILE=~/qc-backup-identity.txt
+export BACKUP_AGE_IDENTITY_FILE=~/qc-backup-identity.age   # passphrase-protected; age prompts
 EXPECT_EVENTS=... EXPECT_KHATMS=... EXPECT_JUZS=... EXPECT_USERS=... \
   scripts/restore-drill.sh path/to/qc-prod-<timestamp>.dump.age
 ```
 
 It restores into a throwaway Docker container (no network, removed on exit; Docker must be running) and prints row counts for `public.events`, `public.khatms`, `public.juzs` and `auth.users`. The `EXPECT_*` values are optional: take them from a read-only count in the Supabase SQL editor around the backup time (the dump is up to a week old, so allow for growth); a mismatch makes the script exit 1. `auth.users` must be non-zero, or organizer links would break after a real restore.
+The first drill on a real production dump may stop on an object the local test data did not have; `--single-transaction` makes that the safe direction (nothing half-restored), so fix the cause and rerun.
+
 The drill proves the dump is readable and complete, not that a restore into Supabase works. Note the date and result in your private notes only.
 
 The drill container is removed (with its volume) on exit. After a crash or Ctrl-C, sweep leftovers:

@@ -22,7 +22,7 @@ umask 077
 : "${BACKUP_DB_URL:?BACKUP_DB_URL is not set}"
 for tool in pg_dump psql; do command -v "$tool" >/dev/null || { echo "missing tool: $tool" >&2; exit 1; }; done
 
-if [[ "$BACKUP_DB_URL" =~ ://[^/@]*:[^/@]*@ ]]; then
+if [[ "$BACKUP_DB_URL" =~ ://[^/@]*:[^/@]*@ || "$BACKUP_DB_URL" =~ [Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]= ]]; then
   echo "BACKUP_DB_URL contains a password. Remove it and use PGPASSWORD or ~/.pgpass instead." >&2; exit 1
 fi
 : "${BACKUP_AGE_RECIPIENT:?BACKUP_AGE_RECIPIENT is not set}"
