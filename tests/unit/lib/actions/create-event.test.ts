@@ -183,7 +183,7 @@ describe("createEvent short-code retry behavior", () => {
     expect(createClient).not.toHaveBeenCalled();
   });
 
-  it("requires a non-anonymous authenticated user", async () => {
+  it("requires a session but allows anonymous users", async () => {
     vi.mocked(generateShortCode).mockReturnValue("AUTHREQ1");
 
     mockCreateEventContext({
@@ -194,13 +194,21 @@ describe("createEvent short-code retry behavior", () => {
       await createEvent({ name: "Private Circle", description: "desc" })
     ).toEqual({ error: "Sign in required to create a circle." });
 
-    mockCreateEventContext({
-      responses: [],
+    const { rpc } = mockCreateEventContext({
+      responses: [
+        { data: { event_id: "e1", short_code: "AUTHREQ1" }, error: null },
+      ],
       user: { id: "anon-user", is_anonymous: true },
     });
-    expect(
-      await createEvent({ name: "Private Circle", description: "desc" })
-    ).toEqual({ error: "Sign in required to create a circle." });
+    const result = await createEvent({
+      name: "Private Circle",
+      description: "desc",
+    });
+    expect(result.error).toBeUndefined();
+    expect(rpc).toHaveBeenCalledWith(
+      "create_event_with_initial_khatm",
+      expect.objectContaining({ p_short_code: "AUTHREQ1" })
+    );
   });
 
   it("uses default values and fallback error when rpc returns empty data", async () => {

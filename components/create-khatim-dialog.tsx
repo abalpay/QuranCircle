@@ -39,7 +39,7 @@ export default function CreateKhatimDialog({
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { isAuthenticatedUser } = useAuth();
+  const { ensureSession } = useAuth();
   const { openAuthModal } = useAuthModal();
   const router = useRouter();
 
@@ -56,13 +56,15 @@ export default function CreateKhatimDialog({
       return;
     }
 
-    if (!isAuthenticatedUser) {
+    setIsSubmitting(true);
+    const sessionUser = await ensureSession();
+    if (!sessionUser) {
+      setIsSubmitting(false);
       toast.error(t("signInToCreate"));
       openAuthModal("login");
       return;
     }
 
-    setIsSubmitting(true);
     const result = await createEvent({
       name: name.trim(),
       description: description.trim() || undefined,

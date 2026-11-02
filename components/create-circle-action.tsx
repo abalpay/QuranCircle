@@ -4,8 +4,6 @@ import type { ComponentProps } from "react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
-import { useAuthModal } from "@/hooks/use-auth-modal";
 import {
   trackProductEvent,
   type ConversionSource,
@@ -27,8 +25,6 @@ export default function CreateCircleAction({
   ...buttonProps
 }: CreateCircleActionProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { isAuthenticatedUser } = useAuth();
-  const { openAuthModal } = useAuthModal();
 
   const handleCreate: NonNullable<ComponentProps<typeof Button>["onClick"]> = (
     event
@@ -40,13 +36,7 @@ export default function CreateCircleAction({
     onClick?.(event);
     if (event.defaultPrevented) return;
 
-    if (isAuthenticatedUser) {
-      setIsCreateOpen(true);
-      return;
-    }
-
-    trackProductEvent("Auth Started", { action: "login", source });
-    openAuthModal("login", () => setIsCreateOpen(true));
+    setIsCreateOpen(true);
   };
 
   return (
