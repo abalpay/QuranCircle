@@ -138,7 +138,7 @@ export async function createEvent(formData: {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || isAnonymousUser(user)) {
+  if (!user) {
     return { error: "Sign in required to create a circle." };
   }
 

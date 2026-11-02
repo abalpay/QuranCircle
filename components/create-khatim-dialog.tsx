@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { createEvent } from "@/lib/actions/events";
 import { useAuth } from "@/hooks/use-auth";
-import { useAuthModal } from "@/hooks/use-auth-modal";
 import { useRouter } from "@/i18n/navigation";
 import { Loader2, CirclePlus } from "lucide-react";
 import { toast } from "sonner";
@@ -39,8 +38,7 @@ export default function CreateKhatimDialog({
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { isAuthenticatedUser } = useAuth();
-  const { openAuthModal } = useAuthModal();
+  const { ensureSession } = useAuth();
   const router = useRouter();
 
   const resetForm = () => {
@@ -56,13 +54,14 @@ export default function CreateKhatimDialog({
       return;
     }
 
-    if (!isAuthenticatedUser) {
+    setIsSubmitting(true);
+    const sessionUser = await ensureSession();
+    if (!sessionUser) {
+      setIsSubmitting(false);
       toast.error(t("signInToCreate"));
-      openAuthModal("login");
       return;
     }
 
-    setIsSubmitting(true);
     const result = await createEvent({
       name: name.trim(),
       description: description.trim() || undefined,

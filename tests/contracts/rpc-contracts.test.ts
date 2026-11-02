@@ -452,4 +452,38 @@ describe("RPC contract checks", () => {
       await admin.from("events").delete().eq("id", eventId);
     }
   });
+
+  it("lets an anonymous session create, list, archive and delete its own circle", async () => {
+    const client = createAnonClient();
+    const { data: signIn, error: signInError } =
+      await client.auth.signInAnonymously();
+    expect(signInError).toBeNull();
+    if (signIn.user) createdUserIds.push(signIn.user.id);
+
+    const shortCode = `ANON${randomUUID().replace(/-/g, "").slice(0, 8)}`;
+    const { data: created, error: createError } = await client
+      .rpc("create_event_with_initial_khatm", {
+        p_name: "Anonymous contract circle",
+        p_description: "",
+        p_is_public: false,
+        p_short_code: shortCode,
+      })
+      .single();
+    expect(createError).toBeNull();
+    expect(created).toBeTruthy();
+
+    const { data: circles } = await client.rpc("list_my_circles_with_progress");
+    expect((circles as { short_code: string }[] | null)?.some((c) => c.short_code === shortCode)).toBe(true);
+
+    const { error: archiveError } = await client.rpc("set_event_archive", {
+      p_short_code: shortCode,
+      p_is_archived: true,
+    });
+    expect(archiveError).toBeNull();
+
+    const { error: deleteError } = await client.rpc("delete_event_by_shortcode", {
+      p_short_code: shortCode,
+    });
+    expect(deleteError).toBeNull();
+  });
 });
