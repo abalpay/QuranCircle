@@ -8,8 +8,8 @@ Pass only if every box is ticked for each touched page, or a waiver is written d
    No clipped text, buttons or dialogs; dialogs scroll inside the viewport. Fixed
    bottom nav / floating claim bar never covers the last content or form fields
    (check with the page scrolled to the bottom and with the keyboard open).
-2. **Long and mixed names.** View the DSGLONG, DSGARABIC and DSGPART circles. 200-char
-   title wraps to at most three lines, then truncates or scales; 100-char claimer name
+2. **Long and mixed names.** View the DSGLONG, DSGARABIC and DSGPART circles. 150-char
+   title wraps to at most three lines, then truncates or scales; 80-char claimer name
    truncates with ellipsis and is readable in full on tap or title. Latin inside Arabic
    and Arabic inside Latin keep correct order and punctuation (`<bdi>`/`dir="auto"`).
 3. **RTL mirroring.** `/ar` is checked on its own screenshot, not assumed. Logical
@@ -37,12 +37,12 @@ Pass only if every box is ticked for each touched page, or a waiver is written d
 10. **Motion and tone.** Respects `prefers-reduced-motion`; no confetti, photos, candles,
     likes or social-proof counts on family-facing pages (D16); copy is plain and non-urgent;
     no install sheet or product prompt after claiming or on completion.
-13. **Accessibility of state.** Every Juz tile has a role and an accessible name that
-    includes its state and claimer; destructive actions (unclaim, archive, delete) confirm;
-    the reader's own Juz is identifiable without colour.
 11. **Desktop (1440px).** Layout uses the width deliberately: reading column capped,
     no stretched buttons, no empty half-screens, header and footer aligned to content width.
 12. **Regressions.** `npm run lint`, `npm run test:unit` pass; existing E2E selectors
     (English text) still match.
+13. **Accessibility of state.** Every Juz tile has a role and an accessible name that
+    includes its state and claimer; destructive actions (unclaim, archive, delete) confirm;
+    the reader's own Juz is identifiable without colour.
 
 Reviewer output: pass/fail per item with the screenshot filenames that prove it.
