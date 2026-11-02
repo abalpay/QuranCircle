@@ -137,4 +137,5 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY # Optional Cloudflare Turnstile site key; unset =
 ## Git
 
 - **Don't commit** `.clawdbot/`, local agent files (`.claude/settings.local.json`, vendored skills, worktrees) or temp files. The shared workflow in `.claude/agents/`, `.claude/skills/` (gate skills) and `.claude/settings.json` is committed (see `.gitignore`).
+- **Backups/ops:** `scripts/backup-prod-db.sh` and `restore-drill.sh` handle production data: keep dumps, URLs and keys out of the repo, and never add a CI workflow that runs them (`docs/ops/`).
 - **Commit messages:** Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.)
