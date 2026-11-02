@@ -14,6 +14,7 @@ import AppPageHero from "@/components/app-page-hero";
 import CreateCircleAction from "@/components/create-circle-action";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import { socialMetadata } from "@/lib/social-metadata";
 import {
   getLanguageAlternates,
   getLocalizedPath,
@@ -32,15 +33,12 @@ export async function generateMetadata({
       canonical,
       languages: getLanguageAlternates("/about"),
     },
-    openGraph: {
+    ...socialMetadata({
+      locale,
       title: t("openGraphTitle"),
       description: t("metadataDescription"),
       url: canonical,
-    },
-    twitter: {
-      title: t("openGraphTitle"),
-      description: t("metadataDescription"),
-    },
+    }),
   };
 }
 

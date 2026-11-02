@@ -17,6 +17,7 @@ import {
   getLocalizedPath,
 } from "@/i18n/locale-config";
 import { BRAND_LOGO_PATH, BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
+import { socialMetadata } from "@/lib/social-metadata";
 
 export async function generateMetadata({
   params,
@@ -43,19 +44,12 @@ export async function generateMetadata({
       canonical,
       languages: getLanguageAlternates(),
     },
-    openGraph: {
+    ...socialMetadata({
+      locale,
       title: t("openGraphTitle"),
       description: t("openGraphDescription"),
       url: canonical,
-      images: [
-        {
-          url: toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH),
-          width: 1200,
-          height: 630,
-          alt: "QuranCircle",
-        },
-      ],
-    },
+    }),
   };
 }
 

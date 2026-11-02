@@ -17,6 +17,7 @@ import {
 import CreateCircleAction from "@/components/create-circle-action";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import { socialMetadata } from "@/lib/social-metadata";
 import {
   getLanguageAlternates,
   getLocalizedPath,
@@ -37,26 +38,16 @@ export async function generateMetadata({
       canonical,
       languages: getLanguageAlternates("/ramadan-group-khatm"),
     },
-    openGraph: {
+    ...socialMetadata({
+      locale,
       type: "article",
       title: t("metadata.openGraphTitle"),
       description: t("metadata.openGraphDescription"),
       url: canonical,
-      images: [
-        {
-          url: toAbsoluteUrl("/opengraph-image"),
-          width: 1200,
-          height: 630,
-          alt: t("metadata.imageAlt"),
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t("metadata.twitterTitle"),
-      description: t("metadata.twitterDescription"),
-      images: [toAbsoluteUrl("/opengraph-image")],
-    },
+      imageAlt: t("metadata.imageAlt"),
+      twitterTitle: t("metadata.twitterTitle"),
+      twitterDescription: t("metadata.twitterDescription"),
+    }),
   };
 }
 

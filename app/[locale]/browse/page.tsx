@@ -5,6 +5,7 @@ import { Globe2 } from "lucide-react";
 import BrowseEvents from "@/components/browse-events";
 import AppPageHero from "@/components/app-page-hero";
 import type { LocalePageProps } from "@/i18n/routing";
+import { socialMetadata } from "@/lib/social-metadata";
 import {
   getLanguageAlternates,
   getLocalizedPath,
@@ -26,15 +27,12 @@ export async function generateMetadata({
       canonical,
       languages: getLanguageAlternates("/browse"),
     },
-    openGraph: {
+    ...socialMetadata({
+      locale,
       title: `${t("metadataTitle")} - QuranCircle`,
       description: t("metadataDescription"),
       url: canonical,
-    },
-    twitter: {
-      title: `${t("metadataTitle")} - QuranCircle`,
-      description: t("metadataDescription"),
-    },
+    }),
   };
 }
 
