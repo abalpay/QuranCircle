@@ -7,7 +7,6 @@ import {
 import HeroActions from "@/components/hero-actions";
 import HeroProductPreview from "@/components/hero-product-preview";
 import HomeInstallPrompt from "@/components/home-install-prompt";
-import { GeometricRosette } from "@/components/landing/decorative-art";
 import { getTranslations } from "next-intl/server";
 
 const benefitIcons = [Link2, ChartNoAxesCombined, BookOpen, UserRoundCheck];
@@ -24,9 +23,6 @@ export default async function LandingHero() {
   return (
     <section className="landing-hero" aria-labelledby="landing-hero-title">
       <HomeInstallPrompt />
-      <div className="landing-hero-grain" aria-hidden="true" />
-      <GeometricRosette className="landing-hero-rosette landing-hero-rosette-left" />
-      <GeometricRosette className="landing-hero-rosette landing-hero-rosette-right" />
 
       <div className="landing-hero-inner">
         <div className="landing-hero-copy">
@@ -35,7 +31,6 @@ export default async function LandingHero() {
           </p>
 
           <p className="landing-eyebrow landing-eyebrow-dark">
-            <span aria-hidden="true">✦</span>
             {t("eyebrow")}
           </p>
 
@@ -74,7 +69,6 @@ export default async function LandingHero() {
         </div>
 
         <div className="landing-hero-preview">
-          <div className="landing-preview-glow" aria-hidden="true" />
           <HeroProductPreview />
         </div>
       </div>

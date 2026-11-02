@@ -64,6 +64,7 @@ middleware.ts           # Supabase auth session refresh
 - Supabase client: `lib/supabase/client.ts` (browser), `lib/supabase/server.ts` (server)
 - UI components from shadcn/ui via `@/components/ui/*`
 - Class merging with `cn()` from `@/lib/utils`
+- **Decoration:** the only ornament is the gold frame and footer seal in `app/decor.css` (direction.md TASTE CALL 5); no tiled patterns, illustrations, glows, or frames around app UI.
 
 ## i18n (Internationalization)
 

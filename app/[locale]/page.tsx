@@ -155,7 +155,6 @@ export default async function HomePage({ params }: LocalePageProps) {
             title={tMarketing("guideTitle")}
             description={tMarketing("guideDescription")}
             button={tMarketing("guideButton")}
-            illustrationAlt={tMarketing("guideIllustrationAlt")}
           />
           <ResourceLibrary
             copy={{

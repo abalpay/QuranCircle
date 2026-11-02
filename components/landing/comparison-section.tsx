@@ -1,9 +1,5 @@
 import { Check, ExternalLink, X } from "lucide-react";
 import AnalyticsLink from "@/components/analytics-link";
-import {
-  DocumentLineArt,
-  MosqueSkyline,
-} from "@/components/landing/decorative-art";
 
 type ComparisonCopy = {
   eyebrow: string;
@@ -36,7 +32,6 @@ export default function ComparisonSection({ copy }: ComparisonSectionProps) {
 
         <div className="landing-comparison-cards">
           <article className="landing-comparison-card is-usual">
-            <DocumentLineArt className="comparison-card-art" />
             <h3>{copy.oldWayTitle}</h3>
             <ul>
               {copy.oldWayPoints.map((point) => (
@@ -55,7 +50,6 @@ export default function ComparisonSection({ copy }: ComparisonSectionProps) {
           </span>
 
           <article className="landing-comparison-card is-qurancircle">
-            <MosqueSkyline className="comparison-card-art is-mosque" />
             <h3>{copy.quranCircleWayTitle}</h3>
             <ul>
               {copy.quranCircleWayPoints.map((point) => (

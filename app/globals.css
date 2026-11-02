@@ -147,24 +147,6 @@
 
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(
-        circle at top right,
-        hsl(var(--quran-light-green) / 0.1),
-        transparent 42%
-      ),
-      radial-gradient(
-        circle at bottom left,
-        hsl(var(--quran-gold) / 0.08),
-        transparent 42%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(var(--quran-bg)),
-        hsl(var(--quran-bg)) 44%,
-        hsl(40 29% 94%) 100%
-      );
-    background-attachment: fixed;
   }
 
   html[dir="rtl"] body {
@@ -242,8 +224,7 @@
   .quran-card {
     @apply rounded-[1.5rem] border;
     background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%),
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%);
     border-color: hsl(var(--quran-border));
     box-shadow:
       0 18px 40px -34px hsl(var(--quran-deep) / 0.68),
@@ -253,8 +234,7 @@
   .quran-card-primary {
     @apply rounded-[2rem] border;
     background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%),
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%);
     border-color: hsl(var(--quran-border) / 0.8);
     box-shadow: 0 24px 48px -12px hsl(var(--quran-deep) / 0.15);
   }
@@ -262,8 +242,7 @@
   .quran-card-interactive {
     @apply rounded-[1.5rem] border;
     background: 
-      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%),
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231f4e45' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      linear-gradient(155deg, hsl(var(--quran-card)) 0%, hsl(158 24% 98%) 100%);
     border-color: hsl(var(--quran-border));
     box-shadow:
       0 18px 40px -34px hsl(var(--quran-deep) / 0.68),
@@ -308,51 +287,6 @@
         hsl(var(--quran-light-green) / 0.13),
         transparent 42%
       );
-  }
-
-  /* ── Hero geometric pattern ── */
-  .hero-pattern {
-    @apply relative isolate;
-  }
-
-  .hero-pattern::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0;
-    z-index: -1;
-    background-image:
-      /* Top & bottom edge fade — prevents hard cut-off */
-      linear-gradient(
-        to bottom,
-        hsl(var(--quran-bg)) 0%,
-        transparent 12%,
-        transparent 90%,
-        hsl(var(--quran-bg)) 100%
-      ),
-      /* Radial vignette — fades pattern at left/right edges */
-      radial-gradient(
-        ellipse at 50% 45%,
-        transparent 50%,
-        hsl(var(--quran-bg)) 85%
-      ),
-      /* Luminous sea-glass centre glow */
-      radial-gradient(
-        circle at 50% 30%,
-        hsl(var(--quran-light-green) / 0.18),
-        transparent 55%
-      ),
-      /* Primary Islamic 8-pointed star with inner octagon (green, 120px tile) */
-      url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231f4e45' stroke-width='1.5' opacity='0.12'%3E%3Crect x='36' y='36' width='48' height='48'/%3E%3Crect x='36' y='36' width='48' height='48' transform='rotate(45 60 60)'/%3E%3Cpolygon points='70,36 84,50 84,70 70,84 50,84 36,70 36,50 50,36'/%3E%3Cline x1='60' y1='0' x2='60' y2='26'/%3E%3Cline x1='120' y1='60' x2='94' y2='60'/%3E%3Cline x1='60' y1='120' x2='60' y2='94'/%3E%3Cline x1='0' y1='60' x2='26' y2='60'/%3E%3Cline x1='0' y1='0' x2='36' y2='36'/%3E%3Cline x1='120' y1='0' x2='84' y2='36'/%3E%3Cline x1='120' y1='120' x2='84' y2='84'/%3E%3Cline x1='0' y1='120' x2='36' y2='84'/%3E%3C/g%3E%3C/svg%3E"),
-      /* Sea-glass accent tessellation (smaller offset grid) */
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2358a99d' stroke-width='0.8' opacity='0.06'%3E%3Crect x='18' y='18' width='24' height='24'/%3E%3Crect x='18' y='18' width='24' height='24' transform='rotate(45 30 30)'/%3E%3Cline x1='30' y1='0' x2='30' y2='13'/%3E%3Cline x1='60' y1='30' x2='47' y2='30'/%3E%3Cline x1='30' y1='60' x2='30' y2='47'/%3E%3Cline x1='0' y1='30' x2='13' y2='30'/%3E%3Cline x1='0' y1='0' x2='18' y2='18'/%3E%3Cline x1='60' y1='0' x2='42' y2='18'/%3E%3Cline x1='60' y1='60' x2='42' y2='42'/%3E%3Cline x1='0' y1='60' x2='18' y2='42'/%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat;
-    background-size: 100% 100%, 100% 100%, 100% 100%, 120px 120px, 60px 60px;
-  }
-
-  @media (max-width: 640px) {
-    .hero-pattern::before {
-      background-size: 100% 100%, 100% 100%, 100% 100%, 104px 104px, 52px 52px;
-      opacity: 0.58;
-    }
   }
 
   /* ── Home hero: Emerald Sanctuary ── */
@@ -486,27 +420,6 @@
   .hero-product-frame {
     @apply relative flex h-[calc(100%-2rem)] min-h-[42rem] w-[calc(100%-2rem)] items-center justify-center p-3;
     isolation: isolate;
-  }
-
-  .hero-product-frame::before {
-    content: '';
-    @apply pointer-events-none absolute -end-40 -bottom-44 -z-10 aspect-square w-[38rem] rotate-12 rounded-full;
-    opacity: 0.28;
-    background:
-      repeating-conic-gradient(
-        from 22.5deg,
-        hsl(var(--quran-gold) / 0.3) 0deg 0.65deg,
-        transparent 0.65deg 22.5deg
-      ),
-      radial-gradient(
-        circle,
-        transparent 0 36%,
-        hsl(var(--quran-gold) / 0.2) 36.2% 36.45%,
-        transparent 36.7% 55%,
-        hsl(160 35% 72% / 0.14) 55.2% 55.45%,
-        transparent 55.7%
-      );
-    mask-image: radial-gradient(circle, black, transparent 68%);
   }
 
   .hero-product-card {
@@ -1073,40 +986,9 @@
 
   /* ── CTA section ── */
   .cta-section {
-    @apply relative mt-24 mb-12 overflow-hidden rounded-[2.5rem] px-6 py-20 text-center text-primary-foreground sm:px-12 sm:py-28;
-    background: linear-gradient(
-      155deg,
-      hsl(var(--quran-green)),
-      hsl(var(--quran-deep)) 70%
-    );
-    box-shadow:
-      0 40px 80px -32px hsl(var(--quran-deep) / 0.9),
-      inset 0 1px 0 hsl(0 0% 100% / 0.08);
-  }
-
-  /* Geometric pattern + gold radial glow */
-  .cta-section::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0;
-    background-image:
-      radial-gradient(
-        ellipse at 50% 45%,
-        hsl(var(--quran-gold) / 0.1),
-        transparent 55%
-      ),
-      url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.06'%3E%3Crect x='36' y='36' width='48' height='48'/%3E%3Crect x='36' y='36' width='48' height='48' transform='rotate(45 60 60)'/%3E%3Cpolygon points='70,36 84,50 84,70 70,84 50,84 36,70 36,50 50,36'/%3E%3Cline x1='60' y1='0' x2='60' y2='26'/%3E%3Cline x1='120' y1='60' x2='94' y2='60'/%3E%3Cline x1='60' y1='120' x2='60' y2='94'/%3E%3Cline x1='0' y1='60' x2='26' y2='60'/%3E%3Cline x1='0' y1='0' x2='36' y2='36'/%3E%3Cline x1='120' y1='0' x2='84' y2='36'/%3E%3Cline x1='120' y1='120' x2='84' y2='84'/%3E%3Cline x1='0' y1='120' x2='36' y2='84'/%3E%3C/g%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23d4a84b' stroke-width='0.5' opacity='0.06'%3E%3Crect x='18' y='18' width='24' height='24'/%3E%3Crect x='18' y='18' width='24' height='24' transform='rotate(45 30 30)'/%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: no-repeat, repeat, repeat;
-    background-size: 100% 100%, 120px 120px, 60px 60px;
-  }
-
-  /* Gold inner frame */
-  .cta-section::after {
-    content: '';
-    @apply pointer-events-none absolute;
-    inset: 10px;
-    border: 1px solid hsl(var(--quran-gold) / 0.35);
-    border-radius: calc(2.5rem - 10px);
+    @apply relative mt-24 mb-12 overflow-hidden rounded-2xl px-6 py-20 text-center text-primary-foreground sm:px-12 sm:py-28;
+    background: #0d332a;
+    box-shadow: 0 30px 50px -38px hsl(var(--quran-deep) / 0.6);
   }
 
   .cta-arabic-decoration {
@@ -1115,22 +997,7 @@
 
   .cta-gold-divider {
     @apply relative mx-auto mt-5 mb-1 h-px w-32;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      hsl(var(--quran-gold) / 0.5),
-      transparent
-    );
-    animation: cta-shimmer 3s ease-in-out infinite;
-  }
-
-  .cta-gold-divider::before {
-    content: '';
-    @apply absolute left-1/2 top-1/2;
-    width: 6px;
-    height: 6px;
     background: hsl(var(--quran-gold) / 0.5);
-    transform: translate(-50%, -50%) rotate(45deg);
   }
 
   .home-install-pill-anchor {
@@ -1453,23 +1320,8 @@
   .app-footer {
     position: relative;
     overflow: hidden;
-    border-top: 1px solid hsl(var(--quran-gold) / 0.18);
-    background:
-      radial-gradient(
-        circle at 18% 0%,
-        hsl(var(--quran-light-green) / 0.09),
-        transparent 28%
-      ),
-      linear-gradient(110deg, hsl(168 68% 9%), hsl(166 58% 12%));
-  }
-
-  .app-footer::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.08;
-    background-image: url("data:image/svg+xml,%3Csvg width='96' height='96' viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23d5b366' stroke-width='1'%3E%3Crect x='29' y='29' width='38' height='38'/%3E%3Crect x='29' y='29' width='38' height='38' transform='rotate(45 48 48)'/%3E%3C/g%3E%3C/svg%3E");
+    border-top: 1px solid hsl(var(--quran-gold) / 0.4);
+    background: #0d332a;
   }
 
   .quran-card {
@@ -1534,43 +1386,10 @@
   .app-page-hero {
     @apply relative isolate grid overflow-hidden border px-6 py-8 sm:px-9 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,0.38fr)] lg:items-end lg:gap-12 lg:px-12 lg:py-12;
     min-height: 20rem;
-    border-radius: 0.9rem 2.25rem 0.9rem 2.25rem;
+    border-radius: 1rem;
     border-color: hsl(var(--quran-border) / 0.62);
-    background:
-      radial-gradient(
-        circle at 91% 9%,
-        hsl(var(--quran-light-green) / 0.14),
-        transparent 31%
-      ),
-      radial-gradient(
-        circle at 8% 100%,
-        hsl(var(--quran-gold) / 0.07),
-        transparent 28%
-      ),
-      linear-gradient(145deg, hsl(var(--quran-card)), hsl(158 25% 97%));
-    box-shadow:
-      0 38px 82px -62px hsl(var(--quran-deep) / 0.6),
-      inset 0 1px 0 hsl(0 0% 100% / 0.94);
-  }
-
-  .app-page-hero::before {
-    content: '';
-    @apply pointer-events-none absolute -end-20 -top-24 -z-10 h-80 w-80;
-    background: center / contain no-repeat
-      url("data:image/svg+xml,%3Csvg width='320' height='320' viewBox='0 0 320 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23125e4d' stroke-width='1.2' opacity='.42'%3E%3Ccircle cx='160' cy='160' r='78'/%3E%3Ccircle cx='160' cy='160' r='112'/%3E%3Crect x='82' y='82' width='156' height='156'/%3E%3Crect x='82' y='82' width='156' height='156' transform='rotate(45 160 160)'/%3E%3Cpath d='M160 18l32 64 70-24-24 70 64 32-64 32 24 70-70-24-32 64-32-64-70 24 24-70-64-32 64-32-24-70 70 24z'/%3E%3C/g%3E%3C/svg%3E");
-    opacity: 0.13;
-    transform: rotate(8deg);
-  }
-
-  .app-page-hero::after {
-    content: '';
-    @apply pointer-events-none absolute start-6 top-0 h-[2px] w-28 sm:start-9 sm:w-40 lg:start-12;
-    background: linear-gradient(
-      90deg,
-      hsl(var(--quran-green)),
-      hsl(var(--quran-light-green) / 0.45),
-      transparent
-    );
+    background: hsl(var(--quran-card));
+    box-shadow: 0 28px 50px -44px hsl(var(--quran-deep) / 0.4);
   }
 
   .app-page-hero-compact {
@@ -1770,11 +1589,6 @@
   }
 }
 
-@keyframes cta-shimmer {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
 @keyframes fade-rise {
   from {
     opacity: 0;
@@ -1838,98 +1652,8 @@
   min-height: max(42rem, var(--landing-available-height));
   overflow: hidden;
   color: hsl(42 42% 96%);
-  background:
-    radial-gradient(
-      circle at 74% 38%,
-      hsl(163 55% 39% / 0.24),
-      transparent 38%
-    ),
-    radial-gradient(
-      circle at 22% 48%,
-      hsl(164 52% 27% / 0.24),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 18% 6%,
-      hsl(var(--quran-gold) / 0.09),
-      transparent 26%
-    ),
-    linear-gradient(122deg, hsl(168 69% 11%), hsl(168 68% 9%) 58%, hsl(169 74% 8%));
-  box-shadow: inset 0 -1px 0 hsl(42 36% 92% / 0.08);
-}
-
-.landing-hero::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  content: "";
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, hsl(168 72% 6% / 0.23), transparent 22%, transparent 78%, hsl(168 72% 6% / 0.28)),
-    radial-gradient(ellipse at 50% 35%, transparent 38%, hsl(168 80% 5% / 0.18) 100%);
-}
-
-.landing-hero::after {
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  content: "";
-  pointer-events: none;
-  opacity: 0.82;
-  background:
-    radial-gradient(circle at 8.5% 18%, hsl(var(--quran-gold) / 0.85) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 40%, hsl(var(--quran-gold) / 0.55) 0 1px, transparent 2px),
-    radial-gradient(circle at 10.5% 57%, hsl(var(--quran-gold) / 0.48) 0 1px, transparent 2px),
-    radial-gradient(circle at 17% 76%, hsl(var(--quran-gold) / 0.44) 0 1px, transparent 2px),
-    radial-gradient(circle at 91% 24%, hsl(var(--quran-gold) / 0.52) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 68%, hsl(var(--quran-gold) / 0.42) 0 1px, transparent 2px);
-}
-
-.landing-hero-grain {
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.2;
-  background-image:
-    repeating-linear-gradient(
-      102deg,
-      transparent 0 17px,
-      hsl(42 30% 96% / 0.035) 18px,
-      transparent 19px 41px
-    ),
-    repeating-linear-gradient(
-      12deg,
-      transparent 0 23px,
-      hsl(42 30% 96% / 0.02) 24px,
-      transparent 25px 56px
-    );
-  mask-image: linear-gradient(90deg, black, transparent 45%, transparent 62%, black);
-}
-
-.landing-hero-rosette {
-  position: absolute;
-  z-index: 0;
-  width: 32rem;
-  height: 32rem;
-  pointer-events: none;
-  color: hsl(var(--quran-gold));
-  opacity: 0.16;
-  stroke: currentColor;
-  stroke-width: 0.7;
-}
-
-.landing-hero-rosette-left {
-  top: 4rem;
-  left: -23rem;
-  transform: rotate(8deg);
-}
-
-.landing-hero-rosette-right {
-  right: -22rem;
-  bottom: -6rem;
-  color: hsl(163 44% 64%);
-  transform: rotate(21deg);
+  background: #0d332a;
+  box-shadow: inset 0 -1px 0 hsl(var(--quran-gold) / 0.4);
 }
 
 .landing-hero-inner {
@@ -1957,7 +1681,6 @@
   font-size: clamp(1.65rem, 2.1vw, 2.15rem);
   line-height: 1.5;
   text-align: left;
-  text-shadow: 0 7px 22px hsl(168 75% 5% / 0.4);
   animation: sanctuary-enter 720ms cubic-bezier(0.16, 1, 0.3, 1) 50ms both;
 }
 
@@ -1983,11 +1706,6 @@
   animation: sanctuary-enter 740ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
 }
 
-.landing-eyebrow-dark span {
-  color: hsl(var(--quran-gold) / 0.92);
-  font-size: 0.55rem;
-}
-
 .landing-hero-title {
   margin: 0;
   color: hsl(42 42% 97%);
@@ -1997,7 +1715,6 @@
   letter-spacing: -0.038em;
   line-height: 0.9;
   text-wrap: balance;
-  text-shadow: 0 16px 38px hsl(168 80% 4% / 0.28);
   animation: sanctuary-enter 780ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
 }
 
@@ -2107,26 +1824,12 @@
   min-width: 0;
 }
 
-.landing-preview-glow {
-  position: absolute;
-  z-index: -1;
-  width: 35rem;
-  height: 35rem;
-  border-radius: 50%;
-  background: hsl(163 52% 48% / 0.2);
-  filter: blur(82px);
-}
-
 .landing-hero-preview .hero-product-frame {
   display: block;
   width: 100%;
   height: auto;
   min-height: 0;
   padding: 0;
-}
-
-.landing-hero-preview .hero-product-frame::before {
-  display: none;
 }
 
 .landing-hero-preview .hero-product-card {
@@ -2529,25 +2232,6 @@
   background: hsl(var(--quran-green) / 0.1);
 }
 
-.comparison-card-art {
-  position: absolute;
-  top: -0.6rem;
-  right: -0.6rem;
-  width: 8.5rem;
-  height: 8.5rem;
-  color: hsl(var(--quran-gold));
-  opacity: 0.14;
-  stroke: currentColor;
-  stroke-width: 1.2;
-}
-
-.comparison-card-art.is-mosque {
-  top: -0.2rem;
-  right: -1.5rem;
-  width: 12rem;
-  color: hsl(var(--quran-green));
-}
-
 .comparison-vs {
   position: absolute;
   z-index: 3;
@@ -2640,20 +2324,6 @@
   height: 2px;
   content: "";
   background: linear-gradient(90deg, hsl(var(--quran-green)), transparent);
-}
-
-.landing-process-rosette {
-  position: absolute;
-  top: -8.5rem;
-  right: -6rem;
-  width: 21rem;
-  height: 21rem;
-  color: hsl(var(--quran-green));
-  opacity: 0.065;
-  stroke: currentColor;
-  stroke-width: 0.8;
-  transform: rotate(12deg);
-  pointer-events: none;
 }
 
 .landing-process-header {
@@ -2813,36 +2483,11 @@
     inset 0 1px 0 white;
 }
 
-.landing-verse-illustration {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.landing-verse-illustration img {
-  width: 12rem;
-  height: 12rem;
-  object-fit: contain;
-  filter: drop-shadow(0 14px 14px hsl(39 39% 30% / 0.12));
-}
-
 .landing-verse blockquote {
   position: relative;
   z-index: 2;
   margin: 0;
   padding-left: 3rem;
-}
-
-.landing-quote-mark {
-  position: absolute;
-  top: -0.45rem;
-  left: 0;
-  color: hsl(var(--quran-green));
-  font-family: Georgia, serif;
-  font-size: 4.5rem;
-  line-height: 1;
 }
 
 .landing-verse blockquote p {
@@ -2864,18 +2509,6 @@
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-}
-
-.landing-verse-rosette {
-  position: absolute;
-  right: -5rem;
-  width: 15rem;
-  height: 15rem;
-  color: hsl(var(--quran-green));
-  opacity: 0.07;
-  stroke: currentColor;
-  stroke-width: 0.8;
-  transform: rotate(13deg);
 }
 
 .landing-resource {
@@ -2956,18 +2589,6 @@
   height: 0.8rem;
 }
 
-.landing-resource-quran {
-  position: absolute;
-  z-index: 1;
-  right: 1.25rem;
-  bottom: 0.15rem;
-  width: 15.25rem;
-  height: 10.25rem;
-  opacity: 0.94;
-  filter: drop-shadow(0 16px 16px hsl(var(--quran-deep) / 0.14));
-  transform: rotate(-4deg);
-}
-
 .landing-resource-library {
   position: relative;
   overflow: hidden;
@@ -2985,21 +2606,6 @@
   box-shadow:
     0 30px 58px -46px hsl(var(--quran-deep) / 0.38),
     inset 0 1px 0 white;
-}
-
-.landing-resource-library::before {
-  content: "";
-  position: absolute;
-  right: -7rem;
-  top: -8rem;
-  width: 18rem;
-  height: 18rem;
-  border: 1px solid hsl(var(--quran-green) / 0.13);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 2.2rem hsl(var(--quran-green) / 0.018),
-    0 0 0 4.4rem hsl(var(--quran-green) / 0.014);
-  pointer-events: none;
 }
 
 .landing-resource-library-header {
@@ -3050,18 +2656,6 @@
     transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
     border-color 220ms ease,
     box-shadow 220ms ease;
-}
-
-.landing-resource-card::after {
-  content: "";
-  position: absolute;
-  right: -2.6rem;
-  bottom: -3.2rem;
-  width: 8.5rem;
-  height: 8.5rem;
-  border: 1px solid currentColor;
-  opacity: 0.08;
-  transform: rotate(45deg);
 }
 
 .landing-resource-card:hover {
@@ -3168,41 +2762,10 @@
   overflow: hidden;
   padding: 5.5rem 2rem;
   color: hsl(42 42% 97%);
-  border: 1px solid hsl(var(--quran-gold) / 0.62);
-  border-radius: 1.55rem;
-  background:
-    radial-gradient(
-      circle at 50% 26%,
-      hsl(163 44% 42% / 0.17),
-      transparent 40%
-    ),
-    linear-gradient(140deg, hsl(168 66% 16%), hsl(168 73% 10%));
-  box-shadow:
-    0 36px 60px -30px hsl(var(--quran-deep) / 0.65),
-    inset 0 1px 0 hsl(42 42% 100% / 0.08);
-}
-
-.landing-final-cta::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  content: "";
-  pointer-events: none;
-  opacity: 0.28;
-  background-image:
-    url("data:image/svg+xml,%3Csvg width='96' height='96' viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23d0b16a' stroke-width='.55' opacity='.36'%3E%3Crect x='28' y='28' width='40' height='40'/%3E%3Crect x='28' y='28' width='40' height='40' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='18'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 96px 96px;
-  mask-image: radial-gradient(ellipse at center, black, transparent 76%);
-}
-
-.landing-final-cta::after {
-  position: absolute;
-  z-index: 1;
-  inset: 0.55rem;
-  content: "";
-  pointer-events: none;
-  border: 1px solid hsl(var(--quran-gold) / 0.3);
-  border-radius: 1.15rem;
+  border: 1px solid transparent; /* the illumination frame (decor.css) is the border */
+  border-radius: 1rem;
+  background: #0d332a;
+  box-shadow: 0 30px 50px -38px hsl(var(--quran-deep) / 0.6);
 }
 
 .landing-final-cta-copy {
@@ -3229,15 +2792,9 @@
   text-transform: uppercase;
 }
 
-.landing-cta-badge svg {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
 .landing-final-cta h2 {
   color: hsl(42 42% 97%);
   font-size: clamp(3.05rem, 4.85vw, 4.7rem);
-  text-shadow: 0 14px 32px hsl(168 80% 4% / 0.34);
 }
 
 .landing-final-cta-copy > p:nth-of-type(2) {
@@ -3277,35 +2834,6 @@
   height: 1.05rem;
 }
 
-.landing-cta-mosque {
-  position: absolute;
-  z-index: 2;
-  bottom: 0;
-  left: -1rem;
-  width: 24rem;
-  height: 11rem;
-  color: hsl(var(--quran-gold));
-  opacity: 0.62;
-  stroke: currentColor;
-  stroke-width: 1;
-  pointer-events: none;
-}
-
-.landing-cta-rosette {
-  position: absolute;
-  z-index: 2;
-  right: -7rem;
-  bottom: -6rem;
-  width: 25rem;
-  height: 25rem;
-  color: hsl(163 43% 63%);
-  opacity: 0.07;
-  stroke: currentColor;
-  stroke-width: 0.75;
-  transform: rotate(15deg);
-  pointer-events: none;
-}
-
 @media (max-width: 1180px) {
   .landing-hero-inner {
     grid-template-columns: minmax(0, 0.84fr) minmax(31rem, 1.16fr);
@@ -3327,10 +2855,6 @@
 
   .landing-resource {
     grid-template-columns: minmax(0, 1fr) auto 13.5rem;
-  }
-
-  .landing-resource-quran {
-    right: 0.75rem;
   }
 }
 
@@ -3496,11 +3020,6 @@
     padding-left: 0.75rem;
   }
 
-  .landing-verse-illustration img {
-    width: 8.5rem;
-    height: 8.5rem;
-  }
-
   .landing-resource {
     grid-template-columns: minmax(0, 1fr) auto 8rem;
     padding-right: 2rem;
@@ -3508,13 +3027,6 @@
 
   .landing-resource-copy {
     max-width: 29rem;
-  }
-
-  .landing-resource-quran {
-    display: block;
-    right: 0.2rem;
-    width: 12.5rem;
-    height: 8.5rem;
   }
 }
 
@@ -3800,31 +3312,12 @@
     text-align: center;
   }
 
-  .landing-verse-illustration img {
-    width: 9.5rem;
-    height: 9.5rem;
-  }
-
   .landing-verse blockquote {
     padding-left: 0;
   }
 
-  .landing-quote-mark {
-    position: relative;
-    top: auto;
-    left: auto;
-    display: block;
-    height: 2.4rem;
-    font-size: 3.5rem;
-  }
-
   .landing-verse blockquote p {
     font-size: 1.35rem;
-  }
-
-  .landing-verse-rosette {
-    right: -7rem;
-    bottom: -6rem;
   }
 
   .landing-resource {
@@ -3836,17 +3329,6 @@
 
   .landing-resource-button {
     width: fit-content;
-  }
-
-  .landing-resource-quran {
-    position: relative;
-    right: auto;
-    bottom: auto;
-    display: block;
-    justify-self: end;
-    width: 12rem;
-    height: 8rem;
-    margin: -1.5rem -0.4rem -1.1rem 0;
   }
 
   .landing-resource-library {
@@ -3873,16 +3355,6 @@
 
   .landing-final-cta h2 {
     font-size: 3.05rem;
-  }
-
-  .landing-cta-mosque {
-    left: -6rem;
-    width: 22rem;
-    opacity: 0.4;
-  }
-
-  .landing-cta-rosette {
-    right: -12rem;
   }
 }
 

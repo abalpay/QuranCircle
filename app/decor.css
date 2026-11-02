@@ -1,0 +1,106 @@
+/*
+ * The decorative system (#105, direction C: illumination-inspired). One idea, used where the page is "the person's":
+ * a fine gold double-rule frame with corner finials (border-image) and one octagram seal on the footer edge.
+ * Everything else is quiet: flat surfaces and gold hairlines. Never: tiled patterns, line illustrations, glows, rosettes,
+ * and no frame around app UI or screenshots. See docs/design/direction.md.
+ * Frame source is 96x96 with 32-unit corner slices; the seal is a 64x64 disc with two rings and an octagram {8/2}.
+ * Geometry is symmetric, so nothing here mirrors in RTL except the logical-property layout.
+ */
+:root {
+  --decor-frame-gold: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%20viewBox%3D'0%200%2096%2096'%20fill%3D'none'%20stroke%3D'%23c6a15b'%20stroke-linecap%3D'butt'%3E%20%3Cpath%20d%3D'M32%206H15.5A9.5%209.5%200%200%200%206%2015.5V32M64%206H80.5A9.5%209.5%200%200%201%2090%2015.5V32M32%2090H15.5A9.5%209.5%200%200%201%206%2080.5V64M64%2090H80.5A9.5%209.5%200%200%200%2090%2080.5V64'%20stroke-width%3D'1.4'%2F%3E%20%3Cpath%20d%3D'M32%2012H17A5%205%200%200%200%2012%2017V32M64%2012H79A5%205%200%200%201%2084%2017V32M32%2084H17A5%205%200%200%201%2012%2079V64M64%2084H79A5%205%200%200%200%2084%2079V64'%20stroke-width%3D'.8'%2F%3E%20%3Cpath%20d%3D'M32%206H64M32%2090H64M6%2032V64M90%2032V64'%20stroke-width%3D'1.4'%2F%3E%3Cpath%20d%3D'M32%2012H64M32%2084H64M12%2032V64M84%2032V64'%20stroke-width%3D'.8'%2F%3E%20%3Cpath%20d%3D'M21%2017.6%2024.4%2021%2021%2024.4%2017.6%2021Z'%20fill%3D'%23c6a15b'%20stroke%3D'none'%2F%3E%20%3Cpath%20d%3D'M75%2017.6%2078.4%2021%2075%2024.4%2071.6%2021Z'%20fill%3D'%23c6a15b'%20stroke%3D'none'%2F%3E%20%3Cpath%20d%3D'M21%2071.6%2024.4%2075%2021%2078.4%2017.6%2075Z'%20fill%3D'%23c6a15b'%20stroke%3D'none'%2F%3E%20%3Cpath%20d%3D'M75%2071.6%2078.4%2075%2075%2078.4%2071.6%2075Z'%20fill%3D'%23c6a15b'%20stroke%3D'none'%2F%3E%3C%2Fsvg%3E");
+  --decor-medallion: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'64'%20height%3D'64'%20viewBox%3D'0%200%2064%2064'%20fill%3D'none'%20stroke%3D'%23c6a15b'%3E%20%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'30.5'%20fill%3D'%230d332a'%20stroke-width%3D'1.2'%2F%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'26'%20stroke-width%3D'.7'%2F%3E%20%3Cpath%20d%3D'M49%2032L32%2049L15%2032L32%2015ZM44.02%2044.02L19.98%2044.02L19.98%2019.98L44.02%2019.98Z'%20stroke-width%3D'1'%20stroke-linejoin%3D'miter'%2F%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'3'%20stroke-width%3D'.8'%2F%3E%3C%2Fsvg%3E");
+  --decor-gold-ink: 40 42% 45%; /* gold for lines on parchment */
+}
+
+/* ---------- Frames: public-circle band, About/guide CTA, circle page header ---------- */
+/* The circle header is the .app-page-hero without an .app-page-hero-copy child (AppPageHero pages stay quiet). */
+
+.landing-final-cta::after,
+.cta-section::after {
+  position: absolute;
+  inset: 0.5rem;
+  z-index: 1;
+  display: block;
+  content: "";
+  pointer-events: none;
+  border: 26px solid transparent;
+  border-image: var(--decor-frame-gold) 32 / 26px stretch;
+  opacity: 0.85;
+}
+.cta-section::after { inset: 10px; }
+@media (max-width: 639px) {
+  .landing-final-cta::after { border-width: 20px; border-image-width: 20px; }
+}
+
+.app-page-hero:not(:has(> .app-page-hero-copy))::before {
+  position: absolute;
+  inset: 0.5rem;
+  z-index: 1;
+  display: block;
+  content: "";
+  pointer-events: none;
+  border: 22px solid transparent;
+  border-image: var(--decor-frame-gold) 32 / 22px stretch;
+  opacity: 0.8;
+}
+/* the content clears the frame's inner rule (8px inset + ~11px) by 16px or more */
+.app-page-hero:not(:has(> .app-page-hero-copy)) { padding: 2.5rem 2.25rem; }
+@media (min-width: 640px) { .app-page-hero:not(:has(> .app-page-hero-copy)) { padding-inline: 3rem; } }
+@media (min-width: 1024px) { .app-page-hero:not(:has(> .app-page-hero-copy)) { padding-block: 3.25rem; padding-inline: 3.5rem; } }
+
+/* ---------- Footer: the seal on the top edge ---------- */
+
+.app-footer { overflow: visible; }
+.app-footer::before {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 50%;
+  z-index: 2;
+  width: 3.25rem;
+  height: 3.25rem;
+  content: "";
+  pointer-events: none;
+  background: var(--decor-medallion) center / contain no-repeat;
+  transform: translate(-50%, -50%);
+}
+[dir="rtl"] .app-footer::before { transform: translate(50%, -50%); }
+.app-footer > div { padding-top: 3.25rem; }
+
+/* ---------- Quiet surfaces: what remains once the art is gone ---------- */
+
+.landing-hero-preview .hero-product-card {
+  background: hsl(42 50% 98%);
+  border-radius: 1.25rem;
+  box-shadow: 0 36px 60px -40px hsl(168 80% 3% / 0.7);
+}
+.landing-hero-preview .hero-product-card::after { border-radius: 0.9rem; }
+.hero-product-tile { border-radius: 0.75rem; }
+
+.landing-comparison-card { border-radius: 1.25rem; }
+.landing-comparison-card.is-usual { background: hsl(39 38% 96%); }
+.landing-comparison-card.is-qurancircle { background: hsl(157 28% 96%); }
+.landing-process { background: hsl(42 48% 98% / 0.9); }
+.landing-process::before { width: 4rem; height: 1px; background: hsl(var(--decor-gold-ink)); }
+.process-step-medallion {
+  background: white;
+  box-shadow: 0 14px 24px -20px hsl(var(--quran-deep) / 0.4), inset 0 1px 0 white;
+}
+.landing-verse {
+  display: block;
+  padding: 3.25rem 2rem;
+  text-align: center;
+  background: hsl(42 48% 98.5%);
+}
+.landing-verse::before {
+  display: block;
+  width: 3rem;
+  height: 1px;
+  margin: 0 auto 1.75rem;
+  content: "";
+  background: hsl(var(--decor-gold-ink));
+}
+.landing-verse blockquote { padding: 0; }
+.landing-verse blockquote p { margin-inline: auto; }
+.landing-resource { background: hsl(42 47% 98% / 0.92); }
+@media (min-width: 768px) { .landing-resource { grid-template-columns: minmax(0, 1fr) auto; } }
+.landing-resource-library { background: hsl(42 48% 99%); }

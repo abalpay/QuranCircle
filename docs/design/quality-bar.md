@@ -19,7 +19,7 @@ Pass only if every box is ticked for each touched page, or a waiver is written d
    text out of locale (e.g. "Ramadan 2025"), keys present in en, tr and ar.
 5. **Contrast.** Body text 4.5:1, large text and UI borders 3:1, including gold text
    (use the text-safe gold token, never `#a38343` on parchment), gold on green,
-   muted text on parchment and text over pattern/gradient backgrounds. No information
+   muted text on parchment and text over gradient backgrounds; no ornament ever sits under text. No information
    conveyed by colour alone.
 6. **Tap targets.** Every interactive element at least 44x44px at 390px (icon buttons,
    tabs, language links, footer links), with 8px between neighbours. Visible focus ring.

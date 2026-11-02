@@ -72,10 +72,21 @@ hidden when untrue (a completed khatm must not say "Open for claims").
   name, a short du'a line, "Khatm 1 complete", the next-step invitation; no
   confetti, no motion. Alternative: one slow fade-in of a gold ring around the
   completed count.
-- **TASTE CALL 5 — DECIDED (Ahmet 2026-11-02): pattern in the footer only.** Recommend (revised after critique):
-  keep the geometric star pattern in the footer only, as one of the few authored
-  identity marks; remove it and the gradient glow from behind the circle title,
-  dua and cards. Alternative: remove it everywhere.
+- **TASTE CALL 5 — SUPERSEDED (Ahmet 2026-11-02, #105): the decorative system is direction C, illumination-inspired.**
+  The earlier "star pattern in the footer only" is gone. The rule now:
+  - **What:** one idea, a fine gold double-rule frame with corner finials (a `border-image`
+    in `app/decor.css`, 1.4/0.8 stroke) and one octagram seal on the footer's top edge. Flat
+    sanctuary green (`#0d332a`) for hero, public-circle band, CTA and footer; gold hairlines.
+  - **Where:** the frame means "the person's page": the circle page header (the
+    `.app-page-hero` without an `.app-page-hero-copy`), the public-circle band, the About and
+    guide CTAs (and, later, the share card). The seal sits on the footer. The homepage hero
+    stays plain (bismillah, kicker, headline, preview card).
+  - **Never:** a frame around app UI or screenshots (the hero preview card, the juz grid); tiled
+    patterns; line illustrations (mosques, books, documents); rosettes; glows and gradient
+    washes; sparkle or star glyphs; animated shimmer. Pages the frame does not reach stay
+    quiet: hairlines only.
+  - **RTL:** the frame and seal are symmetric and never flipped; only logical-property layout changes.
+  - Alternatives declined: A (no ornament; read as unfinished), B (Hankin star-and-cross lattice panel).
 
 ## RTL rules
 - Use logical properties only (`ps/pe/ms/me/start/end`, `text-start`), never

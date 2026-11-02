@@ -3,7 +3,6 @@
 // Captures pages at 390px and 1440px, English and Arabic, to CAPTURE_OUT_DIR
 // (default: <os tmpdir>/qc-captures, never the repo) from CAPTURE_BASE_URL
 // (default http://localhost:3002, a dev server pointed at the local stack).
-// CAPTURE_QUERY=decor=a appends a query string to every captured URL.
 // Fixtures go to the LOCAL database only.
 import { createClient } from "@supabase/supabase-js";
 import { chromium } from "@playwright/test";
@@ -13,7 +12,6 @@ import { tmpdir } from "node:os";
 
 const BASE = process.env.CAPTURE_BASE_URL ?? "http://localhost:3002";
 const OUT_ROOT = process.env.CAPTURE_OUT_DIR ?? join(tmpdir(), "qc-captures");
-const QUERY = process.env.CAPTURE_QUERY ? `?${process.env.CAPTURE_QUERY.replace(/^\?/, "")}` : ""; // e.g. decor=a
 const PASSWORD = "Design-Audit-2026!x";
 const ORG = "dsg-organizer@design.local";
 const READER = "dsg-reader@design.local";
@@ -324,7 +322,7 @@ async function main() {
         const page = await ctx.newPage();
         const file = join(outDir, `${p.name}.${locale}.${tag}.png`);
         try {
-          await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}${QUERY}`, { waitUntil: "networkidle", timeout: 45000 });
+          await page.goto(`${BASE}${locale === "ar" ? "/ar" : ""}${p.path === "/" ? "" : p.path}`, { waitUntil: "networkidle", timeout: 45000 });
           await page.waitForTimeout(400);
           if (p.scrollTo) {
             await page.locator(p.scrollTo).first().scrollIntoViewIfNeeded();
