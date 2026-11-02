@@ -39,6 +39,9 @@ and is finished (tests, all three locales, deployed) before the next starts.
 - The circle's share preview image shows the completed state.
 - Fix the existing "completed" badge to mean `completed_at` is set (today it
   means "fully claimed and a newer khatm exists").
+- Wording (D16): a khatm completed by the 7-day rule says all 30 Juz were taken
+  up, not that the Quran was read; describe the practice ("a khatm for
+  [name]"), never theologise.
 
 ### 4. Reader view (D7, D8)
 
@@ -64,6 +67,17 @@ and is finished (tests, all three locales, deployed) before the next starts.
 - Default is already link-only. The public toggle states that circle name,
   description and reader names become visible to anyone and to search engines.
 
+### 7. Create without an account (D15)
+
+- Organizers create a circle with a name only, on their anonymous session.
+  The create RPC and dialog stop requiring a non-anonymous account.
+- After sharing: an optional "Add your email to manage this circle from any
+  phone" prompt, using the existing anonymous-to-account merge.
+- My Circles works for anonymous organizers on that browser.
+- CAPTCHA on anonymous sign-ins (provider decided on the plan issue).
+- The anonymous-user cleanup keeps any user who created a circle (it already
+  does; covered by a test).
+
 ### Out of scope for wave 1
 
 Deadlines, "start your own khatm" call to action, new languages, charity links,
@@ -76,18 +90,33 @@ reopening completed khatms, cross-device identity, reminders.
 - en, tr and ar keys in sync.
 - Deployed, and the first cron run checked against production data.
 
-## Wave 2: Grow from every circle (planned)
+## Wave 2: Grow — the khatm for someone (planned)
 
-- "Start a khatm for a loved one" on the circle page and the completion screen,
-  tagged with a source so participant-to-organizer conversion can be measured.
-- Deadline presets (3 / 7 / 40 days) replacing the 7-day safety net when set.
-- Homepage and metadata reworded around the memorial and healing moment (D2).
-- Indonesian locale (Indonesia was the #2 country in Oct 2026 with no locale).
+**Goal:** every circle recruits the next organizer, and the circle becomes a
+page the family keeps and re-shares (D16, D17).
+
+- **Start a khatm for someone you love** on the circle page and the completion
+  screen, with the source stored in the database to measure
+  participant → organizer conversion (D12, D17).
+- **The circle as a page that stays:** the person's name and an
+  organizer-editable dua shown prominently, and the khatms completed for them
+  over time ("3 khatms completed for [name]"). Homepage and metadata reworded
+  around the memorial and healing moment (D2, D16).
+- **Share preview refresh:** the WhatsApp preview shows the name, live progress
+  and "free, no account needed".
+- **Deadline presets** (3 / 7 / 40 days) replacing the 7-day safety net when set.
+- **Memorial-day reminders** (D18): opt-in email for organizers with an email
+  (40th day, anniversary) through the existing email function, plus an
+  on-page reshare prompt.
+- **Indonesian locale** (Indonesia was the #2 country in Oct 2026 with no locale).
+- **Memorial and healing guides** (D20): one per language, Arabic, Indonesian,
+  English (South Asian terms), Turkish.
+- **Reliability:** an uptime check on the circle page and verified database
+  backups; a broken circle page in a funeral week is the worst failure.
 
 ## Wave 3: Reach (planned)
 
-- Persian, then Urdu locales.
-- Memorial and healing landing pages per language.
+- Persian, then Urdu locales, with their memorial guides (D20).
 - "Give sadaqah for [name]" charity links (D11).
 - Time-based recurring khatms (weekly / monthly) for mosques and study groups (D14).
 - Outreach to mosques and burial societies (not code). Ramadan 2027 (early
