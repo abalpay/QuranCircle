@@ -288,13 +288,15 @@ export default function CreatorQueuePanel({
                       {t("undo")}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
-                    onClick={() => onUnclaim(row.juzId)}
-                  >
-                    {t("unclaim")}
-                  </button>
+                  {!row.isCompleted && (
+                    <button
+                      type="button"
+                      className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-quran-muted transition-colors hover:bg-red-100 hover:text-red-600"
+                      onClick={() => onUnclaim(row.juzId)}
+                    >
+                      {t("unclaim")}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

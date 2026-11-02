@@ -47,6 +47,8 @@ type Props = {
   onRefresh: () => Promise<void>;
   activeFilter: GlobalFilter;
   isCompleted?: boolean;
+  /** Completed for good (completed_at set): no claim or unclaim. */
+  isFinal?: boolean;
   onClaimSuccess?: (payload: ClaimSuccessPayload) => void;
 };
 
@@ -57,6 +59,7 @@ export default function KhatmCard({
   onRefresh,
   activeFilter,
   isCompleted = false,
+  isFinal = false,
   onClaimSuccess,
 }: Props) {
   const t = useTranslations("KhatmCard");
@@ -228,7 +231,7 @@ export default function KhatmCard({
           key={juz.id}
           juz={juz}
           onClaim={() => handleClaimClick(juz)}
-          isReadOnly={isReadOnly}
+          isReadOnly={isReadOnly || isFinal}
           isSelected={activeSelection.has(juz.juz_number)}
         />
       ))}
@@ -315,12 +318,14 @@ export default function KhatmCard({
                   {t("undo")}
                 </button>
               )}
-              <button
-                className="rounded-full bg-red-50 min-h-10 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 hover:text-red-600"
-                onClick={() => handleUnclaim(juz.id)}
-              >
-                {t("unclaim")}
-              </button>
+              {!isFinal && (
+                <button
+                  className="rounded-full bg-red-50 min-h-10 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 hover:text-red-600"
+                  onClick={() => handleUnclaim(juz.id)}
+                >
+                  {t("unclaim")}
+                </button>
+              )}
             </div>
           </div>
         );

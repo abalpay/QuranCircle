@@ -29,6 +29,8 @@ WHERE rp.routine_schema IN ('public', 'private')
     'unclaim_juz',
     'mark_juz_read',
     'mark_juz_read_with_completion',
+    'complete_khatm',
+    'auto_complete_khatms',
     'unmark_juz_read',
     'list_user_events_with_progress',
     'list_my_circles_with_progress',
@@ -97,6 +99,17 @@ BEGIN
   END IF;
   IF NOT has_function_privilege('authenticated', 'public.mark_juz_read_with_completion(text,uuid)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: authenticated cannot execute mark_juz_read_with_completion';
+  END IF;
+  IF has_function_privilege('anon', 'public.complete_khatm(text,uuid)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: anon can execute complete_khatm';
+  END IF;
+  IF NOT has_function_privilege('authenticated', 'public.complete_khatm(text,uuid)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: authenticated cannot execute complete_khatm';
+  END IF;
+  IF has_function_privilege('anon', 'private.auto_complete_khatms(integer)', 'EXECUTE')
+     OR has_function_privilege('authenticated', 'private.auto_complete_khatms(integer)', 'EXECUTE')
+     OR has_function_privilege('service_role', 'private.auto_complete_khatms(integer)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'FAILED: client role can execute auto_complete_khatms';
   END IF;
   IF has_function_privilege('anon', 'public.unmark_juz_read(text,uuid)', 'EXECUTE') THEN
     RAISE EXCEPTION 'FAILED: anon can execute unmark_juz_read';
@@ -267,6 +280,15 @@ BEGIN
       AND column_name = 'completed_at'
   ) THEN
     RAISE EXCEPTION 'FAILED: khatms.completed_at is missing';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'khatms'
+      AND column_name = 'completion_source'
+  ) THEN
+    RAISE EXCEPTION 'FAILED: khatms.completion_source is missing';
   END IF;
 
   RAISE NOTICE 'PASS: product outcome schema assertions succeeded.';

@@ -287,6 +287,29 @@ describe("RPC contract checks", () => {
       expect(completedKhatmError).toBeNull();
       expect(completedKhatm?.completed_at).toBeTruthy();
 
+      // completion_source is absent from the generated types until they are regenerated.
+      const { data: sourceRow } = await admin
+        .from("khatms")
+        .select("*")
+        .eq("id", khatm.id)
+        .single();
+      expect((sourceRow as Record<string, unknown> | null)?.completion_source).toBe(
+        "all_done",
+      );
+
+      const { error: unclaimCompletedError } = await client.rpc("unclaim_juz", {
+        p_short_code: shortCode,
+        p_juz_id: finalJuz.id,
+      });
+      expect(unclaimCompletedError?.message).toContain("completed");
+
+      const { error: completeError } = await client.rpc(
+        "complete_khatm" as never,
+        { p_short_code: shortCode, p_khatm_id: khatm.id } as never,
+      );
+      assertNoFunctionSignatureDrift(completeError, "complete_khatm");
+      expect(completeError).toBeNull();
+
       const { error: unmarkError } = await client.rpc("unmark_juz_read", {
         p_short_code: shortCode,
         p_juz_id: finalJuz.id,

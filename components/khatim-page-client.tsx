@@ -1138,6 +1138,7 @@ export default function KhatimPageClient({
                   }}
                   activeFilter={displayFilter}
                   isCompleted={isFullyClaimed && hasNewerKhatm}
+                  isFinal={Boolean(khatm.completed_at)}
                   onClaimSuccess={handleClaimSuccess}
                 />
               </div>
