@@ -34,7 +34,9 @@
     "allRightsReserved": "جميع الحقوق محفوظة.",
     "readTogether": "نقرأ معًا",
     "ariaLabel": "تذييل الصفحة",
-    "languageNavigation": "اللغات"
+    "languageNavigation": "اللغات",
+    "promise": "مجاني للأبد. بلا إعلانات. صُنع صدقةً جارية.",
+    "support": "ادعم QuranCircle"
   },
   "Home": {
     "title": "حلقاتي",
@@ -94,7 +96,7 @@
     "descriptionOptional": "(خياري)",
     "descriptionPlaceholder": "وصف مختصر لحدث القراءة هذا...",
     "makePublic": "اجعل هذه الحلقة عامة",
-    "makePublicDesc": "يمكن لأي شخص لديه الرابط الانضمام واختيار جزء.",
+    "makePublicDesc": "الحلقات العامة تظهر في التصفح ومحركات البحث. يصبح اسم الحلقة ووصفها وأسماء القرّاء مرئية لأي شخص. اتركه مغلقًا للمشاركة بالرابط فقط.",
     "linkOnly": "الرابط فقط: شارك مع من تريد دعوتهم.",
     "publicVisible": "الحلقات العامة مرئية للجميع في التصفح.",
     "cancel": "يلغي",
@@ -596,7 +598,7 @@
     "ariaLabel": "إحصائيات المجتمع QuranCircle",
     "circlesCreated": "تم إنشاء الحلقات",
     "juzClaimed": "جزء محجوز",
-    "activeKhatms": "ختم نشط الآن"
+    "khatmsCompleted": "ختمات مكتملة"
   },
   "PublicCircleCta": {
     "eyebrow": "مفتوحة للجميع",

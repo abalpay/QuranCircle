@@ -66,6 +66,7 @@
   --quran-muted: 161 10% 38%;
   --quran-border: 41 24% 78%;
   --quran-gold: 40 42% 45%;
+  --quran-gold-on-dark: 40 50% 72%; /* text-safe gold on the dark green footer */
   --quran-deep: 166 49% 16%;
   --radius: 0.9rem;
   --background: hsl(var(--quran-bg));
@@ -2310,8 +2311,7 @@
     linear-gradient(100deg, hsl(var(--quran-green) / 0.035), transparent 24%),
     hsl(42 55% 99% / 0.96);
   box-shadow:
-    0 34px 68px -30px hsl(var(--quran-deep) / 0.42),
-    0 12px 28px -24px hsl(var(--quran-green) / 0.2),
+    0 18px 40px -28px hsl(var(--quran-deep) / 0.28),
     inset 0 1px 0 white;
 }
 
@@ -2342,15 +2342,7 @@
 }
 
 .landing-metrics-grid li + li {
-  border-left: 1px solid hsl(var(--quran-border) / 0.6);
-}
-
-.landing-metrics-grid svg {
-  width: 2.05rem;
-  height: 2.05rem;
-  flex: 0 0 auto;
-  color: hsl(var(--quran-green) / 0.82);
-  stroke-width: 1.35;
+  border-inline-start: 1px solid hsl(var(--quran-border) / 0.6);
 }
 
 .landing-metrics-grid div {
@@ -2361,7 +2353,7 @@
 .landing-metrics-grid strong {
   color: hsl(var(--quran-deep));
   font-family: var(--font-display), "Iowan Old Style", serif;
-  font-size: clamp(2.05rem, 2.8vw, 2.6rem);
+  font-size: clamp(1.75rem, 2.2vw, 2.1rem);
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -2369,12 +2361,10 @@
 }
 
 .landing-metrics-grid span {
-  margin-top: 0.5rem;
+  margin-top: 0.4rem;
   color: hsl(161 12% 34%);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .landing-content {
@@ -3645,11 +3635,11 @@
   }
 
   .landing-metrics-grid li + li {
-    border-left: 0;
+    border-inline-start: 0;
   }
 
   .landing-metrics-grid li:nth-child(2) {
-    border-left: 1px solid hsl(var(--quran-border) / 0.55);
+    border-inline-start: 1px solid hsl(var(--quran-border) / 0.55);
   }
 
   .landing-metrics-grid li:last-child {
@@ -3658,18 +3648,12 @@
     border-top: 1px solid hsl(var(--quran-border) / 0.55);
   }
 
-  .landing-metrics-grid svg {
-    width: 1.55rem;
-    height: 1.55rem;
-  }
-
   .landing-metrics-grid strong {
     font-size: 1.75rem;
   }
 
   .landing-metrics-grid span {
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
+    font-size: 0.8125rem;
   }
 
   .landing-comparison {

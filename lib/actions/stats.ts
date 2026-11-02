@@ -10,7 +10,7 @@ export async function getCommunityStats() {
     | {
         total_circles: number;
         total_juz_claimed: number;
-        active_khatms: number;
+        khatms_completed: number;
       }
     | null;
 
@@ -18,13 +18,13 @@ export async function getCommunityStats() {
     return {
       totalCircles: 0,
       totalJuzClaimed: 0,
-      activeKhatms: 0,
+      khatmsCompleted: 0,
     };
   }
 
   return {
     totalCircles: Number(stats.total_circles ?? 0),
     totalJuzClaimed: Number(stats.total_juz_claimed ?? 0),
-    activeKhatms: Number(stats.active_khatms ?? 0),
+    khatmsCompleted: Number(stats.khatms_completed ?? 0),
   };
 }

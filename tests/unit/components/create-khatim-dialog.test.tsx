@@ -44,6 +44,18 @@ describe("CreateKhatimDialog without an account", () => {
     expect(pushMock).toHaveBeenCalledWith("/s/ABC12345");
   });
 
+  it("tells the organizer what becomes visible before they make a circle public", () => {
+    render(<CreateKhatimDialog isOpen onClose={() => {}} />, {
+      wrapper: IntlWrapper,
+    });
+
+    expect(
+      screen.getByText(/circle name, description and reader names become visible to anyone/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/search engines/i)).toBeInTheDocument();
+    expect(screen.getByRole("switch")).not.toBeChecked();
+  });
+
   it("does not create when no session can be established", async () => {
     ensureSessionMock.mockResolvedValue(null);
     render(<CreateKhatimDialog isOpen onClose={() => {}} />, {
