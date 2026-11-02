@@ -72,6 +72,15 @@ organizer can switch off "Open a new khatm when this one fills"; switching it
 off removes an empty trailing khatm, so a one-khatm circle never shows an
 unfinished extra khatm. Archiving stays separate (it freezes everything).
 
+**D21. Existing khatms follow the new rules; stalled ones leave Browse.** (2026-11-02)
+Fully claimed khatms complete under D5 (retroactively). Empty auto-opened
+khatms stay until the organizer uses the D13 switch. Browse lists a circle only
+if it was created in the last 7 days or had a claim in the last 30 days;
+nothing is deleted or changed, the circle keeps working on its link, and it
+returns to Browse when someone claims. Evidence (2 Nov 2026): of 45 public
+khatms, 12 were partly claimed with no progress for 48–232 days and 5 circles
+had no claims, all listed as open.
+
 **D14. Time-based recurring khatms are a later feature.** (2026-11-02)
 A new khatm every Friday or month (mosques, study groups) is planned for
 wave 3, not built now.
@@ -98,6 +107,15 @@ reminders (D7). The circle page also shows a reshare prompt as the date nears.
 Public circles expose the names of ill or deceased people and of every
 participant, and are listed in the sitemap. Public listing is an explicit opt-in
 that says what becomes visible.
+
+## Design
+
+**D22. Every page meets an Impeccable quality bar on mobile and desktop.** (2026-11-02)
+An Impeccable audit of every page (mobile and desktop) sets the design
+direction and fix list. Every product-facing stream builds with Impeccable and
+passes the Impeccable finish review on before/after screenshots at a phone
+width (390px) and desktop width (1440px), in English and Arabic (RTL), before
+it lands. A polish stream at the end of wave 2 covers pages no stream touched.
 
 ## Money
 

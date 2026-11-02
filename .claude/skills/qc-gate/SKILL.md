@@ -36,6 +36,13 @@ the wave plan is `docs/product/waves.md`.
   includes the implementer contract from the workflow doc and the issue body.
   A stream that needs another's output is cut from that branch once it posts
   READY. Never override a role's model or effort.
+- **Design bar (D22).** Product-facing UI streams build with the `impeccable`
+  skill and `docs/design/`. Before screenshots reach Ahmet,
+  `impeccable:impeccable-finish-reviewer` checks them (390px and 1440px, English
+  and Arabic/RTL) against the issue: clipped or overflowing boxes, broken RTL,
+  status colours that contradict their meaning, tap targets under 44px. Its
+  fixes land first. Tell it the product context is `docs/product/` and the
+  issue.
 - **Build while approval is pending.** A product-facing stream whose questions
   are decided builds to READY and waits with before/after screenshots; it
   lands on `staging` only after Ahmet's OK. Before any message that leaves Ahmet

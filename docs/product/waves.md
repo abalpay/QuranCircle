@@ -78,6 +78,19 @@ and is finished (tests, all three locales, deployed) before the next starts.
 - The anonymous-user cleanup keeps any user who created a circle (it already
   does; covered by a test).
 
+### 8. Design audit (D22) — first
+
+- Impeccable audit of every page at 390px and 1440px, English and Arabic:
+  design direction, prioritised fix list and the quality bar, in `docs/design/`.
+- `scripts/capture-pages.mjs`: before/after screenshots of named pages at both
+  widths and both directions, used by every UI stream from here on.
+- Blocks the UI streams #79, #80, #81.
+
+### 9. Browse lists only active circles (D21)
+
+- Browse shows a circle only if created in the last 7 days or claimed in the
+  last 30 days. Nothing is deleted; stalled circles keep working on their link.
+
 ### Out of scope for wave 1
 
 Deadlines, "start your own khatm" call to action, new languages, charity links,
@@ -111,6 +124,8 @@ page the family keeps and re-shares (D16, D17).
 - **Indonesian locale** (Indonesia was the #2 country in Oct 2026 with no locale).
 - **Memorial and healing guides** (D20): one per language, Arabic, Indonesian,
   English (South Asian terms), Turkish.
+- **Design polish (D22):** an Impeccable pass over every page no stream touched
+  in waves 1–2, on mobile and desktop, English and Arabic.
 - **Reliability:** an uptime check on the circle page and verified database
   backups; a broken circle page in a funeral week is the worst failure.
 

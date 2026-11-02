@@ -1,7 +1,7 @@
 ---
 name: implementer
 description: Implementation role for an already-approved plan in the current worktree.
-tools: Read, Grep, Glob, Bash, Write, Edit
+tools: Read, Grep, Glob, Bash, Write, Edit, Skill
 model: sonnet
 effort: medium
 permissionMode: default
