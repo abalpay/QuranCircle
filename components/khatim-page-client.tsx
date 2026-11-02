@@ -967,7 +967,7 @@ export default function KhatimPageClient({
                         <Settings className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" collisionPadding={8} className="max-w-72">
+                    <DropdownMenuContent align="end" collisionPadding={8} className="max-w-80">
                       {!event.is_archived && (
                         <>
                           <DropdownMenuCheckboxItem
@@ -979,7 +979,7 @@ export default function KhatimPageClient({
                             className="min-h-11 items-start py-2 ps-10"
                           >
                             <span className="flex flex-col gap-0.5">
-                              <span>{tPage("openNextKhatm")}</span>
+                              <span className="text-pretty">{tPage("openNextKhatm")}</span>
                               <span className="text-xs text-muted-foreground">
                                 {tPage("openNextKhatmHelp")}
                               </span>

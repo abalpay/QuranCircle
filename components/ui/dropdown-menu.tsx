@@ -98,7 +98,7 @@ function DropdownMenuCheckboxItem({
       checked={checked}
       {...props}
     >
-      <span className="pointer-events-none absolute start-2.5 top-2.5 flex size-4 items-center justify-center rounded-[4px] border border-quran-border bg-white group-data-[state=checked]:border-quran-green group-data-[state=checked]:bg-quran-green">
+      <span className="pointer-events-none absolute start-2.5 top-2.5 flex size-4 items-center justify-center rounded-[4px] border border-quran-muted bg-white group-data-[state=checked]:border-quran-green group-data-[state=checked]:bg-quran-green">
         <DropdownMenuPrimitive.ItemIndicator>
           <CheckIcon className="size-3 text-white" strokeWidth={3} />
         </DropdownMenuPrimitive.ItemIndicator>
