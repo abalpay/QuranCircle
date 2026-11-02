@@ -136,92 +136,62 @@ html[data-decor] .cta-gold-divider { animation: none; background: hsl(var(--deco
 
 /* ---------- B: one precise motif (star-and-cross lattice), two places, very low contrast ---------- */
 
-/* Hero: one field at the far (inline-end) edge, fading toward the copy, never under text */
+/* Hero: a bounded lattice panel behind the preview card, wider than the card so the field shows on every side.
+   Desktop: full-height panel on the inline-end side with a hairline on its inner edge. Mobile: a panel behind the card. */
 html[data-decor="b"] .landing-hero::after {
   position: absolute;
   z-index: 0;
   display: block;
   content: "";
   pointer-events: none;
-  opacity: 0.3;
-  background-image: var(--decor-lattice-gold);
+  background-image: var(--decor-lattice-soft);
   background-size: 120px 120px;
+  background-color: hsl(var(--decor-gold) / 0.04);
+  box-shadow: inset 0 1px 0 hsl(var(--decor-gold) / 0.4);
 }
 @media (min-width: 1024px) {
   html[data-decor="b"] .landing-hero::after {
-    inset: 0 0 0 auto;
-    width: min(46%, 44rem);
-    background-position: 100% 0;
-    -webkit-mask-image: linear-gradient(to left, black 20%, transparent 100%);
-    mask-image: linear-gradient(to left, black 20%, transparent 100%);
-  }
-  html[dir="rtl"][data-decor="b"] .landing-hero::after {
-    inset: 0 auto 0 0;
+    inset-block: 0;
+    inset-inline-end: 0;
+    width: 52%;
     background-position: 0 0;
-    -webkit-mask-image: linear-gradient(to right, black 20%, transparent 100%);
-    mask-image: linear-gradient(to right, black 20%, transparent 100%);
+    border-inline-start: 1px solid hsl(var(--decor-gold) / 0.4);
+    box-shadow: none;
   }
 }
 @media (max-width: 1023px) {
   html[data-decor="b"] .landing-hero::after {
-    inset: auto 0 0 0;
-    height: 40%;
-    background-position: 50% 100%;
-    -webkit-mask-image: linear-gradient(to top, black 10%, transparent 100%);
-    mask-image: linear-gradient(to top, black 10%, transparent 100%);
+    inset-inline: 0;
+    inset-block: auto 0;
+    height: 52%;
+    background-position: 0 0;
   }
 }
 
-/* Footer: a single thin band of stars along the top edge */
+/* Footer: a band of the lattice along the top edge, bounded by a hairline above and below. Tile is 64px, so with the
+   origin at 0 the band's mid-line (y=32) runs through the centres of the diamond crosses. */
 html[data-decor="b"] .app-footer::before {
   position: absolute;
   inset-block-start: 0;
   inset-inline: 0;
   display: block;
-  height: 64px;
+  height: 65px;
   content: "";
   pointer-events: none;
-  opacity: 0.32;
-  background-image: var(--decor-lattice-gold);
+  opacity: 1;
+  background-image: var(--decor-lattice-soft);
   background-size: 64px 64px;
   background-position: 50% 0;
   background-repeat: repeat-x;
-  -webkit-mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
-  mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
+  border-block-end: 1px solid hsl(var(--decor-gold) / 0.4);
 }
-html[data-decor="b"] .app-footer > div { padding-top: 4.5rem; }
+html[data-decor="b"] .app-footer > div { padding-top: 5rem; }
 
 /* Circle page header stays quiet in B (Quran-first): the shared short gold hairline only */
 
 /* ---------- C: illumination-inspired: fine double-rule frames with corner finials, one medallion ---------- */
 
-/* Hero product card: gold double-rule frame outside the card */
-html[data-decor="c"] .landing-hero-preview .hero-product-frame {
-  --frame: 18px;
-  position: relative;
-  width: fit-content; /* hug the card, whose max-width follows the viewport height */
-  max-width: 100%;
-  margin-inline: auto;
-}
-html[data-decor="c"] .landing-hero-preview .hero-product-frame::after {
-  position: absolute;
-  inset: calc(-1 * var(--frame) - 2px);
-  z-index: 0;
-  display: block;
-  width: auto;
-  aspect-ratio: auto;
-  content: "";
-  pointer-events: none;
-  opacity: 0.8;
-  border: var(--frame) solid transparent;
-  border-image: var(--decor-frame-gold) 32 / var(--frame) stretch;
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-html[data-decor="c"] .landing-hero-preview .hero-product-card { z-index: 1; }
-@media (min-width: 640px) {
-  html[data-decor="c"] .landing-hero-preview .hero-product-frame { --frame: 26px; }
-}
+/* C keeps the hero plain: illumination frames mean "the person's page" (circle header, band, share card), not an app screenshot */
 
 /* Public-circle band: the same frame inside the band, in place of its gold border */
 html[data-decor="c"] .landing-final-cta {
@@ -242,7 +212,9 @@ html[data-decor="c"] .landing-final-cta::after {
 }
 
 /* Circle page header (and other page headers): the frame at a smaller scale */
-html[data-decor="c"] .app-page-hero { border-radius: 1rem; }
+html[data-decor="c"] .app-page-hero { border-radius: 1rem; padding: 2.5rem 2.25rem; } /* clears the inner rule (8px inset + ~11px) by 16px+ */
+@media (min-width: 640px) { html[data-decor="c"] .app-page-hero { padding-inline: 3rem; } }
+@media (min-width: 1024px) { html[data-decor="c"] .app-page-hero { padding-block: 3.25rem; padding-inline: 3.5rem; } }
 html[data-decor="c"] .app-page-hero::before {
   position: absolute;
   inset: 0.5rem;
@@ -289,3 +261,18 @@ html[data-decor="c"] .cta-section::after {
   opacity: 0.85;
 }
 html[data-decor="c"] .cta-section { border-radius: 1rem; }
+
+/* ---------- A: one authored element: the bismillah as the opening line, centred over a gold rule ---------- */
+html[data-decor="a"] .landing-hero .landing-bismillah {
+  margin-bottom: 2rem;
+  font-size: clamp(2.1rem, 3.2vw, 3rem);
+  text-align: center;
+}
+html[data-decor="a"] .landing-hero .landing-bismillah::after {
+  display: block;
+  width: 3.5rem;
+  height: 1px;
+  margin: 1.1rem auto 0;
+  content: "";
+  background: hsl(var(--decor-gold) / 0.7);
+}
