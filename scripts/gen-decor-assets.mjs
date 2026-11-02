@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Generates app/decor-assets.css: the geometric ornaments for the #105 decor directions,
 // computed from geometry (no hand-drawn paths). Usage: node scripts/gen-decor-assets.mjs 
-// B: khatam (octagram) lattice on a square grid.
+// B: star-and-cross lattice (Hankin construction on the 4.8.8 tiling).
 // C: tazhib-style double-rule frame (border-image) and an octagram medallion.
 import { writeFileSync } from "node:fs";
 
@@ -16,15 +16,42 @@ function regular(center, n, circumradius, phase) {
   });
 }
 
-// Khatam lattice: the octagram outline {8/2} (union of two squares at 0 and 45 degrees) on every point of a
-// square grid, axis tips of neighbours meeting at the pitch midpoint. Tile is 100 units; tip radius 50.
-const INNER = (50 * Math.SQRT1_2) / Math.cos(Math.PI / 8); // where the two squares' edges cross
-function star([x, y]) {
-  const tips = regular([x, y], 8, 50, 0);
-  const dips = regular([x, y], 8, INNER, Math.PI / 8);
-  return tips.map((t, i) => `${i ? "L" : "M"}${f(t[0])} ${f(t[1])}L${f(dips[i][0])} ${f(dips[i][1])}`).join("") + "Z";
+// B: "star and cross" lattice, built by the Hankin polygons-in-contact method on the 4.8.8 tiling
+// (regular octagons on a square grid, squares in the gaps). From every shared-edge midpoint two rays leave
+// at CONTACT degrees to the edge; neighbouring rays inside each polygon meet, and the segments midpoint ->
+// meeting point are the strapwork. Octagon edge e, grid pitch 100 = e(1+sqrt2). Seamless at the tile edge.
+const CONTACT = Number(process.env.CONTACT ?? 67.5); // degrees between ray and edge; 67.5 gives 8-pointed stars joined by crosses
+function hankin(center, n, phase, apothem) {
+  const R = apothem / Math.cos(Math.PI / n);
+  const v = regular(center, n, R, phase);
+  const segs = [];
+  const mids = v.map((p, i) => {
+    const q = v[(i + 1) % n];
+    const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+    const t = [q[0] - p[0], q[1] - p[1]];
+    const len = Math.hypot(...t);
+    return { m, t: [t[0] / len, t[1] / len], n: [(center[0] - m[0]) / apothem, (center[1] - m[1]) / apothem] };
+  });
+  const th = (CONTACT * Math.PI) / 180;
+  const ray = (e, sgn) => [sgn * Math.cos(th) * e.t[0] + Math.sin(th) * e.n[0], sgn * Math.cos(th) * e.t[1] + Math.sin(th) * e.n[1]];
+  mids.forEach((e, i) => {
+    const g = mids[(i + 1) % n];
+    const d1 = ray(e, 1), d2 = ray(g, -1);
+    const det = d1[0] * -d2[1] - d1[1] * -d2[0];
+    const dx = g.m[0] - e.m[0], dy = g.m[1] - e.m[1];
+    const k = (dx * -d2[1] - dy * -d2[0]) / det;
+    const x = [e.m[0] + k * d1[0], e.m[1] + k * d1[1]];
+    segs.push([e.m, x], [g.m, x]);
+  });
+  return segs;
 }
-const latticePath = () => [[0, 0], [100, 0], [0, 100], [100, 100]].map(star).join("");
+const SEG = (segs) => segs.map(([a, b]) => `M${f(a[0])} ${f(a[1])}L${f(b[0])} ${f(b[1])}`).join("");
+const latticePath = () => {
+  const e = 100 / (1 + Math.SQRT2);
+  const oct = [[0, 0], [100, 0], [0, 100], [100, 100]].flatMap((c) => hankin(c, 8, Math.PI / 8, 50));
+  const sq = hankin([50, 50], 4, Math.PI / 4, e / 2);
+  return SEG([...oct, ...sq]);
+};
 
 const uri = (svg) => `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\s+/g, " ").trim())}")`;
 const tile = (color) =>

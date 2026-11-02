@@ -1,7 +1,7 @@
 /*
  * TEMPORARY (#105): review-only decor directions, switched by ?decor=a|b|c (components/decor-switch.tsx sets
  * <html data-decor>). Without the attribute nothing here applies, so the current look is the default.
- * A = no ornament, B = one precise geometric motif, C = illumination-inspired rules and frames.
+ * A = no ornament, B = one precise geometric motif (Hankin star-and-cross lattice: hero + footer only), C = illumination-inspired rules and frames.
  * Every rule is keyed `html[data-decor]` (shared base) or `html[data-decor="x"]`. Delete this file, decor-assets.css,
  * components/decor-switch.tsx and the old assets once the owner picks a direction.
  * Rules: no glows, no mosque/building art, one stroke weight (1px), ornaments never under body text, no animation.
@@ -134,7 +134,7 @@ html[data-decor] .cta-section::after { display: none; }
 html[data-decor] .cta-section { background: var(--decor-green); border-radius: 1.5rem; }
 html[data-decor] .cta-gold-divider { animation: none; background: hsl(var(--decor-gold) / 0.5); }
 
-/* ---------- B: one precise motif (khatam lattice), two places, very low contrast ---------- */
+/* ---------- B: one precise motif (star-and-cross lattice), two places, very low contrast ---------- */
 
 /* Hero: one field at the far (inline-end) edge, fading toward the copy, never under text */
 html[data-decor="b"] .landing-hero::after {
@@ -143,9 +143,9 @@ html[data-decor="b"] .landing-hero::after {
   display: block;
   content: "";
   pointer-events: none;
-  opacity: 0.2;
+  opacity: 0.3;
   background-image: var(--decor-lattice-gold);
-  background-size: 96px 96px;
+  background-size: 120px 120px;
 }
 @media (min-width: 1024px) {
   html[data-decor="b"] .landing-hero::after {
@@ -181,42 +181,17 @@ html[data-decor="b"] .app-footer::before {
   height: 64px;
   content: "";
   pointer-events: none;
-  opacity: 0.22;
+  opacity: 0.32;
   background-image: var(--decor-lattice-gold);
   background-size: 64px 64px;
-  background-position: 50% 32px;
+  background-position: 50% 0;
   background-repeat: repeat-x;
   -webkit-mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
   mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
 }
 html[data-decor="b"] .app-footer > div { padding-top: 4.5rem; }
 
-/* Circle page header: the same lattice, green on parchment, at the end corner only */
-@media (min-width: 768px) {
-  html[data-decor="b"] .app-page-hero::before {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-end: 0;
-    z-index: -1;
-    display: block;
-    width: 20rem;
-    height: auto;
-    content: "";
-    pointer-events: none;
-    opacity: 0.1;
-    background-image: var(--decor-lattice-green);
-    background-size: 72px 72px;
-    background-position: 100% 0;
-    transform: none;
-    -webkit-mask-image: linear-gradient(to left, black 10%, transparent 100%);
-    mask-image: linear-gradient(to left, black 10%, transparent 100%);
-  }
-  html[dir="rtl"][data-decor="b"] .app-page-hero::before {
-    background-position: 0 0;
-    -webkit-mask-image: linear-gradient(to right, black 10%, transparent 100%);
-    mask-image: linear-gradient(to right, black 10%, transparent 100%);
-  }
-}
+/* Circle page header stays quiet in B (Quran-first): the shared short gold hairline only */
 
 /* ---------- C: illumination-inspired: fine double-rule frames with corner finials, one medallion ---------- */
 
@@ -228,7 +203,7 @@ html[data-decor="c"] .landing-hero-preview .hero-product-frame {
   max-width: 100%;
   margin-inline: auto;
 }
-html[data-decor="c"] .landing-hero-preview .hero-product-frame::before {
+html[data-decor="c"] .landing-hero-preview .hero-product-frame::after {
   position: absolute;
   inset: calc(-1 * var(--frame) - 2px);
   z-index: 0;
@@ -238,12 +213,8 @@ html[data-decor="c"] .landing-hero-preview .hero-product-frame::before {
   content: "";
   pointer-events: none;
   opacity: 0.8;
-  background: none;
   border: var(--frame) solid transparent;
   border-image: var(--decor-frame-gold) 32 / var(--frame) stretch;
-  border-radius: 0;
-  transform: none;
-  rotate: 0deg;
   -webkit-mask-image: none;
   mask-image: none;
 }
