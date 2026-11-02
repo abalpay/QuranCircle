@@ -64,6 +64,7 @@ export default function FooterLanguageNavigation({
             <span
               lang={option.locale}
               dir={option.locale === "ar" ? "rtl" : "ltr"}
+              className={option.locale === "ar" ? "text-[0.9375rem]" : undefined}
             >
               {option.label}
             </span>

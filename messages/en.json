@@ -34,7 +34,10 @@
     "allRightsReserved": "All rights reserved.",
     "readTogether": "Read together",
     "ariaLabel": "Footer",
-    "languageNavigation": "Languages"
+    "languageNavigation": "Languages",
+    "promise": "Free forever. No ads. Built as sadaqah jariyah.",
+    "support": "Support QuranCircle",
+    "opensInNewTab": "(opens in a new tab)"
   },
   "Home": {
     "title": "My Circles",
@@ -94,7 +97,7 @@
     "descriptionOptional": "(Optional)",
     "descriptionPlaceholder": "A short description of this reading event...",
     "makePublic": "Make this circle public",
-    "makePublicDesc": "Anyone with the link can join and claim Juz sections.",
+    "makePublicDesc": "Public circles are listed on Browse and in search engines. The circle name, description and reader names become visible to anyone.",
     "linkOnly": "Link only: Share with those you want to invite.",
     "publicVisible": "Public circles are visible to everyone on Browse.",
     "cancel": "Cancel",
@@ -591,7 +594,7 @@
     "ariaLabel": "QuranCircle community statistics",
     "circlesCreated": "Circles created",
     "juzClaimed": "Juz claimed",
-    "activeKhatms": "Khatms active now"
+    "khatmsCompleted": "Khatms completed"
   },
   "PublicCircleCta": {
     "eyebrow": "Open to everyone",

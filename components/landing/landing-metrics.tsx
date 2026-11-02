@@ -1,23 +1,16 @@
-import {
-  BookOpen,
-  CircleCheckBig,
-  UsersRound,
-  type LucideIcon,
-} from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 
 type LandingMetricsProps = {
   stats: {
     totalCircles: number;
     totalJuzClaimed: number;
-    activeKhatms: number;
+    khatmsCompleted: number;
   };
 };
 
 type Metric = {
   label: string;
   value: number;
-  icon: LucideIcon;
 };
 
 export default async function LandingMetrics({ stats }: LandingMetricsProps) {
@@ -27,32 +20,28 @@ export default async function LandingMetrics({ stats }: LandingMetricsProps) {
   ]);
   const formatMetric = (value: number) => {
     const normalized = Math.max(0, Math.trunc(value));
-    return `${format.number(normalized)}${normalized > 0 ? "+" : ""}`;
+    return format.number(normalized);
   };
   const metrics: Metric[] = [
     {
       label: t("circlesCreated"),
       value: stats.totalCircles,
-      icon: UsersRound,
     },
     {
       label: t("juzClaimed"),
       value: stats.totalJuzClaimed,
-      icon: BookOpen,
     },
     {
-      label: t("activeKhatms"),
-      value: stats.activeKhatms,
-      icon: CircleCheckBig,
+      label: t("khatmsCompleted"),
+      value: stats.khatmsCompleted,
     },
   ];
 
   return (
     <section className="landing-metrics" aria-label={t("ariaLabel")}>
       <ul className="landing-metrics-grid">
-        {metrics.map(({ label, value, icon: Icon }) => (
+        {metrics.map(({ label, value }) => (
           <li key={label}>
-            <Icon aria-hidden="true" />
             <div>
               <strong>{formatMetric(value)}</strong>
               <span>{label}</span>
