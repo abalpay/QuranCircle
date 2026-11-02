@@ -150,6 +150,11 @@ async function createFixtures() {
       status: "read", ...(i === 0 ? { user: reader } : {}),
     })), completed: true }],
   });
+  // Mixed scripts in the name and description: the share image must keep a browser's visual order.
+  await makeCircle({
+    code: "DSGMIXED", name: "ختمة عن Ahmed Ali Khan", description: "اللهم اغفر له and have mercy on him. Khatm 1 ختمة", creator: org, openNext: false,
+    khatms: [{ n: 1, claims: names(LATIN, 6) }],
+  });
   await makeCircle({
     code: "DSGARCH", name: "Khatm for Ibrahim Okafor", description: DUA, creator: org, archived: true,
     khatms: [{ n: 1, claims: names(LATIN, 12) }],
@@ -223,6 +228,7 @@ const PAGES = [
   ...completionDialog("DSGMANY", "many"),
   // The register expanded in place, then scrolled to the end.
   { name: "circle-many-dialogall-reader", path: "/s/DSGMANY", auth: READER_V, expandReaders: true, scrollDialog: true },
+  ...circle("DSGMIXED", [SIGNED_OUT]),
   ...circle("DSGAUTO", [SIGNED_OUT]),
   ...completionDialog("DSGAUTO", "auto"),
   ...circle("DSGARCH"),

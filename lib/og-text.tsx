@@ -1,10 +1,12 @@
 import type { CSSProperties } from "react";
-import { textScript } from "@/lib/text-script";
+import { layoutBidiWords } from "@/lib/og-bidi";
+import { containsArabicScript } from "@/lib/text-script";
 
 /**
- * Satori places a text node's words left to right in reading order, so Arabic would read backwards.
- * Arabic-script text is laid out word by word in a wrapping row-reverse flex, which starts at the
- * right edge and wraps correctly. Latin text is a plain flex child, unchanged (#103).
+ * Satori has no bidi: it places a text node's words left to right in reading order. Text with
+ * Arabic script is therefore laid out word by word, ordered by `layoutBidiWords`, in a wrapping
+ * flex row (`row-reverse` for an RTL paragraph, so it starts at the right edge). Latin-only text
+ * stays one plain node, unchanged (#103).
  */
 export function OgText({
   text,
@@ -13,25 +15,26 @@ export function OgText({
 }: {
   text: string;
   style: CSSProperties;
-  /** Arabic blocks span the row so they sit against the right edge; the CTA passes false. */
+  /** RTL blocks span the row so they sit against the right edge; the CTA passes false. */
   hug?: boolean;
 }) {
-  if (textScript(text) !== "arabic") {
+  if (!containsArabicScript(text)) {
     return <div style={{ ...style, display: "flex" }}>{text}</div>;
   }
-  const words = text.split(/\s+/).filter(Boolean);
+  const { paragraph, words } = layoutBidiWords(text);
+  const rtl = paragraph === "rtl";
   const fontSize = typeof style.fontSize === "number" ? style.fontSize : 24;
   // Satori throws on undefined style values, so maxWidth is dropped by destructuring, never set to undefined.
   const { maxWidth: _maxWidth, ...rest } = style;
   return (
     <div
       style={{
-        ...(hug ? rest : style),
+        ...(rtl && hug ? rest : style),
         display: "flex",
-        flexDirection: "row-reverse",
+        flexDirection: rtl ? "row-reverse" : "row",
         flexWrap: "wrap",
         columnGap: Math.round(fontSize * 0.2),
-        ...(hug ? { width: "100%" } : {}),
+        ...(rtl && hug ? { width: "100%" } : {}),
       }}
     >
       {words.map((word, index) => (

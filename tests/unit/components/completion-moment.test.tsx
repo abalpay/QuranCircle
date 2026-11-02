@@ -98,7 +98,7 @@ describe("completion dialog content (#81)", () => {
     expect(screen.queryByText(/sadaqah jariyah/)).toBeNull();
   });
 
-  it("shows the support line and link below the share button when a URL is set", () => {
+  it("shows the support line and link below the dua and the register when a URL is set", () => {
     vi.stubEnv("NEXT_PUBLIC_SUPPORT_URL", "https://ko-fi.com/qurancircle");
     renderContent();
     const link = screen.getByTestId("completion-support-link");
@@ -108,8 +108,10 @@ describe("completion dialog content (#81)", () => {
         "QuranCircle is free and run as sadaqah jariyah. Help keep it running and share in the reward."
       )
     ).toBeInTheDocument();
-    const share = screen.getByRole("button", { name: "Share on WhatsApp" });
-    expect(share.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const prayer = screen.getByText("May Allah accept this khatm.");
+    const readers = screen.getByText("Read by");
+    expect(prayer.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(readers.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("keeps the support line out when the caller does not allow it", () => {
@@ -165,13 +167,17 @@ describe("a long register in the dialog", () => {
     expect(screen.queryByRole("button", { name: /more|fewer/i })).toBeNull();
   });
 
-  it("keeps share and the close button pinned while the dialog scrolls", () => {
+  it("pins only the close button and the share button; the support ask scrolls with the content", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPPORT_URL", "https://ko-fi.com/qurancircle");
     render(
       <CompletionDialog khatm={manyReaders()} circleName="Khatm for Maryam" circleCreatedAt="2020-01-01T00:00:00Z" onClose={vi.fn()} />,
       { wrapper: IntlWrapper }
     );
     const share = screen.getByRole("button", { name: "Share on WhatsApp" });
-    expect(share.closest(".sticky")?.className).toMatch(/bottom-0/);
+    const footer = share.closest(".sticky");
+    expect(footer?.className).toMatch(/bottom-0/);
+    expect(footer?.querySelectorAll("a, button")).toHaveLength(1); // only Share
+    expect(screen.getByTestId("completion-support-link").closest(".sticky")).toBeNull();
     expect(screen.getByRole("button", { name: "Close" }).closest(".sticky")?.className).toMatch(/top-0/);
   });
 });

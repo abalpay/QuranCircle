@@ -31,7 +31,7 @@ type ContentProps = {
   variant: "dialog" | "record";
   /** The record shows the date when the page header does not already say it. */
   showDate?: boolean;
-  /** Keep the share button and the support ask pinned at the bottom while the dialog scrolls. */
+  /** Keep the share button pinned at the bottom while the dialog scrolls. */
   stickyFooter?: boolean;
   /** The support ask (D10/D19). It still needs getSupportUrl() to return a URL. Dialog only. */
   showSupport?: boolean;
@@ -175,11 +175,27 @@ export function CompletionContent({
         </section>
       )}
 
+      {showSupport && supportUrl && (
+        <div className="border-t border-quran-border/60 pt-4 text-center">
+          <p className="mx-auto max-w-prose text-sm leading-6 text-quran-muted rtl:text-base">{t("supportLine")}</p>
+          <a
+            href={supportUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="completion-support-link"
+            className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-quran-green underline underline-offset-4 hover:bg-quran-green/10 rtl:text-base"
+          >
+            {t("supportLink")}
+            <ExternalLink aria-hidden="true" className="size-3.5 rtl:-scale-x-100" />
+            <span className="sr-only"> {t("opensInNewTab")}</span>
+          </a>
+        </div>
+      )}
+
       <div
         className={cn(
-          "space-y-4",
           stickyFooter &&
-            "sticky bottom-0 -mx-5 border-t border-quran-border/60 bg-quran-card/95 px-5 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6"
+            "sticky bottom-0 -mx-5 border-t border-quran-border/60 bg-quran-card/95 px-5 py-2 backdrop-blur-sm sm:-mx-6 sm:px-6"
         )}
       >
         <div className="flex justify-center">
@@ -192,23 +208,6 @@ export function CompletionContent({
             {t("shareWhatsApp")}
           </Button>
         </div>
-
-        {showSupport && supportUrl && (
-          <div className={cn("text-center", stickyFooter ? "pt-0" : "border-t border-quran-border/60 pt-4")}>
-            <p className="mx-auto max-w-prose text-sm leading-6 text-quran-muted rtl:text-base">{t("supportLine")}</p>
-            <a
-              href={supportUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="completion-support-link"
-              className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-quran-green underline underline-offset-4 hover:bg-quran-green/10 rtl:text-base"
-            >
-              {t("supportLink")}
-              <ExternalLink aria-hidden="true" className="size-3.5 rtl:-scale-x-100" />
-              <span className="sr-only"> {t("opensInNewTab")}</span>
-            </a>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -229,7 +228,7 @@ export function CompletionDialog({ khatm, circleName, circleCreatedAt, onClose }
   const [now] = useState(() => Date.now());
   return (
     <Dialog open={khatm !== null} onOpenChange={(open) => !open && onClose()}>
-      {/* The dialog scrolls inside the viewport: close stays pinned on top, share and support pinned below. */}
+      {/* The dialog scrolls inside the viewport: close stays pinned on top, share pinned below. */}
       <DialogContent
         aria-describedby={undefined}
         showCloseButton={false}
