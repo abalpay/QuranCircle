@@ -263,7 +263,7 @@
   },
   "CreatorQueue": {
     "title": "Creator Queue",
-    "subtitle": "Triage event-wide claims while keeping your personal My Juz flow separate.",
+    "subtitle": "Every claim in this circle. Mark Juz Done for readers or release a claim.",
     "total": "Total {count}",
     "claimed": "Reading {count}",
     "read": "Done {count}",
@@ -294,7 +294,6 @@
   "Filters": {
     "all": "All ({count})",
     "available": "Available ({count})",
-    "myJuz": "My Juz ({count})",
     "creatorQueue": "Creator Queue ({count})",
     "juzFilters": "Juz filters",
     "updating": "Updating...",

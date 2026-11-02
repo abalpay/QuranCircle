@@ -267,9 +267,7 @@ describe("KhatimPageClient share/settings visibility", () => {
     );
   });
 
-  it("puts the creator queue beside All, Available and My Juz, one level (fix 49)", () => {
-    searchParamsMock.value = "filter=mine";
-
+  it("puts the creator queue beside All and Available, with no My Juz tab", () => {
     render(
       <KhatimPageClient
         event={buildEvent({
@@ -282,9 +280,9 @@ describe("KhatimPageClient share/settings visibility", () => {
     );
 
     const filterGroup = screen.getByRole("group", { name: "Juz filters" });
-    expect(screen.queryByRole("group", { name: "My Juz views" })).not.toBeInTheDocument();
     expect(filterGroup.querySelector("[role='tab']")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "My Juz (0)" })).toHaveAttribute(
+    expect(screen.queryByRole("button", { name: /My Juz/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "All (0)" })).toHaveAttribute(
       "aria-pressed",
       "true"
     );
@@ -292,6 +290,30 @@ describe("KhatimPageClient share/settings visibility", () => {
       "aria-pressed",
       "false"
     );
+  });
+
+  it("maps legacy filter=mine&mineView=creator to the queue for organizers only", () => {
+    searchParamsMock.value = "filter=mine&mineView=creator";
+    const { unmount } = render(
+      <KhatimPageClient
+        event={buildEvent({ is_creator: true, can_manage: true })}
+        shortCode="ABCDEFGH"
+      />,
+      { wrapper: IntlWrapper }
+    );
+    expect(screen.getByRole("button", { name: "Creator Queue (0)" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    unmount();
+    render(<KhatimPageClient event={buildEvent()} shortCode="ABCDEFGH" />, {
+      wrapper: IntlWrapper,
+    });
+    expect(screen.getByRole("button", { name: "All (0)" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.queryByRole("button", { name: /Creator Queue/ })).not.toBeInTheDocument();
   });
 
   describe("reader view (#79)", () => {
@@ -308,7 +330,7 @@ describe("KhatimPageClient share/settings visibility", () => {
       ],
     };
 
-    it.each(["all", "available", "mine"])("shows Your Juz in the %s tab", (filter) => {
+    it.each(["all", "available", "creator"])("shows Your Juz in the %s tab", (filter) => {
       searchParamsMock.value = `filter=${filter}`;
       render(
         <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
@@ -362,18 +384,7 @@ describe("KhatimPageClient share/settings visibility", () => {
       expect(screen.getByRole("link", { name: /Open Juz 5 on Quran\.com/ })).toBeInTheDocument();
     });
 
-    it("does not repeat the tiles under Your Juz in the My Juz tab", () => {
-      searchParamsMock.value = "filter=mine";
-      render(
-        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
-        { wrapper: IntlWrapper }
-      );
-      expect(screen.getByRole("heading", { name: "Your Juz" })).toBeInTheDocument();
-      expect(screen.queryByTestId("khatm-card")).not.toBeInTheDocument();
-    });
-
-    it("shows the other-phone hint in My Juz only when there are no claims", () => {
-      searchParamsMock.value = "filter=mine";
+    it("shows the other-phone hint only for a visitor holding no Juz", () => {
       const { unmount } = render(
         <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
         { wrapper: IntlWrapper }
@@ -386,6 +397,69 @@ describe("KhatimPageClient share/settings visibility", () => {
       expect(
         screen.getByText("Claimed on another phone? Ask the organizer to mark it Done.")
       ).toBeInTheDocument();
+    });
+
+    it("hides the other-phone hint for the organizer and on archived circles", () => {
+      const { unmount } = render(
+        <KhatimPageClient
+          event={buildEvent({ is_creator: true, can_manage: true })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.queryByText(/Claimed on another phone/)).not.toBeInTheDocument();
+      unmount();
+      render(<KhatimPageClient event={buildEvent({ is_archived: true })} shortCode="ABCDEFGH" />, {
+        wrapper: IntlWrapper,
+      });
+      expect(screen.queryByText(/Claimed on another phone/)).not.toBeInTheDocument();
+    });
+
+    it("hides the other-phone hint in the Creator Queue view", () => {
+      searchParamsMock.value = "filter=creator";
+      render(
+        <KhatimPageClient
+          event={buildEvent({ is_creator: true, can_manage: true })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.queryByText(/Claimed on another phone/)).not.toBeInTheDocument();
+    });
+
+    it("renders the khatm cards on a legacy ?filter=mine link and rewrites it to all", () => {
+      searchParamsMock.value = "filter=mine";
+      render(
+        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.getByTestId("khatm-card")).toBeInTheDocument();
+      expect(replaceMock).toHaveBeenCalledWith(expect.stringContaining("filter=all"), expect.anything());
+    });
+
+    it("rewrites legacy mine&mineView=creator to filter=creator for the organizer", () => {
+      searchParamsMock.value = "filter=mine&mineView=creator";
+      render(
+        <KhatimPageClient
+          event={buildEvent({ is_creator: true, can_manage: true, khatms: [ownKhatm] })}
+          shortCode="ABCDEFGH"
+        />,
+        { wrapper: IntlWrapper }
+      );
+      expect(replaceMock).toHaveBeenCalledWith(
+        expect.stringContaining("filter=creator"),
+        expect.anything()
+      );
+    });
+
+    it("gives a non-organizer on ?filter=creator the All view", () => {
+      searchParamsMock.value = "filter=creator";
+      render(
+        <KhatimPageClient event={buildEvent({ khatms: [ownKhatm] })} shortCode="ABCDEFGH" />,
+        { wrapper: IntlWrapper }
+      );
+      expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByTestId("khatm-card")).toBeInTheDocument();
     });
 
     it("sets dir=auto and a script-chosen face on the title and dua", () => {

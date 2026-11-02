@@ -9,7 +9,7 @@ import { claimMultipleJuz } from "@/lib/actions/juz";
 import {
   getKhatmMatches,
   getAvailableRows,
-  type GlobalFilter,
+  type CardFilter,
 } from "@/lib/event-filters";
 import type { JuzSnapshot, KhatmSnapshot } from "@/lib/types/events";
 import { toast } from "sonner";
@@ -37,7 +37,7 @@ type Props = {
   shortCode: string;
   isReadOnly: boolean;
   onRefresh: () => Promise<void>;
-  activeFilter: GlobalFilter;
+  activeFilter: CardFilter;
   isCompleted?: boolean;
   /** Completed for good (completed_at set): no claim or unclaim. */
   isFinal?: boolean;
@@ -69,7 +69,7 @@ export default function KhatmCard({
   const tc = useTranslations("Completion");
   const headingId = useId();
   const isComplete = Boolean(khatm.completed_at);
-  const selectionContextKey = `${isReadOnly ? "1" : "0"}:${activeFilter === "mine" ? "1" : "0"}`;
+  const selectionContextKey = isReadOnly ? "1" : "0";
   const [selectionState, setSelectionState] = useState<{
     key: string;
     values: Set<number>;
@@ -315,7 +315,7 @@ export default function KhatmCard({
       )}
 
       <div className="bg-white/40 p-4 sm:p-8">
-        {activeFilter !== "mine" && !isFinal && !isComplete && khatm.claimed_count < 30 && (
+        {!isFinal && !isComplete && khatm.claimed_count < 30 && (
           <p className="mb-4 text-sm text-quran-muted">
             {t("tapToSelect")}
           </p>
@@ -347,13 +347,11 @@ export default function KhatmCard({
         onSubmit={handleClaimSubmit}
       />
 
-      {activeFilter !== "mine" && (
-        <FloatingClaimBar
-          selectedCount={activeSelection.size}
-          onClaim={handleBatchClaim}
-          onClear={clearSelection}
-        />
-      )}
+      <FloatingClaimBar
+        selectedCount={activeSelection.size}
+        onClaim={handleBatchClaim}
+        onClear={clearSelection}
+      />
     </div>
   );
 }

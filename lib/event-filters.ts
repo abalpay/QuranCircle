@@ -1,11 +1,9 @@
 import type { EventSnapshot, JuzSnapshot, KhatmSnapshot } from "@/lib/types/events";
 
-export type GlobalFilter = "all" | "available" | "mine";
-export type MineView = "mine" | "creator";
+export type CardFilter = "all" | "available";
+export type GlobalFilter = CardFilter | "creator";
 export type CreatorQueueStatus = "all" | "claimed" | "read";
 
-const VALID_FILTERS: Set<GlobalFilter> = new Set(["all", "available", "mine"]);
-const VALID_MINE_VIEWS: Set<MineView> = new Set(["mine", "creator"]);
 const STATUS_SORT_ORDER: Record<CreatorManageRow["status"], number> = {
   claimed: 0,
   read: 1,
@@ -15,7 +13,6 @@ const STATUS_SORT_ORDER: Record<CreatorManageRow["status"], number> = {
 export type EventFilterCounts = {
   all: number;
   available: number;
-  mine: number;
 };
 
 export type CreatorManageRow = {
@@ -43,24 +40,20 @@ export type CreatorQueueStats = {
   mine: number;
 };
 
+/**
+ * Legacy ?filter=mine (the removed My Juz tab) maps to All, or to the queue for
+ * organizers with mineView=creator. The queue is organizer-only.
+ */
 export function normalizeGlobalFilter(
-  filter: string | null | undefined
+  filter: string | null | undefined,
+  isCreator: boolean,
+  mineView?: string | null
 ): GlobalFilter {
-  if (filter && VALID_FILTERS.has(filter as GlobalFilter)) {
-    return filter as GlobalFilter;
+  if (filter === "available") return "available";
+  if (filter === "creator" || (filter === "mine" && mineView === "creator")) {
+    return isCreator ? "creator" : "all";
   }
   return "all";
-}
-
-export function normalizeMineView(
-  mineView: string | null | undefined,
-  isCreator: boolean
-): MineView {
-  if (!isCreator) return "mine";
-  if (mineView && VALID_MINE_VIEWS.has(mineView as MineView)) {
-    return mineView as MineView;
-  }
-  return "mine";
 }
 
 export function getDisplayFilter(
@@ -84,25 +77,7 @@ export function withGlobalFilterQuery(
 ) {
   const params = new URLSearchParams(queryString);
   params.set("filter", filter);
-  if (filter !== "mine") {
-    params.delete("mineView");
-  }
-  const nextQuery = params.toString();
-  return nextQuery ? `${pathname}?${nextQuery}` : pathname;
-}
-
-export function withMineViewQuery(
-  pathname: string,
-  queryString: string,
-  mineView: MineView
-) {
-  const params = new URLSearchParams(queryString);
-  params.set("filter", "mine");
-  if (mineView === "mine") {
-    params.delete("mineView");
-  } else {
-    params.set("mineView", mineView);
-  }
+  params.delete("mineView");
   const nextQuery = params.toString();
   return nextQuery ? `${pathname}?${nextQuery}` : pathname;
 }
@@ -110,7 +85,7 @@ export function withMineViewQuery(
 /**
  * Tab counts. "All" is the khatm in front (the latest), not every loaded khatm;
  * "Available" counts Juz that can still be claimed (unclaimed Juz of khatms that
- * are not completed); "My Juz" spans khatms because the Your Juz block does.
+ * are not completed).
  */
 export function getEventFilterCounts(
   event: Pick<EventSnapshot, "khatms">
@@ -120,11 +95,10 @@ export function getEventFilterCounts(
       !latest || khatm.khatm_number > latest.khatm_number ? khatm : latest,
     undefined
   );
-  const counts = { all: current?.juzs.length ?? 0, available: 0, mine: 0 };
+  const counts = { all: current?.juzs.length ?? 0, available: 0 };
   for (const khatm of event.khatms) {
     for (const juz of khatm.juzs) {
       if (juz.status === "unclaimed" && !khatm.completed_at) counts.available += 1;
-      if (juz.status !== "unclaimed" && juz.is_mine) counts.mine += 1;
     }
   }
   return counts;
@@ -142,11 +116,9 @@ export function getMineRows(khatm: Pick<KhatmSnapshot, "juzs">) {
 
 export function getKhatmMatches(
   khatm: Pick<KhatmSnapshot, "juzs">,
-  filter: GlobalFilter
+  filter: CardFilter
 ) {
-  if (filter === "all") return khatm.juzs;
-  if (filter === "available") return getAvailableRows(khatm);
-  return getMineRows(khatm);
+  return filter === "all" ? khatm.juzs : getAvailableRows(khatm);
 }
 
 export function getCreatorManageRows(
