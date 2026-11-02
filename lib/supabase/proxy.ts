@@ -134,7 +134,11 @@ export async function updateSession(
       return redirectResponse;
     }
 
+    // A real 404 has to leave the proxy: the circle route streams (loading.tsx), so its own
+    // notFound() would arrive after a 200. Rewrite to the styled circle not-found instead of a bare body.
+    // The not-found page itself is also answered here so a direct visit is a 404, not a soft 200.
     const shortCode = getShortCodeFromPath(appPathname);
+    let missing = appPathname === "/circle-not-found";
     if (shortCode) {
       const { data, error } = await supabase.rpc(
         "get_event_snapshot_by_shortcode",
@@ -143,17 +147,23 @@ export async function updateSession(
           p_khatm_limit: 1,
         },
       );
+      missing = !error && !data;
+    }
 
-      if (!error && !data) {
-        const notFoundResponse = new NextResponse("Not Found", {
+    if (missing) {
+      const locale =
+        routing.locales.find((l) => request.nextUrl.pathname.startsWith(`/${l}/`)) ??
+        routing.defaultLocale;
+      const notFoundResponse = NextResponse.rewrite(
+        new URL(`/${locale}/circle-not-found`, request.url),
+        {
+          request: { headers: requestHeaders },
           status: 404,
-          headers: {
-            "X-Robots-Tag": "noindex, nofollow",
-          },
-        });
-        copyAuthResponseState(supabaseResponse, notFoundResponse);
-        return notFoundResponse;
-      }
+          headers: { "X-Robots-Tag": "noindex, nofollow" },
+        },
+      );
+      copyAuthResponseState(supabaseResponse, notFoundResponse);
+      return notFoundResponse;
     }
   } catch (error) {
     console.error("[supabase/proxy] auth.getUser failed", error);
