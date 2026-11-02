@@ -7,6 +7,7 @@ import { toAbsoluteUrl } from "@/lib/site-url";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { getOpenGraphLocale } from "@/i18n/locale-config";
+import { getCircleOgState, getOgDescription, ogVersion } from "@/lib/circle-og";
 
 const SNAPSHOT_WINDOW_KHATM_LIMIT = 3;
 
@@ -24,20 +25,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     notFound();
   }
 
-  const description =
-    event.description || t("description", { eventName: event.name });
+  const state = getCircleOgState(event, event.name);
+  const description = getOgDescription(state, event.description, (key, values) =>
+    t(key, values)
+  );
   const pathname = getPathname({ locale, href: `/s/${shortCode}` });
   const url = toAbsoluteUrl(pathname);
-  const imageAlt = t("imageAlt", { eventName: event.name });
-  // The preview changes when the latest khatm completes, so the version includes that.
+  // "Invitation to join" only fits an open circle; the other states describe where it stands.
+  const imageAlt = state.status === "open" ? t("imageAlt", { eventName: event.name }) : description;
+  // Everything the card shows feeds the version, so the preview refreshes when the state changes
+  // (completed, full, archived, renamed) instead of serving a cached card.
   const latestKhatm = event.khatms[event.khatms.length - 1];
-  const ogVersion =
-    new Date(event.created_at).getTime().toString(36) +
-    (latestKhatm?.completed_at ? `c${latestKhatm.khatm_number}` : "");
+  const ogImageVersion = ogVersion(
+    event.name,
+    event.description,
+    state.status,
+    state.isPublic,
+    state.completedKhatmNumber,
+    latestKhatm?.khatm_number,
+    event.created_at
+  );
   // The image route lives under [locale] and the proxy does not rewrite *opengraph-image paths,
   // so the locale segment is always explicit, English included (#103).
   const ogImageUrl = toAbsoluteUrl(
-    `/${locale}/s/${shortCode}/opengraph-image?v=${ogVersion}`
+    `/${locale}/s/${shortCode}/opengraph-image?v=${ogImageVersion}`
   );
 
   return {

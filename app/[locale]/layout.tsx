@@ -39,7 +39,7 @@ import { BRAND_SOCIAL_IMAGE_PATH } from "@/lib/brand";
 import { VIEWPORT_DIAGNOSTICS_REQUEST_HEADER } from "@/lib/viewport-diagnostics";
 
 const siteUrl = getSiteUrl();
-const socialImageUrl = toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH);
+const socialImageUrl = (locale: string) => toAbsoluteUrl(`${BRAND_SOCIAL_IMAGE_PATH}/${locale}`);
 const isVercelDeployment = process.env.VERCEL === "1";
 
 const manrope = Manrope({
@@ -112,7 +112,7 @@ export async function generateMetadata({
       description: t("openGraphDescription"),
       images: [
         {
-          url: socialImageUrl,
+          url: socialImageUrl(locale),
           width: 1200,
           height: 630,
           alt: "QuranCircle",
@@ -123,7 +123,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t("siteTitle"),
       description: t("openGraphDescription"),
-      images: [socialImageUrl],
+      images: [socialImageUrl(locale)],
     },
   };
 }

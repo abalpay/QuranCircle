@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { ArrowUpRight, Clock3, Github, MessageCircleMore } from "lucide-react";
 import AppPageHero from "@/components/app-page-hero";
 import type { LocalePageProps } from "@/i18n/routing";
+import { socialMetadata } from "@/lib/social-metadata";
 import {
   getLanguageAlternates,
   getLocalizedPath,
@@ -22,15 +23,12 @@ export async function generateMetadata({
       canonical,
       languages: getLanguageAlternates("/contact"),
     },
-    openGraph: {
+    ...socialMetadata({
+      locale,
       title: t("metadataTitle"),
       description: t("metadataDescription"),
       url: canonical,
-    },
-    twitter: {
-      title: t("metadataTitle"),
-      description: t("metadataDescription"),
-    },
+    }),
   };
 }
 

@@ -4,10 +4,10 @@ import { getTranslations } from "next-intl/server";
 import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import BrandMark from "@/components/brand-mark";
-import { getCircleOgState } from "@/lib/circle-og";
-import { containsArabicScript } from "@/lib/text-script";
-import { loadOgFonts } from "@/lib/og-fonts";
-import { OgText } from "@/lib/og-text";
+import { getCircleOgState, truncateAtWord, type CircleOgStatus } from "@/lib/circle-og";
+import { loadOgFonts, ogFontFamily } from "@/lib/og-fonts";
+import { OgText, type OgAlign } from "@/lib/og-text";
+import { layoutBidiWords } from "@/lib/og-bidi";
 
 export const runtime = "nodejs";
 
@@ -42,6 +42,9 @@ export default async function OGImage({
   let eventDescription = "";
   let completedKhatmNumber: number | null = null;
   let showJoinCta = true;
+  let status: CircleOgStatus = "open";
+  // Private until the snapshot says otherwise: a failed lookup must not leave a link-only card indexable.
+  let isPublic = false;
 
   try {
     const supabase = createAnonClient();
@@ -56,18 +59,27 @@ export default async function OGImage({
       eventDescription = state.description;
       completedKhatmNumber = state.completedKhatmNumber;
       showJoinCta = state.showJoinCta;
+      status = state.status;
+      isPublic = state.isPublic;
     }
   } catch {
     // Fallback to defaults
   }
 
-  const completedLabel =
-    completedKhatmNumber !== null ? t("khatmComplete", { number: completedKhatmNumber }) : "";
-  // Latin-only images keep satori's default font. Arabic text needs a bundled font it can shape (#103).
-  const fonts = containsArabicScript(eventName, eventDescription, completedLabel, t("joinCircle"))
-    ? await loadOgFonts()
-    : null;
-  const sans = fonts ? "Manrope, Tajawal, sans-serif" : "sans-serif";
+  const statusLabel =
+    completedKhatmNumber !== null && status === "completed"
+      ? t("khatmComplete", { number: completedKhatmNumber })
+      : status === "archived"
+        ? t("archivedLabel")
+        : status === "full"
+          ? t("fullLabel")
+          : "";
+  // Both fonts always load: Manrope for Latin, Tajawal for Arabic, so every card uses the same faces (#104).
+  const fonts = await loadOgFonts();
+  const sans = ogFontFamily(fonts);
+  // One alignment for the whole card, from the circle name's direction; each line keeps its own.
+  const rtl = layoutBidiWords(eventName).paragraph === "rtl";
+  const align: OgAlign = rtl ? "right" : "left";
 
   return new ImageResponse(
     (
@@ -92,7 +104,7 @@ export default async function OGImage({
             width: 500,
             height: 500,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.gold}0d 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.gold}0d 0%, ${colors.bg}00 70%)`,
             display: "flex",
           }}
         />
@@ -105,7 +117,7 @@ export default async function OGImage({
             width: 500,
             height: 500,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${colors.greenGlow}14 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.greenGlow}14 0%, ${colors.bg}00 70%)`,
             display: "flex",
           }}
         />
@@ -141,18 +153,21 @@ export default async function OGImage({
             flexDirection: "column",
             flex: 1,
             justifyContent: "center",
+            alignItems: rtl ? "flex-end" : "flex-start",
             gap: 20,
             position: "relative",
           }}
         >
-          {completedKhatmNumber !== null ? (
+          {statusLabel ? (
             <OgText
-              text={completedLabel}
+              text={statusLabel}
+              align={align}
               style={{ fontSize: 28, fontWeight: 600, color: colors.gold, fontFamily: sans }}
             />
           ) : null}
           <OgText
-            text={eventName.length > 60 ? eventName.slice(0, 57) + "..." : eventName}
+            text={truncateAtWord(eventName, 60)}
+            align={align}
             style={{
               fontSize: 64,
               fontWeight: 400,
@@ -165,7 +180,8 @@ export default async function OGImage({
 
           {eventDescription ? (
             <OgText
-              text={eventDescription.length > 120 ? eventDescription.slice(0, 117) + "..." : eventDescription}
+              text={truncateAtWord(eventDescription, 120)}
+              align={align}
               style={{
                 fontSize: 24,
                 color: colors.mutedLight,
@@ -182,7 +198,7 @@ export default async function OGImage({
               width: 80,
               height: 2,
               marginTop: 8,
-              background: `linear-gradient(90deg, ${colors.gold}, ${colors.gold}44)`,
+              background: `linear-gradient(${rtl ? 270 : 90}deg, ${colors.gold}, ${colors.gold}44)`,
               borderRadius: 2,
               display: "flex",
             }}
@@ -193,11 +209,21 @@ export default async function OGImage({
         <div
           style={{
             display: "flex",
+            flexDirection: rtl ? "row-reverse" : "row",
             alignItems: "center",
             justifyContent: "space-between",
             position: "relative",
           }}
         >
+          {/* Row-reverse puts the first child on the right: the CTA leads in RTL, so it sits on the card's edge. */}
+          {/* A complete khatm has nothing left to join. */}
+          {showJoinCta ? (
+            <OgText
+              text={`${t("joinCircle")} ${supportedLocale === "ar" ? "\u2190" : "\u2192"}`}
+              align={align}
+              style={{ fontSize: 18, color: colors.gold, fontFamily: sans, fontWeight: 600 }}
+            />
+          ) : null}
           <div
             style={{
               fontSize: 18,
@@ -209,17 +235,14 @@ export default async function OGImage({
           >
             qurancircle.io
           </div>
-          {/* A complete khatm has nothing left to join. */}
-          {showJoinCta ? (
-            <OgText
-              text={`${t("joinCircle")} ${supportedLocale === "ar" ? "\u2190" : "\u2192"}`}
-              hug={false}
-              style={{ fontSize: 18, color: colors.gold, fontFamily: sans, fontWeight: 600 }}
-            />
-          ) : null}
         </div>
       </div>
     ),
-    fonts ? { ...size, fonts } : size
+    {
+      ...size,
+      ...(fonts.length ? { fonts } : {}),
+      // A link-only circle is not for search engines, and neither is its card.
+      ...(isPublic ? {} : { headers: { "X-Robots-Tag": "noindex" } }),
+    }
   );
 }

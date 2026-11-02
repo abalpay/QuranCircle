@@ -60,7 +60,8 @@ vi.mock("@/lib/actions/events", () => ({
   setOpenNextKhatm: setOpenNextKhatmMock,
 }));
 
-vi.mock("@/lib/share-invite", () => ({
+vi.mock("@/lib/share-invite", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/share-invite")>()),
   copyCircleLink: vi.fn(),
   shareCircleInvite: vi.fn(),
 }));

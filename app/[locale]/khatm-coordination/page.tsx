@@ -22,6 +22,7 @@ import KhatmProductPreview from "@/components/khatm-product-preview";
 import { Button } from "@/components/ui/button";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { LocalePageProps } from "@/i18n/routing";
+import { socialMetadata } from "@/lib/social-metadata";
 import {
   getLanguageAlternates,
   getLocalizedPath,
@@ -42,26 +43,15 @@ export async function generateMetadata({
       canonical,
       languages: getLanguageAlternates("/khatm-coordination"),
     },
-    openGraph: {
+    ...socialMetadata({
+      locale,
       type: "article",
       title: t("title"),
       description: t("openGraphDescription"),
       url: canonical,
-      images: [
-        {
-          url: toAbsoluteUrl("/opengraph-image"),
-          width: 1200,
-          height: 630,
-          alt: t("imageAlt"),
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t("title"),
-      description: t("twitterDescription"),
-      images: [toAbsoluteUrl("/opengraph-image")],
-    },
+      imageAlt: t("imageAlt"),
+      twitterDescription: t("twitterDescription"),
+    }),
   };
 }
 
@@ -106,7 +96,7 @@ export default async function KhatmCoordinationPage({
       datePublished: "2026-07-23",
       dateModified: "2026-07-24",
       mainEntityOfPage: pageUrl,
-      image: toAbsoluteUrl("/opengraph-image"),
+      image: toAbsoluteUrl(`/opengraph-image/${locale}`),
       author: {
         "@type": "Organization",
         name: "QuranCircle",

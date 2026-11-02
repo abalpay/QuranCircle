@@ -1,4 +1,4 @@
-import { act, render, renderHook, screen } from "@testing-library/react";
+import { act, cleanup, render, renderHook, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import KhatmCard from "@/components/khatm-card";
@@ -129,8 +129,23 @@ describe("completion dialog content (#81)", () => {
     const target = new URL(open.mock.calls[0][0] as string);
     expect(target.origin + target.pathname).toBe("https://wa.me/");
     const text = target.searchParams.get("text") ?? "";
-    expect(text).toContain("Khatm 1 for “Khatm for Maryam” is complete");
-    expect(text).toContain(`${window.location.origin}/s/ABCDEFGH`);
+    expect(text).toBe(
+      `Alhamdulillah, the khatm “\u2068Khatm for Maryam\u2069” is complete. May Allah accept it. ${window.location.origin}/s/ABCDEFGH`
+    );
+  });
+
+  it("offers copy link beside WhatsApp, and the share sheet only where the browser has one", () => {
+    renderContent();
+    expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Share…" })).toBeNull();
+    cleanup();
+    Object.defineProperty(navigator, "share", { value: vi.fn(), configurable: true });
+    try {
+      renderContent();
+      expect(screen.getByRole("button", { name: "Share…" })).toBeInTheDocument();
+    } finally {
+      Reflect.deleteProperty(navigator, "share");
+    }
   });
 });
 
@@ -167,7 +182,7 @@ describe("a long register in the dialog", () => {
     expect(screen.queryByRole("button", { name: /more|fewer/i })).toBeNull();
   });
 
-  it("pins only the close button and the share button; the support ask scrolls with the content", () => {
+  it("pins only the close button and the share buttons; the support ask scrolls with the content", () => {
     vi.stubEnv("NEXT_PUBLIC_SUPPORT_URL", "https://ko-fi.com/qurancircle");
     render(
       <CompletionDialog khatm={manyReaders()} circleName="Khatm for Maryam" circleCreatedAt="2020-01-01T00:00:00Z" onClose={vi.fn()} />,
@@ -176,7 +191,7 @@ describe("a long register in the dialog", () => {
     const share = screen.getByRole("button", { name: "Share on WhatsApp" });
     const footer = share.closest(".sticky");
     expect(footer?.className).toMatch(/bottom-0/);
-    expect(footer?.querySelectorAll("a, button")).toHaveLength(1); // only Share
+    expect(footer?.querySelectorAll("a, button")).toHaveLength(2); // WhatsApp and Copy link
     expect(screen.getByTestId("completion-support-link").closest(".sticky")).toBeNull();
     expect(screen.getByRole("button", { name: "Close" }).closest(".sticky")?.className).toMatch(/top-0/);
   });

@@ -39,7 +39,9 @@ import CreatorQueuePanel from "@/components/creator-queue-panel";
 import { CompletionDialog } from "@/components/completion-moment";
 import { useCompletionMoment } from "@/hooks/use-completion-moment";
 import { cn } from "@/lib/utils";
-import { copyCircleLink, shareCircleInvite } from "@/lib/share-invite";
+import { copyCircleLink, shareCircleInvite, shareKindForStatus } from "@/lib/share-invite";
+import { getCircleOgState } from "@/lib/circle-og";
+import { useCircleShare } from "@/hooks/use-circle-share";
 import { trackProductEvent } from "@/lib/analytics";
 import { textScript } from "@/lib/text-script";
 import {
@@ -715,35 +717,26 @@ export default function KhatimPageClient({
     };
   }, [refreshEvent]);
 
-  const getCircleUrl = () =>
-    `${window.location.origin}${window.location.pathname}`;
+  const circleShare = useCircleShare(
+    event.name,
+    shareKindForStatus(getCircleOgState(event, event.name).status)
+  );
+  const getCircleUrl = circleShare.getCircleUrl;
 
-  const handleShareInvitation = async () => {
-    const result = await shareCircleInvite({
-      title: event.name,
-      text: tPage(
-        event.is_public ? "publicShareInvitation" : "linkOnlyShareInvitation",
-        { name: event.name }
-      ),
-      url: getCircleUrl(),
+  const handleShareWhatsApp = () => {
+    window.open(circleShare.build().whatsAppUrl, "_blank", "noopener,noreferrer");
+    trackProductEvent("Circle Invite Shared", {
+      visibility: event.is_public ? "public" : "link_only",
     });
+  };
 
+  const handleShareNative = async () => {
+    const result = await shareCircleInvite(circleShare.build());
     if (result === "shared") {
       trackProductEvent("Circle Invite Shared", {
         visibility: event.is_public ? "public" : "link_only",
       });
-      return;
-    }
-
-    if (result === "copied") {
-      trackProductEvent("Circle Invite Copied", {
-        visibility: event.is_public ? "public" : "link_only",
-      });
-      toast.success(tPage("inviteCopied"));
-      return;
-    }
-
-    if (result === "failed") {
+    } else if (result === "failed") {
       toast.error(tPage("shareFailed"));
     }
   };
@@ -933,17 +926,27 @@ export default function KhatimPageClient({
                   <DropdownMenuContent
                     align="end"
                     sideOffset={8}
+                    collisionPadding={8}
                     className="min-w-52 rounded-xl border-quran-border bg-white/95 p-1.5 shadow-xl backdrop-blur"
                   >
                     <DropdownMenuItem
-                      className="rounded-lg text-quran-deep focus:bg-quran-light-green/50 focus:text-quran-deep [&_svg]:text-quran-green"
-                      onSelect={() => void handleShareInvitation()}
+                      className="min-h-11 rounded-lg text-quran-deep focus:bg-quran-light-green/50 focus:text-quran-deep [&_svg]:text-quran-green"
+                      onSelect={() => handleShareWhatsApp()}
                     >
-                      <Send />
-                      {tPage("shareInvitation")}
+                      <Send className="rtl:-scale-x-100" />
+                      {tPage("shareOnWhatsApp")}
                     </DropdownMenuItem>
+                    {circleShare.nativeShare && (
+                      <DropdownMenuItem
+                        className="min-h-11 rounded-lg text-quran-deep focus:bg-quran-light-green/50 focus:text-quran-deep [&_svg]:text-quran-green"
+                        onSelect={() => void handleShareNative()}
+                      >
+                        <Share2 />
+                        {tPage("shareNative")}
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
-                      className="rounded-lg text-quran-deep focus:bg-quran-light-green/50 focus:text-quran-deep [&_svg]:text-quran-green"
+                      className="min-h-11 rounded-lg text-quran-deep focus:bg-quran-light-green/50 focus:text-quran-deep [&_svg]:text-quran-green"
                       onSelect={() => void handleCopyLink()}
                     >
                       <Copy />

@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ShieldCheck } from "lucide-react";
 import AppPageHero from "@/components/app-page-hero";
 import type { LocalePageProps } from "@/i18n/routing";
+import { socialMetadata } from "@/lib/social-metadata";
 import {
   getLanguageAlternates,
   getLocalizedPath,
@@ -21,15 +22,12 @@ export async function generateMetadata({
       canonical,
       languages: getLanguageAlternates("/privacy"),
     },
-    openGraph: {
+    ...socialMetadata({
+      locale,
       title: `${t("title")} - QuranCircle`,
       description: t("metadataDescription"),
       url: canonical,
-    },
-    twitter: {
-      title: `${t("title")} - QuranCircle`,
-      description: t("metadataDescription"),
-    },
+    }),
   };
 }
 

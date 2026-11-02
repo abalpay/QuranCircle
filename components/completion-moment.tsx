@@ -3,7 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { CheckCircle2, ExternalLink, Send, X } from "lucide-react";
+import { CheckCircle2, Copy, ExternalLink, Send, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -12,7 +12,9 @@ import {
   isCircleOldEnoughForSupportAsk,
 } from "@/lib/completion";
 import { getSupportUrl } from "@/lib/support";
-import { buildWhatsAppShareUrl } from "@/lib/whatsapp";
+import { copyCircleLink, shareCircleInvite } from "@/lib/share-invite";
+import { useCircleShare } from "@/hooks/use-circle-share";
+import { toast } from "sonner";
 import { textScript } from "@/lib/text-script";
 import type { KhatmSnapshot } from "@/lib/types/events";
 
@@ -67,13 +69,15 @@ export function CompletionContent({
   const isAuto = khatm.completion_source === "auto";
   const title = t("title", { number: khatm.khatm_number });
 
-  const shareOnWhatsApp = () => {
-    const url = `${window.location.origin}${window.location.pathname}`;
-    window.open(
-      buildWhatsAppShareUrl(t("shareText", { number: khatm.khatm_number, name: circleName }), url),
-      "_blank",
-      "noopener,noreferrer"
-    );
+  const circleShare = useCircleShare(circleName, "completed");
+  const shareOnWhatsApp = () =>
+    window.open(circleShare.build().whatsAppUrl, "_blank", "noopener,noreferrer");
+  const shareNative = async () => {
+    if ((await shareCircleInvite(circleShare.build())) === "failed") toast.error(t("shareFailed"));
+  };
+  const copyLink = async () => {
+    if ((await copyCircleLink(circleShare.getCircleUrl())) === "copied") toast.success(t("linkCopied"));
+    else toast.error(t("linkCopyFailed"));
   };
 
   const isDialog = variant === "dialog";
@@ -198,14 +202,34 @@ export function CompletionContent({
             "sticky bottom-0 -mx-5 border-t border-quran-border/60 bg-quran-card/95 px-5 py-2 backdrop-blur-sm sm:-mx-6 sm:px-6"
         )}
       >
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
           <Button
             type="button"
             onClick={shareOnWhatsApp}
-            className="w-full rounded-full bg-quran-green px-6 text-white hover:bg-quran-green/90 rtl:text-base sm:w-auto"
+            className="min-h-11 w-full rounded-full bg-quran-green px-6 text-white hover:bg-quran-green/90 rtl:text-base sm:w-auto"
           >
             <Send aria-hidden="true" className="rtl:-scale-x-100" />
             {t("shareWhatsApp")}
+          </Button>
+          {circleShare.nativeShare && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void shareNative()}
+              className="min-h-11 w-full rounded-full px-6 rtl:text-base sm:w-auto"
+            >
+              <Share2 aria-hidden="true" />
+              {t("shareNative")}
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void copyLink()}
+            className="min-h-11 w-full rounded-full px-6 rtl:text-base sm:w-auto"
+          >
+            <Copy aria-hidden="true" />
+            {t("copyLink")}
           </Button>
         </div>
       </div>
