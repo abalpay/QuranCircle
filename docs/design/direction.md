@@ -82,7 +82,7 @@ hidden when untrue (a completed khatm must not say "Open for claims").
     public-circle band, the About and guide CTAs, and all share cards (circle cards on green,
     site cards on cream; `lib/og-frame.ts`). The seal sits on the footer and on each share
     card's top edge. The homepage hero stays plain (bismillah, kicker, headline, preview card).
-    Card surfaces are flat fills with their existing borders, no gradient washes.
+    Card surfaces carry no radial washes or glows (subtle linear fills on app cards stay).
   - **Never:** a frame around app UI or screenshots (the hero preview card, the juz grid); tiled
     patterns; line illustrations (mosques, books, documents); rosettes; glows and gradient
     washes; sparkle or star glyphs; animated shimmer. Pages the frame does not reach stay
