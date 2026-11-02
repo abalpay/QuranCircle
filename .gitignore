@@ -87,3 +87,6 @@ tmp-*
 
 # Test reports
 reports/
+
+# Written by `next dev` (Next.js agent rules); regenerated on every dev run
+/AGENTS.md
