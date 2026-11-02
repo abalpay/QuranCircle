@@ -23,8 +23,8 @@ else
   read_dump() { cat "$dump"; }
 fi
 
-trap 'docker rm -f "$name" >/dev/null 2>&1 || true' EXIT
-docker run -d --name "$name" --network none -e POSTGRES_PASSWORD=drill "$image" >/dev/null
+trap 'docker rm -f -v "$name" >/dev/null 2>&1 || true' EXIT
+docker run -d --rm --name "$name" --network none -e POSTGRES_PASSWORD=drill "$image" >/dev/null
 psql() { docker exec -i "$name" psql -h /var/run/postgresql -U supabase_admin -d postgres -X -At -v ON_ERROR_STOP=1 "$@"; }
 
 # The entrypoint runs a temporary init server first; wait for the final one.
@@ -34,11 +34,11 @@ for _ in $(seq 1 120); do
 done
 psql -c 'select 1' >/dev/null || { echo "throwaway database did not start" >&2; exit 1; }
 
-# Supabase roles and extensions already exist in the image. Some errors (e.g. objects owned by
-# extensions the image preinstalls) are expected, so they are counted and shown rather than fatal;
-# the row counts below are the real check.
-errs=$(read_dump | docker exec -i "$name" pg_restore -h /var/run/postgresql -U supabase_admin -d postgres --clean --if-exists 2>&1 >/dev/null | tee /dev/stderr | grep -c 'error:' || true)
-echo "pg_restore reported $errs error line(s)"
+# Supabase roles and extensions already exist in the image; --clean replaces its empty public/auth.
+# Any error aborts and rolls back. This proves the dump is readable and complete, NOT that a
+# restore into a real Supabase project works (see docs/ops/outage-runbook.md).
+read_dump | docker exec -i "$name" pg_restore -h /var/run/postgresql -U supabase_admin -d postgres --clean --if-exists --single-transaction --exit-on-error
+echo "pg_restore finished without errors"
 
 fail=0
 check() { # label, table, expected
@@ -53,4 +53,5 @@ check events public.events "${EXPECT_EVENTS:-}"
 check khatms public.khatms "${EXPECT_KHATMS:-}"
 check juzs public.juzs "${EXPECT_JUZS:-}"
 check users auth.users "${EXPECT_USERS:-}"
+[[ "$(psql -c "select count(*) from auth.users")" -gt 0 ]] || { echo "auth.users is EMPTY: organizer links would break" >&2; fail=1; }
 exit $fail
