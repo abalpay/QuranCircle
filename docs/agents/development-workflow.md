@@ -5,7 +5,12 @@ How work moves from a decision to production.
 **Branches:** `staging` is where all work lands; `main` is production and only
 ever fast-forwards to a green `staging` commit. No pull requests for own work.
 Vercel deploys `main`. `main` stays the default branch, so `Closes #n` takes
-effect (and issues close) when a commit is promoted. Product rules live in
+effect (and issues close) when a commit is promoted.
+
+**No deployed staging environment** (Ahmet, 2026-11-02): `staging` is verified
+locally and by CI only. Vercel previews stay skipped
+(`scripts/vercel-ignore-build.mjs`) because Preview points at the production
+Supabase project. Revisit by adding a separate staging Supabase project. Product rules live in
 [docs/product/decisions.md](../product/decisions.md); the work queue is
 [docs/product/waves.md](../product/waves.md) plus GitHub issues
 ([issue-tracker.md](issue-tracker.md)).
