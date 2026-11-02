@@ -44,6 +44,8 @@ const FORMS: Record<number, [number, number, number, number]> = {
   0x0648: [0, 0xFEEE, 0, 0],
   0x0649: [0, 0xFEF0, 0xFBE8, 0xFBE9],
   0x064A: [0, 0xFEF2, 0xFEF3, 0xFEF4],
+  0x0640: [0x0640, 0x0640, 0x0640, 0x0640], // tatweel joins both sides and stays itself
+  0x200D: [0x200D, 0x200D, 0x200D, 0x200D], // ZWJ joins both sides; dropped after shaping
   0x067E: [0, 0xFB57, 0xFB58, 0xFB59],
   0x06A4: [0, 0xFB6B, 0xFB6C, 0xFB6D],
 };
@@ -60,6 +62,7 @@ const LAM = 0x0644;
 
 function isMark(code: number) {
   return (
+    (code >= 0x0610 && code <= 0x061a) ||
     (code >= 0x064b && code <= 0x065f) ||
     code === 0x0670 ||
     (code >= 0x06d6 && code <= 0x06ed)
@@ -107,28 +110,39 @@ export function shapeArabic(text: string): string {
     output += String.fromCodePoint(form || forms[0] || code);
     prevJoins = nextJoins;
   }
-  return output;
+  return output.replace(/\u200D/g, "");
 }
 
 const MIRRORED: Record<string, string> = { "(": ")", ")": "(", "[": "]", "]": "[", "«": "»", "»": "«", "<": ">", ">": "<" };
-const isLtrChar = (char: string) => /[\p{Script=Latin}\p{N}]/u.test(char);
+const DIGIT = /\p{N}/u;
+const isLtrLetterOrDigit = (char: string) => /[\p{Script=Latin}\p{N}]/u.test(char);
 const isMarkChar = (char: string) => isMark(char.codePointAt(0) as number);
+// Letters Tajawal has no presentation form for stay in U+0600..06FF (minus the digits U+0660..0669)
+// and satori's own bidi (opentype.js) reverses every run of those, marks included.
+const BASE_ARABIC_RUN = /[\u0600-\u065F\u066A-\u06FF]+/gu;
 
 /**
- * Satori draws presentation forms strictly left to right (it only reorders the base letters), so a
- * shaped word has to be handed over in visual order: Latin/digit runs stay as they are, everything
- * else is reversed (combining marks stay behind their base letter, brackets are mirrored).
+ * Satori draws presentation forms strictly left to right, so a shaped word has to be handed over in
+ * visual order: Latin/digit runs stay as they are (a separator between digits, as in 1,000 or 1.5,
+ * stays inside the number), everything else is reversed (marks stay with their base letter, brackets
+ * are mirrored). Base-letter runs are reversed once more because opentype.js reverses them again.
  */
 export function toVisualOrder(shaped: string): string {
+  const all = Array.from(shaped);
+  const isLtr = (index: number) => {
+    const char = all[index];
+    if (isLtrLetterOrDigit(char)) return true;
+    return /[.,٫٬]/.test(char) && index > 0 && index < all.length - 1 && DIGIT.test(all[index - 1]) && DIGIT.test(all[index + 1]);
+  };
   const runs: { ltr: boolean; chars: string[] }[] = [];
-  for (const char of Array.from(shaped)) {
-    const ltr = isLtrChar(char);
+  all.forEach((char, index) => {
+    const ltr = isLtr(index);
     const last = runs[runs.length - 1];
     // A mark belongs to the letter before it, whatever that run is.
     if (last && (last.ltr === ltr || isMarkChar(char))) last.chars.push(char);
     else runs.push({ ltr, chars: [char] });
-  }
-  return runs
+  });
+  const visual = runs
     .reverse()
     .map((run) => {
       if (run.ltr) return run.chars.join("");
@@ -143,9 +157,10 @@ export function toVisualOrder(shaped: string): string {
         .join("");
     })
     .join("");
+  return visual.replace(BASE_ARABIC_RUN, (run) => Array.from(run).reverse().join(""));
 }
 
 /** Shaped and ordered for satori; text without Arabic letters is returned unchanged. */
 export function shapeForOg(text: string): string {
-  return /[؀-ۿ]/.test(text) ? toVisualOrder(shapeArabic(text)) : text;
+  return /[\u0600-\u06FF]/.test(text) ? toVisualOrder(shapeArabic(text)) : text;
 }

@@ -1,4 +1,5 @@
 import type { KhatmSnapshot } from "@/lib/types/events";
+import { isolateName } from "@/lib/share-invite";
 
 type OgSnapshot = {
   name?: string;
@@ -32,7 +33,7 @@ export function getCircleOgState(
     description: data?.description || "",
     completedKhatmNumber,
     status,
-    isPublic: data?.is_public !== false,
+    isPublic: data?.is_public === true,
     // Only an open circle has a Juz left to take.
     showJoinCta: status === "open",
   };
@@ -50,9 +51,9 @@ export function truncateAtWord(text: string, max: number): string {
 }
 
 /** Short stable hash (FNV-1a, base 36) used to bust preview caches when anything the card shows changes. */
-export function ogVersion(...parts: (string | number | null | undefined)[]): string {
+export function ogVersion(...parts: (string | number | boolean | null | undefined)[]): string {
   let hash = 0x811c9dc5;
-  for (const char of parts.map((part) => part ?? "").join("␟")) {
+  for (const char of parts.map((part) => String(part ?? "")).join("␟")) {
     hash ^= char.charCodeAt(0);
     hash = Math.imul(hash, 0x01000193) >>> 0;
   }
@@ -70,7 +71,7 @@ export function getOgDescription(
   ownDescription: string | null | undefined,
   t: DescriptionTranslator
 ): string {
-  const values = { eventName: `\u2068${state.name}\u2069`, number: state.completedKhatmNumber ?? undefined };
+  const values = { eventName: isolateName(state.name), number: state.completedKhatmNumber ?? undefined };
   if (state.status === "archived") return t("descriptionArchived", values);
   if (state.status === "completed") return t("descriptionCompleted", values);
   if (state.status === "full") return t("descriptionFull", values);

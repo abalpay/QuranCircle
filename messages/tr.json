@@ -450,7 +450,7 @@
       "title": "Bağlantıyı paylaştığınızda grubunuzun gördüğü",
       "description": "QuranCircle'ın temel iş akışı budur: katılımcıların hesap veya ayrı bir dağılım tablosu olmadan işlem yapabildiği, 30 cüzün tamamını gösteren tek bir canlı görünüm.",
       "previewLabel": "Ürün önizlemesi",
-      "circleName": "Sevdiğiniz biri için bir hatim",
+      "circleName": "Aile Ramazan Hatmi",
       "linkOnly": "Bağlantıya özel halka",
       "progress": "30 cüzden {count} tanesi sahiplenildi",
       "available": "Müsait",
@@ -465,15 +465,7 @@
       "claimJuz": "Müsait bir cüz seçip adınızla sahiplenin.",
       "markRead": "Aynı bağlantıya dönüp cüzü okundu olarak işaretleyin.",
       "organizerTitle": "Düzenleyici gelişmeleri görür",
-      "organizerText": "Müsait, sahiplenilmiş ve okunmuş durumlar ortak halkada güncellenir; böylece ayrıca elektronik tablo tutmaya gerek kalmaz.",
-      "names": {
-        "0": "Amine",
-        "1": "Yusuf",
-        "2": "Meryem",
-        "3": "Ömer",
-        "4": "Zeynep",
-        "5": "Ali"
-      }
+      "organizerText": "Müsait, sahiplenilmiş ve okunmuş durumlar ortak halkada güncellenir; böylece ayrıca elektronik tablo tutmaya gerek kalmaz."
     },
     "templates": {
       "eyebrow": "WhatsApp ve grup sohbeti şablonları",
@@ -571,7 +563,7 @@
     "previewAriaLabel": "QuranCircle hatim takipçisinin etkileşimli önizlemesi",
     "interactivePreview": "Etkileşimli önizleme",
     "khatmNumber": "Hatim #{number}",
-    "circleName": "Sevdiğiniz biri için bir hatim",
+    "circleName": "Aile ve Arkadaşlar Halkası",
     "progressTracker": "İlerleme takibi",
     "claimedProgress": "{total} cüzden {claimed} tanesi sahiplenildi",
     "overallProgress": "Genel ilerleme",
@@ -584,18 +576,7 @@
     "demoClaimLabel": "Önizlemeyi deneyin: {number}. cüzü sahiplenin",
     "openForClaims": "Sahiplenmeye açık",
     "shareCircleLink": "Halka bağlantısını paylaş",
-    "resetDemo": "Önizlemeyi sıfırla",
-    "names": {
-      "0": "Halime",
-      "1": "Amine",
-      "2": "Yusuf",
-      "3": "Meryem",
-      "4": "Ömer",
-      "5": "Zeynep",
-      "6": "Ali",
-      "7": "İbrahim",
-      "8": "Safiye"
-    }
+    "resetDemo": "Önizlemeyi sıfırla"
   },
   "HowItWorks": {
     "eyebrow": "Üç kolay adım",
@@ -1137,5 +1118,10 @@
     "open": "Esselamu aleyküm. Bir hatim okunuyor: “{name}”. Lütfen buradan bir cüz alın: {link}",
     "completed": "Elhamdülillah, “{name}” hatmi tamamlandı. Allah kabul etsin. {link}",
     "closed": "Esselamu aleyküm. “{name}” hatmi buradan takip edilebilir: {link}"
+  },
+  "SiteOpenGraphImage": {
+    "line1": "Sevdiğiniz biri için",
+    "line2": "bir hatim.",
+    "subtitle": "Tek bir bağlantı paylaşın; aile ve dostlarınız birer cüz alsın."
   }
 }

@@ -16,9 +16,11 @@ describe("shareCircleInvite", () => {
   const input = {
     title: "Quran Study Group",
     text: "Assalamu alaikum. A khatm is being read: “Quran Study Group”. Please take a Juz here: https://www.qurancircle.io/s/STUDY123",
+    url: "https://www.qurancircle.io/s/STUDY123",
+    nativeText: "Assalamu alaikum. A khatm is being read: “Quran Study Group”. Please take a Juz here:",
   };
 
-  it("shares title and the whole message (link inside the text, no duplicate url field)", async () => {
+  it("shares the message without the link plus the link as its own field (no duplicate)", async () => {
     const share = vi.fn().mockResolvedValue(undefined);
     const writeText = vi.fn().mockResolvedValue(undefined);
 
@@ -30,7 +32,8 @@ describe("shareCircleInvite", () => {
     });
 
     expect(result).toBe("shared");
-    expect(share).toHaveBeenCalledWith(input);
+    expect(share).toHaveBeenCalledWith({ title: input.title, text: input.nativeText, url: input.url });
+    expect(input.nativeText).not.toContain(input.url);
     expect(writeText).not.toHaveBeenCalled();
   });
 
@@ -125,6 +128,18 @@ describe("buildCircleShare (one builder for the circle menu and the completion m
     const share = buildCircleShare(builderFor(en.ShareText), { kind: "open", name: "ختمة عن روح", url: link });
     expect(share.text).toContain(`“${FSI}ختمة عن روح${PDI}”`);
     expect(share.title).toBe("ختمة عن روح");
+    expect(share.url).toBe(link);
+  });
+
+  it("strips bidi controls from the name before isolating it", () => {
+    expect(isolateName("A\u202EB\u2066C\u2069")).toBe(`${FSI}ABC${PDI}`);
+  });
+
+  it("gives the native sheet the message without the link, and the link as its own field", () => {
+    const share = buildCircleShare(builderFor(en.ShareText), { kind: "open", name: "Aisha", url: link });
+    expect(share.nativeText).toBe(`Assalamu alaikum. A khatm is being read: “${FSI}Aisha${PDI}”. Please take a Juz here:`);
+    expect(share.url).toBe(link);
+    expect(share.text).toBe(`${share.nativeText} ${link}`);
   });
 
   it("puts the same message in the WhatsApp link", () => {

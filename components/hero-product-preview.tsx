@@ -18,9 +18,19 @@ const COMPLETED_JUZ = new Set([3, 7, 8, 14, 16, 21]);
 const CLAIMED_JUZ = new Set([1, 2, 4, 5, 9, 10, 12, 15, 18, 20, 24, 27]);
 const DEMO_JUZ = 19;
 
-// Juz number -> index into the localized HeroPreview.names list.
-const CLAIMED_NAME_INDEX: Record<number, 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8> = {
-  1: 0, 2: 0, 4: 1, 5: 2, 9: 3, 10: 4, 12: 5, 15: 0, 18: 6, 20: 0, 24: 7, 27: 8,
+const CLAIMED_NAMES: Record<number, string> = {
+  1: "Haleemah",
+  2: "Haleemah",
+  4: "Amina",
+  5: "Yusuf",
+  9: "Mariam",
+  10: "Omar",
+  12: "Zaynab",
+  15: "Haleemah",
+  18: "Ali",
+  20: "Haleemah",
+  24: "Ibrahim",
+  27: "Safiya",
 };
 
 function getStatus(juzNumber: number, isDemoClaimed: boolean): PreviewStatus {
@@ -47,7 +57,7 @@ function TileContent({
   const claimedName =
     juzNumber === DEMO_JUZ && isDemoClaimed
       ? t("you")
-      : t(`names.${CLAIMED_NAME_INDEX[juzNumber]}`);
+      : CLAIMED_NAMES[juzNumber];
 
   return (
     <>

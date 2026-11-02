@@ -79,7 +79,7 @@ describe("share preview state (Open Graph)", () => {
       description: "",
       completedKhatmNumber: null,
       status: "open",
-      isPublic: true,
+      isPublic: false,
       showJoinCta: true,
     });
   });

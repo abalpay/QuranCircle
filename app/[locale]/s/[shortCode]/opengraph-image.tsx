@@ -5,7 +5,7 @@ import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import BrandMark from "@/components/brand-mark";
 import { getCircleOgState, truncateAtWord, type CircleOgStatus } from "@/lib/circle-og";
-import { loadOgFonts } from "@/lib/og-fonts";
+import { loadOgFonts, ogFontFamily } from "@/lib/og-fonts";
 import { OgText } from "@/lib/og-text";
 
 export const runtime = "nodejs";
@@ -42,7 +42,8 @@ export default async function OGImage({
   let completedKhatmNumber: number | null = null;
   let showJoinCta = true;
   let status: CircleOgStatus = "open";
-  let isPublic = true;
+  // Private until the snapshot says otherwise: a failed lookup must not leave a link-only card indexable.
+  let isPublic = false;
 
   try {
     const supabase = createAnonClient();
@@ -74,7 +75,7 @@ export default async function OGImage({
           : "";
   // Both fonts always load: Manrope for Latin, Tajawal for Arabic, so every card uses the same faces (#104).
   const fonts = await loadOgFonts();
-  const sans = "Manrope, Tajawal, sans-serif";
+  const sans = ogFontFamily(fonts);
 
   return new ImageResponse(
     (
@@ -229,7 +230,7 @@ export default async function OGImage({
     ),
     {
       ...size,
-      fonts,
+      ...(fonts.length ? { fonts } : {}),
       // A link-only circle is not for search engines, and neither is its card.
       ...(isPublic ? {} : { headers: { "X-Robots-Tag": "noindex" } }),
     }

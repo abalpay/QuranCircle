@@ -13,7 +13,12 @@ describe("share image text (#103)", () => {
     const row = container.firstElementChild as HTMLElement;
     expect(row.style.flexDirection).toBe("row-reverse");
     expect(row.style.flexWrap).toBe("wrap");
-    expect(Array.from(row.children).map((child) => child.textContent)).toEqual(["ختمة", "عن", "روح"].map(shapeForOg));
+    expect(Array.from(row.children).map((child) => child.textContent)).toEqual(["\uFE94\uFEE4\uFE98\uFEA7", "\uFEE6\uFECB", "\u0631\u0648\u062D"]);
+  });
+
+  it("keeps a hyphenated name in one piece", () => {
+    const { container } = render(<OgText text="Hajji Yusuf Al-Rahman" style={{ fontSize: 64 }} />);
+    expect(container.textContent).toBe("Hajji Yusuf Al\u2011Rahman");
   });
 
   it("never passes an undefined style value to satori (it throws on them)", () => {

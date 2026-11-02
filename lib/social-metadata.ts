@@ -30,7 +30,8 @@ export function socialMetadata({
   twitterTitle,
   twitterDescription,
 }: SocialMetadataInput): Pick<Metadata, "openGraph" | "twitter"> {
-  const image = toAbsoluteUrl(BRAND_SOCIAL_IMAGE_PATH);
+  // One card per locale: /opengraph-image/{locale} (proxy.ts leaves *opengraph-image paths alone).
+  const image = toAbsoluteUrl(`${BRAND_SOCIAL_IMAGE_PATH}/${locale}`);
   return {
     openGraph: {
       type,

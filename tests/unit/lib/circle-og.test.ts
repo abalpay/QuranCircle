@@ -23,7 +23,9 @@ describe("circle share state", () => {
   it("flags link-only circles so their card is not indexed", () => {
     expect(getCircleOgState({ name: "A", is_public: false }, "x").isPublic).toBe(false);
     expect(getCircleOgState({ name: "A", is_public: true }, "x").isPublic).toBe(true);
-    expect(getCircleOgState({ name: "A" }, "x").isPublic).toBe(true);
+    // Unknown means private.
+    expect(getCircleOgState({ name: "A" }, "x").isPublic).toBe(false);
+    expect(getCircleOgState(null, "x").isPublic).toBe(false);
   });
 });
 
@@ -82,15 +84,16 @@ describe("truncateAtWord", () => {
 
 describe("ogVersion", () => {
   it("is stable for the same state and changes when anything the card shows changes", () => {
-    const base = ogVersion("Aisha", null, "open", null, 1, "2026-10-01");
-    expect(ogVersion("Aisha", null, "open", null, 1, "2026-10-01")).toBe(base);
+    const base = ogVersion("Aisha", null, "open", true, null, 1, "2026-10-01");
+    expect(ogVersion("Aisha", null, "open", true, null, 1, "2026-10-01")).toBe(base);
     expect(base).toMatch(/^[0-9a-z]+$/);
     for (const changed of [
-      ogVersion("Aisha", null, "completed", 1, 1, "2026-10-01"),
-      ogVersion("Aisha", null, "full", null, 1, "2026-10-01"),
-      ogVersion("Aisha", null, "archived", null, 1, "2026-10-01"),
-      ogVersion("Aisha K", null, "open", null, 1, "2026-10-01"),
-      ogVersion("Aisha", "dua", "open", null, 1, "2026-10-01"),
+      ogVersion("Aisha", null, "open", false, null, 1, "2026-10-01"),
+      ogVersion("Aisha", null, "completed", true, 1, 1, "2026-10-01"),
+      ogVersion("Aisha", null, "full", true, null, 1, "2026-10-01"),
+      ogVersion("Aisha", null, "archived", true, null, 1, "2026-10-01"),
+      ogVersion("Aisha K", null, "open", true, null, 1, "2026-10-01"),
+      ogVersion("Aisha", "dua", "open", true, null, 1, "2026-10-01"),
     ]) {
       expect(changed).not.toBe(base);
     }

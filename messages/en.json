@@ -450,7 +450,7 @@
       "title": "What your group sees after you share the link",
       "description": "This is the core QuranCircle workflow: one live view of all 30 Juz, designed for participants to act without an account or a separate assignment sheet.",
       "previewLabel": "Product preview",
-      "circleName": "A khatm for someone you love",
+      "circleName": "Family Ramadan Khatm",
       "linkOnly": "Link-only circle",
       "progress": "{count} of 30 claimed",
       "available": "Available",
@@ -465,15 +465,7 @@
       "claimJuz": "Choose an available Juz and claim it by name.",
       "markRead": "Return to the same link and mark the Juz read.",
       "organizerTitle": "The organizer stays informed",
-      "organizerText": "Available, claimed, and read states update in the shared circle, so there is no parallel spreadsheet to maintain.",
-      "names": {
-        "0": "Amina",
-        "1": "Yusuf",
-        "2": "Meryem",
-        "3": "Omar",
-        "4": "Zaynab",
-        "5": "Ali"
-      }
+      "organizerText": "Available, claimed, and read states update in the shared circle, so there is no parallel spreadsheet to maintain."
     },
     "templates": {
       "eyebrow": "WhatsApp and group chat templates",
@@ -571,7 +563,7 @@
     "previewAriaLabel": "Interactive preview of a QuranCircle Khatm tracker",
     "interactivePreview": "Interactive preview",
     "khatmNumber": "Khatm #{number}",
-    "circleName": "A khatm for someone you love",
+    "circleName": "Family & Friends Circle",
     "progressTracker": "Progress tracker",
     "claimedProgress": "{claimed} of {total} Juz claimed",
     "overallProgress": "Overall progress",
@@ -584,18 +576,7 @@
     "demoClaimLabel": "Try the preview: claim Juz {number}",
     "openForClaims": "Open for claims",
     "shareCircleLink": "Share circle link",
-    "resetDemo": "Reset demo",
-    "names": {
-      "0": "Haleemah",
-      "1": "Amina",
-      "2": "Yusuf",
-      "3": "Mariam",
-      "4": "Omar",
-      "5": "Zaynab",
-      "6": "Ali",
-      "7": "Ibrahim",
-      "8": "Safiya"
-    }
+    "resetDemo": "Reset demo"
   },
   "HowItWorks": {
     "eyebrow": "A clear path",
@@ -1137,5 +1118,10 @@
     "open": "Assalamu alaikum. A khatm is being read: “{name}”. Please take a Juz here: {link}",
     "completed": "Alhamdulillah, the khatm “{name}” is complete. May Allah accept it. {link}",
     "closed": "Assalamu alaikum. The khatm “{name}” can be followed here: {link}"
+  },
+  "SiteOpenGraphImage": {
+    "line1": "A khatm for",
+    "line2": "someone you love.",
+    "subtitle": "Share one link, and let family and friends each take a Juz."
   }
 }

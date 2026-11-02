@@ -4,8 +4,14 @@ import CreateCircleAction from "@/components/create-circle-action";
 
 type PreviewStatus = "available" | "claimed" | "read";
 
-// Juz number -> index into the localized KhatmGuide.productPreview.names list.
-const CLAIMED_NAME_INDEX: Record<number, 0 | 1 | 2 | 3 | 4 | 5> = { 13: 0, 14: 1, 15: 2, 16: 3, 17: 4, 18: 5 };
+const CLAIMED_NAMES: Record<number, string> = {
+  13: "Amina",
+  14: "Yusuf",
+  15: "Meryem",
+  16: "Omar",
+  17: "Zaynab",
+  18: "Ali",
+};
 
 function getPreviewStatus(juzNumber: number): PreviewStatus {
   if (juzNumber <= 12) return "read";
@@ -102,7 +108,7 @@ export default async function KhatmProductPreview() {
             {Array.from({ length: 30 }, (_, index) => {
               const juzNumber = index + 1;
               const status = getPreviewStatus(juzNumber);
-              const claimedName = t(`productPreview.names.${CLAIMED_NAME_INDEX[juzNumber]}`);
+              const claimedName = CLAIMED_NAMES[juzNumber];
               const stateClass =
                 status === "read"
                   ? "border-t-emerald-500 bg-linear-to-b from-emerald-50/90 to-emerald-50/30 text-emerald-700"

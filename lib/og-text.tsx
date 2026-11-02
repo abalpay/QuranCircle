@@ -3,6 +3,9 @@ import { layoutBidiWords } from "@/lib/og-bidi";
 import { containsArabicScript } from "@/lib/text-script";
 import { shapeForOg } from "@/lib/arabic-shaping";
 
+/** Satori breaks lines after a hyphen; a non-breaking hyphen (in Manrope and Tajawal) keeps "Al-Hashimi" in one piece. */
+export const keepHyphenated = (text: string) => text.replace(/(?<=\p{L})-(?=\p{L})/gu, "\u2011");
+
 /**
  * Satori has no bidi: it places a text node's words left to right in reading order. Text with
  * Arabic script is therefore laid out word by word, ordered by `layoutBidiWords`, in a wrapping
@@ -20,7 +23,7 @@ export function OgText({
   hug?: boolean;
 }) {
   if (!containsArabicScript(text)) {
-    return <div style={{ ...style, display: "flex" }}>{text}</div>;
+    return <div style={{ ...style, display: "flex" }}>{keepHyphenated(text)}</div>;
   }
   const { paragraph, words } = layoutBidiWords(text);
   const rtl = paragraph === "rtl";
@@ -42,7 +45,7 @@ export function OgText({
     >
       {words.map((word, index) => (
         <div key={index} style={{ display: "flex" }}>
-          {shapeForOg(word)}
+          {shapeForOg(keepHyphenated(word))}
         </div>
       ))}
     </div>

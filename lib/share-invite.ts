@@ -1,7 +1,10 @@
 export type CircleShareInput = {
   title: string;
-  /** The whole message, circle link included (one text for WhatsApp, the share sheet and the clipboard). */
+  /** The whole message, circle link included (WhatsApp and the clipboard). */
   text: string;
+  url: string;
+  /** The message without the link, for the native sheet, which gets the link as its own field (no duplicate). */
+  nativeText: string;
 };
 
 export type CircleShareKind = "open" | "completed" | "closed";
@@ -15,8 +18,11 @@ export function shareKindForStatus(status: "open" | "full" | "completed" | "arch
 const FSI = "\u2068";
 const PDI = "\u2069";
 
+const BIDI_CONTROLS = /[\u202A-\u202E\u2066-\u2069]/g;
+
+/** User text can carry its own bidi controls; strip them so they cannot unbalance ours. */
 export function isolateName(name: string) {
-  return `${FSI}${name.trim()}${PDI}`;
+  return `${FSI}${name.replace(BIDI_CONTROLS, "").trim()}${PDI}`;
 }
 
 type ShareTextTranslator = (key: CircleShareKind, values: { name: string; link: string }) => string;
@@ -29,8 +35,10 @@ export function buildCircleShare(
   t: ShareTextTranslator,
   { kind, name, url }: { kind: CircleShareKind; name: string; url: string }
 ): CircleShareInput & { whatsAppUrl: string } {
-  const text = t(kind, { name: isolateName(name), link: url });
-  return { title: name, text, whatsAppUrl: buildWhatsAppShareUrl(text) };
+  const isolated = isolateName(name);
+  const text = t(kind, { name: isolated, link: url });
+  const nativeText = t(kind, { name: isolated, link: "" }).trim();
+  return { title: name, text, url, nativeText, whatsAppUrl: buildWhatsAppShareUrl(text) };
 }
 
 /** wa.me link with the finished message prefilled. */
@@ -43,7 +51,7 @@ export function canNativeShare(navigatorRef: { share?: unknown } | null = typeof
 }
 
 type ShareNavigator = {
-  share?: (payload: { title: string; text: string }) => Promise<void>;
+  share?: (payload: { title: string; text: string; url: string }) => Promise<void>;
   clipboard?: {
     writeText: (text: string) => Promise<void>;
   };
@@ -87,7 +95,8 @@ export async function shareCircleInvite(
     try {
       await navigatorRef.share({
         title: input.title,
-        text: input.text,
+        text: input.nativeText,
+        url: input.url,
       });
       return "shared";
     } catch (error) {

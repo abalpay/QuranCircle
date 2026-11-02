@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     event.name,
     event.description,
     state.status,
+    state.isPublic,
     state.completedKhatmNumber,
     latestKhatm?.khatm_number,
     event.created_at

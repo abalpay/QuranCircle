@@ -22,13 +22,13 @@ describe("socialMetadata (#104)", () => {
       title: "Browse",
       description: "Public circles",
       url: base.url,
-      images: [{ url: "https://www.qurancircle.io/opengraph-image", width: 1200, height: 630, alt: "QuranCircle" }],
+      images: [{ url: `https://www.qurancircle.io/opengraph-image/${locale}`, width: 1200, height: 630, alt: "QuranCircle" }],
     });
     expect(twitter).toMatchObject({
       card: "summary_large_image",
       title: "Browse",
       description: "Public circles",
-      images: [{ url: "https://www.qurancircle.io/opengraph-image" }],
+      images: [{ url: `https://www.qurancircle.io/opengraph-image/${locale}` }],
     });
   });
 
