@@ -3,7 +3,7 @@
 Work ships in waves. Each wave has one goal, follows [decisions.md](decisions.md),
 and is finished (tests, all three locales, deployed) before the next starts.
 
-## Wave 1: Finish the khatm
+## Wave 1: Finish the khatm (done, 4 Nov 2026)
 
 **Goal:** khatms actually complete, and completion feels like the moment it should be.
 **Baseline (31 Oct 2026):** 0 public khatms ever completed; 23% of claimed Juz marked read.
@@ -102,6 +102,9 @@ reopening completed khatms, cross-device identity, reminders.
 - Unit tests updated; `npm run test:unit` and `npm run lint` pass.
 - en, tr and ar keys in sync.
 - Deployed, and the first cron run checked against production data.
+
+**Shipped:** promoted to production on 2 Nov 2026. The first 7-day job run completed
+13 khatms. CAPTCHA (Turnstile) was switched on on 4 Nov 2026 and checked on a phone.
 
 ## Wave 2: Grow — the khatm for someone (planned)
 
